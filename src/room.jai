@@ -51,18 +51,6 @@ set_tile_value :: (r: *Room, value: Room_Tile, x: int, y: int) {
 }
 
 parse_tiles :: (r: *Room) {
-    // Wall_Segment :: struct {start: int; end: int; y: int; initialized: bool; parsed: bool;}
-    // 
-    // wall_segment: Wall_Segment;
-    // wall_segment_collection: [..]Wall_Segment;
-    // wall_segment_collection.allocator = temp;
-
-    Wall_Block :: struct {start_x: int; end_x: int; start_y: int; end_y: int; initialized: bool;}
-
-    wall_block: Wall_Block;
-    wall_block_collection: [..]Wall_Block;
-    wall_block_collection.allocator = temp;
-
     parsed: [ROOM_WIDTH * ROOM_HEIGHT]bool;
 
     for <y: 0..ROOM_HEIGHT - 1 {
@@ -97,6 +85,9 @@ parse_tiles :: (r: *Room) {
                                 } else {
                                     // if we hit something that is not a wall, terminate x
                                     moving_x = false;
+                                    if ix < end {
+                                        moving_y = false;
+                                    }
                                 }
                             }
                             ix += 1;
@@ -110,7 +101,7 @@ parse_tiles :: (r: *Room) {
                             for v: start..end {
                                 parsed[coord_to_index(v, iy)] = true;
                             }
-                            start_y = iy;
+                            if moving_y then start_y = iy;
                         }
                         // set the y min to our current y value
                         // If we stopped before x end, and we are below the starting row, terminate y
