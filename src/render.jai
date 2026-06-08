@@ -80,10 +80,10 @@ render_room_tiles :: (r: *Room) {
 
 render_colliders :: () {
     for colliders {
-        p0 := Vector2.{it.min.x + 5, it.max.y - 5};
-        p1 := Vector2.{it.min.x + 5, it.min.y + 5};
-        p2 := Vector2.{it.max.x - 5, it.min.y + 5};
-        p3 := Vector2.{it.max.x - 5, it.max.y - 5};
+        p0 := Vector2.{it.min.x, it.max.y};
+        p1 := Vector2.{it.min.x, it.min.y};
+        p2 := Vector2.{it.max.x, it.min.y};
+        p3 := Vector2.{it.max.x, it.max.y};
         immediate_quad(p0, p1, p2, p3, .{0, 1, 0, 1});
     }
 }

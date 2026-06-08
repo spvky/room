@@ -64,7 +64,6 @@ make_aabb :: (left: int, right: int, bot: int, top: int) -> AABB {
 }
 
 parse_tiles :: (r: *Room) {
-    // convieninece for checking wall tiles
     is_valid_wall :: (x: int, y: int) -> bool #expand {
         return !`parsed[coord_to_index(x, y)] && check_tile_value(`r, x, y) == .WALL;
     }
@@ -105,5 +104,21 @@ parse_tiles :: (r: *Room) {
                 array_add(*colliders, aabb);
             }
         }
+    }
+}
+
+rotate_around_pivot :: (value: Vector2, angle: float32, pivot: Vector2) -> Vector2 {
+    rel_val := value - pivot;
+    rot_val := Vector2.{
+                        (rel_val.x * cos(angle)) - (rel_val.y * sin(angle)),
+                        (rel_val.x * sin(angle)) + (rel_val.y * cos(angle))};
+    return rot_val + pivot;
+}
+
+rotate_colliders :: () {
+    center := Vector2.{(xx WINDOW_WIDTH / 2.0), (xx WINDOW_HEIGHT / 2.0)};
+    for *colliders {
+        it.min = rotate_around_pivot(it.min, PI / 2.0, center);
+        it.max = rotate_around_pivot(it.max, PI / 2.0, center);
     }
 }

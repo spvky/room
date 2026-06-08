@@ -18,5 +18,9 @@ process_input :: () {
         if event.key_code == xx #char "S" {
             parse_tiles(*room);
         }
+
+        if event.key_code == xx #char "R" {
+            rotate_colliders();
+        }
     }
 }
