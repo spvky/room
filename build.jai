@@ -7,10 +7,6 @@ room: Room;
 AABB :: struct {
     min: Vector2;
     max: Vector2;
-    start_x: int;
-    start_y: int;
-    end_x: int;
-    end_y: int;
 }
 
 colliders: [..]AABB;
