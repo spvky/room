@@ -11,6 +11,10 @@ render :: () {
     render_room_tiles(*room);
     render_selection();
     render_colliders();
+    render_sprite(player_sprite, .{500, 500}, .{200, 200});
+    rune := create_rune(.LO | .SU | .TI | .LI);
+    render_rune(rune, .{700, 500}, .{300, 300});
+    render_editor_ui();
     swap_buffers(window);
 }
 
@@ -73,6 +77,13 @@ render_room_tiles :: (r: *Room) {
                                .{right, bot},
                                .{right, top},
                                .{0, 0, 1, 1});
+            case .SLOPE;
+                immediate_quad(
+                               .{left, top},
+                               .{left, bot},
+                               .{right, bot},
+                               .{right, top},
+                               .{0, 1, 0, 1});
             }
         }
     }

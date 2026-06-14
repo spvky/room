@@ -14,7 +14,10 @@ colliders: [..]AABB;
 main :: () {
     window = create_window(WINDOW_WIDTH, WINDOW_HEIGHT, "Room");
     set_render_target(window);
-
+    init_editor();
+    rune_atlas = load_sprite_atlas_from_file("runes.png", 4, 4);
+    player_tex = load_texture_from_file("player.png");
+    player_sprite = make_sprite(*player_tex);
     while !should_close {
         update_window_events();
         get_mouse_cell();
@@ -26,9 +29,13 @@ main :: () {
 
 #import "Basic";
 #import "Simp";
+#import "Simp_Extended";
 #import "Input";
 #import "Math";
 #import "Window_Creation";
 #load "src/room.jai";
 #load "src/render.jai";
 #load "src/input.jai";
+#load "src/runes.jai";
+#load "src/player.jai";
+#load "src/ui.jai";

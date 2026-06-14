@@ -1,4 +1,5 @@
 mouse_left_down: bool;
+mouse_right_down: bool;
 
 process_input :: () {
     for event: events_this_frame {
@@ -12,6 +13,14 @@ process_input :: () {
                 mouse_left_down = true;
             } else {
                 mouse_left_down = false;
+            }
+        }
+
+        if event.key_code == .MOUSE_BUTTON_RIGHT {
+            if event.key_pressed {
+                mouse_right_down = true;
+            } else {
+                mouse_right_down = false;
             }
         }
 
