@@ -104,6 +104,10 @@ rotate_rune :: (rune: Rune, rot: int) -> Rune {
     return Rune.{markings = n};
 }
 
+rune_contains :: (rune: Rune, markings: Markings) -> bool {
+    return rune.markings & markings == markings;
+}
+
 render_rune :: (r: Rune, position: Vector2, size: Vector2, color: Vector4 = .{0, 0, 0, 1}) {
     for rune_indices_from_bits(r) {
         sprite := sprite_from_atlas(*rune_atlas, it);

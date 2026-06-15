@@ -3,7 +3,10 @@ ROOM_HEIGHT :: 22;
 
 Room :: struct {
     int_grid: [ROOM_WIDTH * ROOM_HEIGHT]Room_Tile;
+    rune: Rune; // = #run create_rune(.DO);
 }
+
+#add_context current_room: *Room;
 
 Room_Tile :: enum u8 {
     EMPTY;
@@ -18,19 +21,20 @@ Room_Tile :: enum u8 {
 // At the end we will have an array of entites to save to the room
 
 paint_tile_values :: () {
+    room_ptr := context.current_room;
     if !context.editor_state.mouse_captured {
         if mouse_left_down {
             mouse_x, mouse_y, ok := get_mouse_cell();
             value_to_paint: Room_Tile = xx (context.editor_state.room_options.tile_type + 1);
             if ok {
-                set_tile_value(*room, value_to_paint, mouse_x, mouse_y);
+                set_tile_value(room_ptr, value_to_paint, mouse_x, mouse_y);
             }
         }
 
         if mouse_right_down {
             mouse_x, mouse_y, ok := get_mouse_cell();
             if ok {
-                set_tile_value(*room, .EMPTY, mouse_x, mouse_y);
+                set_tile_value(room_ptr, .EMPTY, mouse_x, mouse_y);
             }
         }
     }

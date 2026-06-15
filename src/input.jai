@@ -2,6 +2,7 @@ mouse_left_down: bool;
 mouse_right_down: bool;
 
 process_input :: () {
+    room_ptr := context.current_room;
     for event: events_this_frame {
         if event.key_code == .ESCAPE && event.key_pressed {
             should_close = true;
@@ -25,7 +26,7 @@ process_input :: () {
         }
 
         if event.key_code == xx #char "S" {
-            parse_tiles(*room);
+            parse_tiles(room_ptr);
         }
 
         if event.key_code == xx #char "R" {

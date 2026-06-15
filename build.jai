@@ -2,7 +2,6 @@ window: Window_Type;
 should_close: bool;
 WINDOW_WIDTH :: 1920;
 WINDOW_HEIGHT :: 1080;
-room: Room;
 
 AABB :: struct {
     min: Vector2;
@@ -15,6 +14,7 @@ main :: () {
     window = create_window(WINDOW_WIDTH, WINDOW_HEIGHT, "Room");
     set_render_target(window);
     init_editor();
+    context.current_room = New(Room);
     rune_atlas = load_sprite_atlas_from_file("runes.png", 4, 4);
     player_tex = load_texture_from_file("player.png");
     player_sprite = make_sprite(*player_tex);

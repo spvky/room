@@ -8,12 +8,13 @@ GRID_TOP_BOUNDARY: float32: GRID_BOT_BOUNDARY + GRID_HEIGHT;
 render :: () {
     clear_render_target(0.2, 0.1, 0.5, 1);
     render_grid();
-    render_room_tiles(*room);
+    render_room_tiles(context.current_room);
     render_selection();
     render_colliders();
     render_sprite(player_sprite, .{500, 500}, .{200, 200});
-    rune := create_rune(.LO | .SU | .TI | .LI);
-    render_rune(rune, .{700, 500}, .{300, 300});
+    // rune := create_rune(.LO | .SU | .TI | .LI);
+    // print("%\n", rune_contains(context.current_room.rune, .DO));
+    render_rune(context.current_room.rune, .{700, 500}, .{300, 300}, .{1, 1, 1, 1});
     render_editor_ui();
     swap_buffers(window);
 }
