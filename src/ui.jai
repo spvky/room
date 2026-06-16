@@ -78,36 +78,51 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
         render_rune(rune_ptr.*, .{x_pos + 290, y_pos - 20}, .{100, 100}, .{1, 1, 1, 1});
         base_marking_x := x_pos + 20;
         marking_x := base_marking_x;
+        // Crescents
         room_marking_display("Do", .DO);
         room_marking_display("So", .SO);
         room_marking_display("Ko", .KO);
         room_marking_display("Lo", .LO);
         y_pos -= 30;
         marking_x = base_marking_x;
+        // Slants
         room_marking_display("El", .EL);
         room_marking_display("En", .EN);
         room_marking_display("Ek", .EK);
         room_marking_display("Et", .ET);
         y_pos -= 30;
         marking_x = base_marking_x;
+        // Tears
         room_marking_display("Ti", .TI);
         room_marking_display("Li", .LI);
         room_marking_display("Ki", .KI);
         room_marking_display("Di", .DI);
         y_pos -= 30;
         marking_x = base_marking_x;
+        // Orbs
         room_marking_display("Ta", .TA);
         room_marking_display("Da", .DA);
+        room_marking_display("La", .LA);
+        room_marking_display("Ka", .KA);
         y_pos -= 30;
         marking_x = base_marking_x;
-        room_marking_display("Su", .SU);
+        // Sun
+        su_rect := get_rect(marking_x, y_pos, 50, 30);
+        su_pressed := base_checkbox(su_rect, "Su", rune_ptr.encircled, *editor_state.editor_theme.checkbox_theme);
+        if su_pressed {
+            if rune_ptr.encircled {
+                rune_ptr.encircled = false;
+            } else {
+                rune_ptr.encircled = true;
+            }
+        }
     }
 }
 
-room_marking_display :: (label: string, marking: Markings) #expand {
+room_marking_display :: (label: string, marking: Markings, loc := #caller_location) #expand {
     m_rect := get_rect(`marking_x, `y_pos, 50, 30);
     `marking_x += 55;
-    m_pressed := base_checkbox(m_rect, label, rune_contains(`rune_ptr, marking), *`editor_state.editor_theme.checkbox_theme);
+    m_pressed := base_checkbox(m_rect, label, rune_contains(`rune_ptr, marking), *`editor_state.editor_theme.checkbox_theme, loc = loc);
     if m_pressed {
         if rune_contains(`rune_ptr, marking) {
             `rune_ptr.markings &= ~marking;

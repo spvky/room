@@ -2,49 +2,34 @@ rune_atlas: Sprite_Atlas;
 
 Rune :: struct {
     markings: Markings;
+    encircled: bool;
 }
 
 Markings :: enum_flags u16 {
     // Crescent
-    DO :: 0b0000_0000_0000_0001;
-    SO :: 0b0000_0000_0000_0010;
-    KO :: 0b0000_0000_0000_0100;
-    LO :: 0b0000_0000_0000_1000;
+    DO :: 1 << 0;
+    SO :: 1 << 1;
+    KO :: 1 << 2;
+    LO :: 1 << 3;
     // Slants
-    EL :: 0b0000_0000_0001_0000;
-    EN :: 0b0000_0000_0010_0000;
-    EK :: 0b0000_0000_0100_0000;
-    ET :: 0b0000_0000_1000_0000;
+    EL :: 1 << 4;
+    EN :: 1 << 5;
+    EK :: 1 << 6;
+    ET :: 1 << 7;
     // Tears
-    TI :: 0b0000_0001_0000_0000;
-    LI :: 0b0000_0010_0000_0000;
-    KI :: 0b0000_0100_0000_0000;
-    DI :: 0b0000_1000_0000_0000;
+    TI :: 1 << 8;
+    LI :: 1 << 9;
+    KI :: 1 << 10;
+    DI :: 1 << 11;
     // Orbs
-    TA :: 0b0001_0000_0000_0000;
-    DA :: 0b0010_0000_0000_0000;
-    // Sun
-    SU :: 0b0100_0000_0000_0000;
+    TA :: 1 << 12;
+    DA :: 1 << 13;
+    LA :: 1 << 14;
+    KA :: 1 << 15;
 }
 
-create_rune :: (markings: Markings) -> Rune {
-    return Rune.{markings = markings};
-}
-
-operator == :: (a: Rune, b: Rune) -> bool {
-    a16 := cast(u16)a.markings;
-    b16 := cast(u16)b.markings;
-    if a16 == b16 return true;
-    do_ko_mask: u16 = 0b0000_0000_0000_0101;
-    so_lo_mask: u16 = 0b0000_0000_0000_1010;
-
-    if (a16 & do_ko_mask == do_ko_mask && b16 & so_lo_mask == so_lo_mask) || (b16 & do_ko_mask == do_ko_mask && a16 & so_lo_mask == so_lo_mask) {
-        a16 &= ~(do_ko_mask | so_lo_mask);
-        b16 &= ~(do_ko_mask | so_lo_mask);
-        return a16 == b16;
-    }
-
-    return false;
+create_rune :: (markings: Markings, encircled: bool = false) -> Rune {
+    return Rune.{markings, encircled};
 }
 
 rune_indices_from_bits :: (rune: Rune) -> [..]int {
@@ -66,7 +51,8 @@ rune_indices_from_bits :: (rune: Rune) -> [..]int {
     if r & .DI == .DI then array_add(*indices, 11);
     if r & .TA == .TA then array_add(*indices, 12);
     if r & .DA == .DA then array_add(*indices, 13);
-    if r & .SU == .SU then array_add(*indices, 14);
+    if r & .LA == .LA then array_add(*indices, 14);
+    if r & .KA == .KA then array_add(*indices, 15);
 
     return indices;
 }
@@ -95,10 +81,9 @@ rotate_rune :: (rune: Rune, rot: int) -> Rune {
         if n & .DI == .DI then ir |= .TI;
         // Orbs
         if n & .TA == .TA then ir |= .DA;
-        if n & .DA == .DA then ir |= .TA;
-        // Sun
-        if n & .SU == .SU then ir |= .SU;
-
+        if n & .DA == .DA then ir |= .LA;
+        if n & .LA == .LA then ir |= .KA;
+        if n & .KA == .KA then ir |= .DA;
         n = ir;
     }
     return Rune.{markings = n};
@@ -111,6 +96,11 @@ rune_contains :: (rune: Rune, markings: Markings) -> bool {
 render_rune :: (r: Rune, position: Vector2, size: Vector2, color: Vector4 = .{0, 0, 0, 1}) {
     for rune_indices_from_bits(r) {
         sprite := sprite_from_atlas(*rune_atlas, it);
+        render_sprite(sprite, position, size, color = color);
+    }
+
+    if r.encircled {
+        sprite := sprite_from_atlas(*rune_atlas, 16);
         render_sprite(sprite, position, size, color = color);
     }
 }

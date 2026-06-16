@@ -134,5 +134,7 @@ rotate_colliders :: () {
     for *colliders {
         it.min = rotate_around_pivot(it.min, PI / 2.0, center);
         it.max = rotate_around_pivot(it.max, PI / 2.0, center);
+
+        print("Min: %\nMax: %\n", it.min, it.max);
     }
 }

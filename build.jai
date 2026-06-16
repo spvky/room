@@ -15,7 +15,7 @@ main :: () {
     set_render_target(window);
     init_editor();
     context.current_room = New(Room);
-    rune_atlas = load_sprite_atlas_from_file("runes.png", 4, 4);
+    rune_atlas = load_sprite_atlas_from_file("runes.png", 5, 4);
     player_tex = load_texture_from_file("player.png");
     player_sprite = make_sprite(*player_tex);
     while !should_close {
@@ -39,3 +39,5 @@ main :: () {
 #load "src/runes.jai";
 #load "src/player.jai";
 #load "src/ui.jai";
+#load "src/thing.jai";
+#load "src/collision.jai";
