@@ -1,3 +1,4 @@
+// At some point factor this into a generic module, could probably do some useful stuff at comptime with it too
 Entity_Manager :: struct {
     items: [..]Entity;
     freelist: [..]Entity_Handle;
