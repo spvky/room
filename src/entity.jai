@@ -11,6 +11,9 @@ Rigidbody :: struct {
     velocity: Vector2;
     rotation: float32;
     shape_kind: Collision_Shape;
+    parent: Entity_Handle; @ignore_serialize
+    first_child: Entity_Handle; @ignore_serialize
+    next_sibling: Entity_Handle; @ignore_serialize
     // Keep the collision data at the bottom unless there are alignment issues to avoid some funky overlays
     // Triangle Collision
     triangle_vertices: [3]Vector2;
