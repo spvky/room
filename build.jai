@@ -19,6 +19,7 @@ main :: () {
     entity_add(Entity.{props = .RENDERABLE | .STATIC});
     h2 := entity_add(Entity.{props = .STATIC});
     entity_add(Entity.{props = .GRAVITY_AFFECTED});
+    entity_add(Entity.{props = .RENDERABLE});
     entity_remove(h2);
     print("% Entities found\n", context.entities.count);
     for *context.entities print("Props: %\n", it.props);
