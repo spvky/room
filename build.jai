@@ -14,6 +14,15 @@ main :: () {
     window = create_window(WINDOW_WIDTH, WINDOW_HEIGHT, "Room");
     set_render_target(window);
     init_editor();
+    init_entities();
+
+    entity_add(Entity.{props = .RENDERABLE | .STATIC});
+    h2 := entity_add(Entity.{props = .STATIC});
+    entity_add(Entity.{props = .GRAVITY_AFFECTED});
+    entity_remove(h2);
+    print("% Entities found\n", context.entities.count);
+    for *context.entities print("Props: %\n", it.props);
+
     context.current_room = New(Room);
     rune_atlas = load_sprite_atlas_from_file("runes.png", 5, 4);
     player_tex = load_texture_from_file("player.png");
@@ -41,3 +50,5 @@ main :: () {
 #load "src/ui.jai";
 #load "src/thing.jai";
 #load "src/collision.jai";
+#load "src/entity.jai";
+#load "src/entity_manager.jai";
