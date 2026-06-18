@@ -1,30 +1,3 @@
-/*
-main :: () {
-    room := Room.{name = "A long short walk"};
-    entities: [..]Entity;
-    array_add(*entities, .{
-                           props = .STATIC,
-                           first_bytes = .[12, 23],
-                           final_bytes = .[12, 23]});
-    array_add(*entities, .{
-                           props = .RENDERABLE,
-                           first_bytes = .[2, 2],
-                           final_bytes = .[2, 2]});
-
-    file, ok := file_open("entities.dat", true);
-
-    if ok {
-        for *entities write_entity_to_file(*file, it);
-    }
-    // ent_info := cast(*Type_Info_Struct)type_info(Entity);
-    // for ent_info.members {
-    //     print("%: %\n", it.name, it.type.runtime_size);
-    //     for note: it.notes print("%\n", note);
-    //     print("----------\n");
-    // }
-}
-
-*/
 save_room_to_file :: (r: Editor_Room) {
     path := tprint("%.room", r.name);
     replace_chars(path, " ", #char "_");
@@ -36,11 +9,11 @@ save_room_to_file :: (r: Editor_Room) {
     assert(success, "Failed to write room name to %\n", path);
     success = file_write(*file, *r.entities.count, size_of(int));
     assert(success, "Failed to write entity count to %\n", path);
-    for *r.entities write_entity_to_file(*file, it);
+    for *r.entities write_editor_entity_to_file(*file, it);
 }
 
-write_entity_to_file :: (file: *File, entity: *Entity) {
-    entity_info := cast(*Type_Info_Struct)type_info(Entity);
+write_editor_entity_to_file :: (file: *File, entity: *Editor_Entity) {
+    entity_info := cast(*Type_Info_Struct)type_info(Editor_Entity);
     for entity_info.members {
         should_skip: bool;
         for field_note: it.notes if equal(field_note, "ignore_serialize") should_skip = true;

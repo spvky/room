@@ -17,8 +17,8 @@ main :: () {
     init();
 
     rune_atlas = load_sprite_atlas_from_file("runes.png", 5, 4);
-    player_tex = load_texture_from_file("player.png");
-    player_sprite = make_sprite(*player_tex);
+    // player_tex = load_texture_from_file("player.png");
+    // player_sprite = make_sprite(*player_tex);
     while !should_close {
         update_window_events();
         for event: events_this_frame {
@@ -55,4 +55,5 @@ init :: () {
 #load "src/collision.jai";
 #load "src/io.jai";
 #load "src/entity.jai";
+#load "src/editing.jai";
 #load "src/entity_manager.jai";

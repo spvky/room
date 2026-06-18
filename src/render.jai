@@ -11,8 +11,8 @@ render :: () {
     render_room_tiles(context.current_editor_room);
     #if OS == .WINDOWS render_selection();
     render_colliders();
-    render_sprite(player_sprite, .{500, 500}, .{200, 200});
-    render_rune(context.current_editor_room.rune, .{700, 500}, .{300, 300}, .{1, 1, 1, 1});
+    // render_sprite(player_sprite, .{500, 500}, .{200, 200});
+    // render_rune(context.current_editor_room.rune, .{700, 500}, .{300, 300}, .{1, 1, 1, 1});
     render_editor_ui();
     swap_buffers(window);
 }
