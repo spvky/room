@@ -8,13 +8,11 @@ GRID_TOP_BOUNDARY: float32: GRID_BOT_BOUNDARY + GRID_HEIGHT;
 render :: () {
     clear_render_target(0.2, 0.1, 0.5, 1);
     render_grid();
-    render_room_tiles(context.current_room);
-    render_selection();
+    render_room_tiles(context.current_editor_room);
+    #if OS == .WINDOWS render_selection();
     render_colliders();
     render_sprite(player_sprite, .{500, 500}, .{200, 200});
-    // rune := create_rune(.LO | .SU | .TI | .LI);
-    // print("%\n", rune_contains(context.current_room.rune, .DO));
-    render_rune(context.current_room.rune, .{700, 500}, .{300, 300}, .{1, 1, 1, 1});
+    render_rune(context.current_editor_room.rune, .{700, 500}, .{300, 300}, .{1, 1, 1, 1});
     render_editor_ui();
     swap_buffers(window);
 }
@@ -65,7 +63,7 @@ render_selection :: () {
     }
 }
 
-render_room_tiles :: (r: *Room) {
+render_room_tiles :: (r: *Editor_Room) {
     for <y: 0..ROOM_HEIGHT - 1 {
         for x: 0..ROOM_WIDTH - 1 {
             val := check_tile_value(r, x, y);

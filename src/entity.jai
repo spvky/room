@@ -35,11 +35,29 @@ Collision_Shape :: enum {
 Entity_Properties :: enum_flags u32 {
     RENDERABLE :: 1 << 0;
     STATIC :: 1 << 1;
-    GRAVITY_AFFECTED :: 1 << 2;
+    COLLIDABLE :: 1 << 2;
+    GRAVITY_AFFECTED :: 1 << 3;
 }
 
 Entity_Flags :: enum_flags u32 {
     GROUNDED :: 1 << 0;
     IN_WATER :: 1 << 1;
     POWERED :: 1 << 2;
+}
+
+make_static_aabb_from_grid :: (left: int, right: int, bot: int, top: int) -> Entity {
+    entity: Entity;
+    entity.shape_kind = .RECTANGLE;
+    entity.flags = .RENDERABLE | .STATIC | .COLLIDABLE;
+    f_left: float32 = GRID_LEFT_BOUNDARY + (GRID_TILE_HEIGHT * xx left);
+    f_bot: float32 = GRID_BOT_BOUNDARY + (GRID_TILE_HEIGHT * xx bot);
+    f_right: float32 = GRID_LEFT_BOUNDARY + (GRID_TILE_HEIGHT * (xx right + 1));
+    f_top: float32 = GRID_BOT_BOUNDARY + (GRID_TILE_HEIGHT * (xx top + 1));
+
+    width := f_right - f_left;
+    height := f_top - f_bot;
+    entity.position = (Vector2.{f_left, f_bot} + Vector2.{f_right, f_top}) / 2;
+    entity.extents = Vector2.{width / 2, height / 2};
+
+    return entity;
 }

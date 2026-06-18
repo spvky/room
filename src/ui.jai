@@ -42,7 +42,7 @@ render_editor_ui :: () {
 
 draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     editor_state := context.editor_state;
-    room_ptr := context.current_room;
+    room_ptr := context.current_editor_room;
     rune_ptr := *room_ptr.rune;
     dropdown_rect := get_rect(r.x, r.y + r.h - 50, r.w, 50);
     y_pos := dropdown_rect.y - dropdown_rect.h - 10;
@@ -70,8 +70,8 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
         immediate_quad(.{left, top}, .{left, bot}, .{right, bot}, .{right, top}, tile_color);
         // Name
         name_rect := get_rect(x_pos, y_pos, 300, 40);
-        name_action, new_name := text_input(name_rect, context.current_room.name, *editor_state.editor_theme.text_input_theme);
-        if name_action & .ENTERED modify_string(*context.current_room.name, new_name);
+        name_action, new_name := text_input(name_rect, context.current_editor_room.name, *editor_state.editor_theme.text_input_theme);
+        if name_action & .ENTERED modify_string(*context.current_editor_room.name, new_name);
         y_pos -= 45;
 
         // Runes

@@ -1,17 +1,34 @@
 ROOM_WIDTH :: 22;
 ROOM_HEIGHT :: 22;
 
-Room :: struct {
+Editor_Room :: struct {
     name: string;
     int_grid: [ROOM_WIDTH * ROOM_HEIGHT]Room_Tile;
     entities: [..]Entity;
-    rune: Rune; // = #run create_rune(.DO);
+    collision_entities: [..]Entity;
+    flags: Room_Flags;
+    rune: Rune;
 }
 
-#add_context current_room: *Room;
+Room_Flags :: enum_flags u8 {
+    NO_ROTATE :: 1 << 0;
+    NO_MOVE_X :: 1 << 1;
+    NO_MOVE_Y :: 1 << 2;
+    NO_PICKUP :: 1 << 3;
+    MUST_BE_PLACED :: 1 << 4;
+}
 
-make_room :: (name: string) -> Room {
-    room: Room;
+Room :: struct {
+    name: string;
+    entities: [..]Entity;
+    flags: Room_Flags;
+    rune: Rune;
+}
+
+#add_context current_editor_room: *Editor_Room;
+
+make_room :: (name: string) -> Editor_Room {
+    room: Editor_Room;
     room.name = copy_string(name);
     return room;
 }
@@ -20,7 +37,6 @@ Room_Tile :: enum u8 {
     EMPTY;
     WALL;
     SLOPE;
-    // Entities types will go here as well
 }
 
 // When baking, decompose level tiles in several steps
@@ -29,7 +45,7 @@ Room_Tile :: enum u8 {
 // At the end we will have an array of entites to save to the room
 
 paint_tile_values :: () {
-    room_ptr := context.current_room;
+    room_ptr := context.current_editor_room;
     if !context.editor_state.mouse_captured {
         if mouse_left_down {
             mouse_x, mouse_y, ok := get_mouse_cell();
@@ -64,11 +80,11 @@ coord_to_index :: (x: int, y: int) -> int {
     return (y * ROOM_WIDTH) + x;
 }
 
-check_tile_value :: (r: *Room, x: int, y: int) -> Room_Tile {
+check_tile_value :: (r: *Editor_Room, x: int, y: int) -> Room_Tile {
     return r.int_grid[coord_to_index(x, y)];
 }
 
-set_tile_value :: (r: *Room, value: Room_Tile, x: int, y: int) {
+set_tile_value :: (r: *Editor_Room, value: Room_Tile, x: int, y: int) {
     idx := coord_to_index(x, y);
     r.int_grid[idx] = value;
 }
@@ -85,7 +101,7 @@ make_aabb :: (left: int, right: int, bot: int, top: int) -> AABB {
                          GRID_BOT_BOUNDARY + (GRID_TILE_HEIGHT * (xx top + 1))}};
 }
 
-parse_tiles :: (r: *Room) {
+parse_tiles :: (r: *Editor_Room) {
     is_valid_wall :: (x: int, y: int) -> bool #expand {
         return !`parsed[coord_to_index(x, y)] && check_tile_value(`r, x, y) == .WALL;
     }

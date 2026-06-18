@@ -2,7 +2,7 @@ mouse_left_down: bool;
 mouse_right_down: bool;
 
 process_input :: () {
-    room_ptr := context.current_room;
+    room_ptr := context.current_editor_room;
     for event: events_this_frame {
         if event.key_code == .ESCAPE && event.key_pressed {
             should_close = true;

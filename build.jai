@@ -24,9 +24,8 @@ main :: () {
     print("% Entities found\n", context.entities.count);
     for *context.entities print("Props: %\n", it.props);
 
-    context.current_room = New(Room);
-    context.current_room.* = make_room("New Room 2");
-    // context.current_room.name = copy_string(context.current_room.name);
+    context.current_editor_room = New(Editor_Room);
+    context.current_editor_room.* = make_room("New Room 2");
     rune_atlas = load_sprite_atlas_from_file("runes.png", 5, 4);
     player_tex = load_texture_from_file("player.png");
     player_sprite = make_sprite(*player_tex);
@@ -35,9 +34,9 @@ main :: () {
         for event: events_this_frame {
             getrect_handle_event(event);
         }
-        get_mouse_cell();
+        #if OS == .WINDOWS get_mouse_cell();
         process_input();
-        paint_tile_values();
+        #if OS == .WINDOWS paint_tile_values();
         render();
     }
 }

@@ -25,7 +25,7 @@ main :: () {
 }
 
 */
-save_room_to_file :: (r: Room) {
+save_room_to_file :: (r: Editor_Room) {
     path := tprint("%.room", r.name);
     replace_chars(path, " ", #char "_");
     file, ok := file_open(path, true);
