@@ -4,7 +4,7 @@ ROOM_HEIGHT :: 22;
 Editor_Room :: struct {
     name: string;
     int_grid: [ROOM_WIDTH * ROOM_HEIGHT]Room_Tile;
-    entities: [..]Entity;
+    entities: [..]Editor_Entity;
     collision_entities: [..]Entity;
     flags: Room_Flags;
     rune: Rune;
@@ -26,6 +26,13 @@ Room :: struct {
 }
 
 #add_context current_editor_room: *Editor_Room;
+
+init_editor_room :: () {
+    if !context.current_editor_room {
+        context.current_editor_room = New(Editor_Room);
+        context.current_editor_room.* = make_room("New Room");
+    }
+}
 
 make_room :: (name: string) -> Editor_Room {
     room: Editor_Room;

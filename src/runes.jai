@@ -5,6 +5,18 @@ Rune :: struct {
     encircled: bool;
 }
 
+operator == :: (a: Rune, b: Rune) -> bool {
+    return a.markings == b.markings && a.encircled == b.encircled;
+}
+
+operator + :: (a: Rune, b: Rune) -> Rune {
+    c: Rune;
+    c.markings |= a.markings;
+    c.markings |= b.markings;
+    c.encircled = a.encircled || b.encircled;
+    return c;
+}
+
 Markings :: enum_flags u16 {
     // Crescent
     DO :: 1 << 0;
@@ -28,7 +40,7 @@ Markings :: enum_flags u16 {
     KA :: 1 << 15;
 }
 
-create_rune :: (markings: Markings, encircled: bool = false) -> Rune {
+make_rune :: (markings: Markings, encircled: bool = false) -> Rune {
     return Rune.{markings, encircled};
 }
 

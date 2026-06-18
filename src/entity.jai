@@ -1,3 +1,19 @@
+// Will be hydrated into a full entity on load
+Editor_Entity :: struct {
+    position: Grid_Vec2;
+    tag: Entity_Tag; // Tags will probably not be present at runtime, but can be used for prefabs, essentially corresponding to bundles of props/sprite/and collision data
+}
+
+Entity_Tag :: enum u8 {
+    STATIC_COLLIDER;
+    CRATE;
+}
+
+Grid_Vec2 :: struct {
+    x: u8;
+    y: u8;
+}
+
 Entity :: struct {
     #as using rigibody: Rigidbody;
     props: Entity_Properties;
@@ -14,14 +30,10 @@ Rigidbody :: struct {
     velocity: Vector2;
     rotation: float32;
     shape_kind: Collision_Shape;
-    // Keep the collision data at the bottom unless there are alignment issues to avoid some funky overlays
-    // Triangle Collision
+    // Collision fields
     triangle_vertices: [3]Vector2;
-    // Rectangle Collision
     #overlay (triangle_vertices) extents: Vector2;
-    // Circle and Capsule Collision
     #overlay (triangle_vertices) radius: float32;
-    // Capsule Collision
     #overlay (triangle_vertices[0].y) height: float32;
 }
 
@@ -45,14 +57,14 @@ Entity_Flags :: enum_flags u32 {
     POWERED :: 1 << 2;
 }
 
-make_static_aabb_from_grid :: (left: int, right: int, bot: int, top: int) -> Entity {
+make_static_aabb_from_grid :: (left: int, right: int, bot: int, top: int, tile_height: float32) -> Entity {
     entity: Entity;
     entity.shape_kind = .RECTANGLE;
-    entity.flags = .RENDERABLE | .STATIC | .COLLIDABLE;
-    f_left: float32 = GRID_LEFT_BOUNDARY + (GRID_TILE_HEIGHT * xx left);
-    f_bot: float32 = GRID_BOT_BOUNDARY + (GRID_TILE_HEIGHT * xx bot);
-    f_right: float32 = GRID_LEFT_BOUNDARY + (GRID_TILE_HEIGHT * (xx right + 1));
-    f_top: float32 = GRID_BOT_BOUNDARY + (GRID_TILE_HEIGHT * (xx top + 1));
+    entity.props = .RENDERABLE | .STATIC | .COLLIDABLE;
+    f_left: float32 = tile_height * xx left;
+    f_bot: float32 = tile_height * xx bot;
+    f_right: float32 = tile_height * (xx right + 1);
+    f_top: float32 = tile_height * (xx top + 1);
 
     width := f_right - f_left;
     height := f_top - f_bot;

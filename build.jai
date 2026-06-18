@@ -13,19 +13,9 @@ colliders: [..]AABB;
 main :: () {
     window = create_window(WINDOW_WIDTH, WINDOW_HEIGHT, "Room");
     set_render_target(window);
-    init_editor();
-    init_entities();
 
-    entity_add(Entity.{props = .RENDERABLE | .STATIC});
-    h2 := entity_add(Entity.{props = .STATIC});
-    entity_add(Entity.{props = .GRAVITY_AFFECTED});
-    entity_add(Entity.{props = .RENDERABLE});
-    entity_remove(h2);
-    print("% Entities found\n", context.entities.count);
-    for *context.entities print("Props: %\n", it.props);
+    init();
 
-    context.current_editor_room = New(Editor_Room);
-    context.current_editor_room.* = make_room("New Room 2");
     rune_atlas = load_sprite_atlas_from_file("runes.png", 5, 4);
     player_tex = load_texture_from_file("player.png");
     player_sprite = make_sprite(*player_tex);
@@ -39,6 +29,12 @@ main :: () {
         #if OS == .WINDOWS paint_tile_values();
         render();
     }
+}
+
+init :: () {
+    init_editor();
+    init_entities();
+    init_editor_room();
 }
 
 #import "Basic";
