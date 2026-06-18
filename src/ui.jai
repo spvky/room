@@ -68,7 +68,11 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
         top := tile_type_rect.y + tile_type_rect.h;
         bot := tile_type_rect.y;
         immediate_quad(.{left, top}, .{left, bot}, .{right, bot}, .{right, top}, tile_color);
-        // /////
+        // Name
+        name_rect := get_rect(x_pos, y_pos, 300, 40);
+        name_action, new_name := text_input(name_rect, context.current_room.name, *editor_state.editor_theme.text_input_theme);
+        if name_action & .ENTERED modify_string(*context.current_room.name, new_name);
+        y_pos -= 45;
 
         // Runes
         // Crescents
@@ -130,6 +134,11 @@ room_marking_display :: (label: string, marking: Markings, loc := #caller_locati
             `rune_ptr.markings |= marking;
         }
     }
+}
+
+modify_string :: (ps: *string, new_value: string) {
+    free(ps.*);
+    ps.* = copy_string(new_value);
 }
 
 #import "GetRect";

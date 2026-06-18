@@ -24,7 +24,7 @@ main :: () {
     // }
 }
 
-
+*/
 save_room_to_file :: (r: Room) {
     path := tprint("%.room", r.name);
     replace_chars(path, " ", #char "_");
@@ -61,9 +61,3 @@ read_entity_from_file :: (file: *File, entity: *Entity) {
         assert(success, "Failed to read Entity field %\n", it.name);
     }
 }
-
-#import "Basic";
-#import "Math";
-#import "File";
-#import "String";
-*/

@@ -2,11 +2,19 @@ ROOM_WIDTH :: 22;
 ROOM_HEIGHT :: 22;
 
 Room :: struct {
+    name: string;
     int_grid: [ROOM_WIDTH * ROOM_HEIGHT]Room_Tile;
+    entities: [..]Entity;
     rune: Rune; // = #run create_rune(.DO);
 }
 
 #add_context current_room: *Room;
+
+make_room :: (name: string) -> Room {
+    room: Room;
+    room.name = copy_string(name);
+    return room;
+}
 
 Room_Tile :: enum u8 {
     EMPTY;

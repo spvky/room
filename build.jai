@@ -25,11 +25,16 @@ main :: () {
     for *context.entities print("Props: %\n", it.props);
 
     context.current_room = New(Room);
+    context.current_room.* = make_room("New Room 2");
+    // context.current_room.name = copy_string(context.current_room.name);
     rune_atlas = load_sprite_atlas_from_file("runes.png", 5, 4);
     player_tex = load_texture_from_file("player.png");
     player_sprite = make_sprite(*player_tex);
     while !should_close {
         update_window_events();
+        for event: events_this_frame {
+            getrect_handle_event(event);
+        }
         get_mouse_cell();
         process_input();
         paint_tile_values();
@@ -43,6 +48,8 @@ main :: () {
 #import "Input";
 #import "Math";
 #import "Window_Creation";
+#import "File";
+#import "String";
 #load "src/room.jai";
 #load "src/render.jai";
 #load "src/input.jai";
@@ -51,5 +58,6 @@ main :: () {
 #load "src/ui.jai";
 #load "src/thing.jai";
 #load "src/collision.jai";
+#load "src/io.jai";
 #load "src/entity.jai";
 #load "src/entity_manager.jai";
