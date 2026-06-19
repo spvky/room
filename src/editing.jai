@@ -2,7 +2,7 @@ Editor_Room :: struct {
     name: string;
     int_grid: [ROOM_WIDTH * ROOM_HEIGHT]Room_Tile;
     entities: [..]Editor_Entity;
-    collision_entities: [..]Editor_Collider;
+    colliders: [..]Editor_Collider;
     flags: Room_Flags;
     rune: Rune;
 }
@@ -121,7 +121,7 @@ parse_tiles :: (r: *Editor_Room) {
         return !`parsed[coord_to_index(x, y)] && check_tile_value(`r, x, y) == .WALL;
     }
 
-    array_reset(*r.collision_entities);
+    array_reset(*r.colliders);
 
     parsed: [ROOM_WIDTH * ROOM_HEIGHT]bool;
     for <y: 0..ROOM_HEIGHT - 1 {
@@ -156,7 +156,7 @@ parse_tiles :: (r: *Editor_Room) {
                     bot = iy;
                 }
                 wall := make_wall_from_grid(left, right, bot, top);
-                array_add(*r.collision_entities, wall);
+                array_add(*r.colliders, wall);
             }
         }
     }

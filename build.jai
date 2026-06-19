@@ -19,6 +19,8 @@ main :: () {
     rune_atlas = load_sprite_atlas_from_file("runes.png", 5, 4);
     // player_tex = load_texture_from_file("player.png");
     // player_sprite = make_sprite(*player_tex);
+    helman := load_editor_room_from_file("Timothy.room");
+    for helman.colliders print("%\n", it);
     while !should_close {
         update_window_events();
         for event: events_this_frame {

@@ -71,7 +71,7 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
         // Name
         name_rect := get_rect(x_pos, y_pos, 300, 40);
         name_action, new_name := text_input(name_rect, context.current_editor_room.name, *editor_state.editor_theme.text_input_theme);
-        if name_action & .ENTERED modify_string(*context.current_editor_room.name, new_name);
+        if name_action & .ENTERED || name_action & .TEXT_MODIFIED modify_string(*context.current_editor_room.name, new_name);
         y_pos -= 45;
 
         // Runes
@@ -112,6 +112,7 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
         marking_x = base_marking_x;
         // Sun
         su_rect := get_rect(marking_x, y_pos, 50, 30);
+        y_pos -= 70;
         su_pressed := base_checkbox(su_rect, "Su", rune_ptr.encircled, *editor_state.editor_theme.checkbox_theme);
         if su_pressed {
             if rune_ptr.encircled {
@@ -119,6 +120,14 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
             } else {
                 rune_ptr.encircled = true;
             }
+        }
+
+        save_button_rect := get_rect(x_pos, y_pos, 100, 30);
+        save_pressed := button(save_button_rect, "Save Room");
+        if save_pressed {
+            parse_tiles(room_ptr);
+            print("% Colliders added to %\n", room_ptr.colliders.count, room_ptr.name);
+            save_room_to_file(room_ptr.*);
         }
     }
 }

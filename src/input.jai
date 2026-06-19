@@ -26,8 +26,6 @@ process_input :: () {
         }
 
         if event.key_code == xx #char "S" {
-            parse_tiles(room_ptr);
-            print("% Colliders added to %\n", room_ptr.collision_entities.count, room_ptr.name);
         }
 
         if event.key_code == xx #char "R" {
