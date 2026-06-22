@@ -12,6 +12,8 @@ save_room_to_file :: (r: Editor_Room) {
     assert(success, "Failed to write name string length for room to %\n", path);
     success = file_write(*file, r.name.data, r.name.count);
     assert(success, "Failed to write room name to %\n", path);
+    success = file_write(*file, *r.int_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Room_Tile));
+    assert(success, "Failed to write int_grid to %\n", path);
     success = file_write(*file, *r.entities.count, size_of(int));
     assert(success, "Failed to write entity count to %\n", path);
     for *r.entities write_editor_entity_to_file(*file, it);
@@ -57,7 +59,9 @@ load_editor_room_from_file :: (filename: string) -> Editor_Room {
     room.name = alloc_string(name_length);
 
     success = file_read(file, room.name.data, name_length);
-    assert(success, "Failure when reading string\n");
+    assert(success, "Failure when reading room name\n");
+    success = file_read(file, *room.int_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Room_Tile));
+    assert(success, "Failure when reading room int_grid\n");
     entity_count: int;
     success = file_read(file, *entity_count, size_of(int));
     assert(success, "Failure when reading entity count\n");
