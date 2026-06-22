@@ -5,12 +5,19 @@ Editor_State :: struct {
     editor_type: s32;
     editor_theme: Overall_Theme;
     room_options: Room_Editor_Options;
+    show_file_load_window: bool;
+    load_window_scroll_value: float32;
     kb_captured: bool;
     mouse_captured: bool;
     primary_window: Subwindow_Info = .{
                                        rect = #run get_rect(20, cast(float32)WINDOW_HEIGHT - 360, 400, 350),
                                        draw = draw_primary_window,
                                        title_text = "Editor"};
+    file_load_window: Subwindow_Info = .{
+                                         rect = #run get_rect((cast(float32)WINDOW_WIDTH / 2) - 400, cast(float32)WINDOW_HEIGHT - 800, 800, 600),
+                                         open = false,
+                                         draw = draw_file_load_window,
+                                         title_text = "Load Room"};
 }
 
 Room_Editor_Options :: struct {
@@ -37,7 +44,30 @@ render_editor_ui :: () {
     editor_state.mouse_captured, editor_state.kb_captured = ui_per_frame_update(window, w, h, current_time);
 
     add_subwindow(*editor_state.primary_window, *editor_state.editor_theme.subwindow_theme);
+    if editor_state.file_load_window.open add_subwindow(*editor_state.file_load_window, *editor_state.editor_theme.subwindow_theme);
     draw_popups();
+}
+
+draw_file_load_window :: (state: *Subwindow_State, r: Rect, data: *void) {
+    editor_state := context.editor_state;
+    button_extents := Vector2.{200, 60};
+    room_files_rect := get_rect(r.x + 20, r.y + 20, r.w - 40, r.h - 40);
+    scroll_region, inside := begin_scrollable_region(room_files_rect, *editor_state.editor_theme.scrollable_region_theme);
+    s := inside;
+    s.y = s.y + s.h - button_extents.y;
+    s.h = button_extents.y;
+    s.y += editor_state.load_window_scroll_value;
+
+    for file_list("assets/rooms",, temp) {
+        _, _, _, filename := path_decomp(it);
+        pressed := button(s, filename, identifier = it_index);
+        if pressed {
+            context.current_editor_room.* = load_editor_room_from_file(filename);
+            editor_state.file_load_window.open = false;
+        }
+        s.y -= 60;
+    }
+    end_scrollable_region(scroll_region, s.x + s.w, s.y, *editor_state.load_window_scroll_value);
 }
 
 draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
@@ -122,13 +152,17 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
             }
         }
 
-        save_button_rect := get_rect(x_pos, y_pos, 100, 30);
+        save_button_rect := get_rect(x_pos, y_pos, 110, 30);
         save_pressed := button(save_button_rect, "Save Room");
         if save_pressed {
             parse_tiles(room_ptr);
             print("% Colliders added to %\n", room_ptr.colliders.count, room_ptr.name);
             save_room_to_file(room_ptr.*);
         }
+
+        load_button_rect := get_rect(x_pos + 120, y_pos, 110, 30);
+        load_pressed := button(load_button_rect, "Load Room");
+        if load_pressed editor_state.file_load_window.open = true;
     }
 }
 
@@ -151,3 +185,4 @@ modify_string :: (ps: *string, new_value: string) {
 }
 
 #import "GetRect";
+#import "File_Utilities";
