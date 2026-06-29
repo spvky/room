@@ -1,5 +1,11 @@
 EDITOR_MODES: [2]string: .["Room", "Map"];
-TILE_TYPES: [2]string: .["Wall", "Slope"];
+TILE_TYPES: [2]string: .["Wall", "Crate"];
+TILE_ICONS: [2]Ui_Icon;
+
+Ui_Icon :: struct {
+    sprite: *Sprite;
+    color: Vector4 = .{1, 1, 1, 1};
+}
 
 Editor_State :: struct {
     editor_type: s32;
@@ -34,6 +40,14 @@ init_editor :: () {
     proc := default_theme_procs[0];
     context.editor_state.editor_theme = proc();
     set_default_theme(context.editor_state.editor_theme);
+    init_ui_icons();
+}
+
+init_ui_icons :: () {
+    // Wall
+    TILE_ICONS[0] = .{color = .{0, 0, 1, 1}};
+    // Crate
+    TILE_ICONS[1] = .{sprite = *context.atlas.crate};
 }
 
 render_editor_ui :: () {
@@ -86,18 +100,25 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
         tile_type_rect := get_rect(x_pos, y_pos, 200, 50);
         y_pos -= 50;
         dropdown(tile_type_rect, TILE_TYPES, *room_options.tile_type);
-        tile_color: Vector4;
-        if context.editor_state.room_options.tile_type == {
-        case 0;
-            tile_color = .{0, 0, 1, 1};
-        case 1;
-            tile_color = .{0, 1, 0, 1};
-        }
+
+        // Tile Display Index
+
         left := tile_type_rect.x + tile_type_rect.w;
         right := left + 50;
         top := tile_type_rect.y + tile_type_rect.h;
         bot := tile_type_rect.y;
-        immediate_quad(.{left, top}, .{left, bot}, .{right, bot}, .{right, top}, tile_color);
+
+        tdi := context.editor_state.room_options.tile_type;
+
+        if TILE_ICONS[tdi].sprite {
+            s := TILE_ICONS[tdi].sprite;
+            set_shader_for_images(s.texture);
+            immediate_quad(.{left, top}, .{left, bot}, .{right, bot}, .{right, top}, TILE_ICONS[tdi].color, s.uvs[0], s.uvs[1], s.uvs[2], s.uvs[3]);
+        } else {
+            set_shader_for_color();
+            immediate_quad(.{left, top}, .{left, bot}, .{right, bot}, .{right, top}, TILE_ICONS[tdi].color);
+        }
+
         // Name
         name_rect := get_rect(x_pos, y_pos, 300, 40);
         name_action, new_name := text_input(name_rect, context.current_editor_room.name, *editor_state.editor_theme.text_input_theme);
@@ -182,6 +203,12 @@ room_marking_display :: (label: string, marking: Markings, loc := #caller_locati
 modify_string :: (ps: *string, new_value: string) {
     free(ps.*);
     ps.* = copy_string(new_value);
+}
+
+render_ui_icon :: (i: Ui_Icon) {
+    if !i.sprite {
+    } else {
+    }
 }
 
 #import "GetRect";

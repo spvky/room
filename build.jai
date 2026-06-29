@@ -16,7 +16,6 @@ main :: () {
 
     init();
 
-    rune_atlas = load_sprite_atlas_from_file("runes.png", 5, 4);
     // player_tex = load_texture_from_file("player.png");
     // player_sprite = make_sprite(*player_tex);
     // helman := load_editor_room_from_file("Timothy.room");
@@ -33,6 +32,7 @@ main :: () {
 }
 
 init :: () {
+    init_textures();
     init_editor();
     init_entities();
     init_editor_room();
@@ -46,6 +46,7 @@ init :: () {
 #import "Window_Creation";
 #import "File";
 #import "String";
+#load "src/assets.jai";
 #load "src/room.jai";
 #load "src/render.jai";
 #load "src/input.jai";

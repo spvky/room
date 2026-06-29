@@ -1,6 +1,8 @@
 ROOM_WIDTH :: 22;
 ROOM_HEIGHT :: 22;
 
+tile_atlas: Sprite_Atlas;
+
 Room_Flags :: enum_flags u8 {
     NO_ROTATE :: 1 << 0;
     NO_MOVE_X :: 1 << 1;

@@ -1,5 +1,3 @@
-rune_atlas: Sprite_Atlas;
-
 Rune :: struct {
     markings: Markings;
     encircled: bool;
@@ -106,13 +104,14 @@ rune_contains :: (rune: Rune, markings: Markings) -> bool {
 }
 
 render_rune :: (r: Rune, position: Vector2, size: Vector2, color: Vector4 = .{0, 0, 0, 1}) {
+    atlas := context.atlas;
     for rune_indices_from_bits(r) {
-        sprite := sprite_from_atlas(*rune_atlas, it);
+        sprite := sprite_from_atlas(*atlas.rune_atlas, it);
         render_sprite(sprite, position, size, color = color);
     }
 
     if r.encircled {
-        sprite := sprite_from_atlas(*rune_atlas, 16);
+        sprite := sprite_from_atlas(*atlas.rune_atlas, 16);
         render_sprite(sprite, position, size, color = color);
     }
 }
