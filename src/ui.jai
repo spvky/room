@@ -1,6 +1,10 @@
+/* I think there is a way to generate a lot of this comp time, should probably look at a named enum and for each one
+1. Add name into the Tile Types array
+2. 
+*/
 EDITOR_MODES: [2]string: .["Room", "Map"];
-TILE_TYPES: [2]string: .["Wall", "Crate"];
-TILE_ICONS: [2]Ui_Icon;
+TILE_TYPES: [4]string: .["Wall", "Crate", "Moving Block", "Button"];
+TILE_ICONS: [4]Ui_Icon;
 
 Ui_Icon :: struct {
     sprite: *Sprite;
@@ -108,6 +112,7 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
         top := tile_type_rect.y + tile_type_rect.h;
         bot := tile_type_rect.y;
 
+        // Tile type index
         tdi := context.editor_state.room_options.tile_type;
 
         if TILE_ICONS[tdi].sprite {

@@ -1,6 +1,7 @@
 Editor_Room :: struct {
     name: string;
     int_grid: [ROOM_WIDTH * ROOM_HEIGHT]Room_Tile;
+    extra_data: [..]Extra_Entity_Data;
     entities: [..]Editor_Entity;
     colliders: [..]Editor_Collider;
     flags: Room_Flags;
@@ -12,6 +13,14 @@ Editor_Room :: struct {
 Editor_Entity :: struct {
     position: Grid_Vec2;
     tag: Entity_Tag; // Tags will probably not be present at runtime, but can be used for prefabs, essentially corresponding to bundles of props/sprite/and collision data
+}
+
+Extra_Entity_Data :: struct {
+    subject_pos: Grid_Vec2;
+    path_start: Grid_Vec2;
+    path_end: Grid_Vec2;
+    parent_pos: Grid_Vec2;
+    child_pos: Grid_Vec2;
 }
 
 Editor_Collider :: struct {
@@ -157,9 +166,44 @@ parse_tiles :: (r: *Editor_Room) {
                 }
                 wall := make_wall_from_grid(left, right, bot, top);
                 array_add(*r.colliders, wall);
+            } else {
+                if check_tile_value(r, x, y) == {
+                case 2;
+                    // Crate
+                case 3;
+                    // Moving Block - These will get greedy meshed together to make them look nice but move as one big complex collider
+                case 4;
+                    // Button triggers an attached moving block
+                }
             }
         }
     }
+}
+
+rotate_coord :: (c: Grid_Vec2) -> Grid_Vec2 #expand {
+    return .{x = ROOM_WIDTH - c.y - 1, y = c.x};
+}
+
+rotate_room :: (r: Editor_Room) -> Editor_Room {
+    out: Editor_Room;
+    for x: 0..ROOM_WIDTH - 1 {
+        for y: 0..ROOM_HEIGHT - 1 {
+            new_index := coord_to_index(ROOM_WIDTH - y - 1, x);
+            old_index := coord_to_index(x, y);
+            out.int_grid[new_index] = r.int_grid[old_index];
+        }
+    }
+
+    array_reserve(*out.extra_data, r.extra_data.count);
+    for r.extra_data {
+        array_add(*out.extra_data, Extra_Entity_Data.{
+                                                      subject_pos = rotate_coord(it.subject_pos),
+                                                      path_start = rotate_coord(it.path_start),
+                                                      path_end = rotate_coord(it.path_end),
+                                                      parent_pos = rotate_coord(it.parent_pos),
+                                                      child_pos = rotate_coord(it.child_pos)});
+    }
+    return out;
 }
 
 make_wall_from_grid :: (left: int, right: int, bot: int, top: int) -> Editor_Collider {

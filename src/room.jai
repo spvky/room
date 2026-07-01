@@ -18,6 +18,7 @@ Room :: struct {
     rune: Rune;
 }
 
+// Might make more sense to remove these and rotate the int grid itself
 rotate_around_pivot :: (value: Vector2, angle: float32, pivot: Vector2) -> Vector2 {
     rel_val := value - pivot;
     rot_val := Vector2.{
