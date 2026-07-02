@@ -132,6 +132,7 @@ parse_tiles :: (r: *Editor_Room) {
 
     array_reset(*r.colliders);
 
+    // Calculate all walls first
     parsed: [ROOM_WIDTH * ROOM_HEIGHT]bool;
     for <y: 0..ROOM_HEIGHT - 1 {
         for x: 0..ROOM_WIDTH - 1 {
@@ -166,15 +167,20 @@ parse_tiles :: (r: *Editor_Room) {
                 }
                 wall := make_wall_from_grid(left, right, bot, top);
                 array_add(*r.colliders, wall);
-            } else {
-                if check_tile_value(r, x, y) == {
-                case 2;
-                    // Crate
-                case 3;
-                    // Moving Block - These will get greedy meshed together to make them look nice but move as one big complex collider
-                case 4;
-                    // Button triggers an attached moving block
-                }
+            }
+        }
+    }
+
+    // Start a second loop for non wall entities
+    for <y: 0..ROOM_HEIGHT - 1 {
+        for x: 0..ROOM_WIDTH - 1 {
+            if check_tile_value(r, x, y) == {
+            case 2;
+                // Crate
+            case 3;
+                // Moving Block - These will get greedy meshed together to make them look nice but move as one big complex collider
+            case 4;
+                // Button triggers an attached moving block
             }
         }
     }
