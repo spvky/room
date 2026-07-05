@@ -20,7 +20,7 @@ Editor_State :: struct {
     kb_captured: bool;
     mouse_captured: bool;
     primary_window: Subwindow_Info = .{
-                                       rect = #run get_rect(20, cast(float32)WINDOW_HEIGHT - 360, 400, 350),
+                                       rect = #run get_rect(20, cast(float32)WINDOW_HEIGHT - 510, 400, 500),
                                        draw = draw_primary_window,
                                        title_text = "Editor"};
     file_load_window: Subwindow_Info = .{
@@ -80,7 +80,7 @@ draw_file_load_window :: (state: *Subwindow_State, r: Rect, data: *void) {
         _, _, _, filename := path_decomp(it);
         pressed := button(s, filename, identifier = it_index);
         if pressed {
-            context.current_editor_room.* = load_editor_room_from_file(filename);
+            context.current_editor_room.* = load_room(filename);
             editor_state.file_load_window.open = false;
         }
         s.y -= 60;
@@ -183,7 +183,7 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
         if save_pressed {
             parse_tiles(room_ptr);
             print("% Colliders added to %\n", room_ptr.colliders.count, room_ptr.name);
-            save_room_to_file(room_ptr.*);
+            save_room(room_ptr.*);
         }
 
         load_button_rect := get_rect(x_pos + 120, y_pos, 110, 30);
@@ -208,12 +208,6 @@ room_marking_display :: (label: string, marking: Markings, loc := #caller_locati
 modify_string :: (ps: *string, new_value: string) {
     free(ps.*);
     ps.* = copy_string(new_value);
-}
-
-render_ui_icon :: (i: Ui_Icon) {
-    if !i.sprite {
-    } else {
-    }
 }
 
 #import "GetRect";

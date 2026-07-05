@@ -1,3 +1,4 @@
+// 
 Editor_Room :: struct {
     name: string;
     int_grid: [ROOM_WIDTH * ROOM_HEIGHT]Room_Tile;
@@ -16,6 +17,7 @@ Editor_Entity :: struct {
 }
 
 Extra_Entity_Data :: struct {
+    subjet_idx: int;
     subject_pos: Grid_Vec2;
     path_start: Grid_Vec2;
     path_end: Grid_Vec2;
@@ -37,6 +39,8 @@ Collider_Tag :: enum u8 {
 Entity_Tag :: enum u8 {
     STATIC_COLLIDER;
     CRATE;
+    BUTTON;
+    LEVER;
 }
 
 Grid_Vec2 :: struct {

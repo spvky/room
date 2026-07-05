@@ -1,91 +1,92 @@
 ROOMS_PATH :: "assets/rooms";
 
 // Instead of saving colliders and entities seperately here, just save the int grid, flags, rune, and extra entity data. When saving editor room think of only stuff that is needed for the editor, and save the runtime room representation at the same time with the actual entity data, this will also help remove an arbitrary limit on entity counts per room
-save_room_to_file :: (r: Editor_Room) {
+
+// Thinking more about this and I don't think we need to write anything all that complex to disk
+/*
+	Editor_Room :: struct {
+		name: string
+		int_grid: Grid of entity types
+		extra_entity_data: [..]Extra_Entity_Data
+	}
+*/
+
+room_assert :: (msg: string) #expand {
+    assert(`success, "(%)[%] %\n", `path, msg);
+}
+save_room :: (r: Editor_Room) {
     path := tprint("%/%.room", ROOMS_PATH, r.name);
     replace_chars(path, " ", #char "_");
     file, ok := file_open(path, true);
-    assert(ok, "Failed to open %\n", path);
+    assert(ok, "Failed to open % for writing!\n", path);
     defer {
         file_close(*file);
-        print("Finished writing to %\n", path);
+        print("Finished writing room to %\n", path);
     }
     success := file_write(*file, *r.name.count, size_of(int));
-    assert(success, "Failed to write name string length for room to %\n", path);
+    room_assert("Failed to write name string length for room!");
     success = file_write(*file, r.name.data, r.name.count);
-    assert(success, "Failed to write room name to %\n", path);
+    room_assert("Failed to write room name!");
     success = file_write(*file, *r.int_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Room_Tile));
-    assert(success, "Failed to write int_grid to %\n", path);
-    success = file_write(*file, *r.entities.count, size_of(int));
-    assert(success, "Failed to write entity count to %\n", path);
-    for *r.entities write_editor_entity_to_file(*file, it);
-    success = file_write(*file, *r.colliders.count, size_of(int));
-    assert(success, "Failed to write collision entity count to %\n", path);
-    for *r.colliders write_editor_collider_to_file(*file, it);
-}
-
-write_editor_entity_to_file :: (file: *File, entity: *Editor_Entity) {
-    entity_info := cast(*Type_Info_Struct)type_info(Editor_Entity);
-    for entity_info.members {
-        should_skip: bool;
-        for field_note: it.notes if equal(field_note, "ignore_serialize") should_skip = true;
-        if should_skip continue;
-
-        success := file_write(file, (cast(*u8)entity) + it.offset_in_bytes, it.type.runtime_size);
-        assert(success, "Failed to write Entity field %\n", it.name);
+    room_assert("Failed to write int_grid!");
+    success = file_write(*file, *r.extra_data.count, size_of(int));
+    room_assert("Failed to write extra entity data count!");
+    if r.extra_data.count > 0 {
+        success = file_write(*file, r.extra_data.data, size_of(Extra_Entity_Data) * r.extra_data.count);
+        room_assert("Failed to write extra entity data!");
+    } else {
+        print("No entity data in %, skipping writing it!\n", path);
     }
+    success = file_write(*file, *r.flags, size_of(Room_Flags));
+    room_assert("Failed to write room flags!");
+    success = file_write(*file, *r.rune, size_of(Rune));
+    room_assert("Failed to write room rune!");
 }
 
-write_editor_collider_to_file :: (file: *File, collider: *Editor_Collider) {
-    collider_info := cast(*Type_Info_Struct)type_info(Editor_Collider);
-    for collider_info.members {
-        success := file_write(file, (cast(*u8)collider) + it.offset_in_bytes, it.type.runtime_size);
-        assert(success, "Failed to write Collider field %\n", it.name);
-    }
-}
-
-load_editor_room_from_file :: (filename: string) -> Editor_Room {
+load_room :: (filename: string) -> Editor_Room {
+    // Helper for logging loading errors
     path := tprint("%/%", ROOMS_PATH, filename);
     file, ok := file_open(path);
-    assert(ok, "Failed to open file % for reading!\n", path);
+    assert(ok, "Failed to open % for reading!\n", path);
     defer {
         file_close(*file);
         print("Finished reading room from %\n", path);
     }
-    room: Editor_Room;
+    r: Editor_Room;
     name_length: int;
     success := file_read(file, *name_length, size_of(int));
-    assert(success, "Failed to read room name length from %!\n", path);
-
-    print("Name Length: %\n", name_length);
-    room.name = alloc_string(name_length);
-
-    success = file_read(file, room.name.data, name_length);
-    assert(success, "Failure when reading room name\n");
-    success = file_read(file, *room.int_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Room_Tile));
-    assert(success, "Failure when reading room int_grid\n");
-    entity_count: int;
-    success = file_read(file, *entity_count, size_of(int));
-    assert(success, "Failure when reading entity count\n");
-    print("Entity Count %\n", entity_count);
-    array_reserve(*room.entities, entity_count);
-    room.entities.count = entity_count;
-    if entity_count > 0 {
-        success = file_read(file, room.entities.data, size_of(Editor_Entity) * entity_count);
-        assert(success, "Failed to write entity data!\n");
+    room_assert("Failed to read room name length!");
+    r.name = alloc_string(name_length);
+    success = file_read(file, r.name.data, name_length);
+    room_assert("Failure when reading room name!");
+    success = file_read(file, *r.int_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Room_Tile));
+    room_assert("Failure when reading room int_grid!");
+    entity_data_count: int;
+    success = file_read(file, *entity_data_count, size_of(int));
+    room_assert("Failure when reading entity data count!");
+    if entity_data_count > 0 {
+        array_reserve(*r.extra_data, entity_data_count);
+        success = file_read(file, r.extra_data.data, size_of(Extra_Entity_Data) * r.extra_data.count);
+        room_assert("Failure when reading entity data!");
+    } else {
+        print("No entity data in %, skipping reading it!\n", path);
     }
+    success = file_read(file, *r.flags, size_of(Room_Flags));
+    room_assert("Failed to read room flags!");
+    success = file_read(file, *r.rune, size_of(Rune));
+    room_assert("Failed to read room rune!");
+    return r;
+}
 
-    collider_count: int;
-    success = file_read(file, *collider_count, size_of(int));
-    assert(success, "Failure when reading collider count\n");
-    array_reserve(*room.colliders, collider_count);
-    room.colliders.count = collider_count;
-    if collider_count > 0 {
-        success = file_read(file, room.colliders.data, size_of(Editor_Collider) * collider_count);
-        assert(success, "Failed to write collider data!\n");
+// Writes a passed (static) struct to file
+write_struct_to_file :: (file: *File, t: *$T) {
+    struct_info := cast(*Type_Info_Struct)type_info(T);
+    for struct_info.members {
+        should_skip: bool;
+        for field_note: it.notes if equal(field_note, "ignore_serialize") should_skip = true;
+        if should_skip continue;
+
+        success := file_write(file, (cast(*u8)t) + it.offset_in_bytes, it.type.runtime_size);
+        assert(success, "Failed to write struct field %\nin file %\n", it.name, file);
     }
-
-    print("Colliders: %\n", room.colliders);
-
-    return room;
 }

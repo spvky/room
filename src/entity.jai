@@ -1,9 +1,10 @@
+// When loading a room alot of these values will be prefabs that are inferred from the entity types in the int grid
 Entity :: struct {
     #as using rigibody: Rigidbody;
     props: Entity_Properties;
     flags: Entity_Flags;
-    handle: Entity_Handle;
-    using sprite: Sprite;
+    using sprite: Sprite; @ignore_serialize
+    handle: Entity_Handle; @ignore_serialize
     parent: Entity_Handle; @ignore_serialize
     first_child: Entity_Handle; @ignore_serialize
     next_sibling: Entity_Handle; @ignore_serialize
