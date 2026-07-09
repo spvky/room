@@ -46,6 +46,7 @@ init :: () {
 #import "Window_Creation";
 #import "File";
 #import "String";
+#import "Hash_Table";
 #load "src/assets.jai";
 #load "src/room.jai";
 #load "src/render.jai";

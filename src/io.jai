@@ -1,8 +1,4 @@
 ROOMS_PATH :: "assets/rooms";
-
-// Instead of saving colliders and entities seperately here, just save the int grid, flags, rune, and extra entity data. When saving editor room think of only stuff that is needed for the editor, and save the runtime room representation at the same time with the actual entity data, this will also help remove an arbitrary limit on entity counts per room
-
-// Thinking more about this and I don't think we need to write anything all that complex to disk
 /*
 	Editor_Room :: struct {
 		name: string
@@ -10,10 +6,6 @@ ROOMS_PATH :: "assets/rooms";
 		extra_entity_data: [..]Extra_Entity_Data
 	}
 */
-
-room_assert :: (msg: string) #expand {
-    assert(`success, "(%)[%] %\n", `path, msg);
-}
 save_room :: (r: Editor_Room) {
     path := tprint("%/%.room", ROOMS_PATH, r.name);
     replace_chars(path, " ", #char "_");
@@ -76,6 +68,12 @@ load_room :: (filename: string) -> Editor_Room {
     success = file_read(file, *r.rune, size_of(Rune));
     room_assert("Failed to read room rune!");
     return r;
+}
+
+#scope_file
+
+room_assert :: (msg: string) #expand {
+    assert(`success, "(%)[%] %\n", `path, msg);
 }
 
 // Writes a passed (static) struct to file

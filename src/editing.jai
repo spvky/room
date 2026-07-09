@@ -3,8 +3,8 @@ Editor_Room :: struct {
     name: string;
     int_grid: [ROOM_WIDTH * ROOM_HEIGHT]Room_Tile;
     extra_data: [..]Extra_Entity_Data;
-    entities: [..]Editor_Entity;
-    colliders: [..]Editor_Collider;
+    // entities: [..]Editor_Entity;
+    // colliders: [..]Editor_Collider;
     flags: Room_Flags;
     rune: Rune;
 }
