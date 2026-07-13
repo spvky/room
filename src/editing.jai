@@ -3,8 +3,6 @@ Editor_Room :: struct {
     name: string;
     int_grid: [ROOM_WIDTH * ROOM_HEIGHT]Room_Tile;
     extra_data: [..]Extra_Entity_Data;
-    // entities: [..]Editor_Entity;
-    // colliders: [..]Editor_Collider;
     flags: Room_Flags;
     rune: Rune;
 }
@@ -117,24 +115,24 @@ set_tile_value :: (r: *Editor_Room, value: Room_Tile, x: int, y: int) {
     r.int_grid[idx] = value;
 }
 
-make_aabb :: (left: int, right: int, bot: int, top: int) -> AABB {
-    return AABB.{
-                 min = .{
-                         GRID_LEFT_BOUNDARY + (GRID_TILE_HEIGHT * xx left),
-                         GRID_BOT_BOUNDARY + (GRID_TILE_HEIGHT * xx bot)},
-
-                 max = .{
-
-                         GRID_LEFT_BOUNDARY + (GRID_TILE_HEIGHT * (xx right + 1)),
-                         GRID_BOT_BOUNDARY + (GRID_TILE_HEIGHT * (xx top + 1))}};
-}
+// make_aabb :: (left: int, right: int, bot: int, top: int) -> AABB {
+//     return AABB.{
+//                  min = .{
+//                          GRID_LEFT_BOUNDARY + (GRID_TILE_HEIGHT * xx left),
+//                          GRID_BOT_BOUNDARY + (GRID_TILE_HEIGHT * xx bot)},
+// 
+//                  max = .{
+// 
+//                          GRID_LEFT_BOUNDARY + (GRID_TILE_HEIGHT * (xx right + 1)),
+//                          GRID_BOT_BOUNDARY + (GRID_TILE_HEIGHT * (xx top + 1))}};
+// }
 
 parse_tiles :: (r: *Editor_Room) {
     is_valid_wall :: (x: int, y: int) -> bool #expand {
         return !`parsed[coord_to_index(x, y)] && check_tile_value(`r, x, y) == .WALL;
     }
 
-    array_reset(*r.colliders);
+    // array_reset(*r.colliders);
 
     // Calculate all walls first
     parsed: [ROOM_WIDTH * ROOM_HEIGHT]bool;
@@ -169,8 +167,8 @@ parse_tiles :: (r: *Editor_Room) {
                     for left..right parsed[coord_to_index(it, iy)] = true;
                     bot = iy;
                 }
-                wall := make_wall_from_grid(left, right, bot, top);
-                array_add(*r.colliders, wall);
+                // wall := make_wall_from_grid(left, right, bot, top);
+                // array_add(*r.colliders, wall);
             }
         }
     }
@@ -213,6 +211,7 @@ rotate_room :: (r: Editor_Room) -> Editor_Room {
                                                       parent_pos = rotate_coord(it.parent_pos),
                                                       child_pos = rotate_coord(it.child_pos)});
     }
+    out.rune = rotate_rune(r.rune, 1);
     return out;
 }
 

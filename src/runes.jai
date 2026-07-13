@@ -67,11 +67,9 @@ rune_indices_from_bits :: (rune: Rune) -> [..]int {
     return indices;
 }
 
-rotate_rune :: (rune: Rune, rot: int) -> Rune {
+rotate_rune :: (rune: Rune, rot: int = 1) -> Rune {
     if rot == 0 then return rune;
-
     n := rune.markings;
-
     for 1..rot {
         ir: Markings;
         // Crescents

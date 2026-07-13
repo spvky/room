@@ -105,14 +105,12 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
         y_pos -= 50;
         dropdown(tile_type_rect, TILE_TYPES, *room_options.tile_type);
 
-        // Tile Display Index
-
         left := tile_type_rect.x + tile_type_rect.w;
         right := left + 50;
         top := tile_type_rect.y + tile_type_rect.h;
         bot := tile_type_rect.y;
 
-        // Tile type index
+        // Tile Display Index
         tdi := context.editor_state.room_options.tile_type;
 
         if TILE_ICONS[tdi].sprite {
@@ -182,7 +180,7 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
         save_pressed := button(save_button_rect, "Save Room");
         if save_pressed {
             parse_tiles(room_ptr);
-            print("% Colliders added to %\n", room_ptr.colliders.count, room_ptr.name);
+            // print("% Colliders added to %\n", room_ptr.colliders.count, room_ptr.name);
             save_room(room_ptr.*);
         }
 
@@ -192,6 +190,10 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     }
 }
 
+#import "GetRect";
+#import "File_Utilities";
+
+#scope_file
 room_marking_display :: (label: string, marking: Markings, loc := #caller_location) #expand {
     m_rect := get_rect(`marking_x, `y_pos, 50, 30);
     `marking_x += 55;
@@ -209,6 +211,3 @@ modify_string :: (ps: *string, new_value: string) {
     free(ps.*);
     ps.* = copy_string(new_value);
 }
-
-#import "GetRect";
-#import "File_Utilities";

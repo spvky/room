@@ -6,10 +6,12 @@ Map :: struct {
     occupied: [MAP_WIDTH * MAP_HEIGHT]bool;
 }
 
+Room_Table :: Table(u32, Editor_Room);
+
 // For handling rooms, add them to an array of hashes, for purposes of cycling through, and have a persistent hashmap that links loaded rooms by their hash
 
 Placed_Room :: struct {
-    room_hash: u16;
+    room_hash: u32;
     coord: Room_Coord;
     rotation: u8;
 }
@@ -19,12 +21,9 @@ Room_Coord :: struct {
     y: u8;
 }
 
-hash_room_name :: (name: string) -> u16 {
-    hash: u32 = 2166136261;
-    for name {
-        hash ^= cast(u32)it;
-        // Need to find out how to do a wrapping multiply here
-        // hash = wrapping_overflow_mul(16777619);
-    }
-    return cast(u16)((hash >> 16) ^ (hash & 0xFFFF));
-}
+/*
+hashing room name
+djb2_hash(room_name);
+
+#import "Hash";
+*/

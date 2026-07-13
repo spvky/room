@@ -10,7 +10,7 @@ render :: () {
     render_grid();
     render_room_tiles(context.current_editor_room);
     #if OS == .WINDOWS render_selection();
-    render_colliders();
+    // render_colliders();
     // render_sprite(player_sprite, .{500, 500}, .{200, 200});
     // render_rune(context.current_editor_room.rune, .{700, 500}, .{300, 300}, .{1, 1, 1, 1});
     render_editor_ui();
@@ -87,13 +87,13 @@ render_room_tiles :: (r: *Editor_Room) {
         }
     }
 }
-
-render_colliders :: () {
-    for colliders {
-        p0 := Vector2.{it.min.x, it.max.y};
-        p1 := Vector2.{it.min.x, it.min.y};
-        p2 := Vector2.{it.max.x, it.min.y};
-        p3 := Vector2.{it.max.x, it.max.y};
-        immediate_quad(p0, p1, p2, p3, .{0, 1, 0, 1});
-    }
-}
+// 
+// render_colliders :: () {
+//     for colliders {
+//         p0 := Vector2.{it.min.x, it.max.y};
+//         p1 := Vector2.{it.min.x, it.min.y};
+//         p2 := Vector2.{it.max.x, it.min.y};
+//         p3 := Vector2.{it.max.x, it.max.y};
+//         immediate_quad(p0, p1, p2, p3, .{0, 1, 0, 1});
+//     }
+// }

@@ -3,14 +3,8 @@ should_close: bool;
 WINDOW_WIDTH :: 1920;
 WINDOW_HEIGHT :: 1080;
 
-AABB :: struct {
-    min: Vector2;
-    max: Vector2;
-}
-
-colliders: [..]AABB;
-
 main :: () {
+    print("Yo\n");
     window = create_window(WINDOW_WIDTH, WINDOW_HEIGHT, "Room");
     set_render_target(window);
 
@@ -47,6 +41,7 @@ init :: () {
 #import "File";
 #import "String";
 #import "Hash_Table";
+#import "Hash";
 #load "src/assets.jai";
 #load "src/room.jai";
 #load "src/render.jai";

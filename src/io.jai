@@ -31,6 +31,8 @@ save_room :: (r: Editor_Room) {
     }
     success = file_write(*file, *r.flags, size_of(Room_Flags));
     room_assert("Failed to write room flags!");
+    conv_rune: u16 = (cast(*u16)(*r.rune.markings)).*;
+    print("Rune marking value of: %\n", conv_rune);
     success = file_write(*file, *r.rune, size_of(Rune));
     room_assert("Failed to write room rune!");
 }
@@ -67,11 +69,12 @@ load_room :: (filename: string) -> Editor_Room {
     room_assert("Failed to read room flags!");
     success = file_read(file, *r.rune, size_of(Rune));
     room_assert("Failed to read room rune!");
+    room_hash := djb2_hash(r.name);
+    print("Loaded % with a hash of %\n", r.name, room_hash);
     return r;
 }
 
 #scope_file
-
 room_assert :: (msg: string) #expand {
     assert(`success, "(%)[%] %\n", `path, msg);
 }
