@@ -93,11 +93,20 @@ paint_tile_values :: () {
 get_mouse_cell :: () -> int, int, bool {
     mouse_x, mouse_y, ok := get_mouse_pointer_position();
     mouse_y = xx WINDOW_HEIGHT - mouse_y; // Flip mouse y to match grid row ordering
+    in_bounds: bool;
 
-    mouse_x = (mouse_x - xx GRID_LEFT_BOUNDARY) / xx GRID_TILE_HEIGHT;
-    mouse_y = (mouse_y - xx GRID_BOT_BOUNDARY) / xx GRID_TILE_HEIGHT;
+    if context.editor_state.editor_type == {
+    case 0;
+        mouse_x = (mouse_x - xx ROOM_LEFT_BOUNDARY) / xx ROOM_TILE_HEIGHT;
+        mouse_y = (mouse_y - xx ROOM_BOT_BOUNDARY) / xx ROOM_TILE_HEIGHT;
 
-    in_bounds := mouse_x >= 0 && mouse_x < ROOM_WIDTH && mouse_y >= 0 && mouse_y < ROOM_HEIGHT;
+        in_bounds := mouse_x >= 0 && mouse_x < ROOM_WIDTH && mouse_y >= 0 && mouse_y < ROOM_HEIGHT;
+    case 1;
+        mouse_x = (mouse_x - xx MAP_LEFT_BOUNDARY) / xx MAP_TILE_HEIGHT;
+        mouse_y = (mouse_y - xx MAP_BOT_BOUNDARY) / xx MAP_TILE_HEIGHT;
+
+        in_bounds := mouse_x >= 0 && mouse_x < ROOM_WIDTH && mouse_y >= 0 && mouse_y < ROOM_HEIGHT;
+    }
 
     return mouse_x, mouse_y, ok && in_bounds;
 }

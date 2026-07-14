@@ -11,6 +11,10 @@ Ui_Icon :: struct {
     color: Vector4 = .{1, 1, 1, 1};
 }
 
+ROOM_VIEW :: 0;
+MAP_VIEW :: 1;
+GAME_VIEW :: 2;
+
 Editor_State :: struct {
     editor_type: s32;
     editor_theme: Overall_Theme;

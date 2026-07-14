@@ -26,6 +26,7 @@ main :: () {
 }
 
 init :: () {
+    init_camera();
     init_textures();
     init_editor();
     init_entities();
@@ -55,3 +56,6 @@ init :: () {
 #load "src/entity.jai";
 #load "src/editing.jai";
 #load "src/entity_manager.jai";
+#load "src/camera.jai";
+#load "src/map.jai";
+#load "src/placement.jai";

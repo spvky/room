@@ -1,9 +1,13 @@
-GRID_TILE_HEIGHT: float32: (cast(float32)(WINDOW_HEIGHT - 50) / cast(float32)ROOM_HEIGHT);
-GRID_HEIGHT: float32: GRID_TILE_HEIGHT * cast(float32)ROOM_HEIGHT;
-GRID_LEFT_BOUNDARY: float32: (cast(float32)WINDOW_WIDTH - GRID_HEIGHT) / 2;
-GRID_RIGHT_BOUNDARY: float32: GRID_LEFT_BOUNDARY + GRID_HEIGHT;
-GRID_BOT_BOUNDARY: float32: 25.0;
-GRID_TOP_BOUNDARY: float32: GRID_BOT_BOUNDARY + GRID_HEIGHT;
+get_tile_ui_data :: (height: int) -> float32, float32, float32, float32, float32, float32 {
+    tile_height: float32 = (cast(float32)(WINDOW_HEIGHT - 50) / cast(float32)height);
+    grid_height: float32 = tile_height * cast(float32)height;
+    left_boundary: float32 = (cast(float32)WINDOW_WIDTH - grid_height) / 2;
+    right_boundary: float32 = left_boundary + grid_height;
+    bot_boundary: float32 = 25.0;
+    top_boundary: float32 = bot_boundary + grid_height;
+
+    return tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary;
+}
 
 render :: () {
     clear_render_target(0.2, 0.1, 0.5, 1);
@@ -18,24 +22,40 @@ render :: () {
 }
 
 render_grid :: () {
+    grid_lines :: (height: int) #expand {
+        tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary := get_tile_ui_data(height);
+        y_pos: float32 = (xx `it * tile_height) + bot_boundary;
+        immediate_quad(
+                       .{left_boundary, y_pos + 2.5},
+                       .{left_boundary, y_pos - 2.5},
+                       .{right_boundary, y_pos - 2.5},
+                       .{right_boundary, y_pos + 2.5},
+                       .{0, 0, 0, 1});
+
+        x_pos: float32 = (xx `it * tile_height) + left_boundary;
+        immediate_quad(
+                       .{x_pos - 2.5, top_boundary},
+                       .{x_pos - 2.5, bot_boundary},
+                       .{x_pos + 2.5, bot_boundary},
+                       .{x_pos + 2.5, top_boundary},
+                       .{0, 0, 0, 1});
+    }
+
     set_shader_for_color();
 
-    for 0..ROOM_HEIGHT {
-        y_pos: float32 = (xx it * GRID_TILE_HEIGHT) + GRID_BOT_BOUNDARY;
-        immediate_quad(
-                       .{GRID_LEFT_BOUNDARY, y_pos + 2.5},
-                       .{GRID_LEFT_BOUNDARY, y_pos - 2.5},
-                       .{GRID_RIGHT_BOUNDARY, y_pos - 2.5},
-                       .{GRID_RIGHT_BOUNDARY, y_pos + 2.5},
-                       .{0, 0, 0, 1});
+    tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary: float32;
 
-        x_pos: float32 = (xx it * GRID_TILE_HEIGHT) + GRID_LEFT_BOUNDARY;
-        immediate_quad(
-                       .{x_pos - 2.5, GRID_TOP_BOUNDARY},
-                       .{x_pos - 2.5, GRID_BOT_BOUNDARY},
-                       .{x_pos + 2.5, GRID_BOT_BOUNDARY},
-                       .{x_pos + 2.5, GRID_TOP_BOUNDARY},
-                       .{0, 0, 0, 1});
+    if context.editor_state.editor_type == {
+        // Room
+    case 0;
+        for 0..ROOM_HEIGHT {
+            grid_lines(ROOM_HEIGHT);
+        }
+        // Map
+    case 1;
+        for 0..MAP_HEIGHT {
+            grid_lines(MAP_HEIGHT);
+        }
     }
 }
 
