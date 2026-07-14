@@ -12,13 +12,23 @@ Room_Table :: Table(u32, Editor_Room);
 
 Placed_Room :: struct {
     room_hash: u32;
-    coord: Room_Coord;
+    coord: Map_Coord;
     rotation: u8;
+    flags: Placed_Room_Flags;
 }
 
-Room_Coord :: struct {
-    x: u8;
-    y: u8;
+Map_Coord :: struct {
+    raw: [2]u8;
+    #overlay (raw) x: u8;
+    #overlay (raw[1]) y: u8;
+}
+
+Placed_Room_Flags :: enum_flags u8 {
+    DISCOVERED :: 1 << 0;
+    ENTERED_NORTH :: 1 << 1;
+    ENTERED_SOUTH :: 1 << 2;
+    ENTERED_EAST :: 1 << 3;
+    ENTERED_WEST :: 1 << 4;
 }
 
 /*
