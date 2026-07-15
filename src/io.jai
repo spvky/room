@@ -86,7 +86,7 @@ load_all_rooms :: () {
 
 #scope_file
 room_assert :: (msg: string) #expand {
-    assert(`success, "(%)[%] %\n", `path, msg);
+    assert(`success, "(%) %\n", `path, msg);
 }
 
 // Writes a passed (static) struct to file
