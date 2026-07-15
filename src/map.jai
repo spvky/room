@@ -16,15 +16,22 @@ init_map :: () {
     if !context.map {
         context.map = New(Map);
     }
+    load_map_rooms();
 }
 
-// For handling rooms, add them to an array of hashes, for purposes of cycling through, and have a persistent hashmap that links loaded rooms by their hash
+load_map_rooms :: () {
+    for *context.room_table {
+        if it.flags
+    }
 
-Placed_Room :: struct {
-    room_hash: u32;
-    coord: Coord;
-    rotation: u8;
-}
+    // For handling rooms, add them to an array of hashes, for purposes of cycling through, and have a persistent hashmap that links loaded rooms by their hash
 
-place_room :: (hash: u32) {
+    Placed_Room :: struct {
+        room_hash: u32;
+        coord: Coord;
+        rotation: u8;
+    }
+
+    place_room :: (hash: u32) {
+    }
 }

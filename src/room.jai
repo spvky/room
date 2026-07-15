@@ -4,11 +4,11 @@ ROOM_HEIGHT :: 22;
 tile_atlas: Sprite_Atlas;
 
 Room :: struct {
-    name: string;
-    int_grid: [ROOM_WIDTH * ROOM_HEIGHT]Room_Tile;
-    rune: Rune;
     // May want to store these seperately in a meta data file
     flags: Room_Flags;
+    int_grid: [ROOM_WIDTH * ROOM_HEIGHT]Room_Tile;
+    rune: Rune;
+    name: string;
     extra_data: [..]Extra_Entity_Data;
 }
 
