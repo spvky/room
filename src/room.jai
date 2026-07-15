@@ -3,19 +3,110 @@ ROOM_HEIGHT :: 22;
 
 tile_atlas: Sprite_Atlas;
 
-Room_Flags :: enum_flags u8 {
-    NO_ROTATE :: 1 << 0;
-    NO_MOVE_X :: 1 << 1;
-    NO_MOVE_Y :: 1 << 2;
-    NO_PICKUP :: 1 << 3;
-    MUST_BE_PLACED :: 1 << 4;
-}
-
 Room :: struct {
     name: string;
-    entities: [..]Entity;
+    int_grid: [ROOM_WIDTH * ROOM_HEIGHT]Room_Tile;
+    extra_data: [..]Extra_Entity_Data;
     flags: Room_Flags;
     rune: Rune;
+}
+
+Room_Tile :: enum u8 {
+    EMPTY;
+    WALL;
+    SLOPE;
+}
+
+Extra_Entity_Data :: struct {
+    subjet_idx: int;
+    subject_pos: Coord;
+    path_start: Coord;
+    path_end: Coord;
+    parent_pos: Coord;
+    child_pos: Coord;
+}
+
+Room_Flags :: enum_flags u16 {
+    DISCOVERED :: 1 << 0;
+    ENTERED_NORTH :: 1 << 1;
+    ENTERED_SOUTH :: 1 << 2;
+    ENTERED_EAST :: 1 << 3;
+    ENTERED_WEST :: 1 << 4;
+    NO_ROTATE :: 1 << 5;
+    NO_MOVE_X :: 1 << 6;
+    NO_MOVE_Y :: 1 << 7;
+    NO_PICKUP :: 1 << 8;
+    MUST_BE_PLACED :: 1 << 9;
+}
+
+#add_context current_editor_room: *Room;
+#add_context room_map: Table(u32, Room);
+
+init_editor_room :: () {
+    if !context.current_editor_room {
+        context.current_editor_room = New(Room);
+        context.current_editor_room.* = make_editor_room("New Room");
+    }
+}
+
+make_editor_room :: (name: string) -> Room {
+    room: Room;
+    room.name = copy_string(name);
+    return room;
+}
+
+paint_tile_values :: () {
+    room_ptr := context.current_editor_room;
+    if !context.editor_state.mouse_captured {
+        if mouse_left_down {
+            cell, ok := get_mouse_cell();
+            value_to_paint: Room_Tile = xx (context.editor_state.room_options.tile_type + 1);
+            if ok {
+                set_tile_value(room_ptr, value_to_paint, cell);
+            }
+        }
+
+        if mouse_right_down {
+            cell, ok := get_mouse_cell();
+            if ok {
+                set_tile_value(room_ptr, .EMPTY, cell);
+            }
+        }
+    }
+}
+
+get_mouse_cell :: () -> Coord, bool {
+    width := ifx context.editor_state.editor_type == 0 then ROOM_WIDTH else MAP_WIDTH;
+    height := ifx context.editor_state.editor_type == 0 then ROOM_HEIGHT else MAP_HEIGHT;
+    tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary := get_tile_ui_data(height);
+    mouse_x, mouse_y, ok := get_mouse_pointer_position();
+
+    mouse_y = WINDOW_HEIGHT - mouse_y; // Flip mouse y to match grid row ordering
+    in_bounds: bool;
+
+    mouse_x = (mouse_x - xx left_boundary) / xx tile_height;
+    mouse_y = (mouse_y - xx bot_boundary) / xx tile_height;
+
+    in_bounds = mouse_x >= 0 && mouse_x < width && mouse_y >= 0 && mouse_y < height;
+
+    // if context.editor_state.editor_type == {
+    // case 0;
+    //     mouse_x = (mouse_x - xx ROOM_LEFT_BOUNDARY) / xx ROOM_TILE_HEIGHT;
+    //     mouse_y = (mouse_y - xx ROOM_BOT_BOUNDARY) / xx ROOM_TILE_HEIGHT;
+    // 
+    //     in_bounds := mouse_x >= 0 && mouse_x < ROOM_WIDTH && mouse_y >= 0 && mouse_y < ROOM_HEIGHT;
+    // case 1;
+    //     mouse_x = (mouse_x - xx MAP_LEFT_BOUNDARY) / xx MAP_TILE_HEIGHT;
+    //     mouse_y = (mouse_y - xx MAP_BOT_BOUNDARY) / xx MAP_TILE_HEIGHT;
+    // 
+    //     in_bounds := mouse_x >= 0 && mouse_x < ROOM_WIDTH && mouse_y >= 0 && mouse_y < ROOM_HEIGHT;
+    // }
+    // 
+    return .{xx mouse_x, xx mouse_y}, ok && in_bounds;
+}
+
+check_room_tile_value :: (r: *Room, c: Coord) -> Room_Tile {
+    return r.int_grid[coord_to_index(c)];
 }
 
 // Might make more sense to remove these and rotate the int grid itself

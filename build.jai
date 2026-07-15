@@ -58,4 +58,3 @@ init :: () {
 #load "src/entity_manager.jai";
 #load "src/camera.jai";
 #load "src/map.jai";
-#load "src/placement.jai";

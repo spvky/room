@@ -43,8 +43,6 @@ render_grid :: () {
 
     set_shader_for_color();
 
-    tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary: float32;
-
     if context.editor_state.editor_type == {
         // Room
     case 0;
@@ -59,20 +57,23 @@ render_grid :: () {
     }
 }
 
-render_boundaries_from_cell :: (x: int, y: int) -> float32, float32, float32, float32 {
-    left := GRID_LEFT_BOUNDARY + (GRID_TILE_HEIGHT * xx x);
-    right := GRID_LEFT_BOUNDARY + (GRID_TILE_HEIGHT * (xx x + 1));
-    bot := GRID_BOT_BOUNDARY + (GRID_TILE_HEIGHT * xx y);
-    top := GRID_BOT_BOUNDARY + (GRID_TILE_HEIGHT * (xx y + 1));
+render_boundaries_from_cell :: (c: Coord) -> float32, float32, float32, float32 {
+    height := ifx context.editor_state.editor_type == 0 then ROOM_HEIGHT else MAP_HEIGHT;
+    tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary := get_tile_ui_data(height);
+
+    left := left_boundary + (tile_height * xx c.x);
+    right := left_boundary + (tile_height * (xx c.x + 1));
+    bot := bot_boundary + (tile_height * xx c.y);
+    top := bot_boundary + (tile_height * (xx c.y + 1));
     return left, right, bot, top;
 }
 
 render_selection :: () {
     set_shader_for_color(true);
-    x, y, ok := get_mouse_cell();
+    cell, ok := get_mouse_cell();
 
     if ok {
-        left, right, bot, top := render_boundaries_from_cell(x, y);
+        left, right, bot, top := render_boundaries_from_cell(cell);
 
         immediate_quad(
                        .{left, top},
@@ -83,11 +84,12 @@ render_selection :: () {
     }
 }
 
-render_room_tiles :: (r: *Editor_Room) {
+render_room_tiles :: (r: *Room) {
     for <y: 0..ROOM_HEIGHT - 1 {
         for x: 0..ROOM_WIDTH - 1 {
-            val := check_tile_value(r, x, y);
-            left, right, bot, top := render_boundaries_from_cell(x, y);
+            coord := Coord.{xx x, xx y};
+            val := check_tile_value(r, coord);
+            left, right, bot, top := render_boundaries_from_cell(coord);
             if val == {
             case .WALL;
                 immediate_quad(

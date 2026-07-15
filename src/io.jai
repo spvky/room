@@ -1,12 +1,12 @@
 ROOMS_PATH :: "assets/rooms";
 /*
-	Editor_Room :: struct {
+	Room :: struct {
 		name: string
 		int_grid: Grid of entity types
 		extra_entity_data: [..]Extra_Entity_Data
 	}
 */
-save_room :: (r: Editor_Room) {
+save_room :: (r: Room) {
     path := tprint("%/%.room", ROOMS_PATH, r.name);
     replace_chars(path, " ", #char "_");
     file, ok := file_open(path, true);
@@ -29,15 +29,13 @@ save_room :: (r: Editor_Room) {
     } else {
         print("No entity data in %, skipping writing it!\n", path);
     }
-    success = file_write(*file, *r.flags, size_of(Room_Flags));
-    room_assert("Failed to write room flags!");
-    conv_rune: u16 = (cast(*u16)(*r.rune.markings)).*;
-    print("Rune marking value of: %\n", conv_rune);
     success = file_write(*file, *r.rune, size_of(Rune));
     room_assert("Failed to write room rune!");
+    success = file_write(*file, *r.flags, size_of(Room_Flags));
+    room_assert("Failed to write room flags!");
 }
 
-load_room :: (filename: string) -> Editor_Room {
+load_room :: (filename: string) -> Room {
     // Helper for logging loading errors
     path := tprint("%/%", ROOMS_PATH, filename);
     file, ok := file_open(path);
@@ -46,7 +44,7 @@ load_room :: (filename: string) -> Editor_Room {
         file_close(*file);
         print("Finished reading room from %\n", path);
     }
-    r: Editor_Room;
+    r: Room;
     name_length: int;
     success := file_read(file, *name_length, size_of(int));
     room_assert("Failed to read room name length!");
@@ -65,13 +63,16 @@ load_room :: (filename: string) -> Editor_Room {
     } else {
         print("No entity data in %, skipping reading it!\n", path);
     }
-    success = file_read(file, *r.flags, size_of(Room_Flags));
-    room_assert("Failed to read room flags!");
     success = file_read(file, *r.rune, size_of(Rune));
     room_assert("Failed to read room rune!");
+    success = file_read(file, *r.flags, size_of(Room_Flags));
+    room_assert("Failed to read room flags!");
     room_hash := djb2_hash(r.name);
     print("Loaded % with a hash of %\n", r.name, room_hash);
     return r;
+}
+
+load_all_rooms :: () {
 }
 
 #scope_file
