@@ -44,6 +44,7 @@ init :: () {
 #import "String";
 #import "Hash_Table";
 #import "Hash";
+#import "stb_image_write";
 #load "src/assets.jai";
 #load "src/room.jai";
 #load "src/render.jai";

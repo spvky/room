@@ -19,7 +19,7 @@ save_room :: (r: Room) {
     success = file_write(*file, *r.rune, size_of(Rune));
     room_assert("Failed to write room rune!");
     // Name
-    success := file_write(*file, *r.name.count, size_of(int));
+    success = file_write(*file, *r.name.count, size_of(int));
     room_assert("Failed to write name string length for room!");
     success = file_write(*file, r.name.data, r.name.count);
     room_assert("Failed to write room name!");
@@ -45,7 +45,7 @@ load_room :: (filename: string) -> Room {
     }
     r: Room;
     // Flags
-    success = file_read(file, *r.flags, size_of(Room_Flags));
+    success := file_read(file, *r.flags, size_of(Room_Flags));
     room_assert("Failed to read room flags!");
     // Int Grid
     success = file_read(file, *r.int_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Room_Tile));
@@ -55,7 +55,7 @@ load_room :: (filename: string) -> Room {
     room_assert("Failed to read room rune!");
     // Name
     name_length: int;
-    success := file_read(file, *name_length, size_of(int));
+    success = file_read(file, *name_length, size_of(int));
     room_assert("Failed to read room name length!");
     r.name = alloc_string(name_length);
     success = file_read(file, r.name.data, name_length);
@@ -107,8 +107,8 @@ generate_room_png :: (r: *Room) {
     data: [ROOM_WIDTH * ROOM_HEIGHT * channels]u8;
     stride := xx ROOM_HEIGHT * channels;
 
-    for 0..width * height - 1 {
-        if it < xx width {
+    for 0..ROOM_WIDTH * ROOM_HEIGHT - 1 {
+        if it < xx ROOM_WIDTH {
             data[it * channels] = 255;
         }
         data[(it * channels) + 1] = 125;
@@ -116,5 +116,5 @@ generate_room_png :: (r: *Room) {
         data[(it * channels) + 3] = 255;
     }
     // Get output path, but the writing here works
-    stbi_write_png("output.png", width, height, channels, *data, stride);
+    stbi_write_png("output.png", xx ROOM_WIDTH, xx ROOM_HEIGHT, channels, *data, stride);
 }

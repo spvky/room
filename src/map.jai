@@ -25,13 +25,13 @@ load_map_rooms :: () {
     }
 
     // For handling rooms, add them to an array of hashes, for purposes of cycling through, and have a persistent hashmap that links loaded rooms by their hash
+}
 
-    Placed_Room :: struct {
-        room_hash: u32;
-        coord: Coord;
-        rotation: u8;
-    }
+Placed_Room :: struct {
+    room_hash: u32;
+    coord: Coord;
+    rotation: u8;
+}
 
-    place_room :: (hash: u32) {
-    }
+place_room :: (hash: u32) {
 }
