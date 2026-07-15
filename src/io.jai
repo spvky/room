@@ -9,12 +9,21 @@ save_room :: (r: Room) {
         file_close(*file);
         print("Finished writing room to %\n", path);
     }
+    // Flags
+    success := file_write(*file, *r.flags, size_of(Room_Flags));
+    room_assert("Failed to write room flags!");
+    // Int Grid
+    success = file_write(*file, *r.int_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Room_Tile));
+    room_assert("Failed to write int_grid!");
+    // Rune
+    success = file_write(*file, *r.rune, size_of(Rune));
+    room_assert("Failed to write room rune!");
+    // Name
     success := file_write(*file, *r.name.count, size_of(int));
     room_assert("Failed to write name string length for room!");
     success = file_write(*file, r.name.data, r.name.count);
     room_assert("Failed to write room name!");
-    success = file_write(*file, *r.int_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Room_Tile));
-    room_assert("Failed to write int_grid!");
+    // Extra Entity Data
     success = file_write(*file, *r.extra_data.count, size_of(int));
     room_assert("Failed to write extra entity data count!");
     if r.extra_data.count > 0 {
@@ -23,10 +32,6 @@ save_room :: (r: Room) {
     } else {
         print("No entity data in %, skipping writing it!\n", path);
     }
-    success = file_write(*file, *r.rune, size_of(Rune));
-    room_assert("Failed to write room rune!");
-    success = file_write(*file, *r.flags, size_of(Room_Flags));
-    room_assert("Failed to write room flags!");
 }
 
 load_room :: (filename: string) -> Room {
@@ -39,14 +44,23 @@ load_room :: (filename: string) -> Room {
         print("Finished reading room from %\n", path);
     }
     r: Room;
+    // Flags
+    success = file_read(file, *r.flags, size_of(Room_Flags));
+    room_assert("Failed to read room flags!");
+    // Int Grid
+    success = file_read(file, *r.int_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Room_Tile));
+    room_assert("Failure when reading room int_grid!");
+    // Rune
+    success = file_read(file, *r.rune, size_of(Rune));
+    room_assert("Failed to read room rune!");
+    // Name
     name_length: int;
     success := file_read(file, *name_length, size_of(int));
     room_assert("Failed to read room name length!");
     r.name = alloc_string(name_length);
     success = file_read(file, r.name.data, name_length);
     room_assert("Failure when reading room name!");
-    success = file_read(file, *r.int_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Room_Tile));
-    room_assert("Failure when reading room int_grid!");
+    // Extra Entity Data
     entity_data_count: int;
     success = file_read(file, *entity_data_count, size_of(int));
     room_assert("Failure when reading entity data count!");
@@ -57,10 +71,6 @@ load_room :: (filename: string) -> Room {
     } else {
         print("No entity data in %, skipping reading it!\n", path);
     }
-    success = file_read(file, *r.rune, size_of(Rune));
-    room_assert("Failed to read room rune!");
-    success = file_read(file, *r.flags, size_of(Room_Flags));
-    room_assert("Failed to read room flags!");
     return r;
 }
 
@@ -90,4 +100,21 @@ write_struct_to_file :: (file: *File, t: *$T) {
         success := file_write(file, (cast(*u8)t) + it.offset_in_bytes, it.type.runtime_size);
         assert(success, "Failed to write struct field %\nin file %\n", it.name, file);
     }
+}
+
+generate_room_png :: (r: *Room) {
+    channels: s32: 4;
+    data: [ROOM_WIDTH * ROOM_HEIGHT * channels]u8;
+    stride := xx ROOM_HEIGHT * channels;
+
+    for 0..width * height - 1 {
+        if it < xx width {
+            data[it * channels] = 255;
+        }
+        data[(it * channels) + 1] = 125;
+        data[(it * channels) + 2] = 125;
+        data[(it * channels) + 3] = 255;
+    }
+    // Get output path, but the writing here works
+    stbi_write_png("output.png", width, height, channels, *data, stride);
 }

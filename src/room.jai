@@ -6,9 +6,10 @@ tile_atlas: Sprite_Atlas;
 Room :: struct {
     name: string;
     int_grid: [ROOM_WIDTH * ROOM_HEIGHT]Room_Tile;
-    extra_data: [..]Extra_Entity_Data;
     rune: Rune;
+    // May want to store these seperately in a meta data file
     flags: Room_Flags;
+    extra_data: [..]Extra_Entity_Data;
 }
 
 Room_Tile :: enum u8 {

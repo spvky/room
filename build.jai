@@ -31,6 +31,7 @@ init :: () {
     init_editor();
     init_entities();
     init_rooms();
+    init_map();
 }
 
 #import "Basic";
