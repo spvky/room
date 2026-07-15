@@ -21,7 +21,7 @@ init_map :: () {
 
 load_map_rooms :: () {
     for *context.room_table {
-        if it.flags
+        // CHeck it.flags
     }
 
     // For handling rooms, add them to an array of hashes, for purposes of cycling through, and have a persistent hashmap that links loaded rooms by their hash
