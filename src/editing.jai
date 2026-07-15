@@ -37,8 +37,6 @@ parse_tiles :: (r: *Room) {
         return !`parsed[coord_to_index(.{xx x, xx y})] && check_tile_value(`r, .{xx x, xx y}) == .WALL;
     }
 
-    // array_reset(*r.colliders);
-
     // Calculate all walls first
     parsed: [ROOM_WIDTH * ROOM_HEIGHT]bool;
     for <y: 0..ROOM_HEIGHT - 1 {

@@ -7,8 +7,8 @@ Room :: struct {
     name: string;
     int_grid: [ROOM_WIDTH * ROOM_HEIGHT]Room_Tile;
     extra_data: [..]Extra_Entity_Data;
-    flags: Room_Flags;
     rune: Rune;
+    flags: Room_Flags;
 }
 
 Room_Tile :: enum u8 {
@@ -40,13 +40,19 @@ Room_Flags :: enum_flags u16 {
 }
 
 #add_context current_editor_room: *Room;
-#add_context room_map: Table(u32, Room);
+#add_context room_table: *Table(u32, Room);
 
-init_editor_room :: () {
+init_rooms :: () {
     if !context.current_editor_room {
         context.current_editor_room = New(Room);
         context.current_editor_room.* = make_editor_room("New Room");
     }
+
+    if !context.room_table {
+        context.room_table = New(Table(u32, Room));
+    }
+
+    load_all_rooms();
 }
 
 make_editor_room :: (name: string) -> Room {
@@ -89,19 +95,6 @@ get_mouse_cell :: () -> Coord, bool {
 
     in_bounds = mouse_x >= 0 && mouse_x < width && mouse_y >= 0 && mouse_y < height;
 
-    // if context.editor_state.editor_type == {
-    // case 0;
-    //     mouse_x = (mouse_x - xx ROOM_LEFT_BOUNDARY) / xx ROOM_TILE_HEIGHT;
-    //     mouse_y = (mouse_y - xx ROOM_BOT_BOUNDARY) / xx ROOM_TILE_HEIGHT;
-    // 
-    //     in_bounds := mouse_x >= 0 && mouse_x < ROOM_WIDTH && mouse_y >= 0 && mouse_y < ROOM_HEIGHT;
-    // case 1;
-    //     mouse_x = (mouse_x - xx MAP_LEFT_BOUNDARY) / xx MAP_TILE_HEIGHT;
-    //     mouse_y = (mouse_y - xx MAP_BOT_BOUNDARY) / xx MAP_TILE_HEIGHT;
-    // 
-    //     in_bounds := mouse_x >= 0 && mouse_x < ROOM_WIDTH && mouse_y >= 0 && mouse_y < ROOM_HEIGHT;
-    // }
-    // 
     return .{xx mouse_x, xx mouse_y}, ok && in_bounds;
 }
 

@@ -1,11 +1,5 @@
 ROOMS_PATH :: "assets/rooms";
-/*
-	Room :: struct {
-		name: string
-		int_grid: Grid of entity types
-		extra_entity_data: [..]Extra_Entity_Data
-	}
-*/
+
 save_room :: (r: Room) {
     path := tprint("%/%.room", ROOMS_PATH, r.name);
     replace_chars(path, " ", #char "_");
@@ -67,12 +61,17 @@ load_room :: (filename: string) -> Room {
     room_assert("Failed to read room rune!");
     success = file_read(file, *r.flags, size_of(Room_Flags));
     room_assert("Failed to read room flags!");
-    room_hash := djb2_hash(r.name);
-    print("Loaded % with a hash of %\n", r.name, room_hash);
     return r;
 }
 
 load_all_rooms :: () {
+    for file_list("assets/rooms",, temp) {
+        _, _, _, filename := path_decomp(it);
+        room := load_room(filename); // Put the room into the map from here
+        room_hash := djb2_hash(room.name);
+        table_add(context.room_table, room_hash, room);
+        print("Room: % | % has been added to the table\n", room.name, room_hash);
+    }
 }
 
 #scope_file

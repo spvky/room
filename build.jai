@@ -30,7 +30,7 @@ init :: () {
     init_textures();
     init_editor();
     init_entities();
-    init_editor_room();
+    init_rooms();
 }
 
 #import "Basic";
