@@ -1,6 +1,6 @@
 Coord :: struct {
-    x: u8;
-    y: u8;
+    x: s8;
+    y: s8;
 }
 
 Coord_Kind :: enum u8 {
@@ -42,6 +42,7 @@ parse_tiles :: (r: *Room) {
     for <y: 0..ROOM_HEIGHT - 1 {
         for x: 0..ROOM_WIDTH - 1 {
             if is_valid_wall(x, y) {
+                print("Found a wall at: %,% | %!\n", x, y, coord_to_index(.{xx x, xx y}));
                 left := x;
                 right := x;
                 top := y;
@@ -51,6 +52,7 @@ parse_tiles :: (r: *Room) {
                 iy := y;
                 while is_valid_wall(ix, iy) {
                     right = ix;
+                    if ix == ROOM_WIDTH - 1 break;
                     ix += 1;
                 }
                 for left..right parsed[coord_to_index(.{xx it, xx iy})] = true;

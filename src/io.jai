@@ -32,6 +32,10 @@ save_room :: (r: Room) {
     } else {
         print("No entity data in %, skipping writing it!\n", path);
     }
+
+    img_path := tprint("%/%.png", ROOMS_PATH, r.name);
+    replace_chars(path, " ", #char "_");
+    generate_room_png(*r, img_path);
 }
 
 load_room :: (filename: string) -> Room {
@@ -76,11 +80,13 @@ load_room :: (filename: string) -> Room {
 
 load_all_rooms :: () {
     for file_list("assets/rooms",, temp) {
-        _, _, _, filename := path_decomp(it);
-        room := load_room(filename); // Put the room into the map from here
-        room_hash := djb2_hash(room.name);
-        table_add(context.room_table, room_hash, room);
-        print("Room: % | % has been added to the table\n", room.name, room_hash);
+        _, _, extension, filename := path_decomp(it);
+        if equal(extension, ".room") {
+            room := load_room(filename); // Put the room into the map from here
+            room_hash := djb2_hash(room.name);
+            table_add(context.room_table, room_hash, room);
+            print("Room: % | % has been added to the table\n", room.name, room_hash);
+        }
     }
 }
 
@@ -102,19 +108,51 @@ write_struct_to_file :: (file: *File, t: *$T) {
     }
 }
 
-generate_room_png :: (r: *Room) {
+generate_room_png :: (r: *Room, path: string) {
     channels: s32: 4;
     data: [ROOM_WIDTH * ROOM_HEIGHT * channels]u8;
     stride := xx ROOM_HEIGHT * channels;
 
-    for 0..ROOM_WIDTH * ROOM_HEIGHT - 1 {
-        if it < xx ROOM_WIDTH {
-            data[it * channels] = 255;
+    i: int;
+    for <y: 0..ROOM_HEIGHT - 1 {
+        for x: 0..ROOM_WIDTH - 1 {
+            value := check_tile_value(r, .{xx x, xx y});
+            if value == {
+            case .WALL;
+                data[(i * channels)] = 255;
+                data[(i * channels) + 1] = 255;
+                data[(i * channels) + 2] = 255;
+                data[(i * channels) + 3] = 255;
+
+            case;
+                data[(i * channels)] = 80;
+                data[(i * channels) + 1] = 115;
+                data[(i * channels) + 2] = 240;
+                data[(i * channels) + 3] = 255;
+            }
+            i += 1;
         }
-        data[(it * channels) + 1] = 125;
-        data[(it * channels) + 2] = 125;
-        data[(it * channels) + 3] = 255;
     }
+
+    // for 0..ROOM_WIDTH * ROOM_HEIGHT - 1 {
+    //     r.int;
+    //     if it < xx ROOM_WIDTH {
+    //         data[it * channels] = 255;
+    //     }
+    //     data[(it * channels) + 1] = 125;
+    //     data[(it * channels) + 2] = 125;
+    //     data[(it * channels) + 3] = 255;
+    // }
     // Get output path, but the writing here works
-    stbi_write_png("output.png", xx ROOM_WIDTH, xx ROOM_HEIGHT, channels, *data, stride);
+    raw_path := to_c_string(path);
+    defer free(raw_path);
+    stbi_write_png(raw_path, xx ROOM_WIDTH, xx ROOM_HEIGHT, channels, *data, stride);
+}
+
+to_c_string :: (s: string) -> *u8 {
+    result := cast(*u8)alloc(s.count + 1); // Add 1 for the zero.
+    memcpy(result, s.data, s.count);
+    result[s.count] = 0;
+
+    return result;
 }
