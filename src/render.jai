@@ -18,18 +18,11 @@ render :: () {
     // render_sprite(player_sprite, .{500, 500}, .{200, 200});
     // render_rune(context.current_editor_room.rune, .{700, 500}, .{300, 300}, .{1, 1, 1, 1});
 
-    x: float32;
+    x: float32 = 200;
     for *context.room_table {
         sprite := make_sprite(*it.texture);
-        print("Room Texture: %\n", *it.texture);
-        x += 200;
+        x += 310;
         render_sprite(sprite, .{x, 500}, .{300, 300});
-        // set_shader_for_images(*it.texture);
-        // a := Vector2.{600, 0};
-        // b := Vector2.{1200, 0};
-        // c := Vector2.{1200, 600};
-        // d := Vector2.{600, 600};
-        // immediate_quad(a, b, c, d, .{1, 1, 1, 1});
     }
 
     render_editor_ui();
