@@ -34,7 +34,7 @@ save_room :: (r: Room) {
     }
 
     img_path := tprint("%/%.png", ROOMS_PATH, r.name);
-    replace_chars(path, " ", #char "_");
+    replace_chars(img_path, " ", #char "_");
     generate_room_png(*r, img_path);
 }
 
@@ -75,15 +75,22 @@ load_room :: (filename: string) -> Room {
     } else {
         print("No entity data in %, skipping reading it!\n", path);
     }
+
+    img_path := tprint("%/%.png", ROOMS_PATH, r.name);
+    replace_chars(img_path, " ", #char "_");
+    texture_ok := texture_load_from_file(*r.texture, img_path);
+    room_assert("Failure to load room texture!");
+
     return r;
 }
 
 load_all_rooms :: () {
     for file_list("assets/rooms",, temp) {
         _, _, extension, filename := path_decomp(it);
-        if equal(extension, ".room") {
+        if equal(extension, "room") {
             room := load_room(filename); // Put the room into the map from here
             room_hash := djb2_hash(room.name);
+
             table_add(context.room_table, room_hash, room);
             print("Room: % | % has been added to the table\n", room.name, room_hash);
         }

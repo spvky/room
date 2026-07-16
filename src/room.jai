@@ -10,6 +10,7 @@ Room :: struct {
     rune: Rune;
     name: string;
     extra_data: [..]Extra_Entity_Data;
+    texture: Texture;
 }
 
 Room_Tile :: enum u8 {
