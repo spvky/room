@@ -9,6 +9,18 @@ process_input :: () {
             break;
         }
 
+        if event.key_code == .ARROW_UP {
+            if event.key_pressed {
+                prev_map_selected_idx();
+            }
+        }
+
+        if event.key_code == .ARROW_DOWN {
+            if event.key_pressed {
+                next_map_selected_idx();
+            }
+        }
+
         if event.key_code == .MOUSE_BUTTON_LEFT {
             if event.key_pressed {
                 mouse_left_down = true;

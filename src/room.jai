@@ -1,8 +1,6 @@
 ROOM_WIDTH :: 22;
 ROOM_HEIGHT :: 22;
 
-tile_atlas: Sprite_Atlas;
-
 Room :: struct {
     // May want to store these seperately in a meta data file
     flags: Room_Flags;

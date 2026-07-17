@@ -4,16 +4,10 @@ WINDOW_WIDTH :: 1920;
 WINDOW_HEIGHT :: 1080;
 
 main :: () {
-    print("Yo\n");
     window = create_window(WINDOW_WIDTH, WINDOW_HEIGHT, "Room");
     set_render_target(window);
-    print("Right Mid PCT: %\n", RIGHT_CHANNEL_MID_PCT);
-
     init();
 
-    // player_tex = load_texture_from_file("player.png");
-    // player_sprite = make_sprite(*player_tex);
-    // helman := load_editor_room_from_file("Timothy.room");
     while !should_close {
         update_window_events();
         for event: events_this_frame {
