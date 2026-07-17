@@ -22,7 +22,8 @@ render :: () {
     for *context.room_table {
         sprite := make_sprite(*it.texture);
         x += 310;
-        render_sprite(sprite, .{x, 500}, .{300, 300});
+        // render_sprite(sprite, .{x, 500}, .{300, 300});
+        render_room_and_frame(it, .{x, 500}, .{300, 300});
     }
 
     render_editor_ui();

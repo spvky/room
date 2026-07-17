@@ -81,13 +81,15 @@ draw_file_load_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     s.y += editor_state.load_window_scroll_value;
 
     for file_list("assets/rooms",, temp) {
-        _, _, _, filename := path_decomp(it);
-        pressed := button(s, filename, identifier = it_index);
-        if pressed {
-            context.current_editor_room.* = load_room(filename);
-            editor_state.file_load_window.open = false;
+        _, _, extension, filename := path_decomp(it);
+        if equal(extension, "room") {
+            pressed := button(s, filename, identifier = it_index);
+            s.y -= 60;
+            if pressed {
+                context.current_editor_room.* = load_room(filename);
+                editor_state.file_load_window.open = false;
+            }
         }
-        s.y -= 60;
     }
     end_scrollable_region(scroll_region, s.x + s.w, s.y, *editor_state.load_window_scroll_value);
 }

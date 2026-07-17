@@ -33,5 +33,9 @@ Placed_Room :: struct {
     rotation: u8;
 }
 
-place_room :: (hash: u32) {
+render_room_and_frame :: (room: *Room, position: Vector2, size: Vector2) {
+    frame_sprite := make_sprite(*context.atlas.room_frame_texture);
+    render_sprite(frame_sprite, position, size);
+    room_sprite := make_sprite(*room.texture);
+    render_sprite(room_sprite, position, size * 0.4583);
 }
