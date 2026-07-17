@@ -38,4 +38,6 @@ render_room_and_frame :: (room: *Room, position: Vector2, size: Vector2) {
     render_sprite(frame_sprite, position, size);
     room_sprite := make_sprite(*room.texture);
     render_sprite(room_sprite, position, size * 0.4583);
+    rune_pos := position - (size / 2) + (.{size.x * 0.18, size.y * 0.1458});
+    render_rune(room.rune, rune_pos, size * 0.25, .{1, 1, 1, 1});
 }
