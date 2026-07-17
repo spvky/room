@@ -7,6 +7,7 @@ main :: () {
     print("Yo\n");
     window = create_window(WINDOW_WIDTH, WINDOW_HEIGHT, "Room");
     set_render_target(window);
+    print("Right Mid PCT: %\n", RIGHT_CHANNEL_MID_PCT);
 
     init();
 
@@ -60,3 +61,4 @@ init :: () {
 #load "src/entity_manager.jai";
 #load "src/camera.jai";
 #load "src/map.jai";
+#load "src/game_ui.jai";

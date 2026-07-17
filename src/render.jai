@@ -1,3 +1,6 @@
+DISPLAY_WIDTH :: 320;
+DISPLAY_HEIGHT :: 180;
+
 get_tile_ui_data :: (height: int) -> float32, float32, float32, float32, float32, float32 {
     tile_height: float32 = (cast(float32)(WINDOW_HEIGHT - 50) / cast(float32)height);
     grid_height: float32 = tile_height * cast(float32)height;
@@ -18,14 +21,7 @@ render :: () {
     // render_sprite(player_sprite, .{500, 500}, .{200, 200});
     // render_rune(context.current_editor_room.rune, .{700, 500}, .{300, 300}, .{1, 1, 1, 1});
 
-    x: float32 = 200;
-    for *context.room_table {
-        sprite := make_sprite(*it.texture);
-        x += 310;
-        // render_sprite(sprite, .{x, 500}, .{300, 300});
-        render_room_and_frame(it, .{x, 500}, .{300, 300});
-    }
-
+    render_gameplay_ui();
     render_editor_ui();
     swap_buffers(window);
 }
