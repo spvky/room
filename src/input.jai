@@ -21,10 +21,17 @@ Action :: enum {
 
 init_input :: () {
     init_input_buffer();
+    // Editor
     register_input(.EDITOR_LEFT_CLICK, .MOUSE_BUTTON_LEFT);
     register_input(.EDITOR_RIGHT_CLICK, .MOUSE_BUTTON_RIGHT);
+    // Menu
     register_input(.MENU_UP, .ARROW_UP);
     register_input(.MENU_DOWN, .ARROW_DOWN);
+    // Gameplay
+    register_input(.MOVE_LEFT, #char "A");
+    register_input(.MOVE_RIGHT, #char "D");
+    register_input(.MOVE_UP, #char "W");
+    register_input(.MOVE_DOWN, #char "S");
 }
 
 process_input :: (delta: float32) {
@@ -38,15 +45,4 @@ process_input :: (delta: float32) {
         }
     }
     // /////////////////////////////////////////////////
-    room_ptr := context.current_editor_room;
-
-    if is_action_buffered(.MENU_UP) {
-        consume_action(.MENU_UP);
-        prev_map_selected_idx();
-    }
-
-    if is_action_buffered(.MENU_DOWN) {
-        consume_action(.MENU_DOWN);
-        next_map_selected_idx();
-    }
 }

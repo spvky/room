@@ -91,6 +91,13 @@ render_selection :: () {
     case 1;
         room := get_room_at_wrapping_index(context.map.selected_idx);
         set_shader_for_images(*room.texture);
+        left, right, bot, top := render_boundaries_from_cell(context.editor_state.map_cursor_position);
+        immediate_quad(
+                       .{left, bot},
+                       .{right, bot},
+                       .{right, top},
+                       .{left, top},
+                       .{1, 1, 1, 0.3});
     }
 
     if get_editor_mode() == {

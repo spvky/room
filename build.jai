@@ -20,11 +20,13 @@ main :: () {
         }
         #if OS == .WINDOWS get_mouse_cell();
         process_input(delta);
-        #if OS == .WINDOWS {
-            if get_editor_mode() == {
-            case 0;
+        if get_editor_mode() == {
+        case 0;
+            #if OS == .WINDOWS {
                 paint_tile_values();
             }
+        case 1;
+            map_screen_update();
         }
         render();
         reset_temporary_storage();
