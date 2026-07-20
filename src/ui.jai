@@ -23,6 +23,7 @@ Editor_State :: struct {
     load_window_scroll_value: float32;
     kb_captured: bool;
     mouse_captured: bool;
+    map_cursor_position: Coord;
     primary_window: Subwindow_Info = .{
                                        rect = #run get_rect(20, cast(float32)WINDOW_HEIGHT - 510, 400, 500),
                                        draw = draw_primary_window,
