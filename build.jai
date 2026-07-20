@@ -15,9 +15,18 @@ main :: () {
         }
         #if OS == .WINDOWS get_mouse_cell();
         process_input();
-        #if OS == .WINDOWS paint_tile_values();
+        #if OS == .WINDOWS {
+            if get_editor_mode() == {
+            case 0;
+                paint_tile_values();
+            }
+        }
         render();
     }
+}
+
+get_editor_mode :: () -> s32 {
+    return context.editor_state.editor_type;
 }
 
 init :: () {

@@ -4,6 +4,14 @@ LEFT_CHANNEL_MID_PCT: float32: #run LEFT_BOUND_PCT / 2;
 RIGHT_CHANNEL_MID_PCT: float32: #run RIGHT_BOUNT_PCT + (LEFT_BOUND_PCT / 2);
 
 render_gameplay_ui :: () {
+    if get_editor_mode() == {
+    case 0;
+    case 1;
+        render_room_placement_ui();
+    }
+}
+
+render_room_placement_ui :: () {
     x: float32 = RIGHT_CHANNEL_MID_PCT * xx WINDOW_WIDTH;
     y: float32 = 950;
     element: int;

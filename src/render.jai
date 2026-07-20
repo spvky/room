@@ -79,13 +79,30 @@ render_selection :: () {
 
     if ok {
         left, right, bot, top := render_boundaries_from_cell(cell);
+        if get_editor_mode() == {
+        case 0;
+            set_shader_for_color(true);
 
-        immediate_quad(
-                       .{left, top},
-                       .{left, bot},
-                       .{right, bot},
-                       .{right, top},
-                       .{1, 1, 1, 0.3});
+            immediate_quad(
+                           .{left, bot},
+                           .{right, bot},
+                           .{right, top},
+                           .{left, top},
+                           .{1, 1, 1, 0.3});
+        case 1;
+            room := get_room_at_wrapping_index(context.map.selected_idx);
+            if room {
+                set_shader_for_images(*room.texture);
+            } else {
+                set_shader_for_color(true);
+            }
+            immediate_quad(
+                           .{left, bot},
+                           .{right, bot},
+                           .{right, top},
+                           .{left, top},
+                           .{1, 1, 1, 0.3});
+        }
     }
 }
 
@@ -114,13 +131,3 @@ render_room_tiles :: (r: *Room) {
         }
     }
 }
-// 
-// render_colliders :: () {
-//     for colliders {
-//         p0 := Vector2.{it.min.x, it.max.y};
-//         p1 := Vector2.{it.min.x, it.min.y};
-//         p2 := Vector2.{it.max.x, it.min.y};
-//         p3 := Vector2.{it.max.x, it.max.y};
-//         immediate_quad(p0, p1, p2, p3, .{0, 1, 0, 1});
-//     }
-// }
