@@ -64,7 +64,7 @@ make_editor_room :: (name: string) -> Room {
 paint_tile_values :: () {
     room_ptr := context.current_editor_room;
     if !context.editor_state.mouse_captured {
-        if mouse_left_down {
+        if is_action_held(.EDITOR_LEFT_CLICK) {
             cell, ok := get_mouse_cell();
             value_to_paint: Room_Tile = xx (context.editor_state.room_options.tile_type + 1);
             if ok {
@@ -72,7 +72,7 @@ paint_tile_values :: () {
             }
         }
 
-        if mouse_right_down {
+        if is_action_held(.EDITOR_RIGHT_CLICK) {
             cell, ok := get_mouse_cell();
             if ok {
                 set_tile_value(room_ptr, .EMPTY, cell);

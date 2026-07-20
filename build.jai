@@ -2,6 +2,7 @@ window: Window_Type;
 should_close: bool;
 WINDOW_WIDTH :: 1920;
 WINDOW_HEIGHT :: 1080;
+last_time: float64;
 
 main :: () {
     window = create_window(WINDOW_WIDTH, WINDOW_HEIGHT, "Room");
@@ -10,11 +11,15 @@ main :: () {
 
     while !should_close {
         update_window_events();
+        now := seconds_since_init();
+        raw_delta: float64 = now - last_time;
+        delta := cast(float32)raw_delta;
+        last_time = now;
         for event: events_this_frame {
             getrect_handle_event(event);
         }
         #if OS == .WINDOWS get_mouse_cell();
-        process_input();
+        process_input(delta);
         #if OS == .WINDOWS {
             if get_editor_mode() == {
             case 0;
@@ -22,6 +27,7 @@ main :: () {
             }
         }
         render();
+        reset_temporary_storage();
     }
 }
 
@@ -36,12 +42,14 @@ init :: () {
     init_entities();
     init_rooms();
     init_map();
+    init_input();
 }
 
 #import "Basic";
 #import "Simp";
 #import "Simp_Extended";
 #import "Input";
+#import "InputBuffer"(ACTION_TYPE = Action);
 #import "Math";
 #import "Window_Creation";
 #import "File";

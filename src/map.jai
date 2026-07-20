@@ -44,7 +44,7 @@ next_map_selected_idx :: () {
 
 prev_map_selected_idx :: () {
     new_idx := context.map.selected_idx - 1;
-    if new_idx <= 0 then new_idx = context.map.available_rooms.count - 1;
+    if new_idx < 0 then new_idx = context.map.available_rooms.count - 1;
     context.map.selected_idx = new_idx;
 }
 

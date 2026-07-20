@@ -74,28 +74,13 @@ render_boundaries_from_cell :: (c: Coord) -> float32, float32, float32, float32 
 }
 
 render_selection :: () {
-    set_shader_for_color(true);
-    cell, ok := get_mouse_cell();
-
-    if ok {
-        left, right, bot, top := render_boundaries_from_cell(cell);
-        if get_editor_mode() == {
-        case 0;
-            set_shader_for_color(true);
-
-            immediate_quad(
-                           .{left, bot},
-                           .{right, bot},
-                           .{right, top},
-                           .{left, top},
-                           .{1, 1, 1, 0.3});
-        case 1;
-            room := get_room_at_wrapping_index(context.map.selected_idx);
-            if room {
-                set_shader_for_images(*room.texture);
-            } else {
-                set_shader_for_color(true);
-            }
+    left, right, bot, top: float32;
+    if get_editor_mode() == {
+    case 0;
+        set_shader_for_color(true);
+        cell, ok := get_mouse_cell();
+        if ok {
+            left, right, bot, top := render_boundaries_from_cell(cell);
             immediate_quad(
                            .{left, bot},
                            .{right, bot},
@@ -103,6 +88,34 @@ render_selection :: () {
                            .{left, top},
                            .{1, 1, 1, 0.3});
         }
+    case 1;
+        room := get_room_at_wrapping_index(context.map.selected_idx);
+        set_shader_for_images(*room.texture);
+    }
+
+    if get_editor_mode() == {
+    case 0;
+        set_shader_for_color(true);
+
+        immediate_quad(
+                       .{left, bot},
+                       .{right, bot},
+                       .{right, top},
+                       .{left, top},
+                       .{1, 1, 1, 0.3});
+    case 1;
+        room := get_room_at_wrapping_index(context.map.selected_idx);
+        if room {
+            set_shader_for_images(*room.texture);
+        } else {
+            set_shader_for_color(true);
+        }
+        immediate_quad(
+                       .{left, bot},
+                       .{right, bot},
+                       .{right, top},
+                       .{left, top},
+                       .{1, 1, 1, 0.3});
     }
 }
 
