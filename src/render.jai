@@ -15,7 +15,9 @@ get_tile_ui_data :: (height: int) -> float32, float32, float32, float32, float32
 render :: () {
     clear_render_target(0.2, 0.1, 0.5, 1);
     render_grid();
-    render_room_tiles(context.current_editor_room);
+    if context.editor_state.editor_type == 0 {
+        render_room_tiles(context.current_editor_room);
+    }
     #if OS == .WINDOWS render_selection();
     // render_colliders();
     // render_sprite(player_sprite, .{500, 500}, .{200, 200});
@@ -30,13 +32,19 @@ render :: () {
 render_grid :: () {
     grid_lines :: (height: int) #expand {
         tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary := get_tile_ui_data(height);
+        line_color: Vector4;
+        if `it == height / 2 {
+            line_color = .{1, 0, 0, 0.3};
+        } else {
+            line_color = .{0, 0, 0, 1};
+        }
         y_pos: float32 = (xx `it * tile_height) + bot_boundary;
         immediate_quad(
                        .{left_boundary, y_pos + 2.5},
                        .{left_boundary, y_pos - 2.5},
                        .{right_boundary, y_pos - 2.5},
                        .{right_boundary, y_pos + 2.5},
-                       .{0, 0, 0, 1});
+                       line_color);
 
         x_pos: float32 = (xx `it * tile_height) + left_boundary;
         immediate_quad(
@@ -44,10 +52,10 @@ render_grid :: () {
                        .{x_pos - 2.5, bot_boundary},
                        .{x_pos + 2.5, bot_boundary},
                        .{x_pos + 2.5, top_boundary},
-                       .{0, 0, 0, 1});
+                       line_color);
     }
 
-    set_shader_for_color();
+    set_shader_for_color(true);
 
     if context.editor_state.editor_type == {
         // Room
@@ -140,4 +148,13 @@ render_map_placed_rooms :: () {
         size := Vector2.{right - left, top - bot};
         render_sprite(room_sprite, pos, size, rotation = rot, color = .{1, 1, 1, 1});
     }
+}
+
+render_room_and_frame :: (room: *Room, position: Vector2, size: Vector2) {
+    frame_sprite := make_sprite(*context.atlas.room_frame_texture);
+    render_sprite(frame_sprite, position, size);
+    room_sprite := make_sprite(*room.texture);
+    render_sprite(room_sprite, position, size * 0.4583);
+    rune_pos := position - (size / 2) + (.{size.x * 0.18, size.y * 0.1458});
+    render_rune(room.rune, rune_pos, size * 0.25, .{1, 1, 1, 1});
 }

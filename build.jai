@@ -60,7 +60,6 @@ init :: () {
 #import "Hash";
 #import "stb_image_write";
 #load "src/assets.jai";
-#load "src/room.jai";
 #load "src/render.jai";
 #load "src/input.jai";
 #load "src/runes.jai";
@@ -70,8 +69,6 @@ init :: () {
 #load "src/collision.jai";
 #load "src/io.jai";
 #load "src/entity.jai";
-#load "src/editing.jai";
-#load "src/entity_manager.jai";
 #load "src/camera.jai";
 #load "src/map.jai";
 #load "src/game_ui.jai";
