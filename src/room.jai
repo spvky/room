@@ -47,11 +47,9 @@ init_rooms :: () {
         context.current_editor_room = New(Room);
         context.current_editor_room.* = make_editor_room("New Room");
     }
-
     if !context.room_table {
         context.room_table = New(Table(u32, Room));
     }
-
     load_all_rooms();
 }
 

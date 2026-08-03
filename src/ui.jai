@@ -24,6 +24,7 @@ Editor_State :: struct {
     kb_captured: bool;
     mouse_captured: bool;
     map_cursor_position: Coord;
+    map_cursor_rotation: u8;
     primary_window: Subwindow_Info = .{
                                        rect = #run get_rect(20, cast(float32)WINDOW_HEIGHT - 510, 400, 500),
                                        draw = draw_primary_window,

@@ -11,6 +11,12 @@ Map :: struct {
     selected_idx: int;
 }
 
+Placed_Room :: struct {
+    room_hash: u32;
+    coord: Coord;
+    rotation: u8;
+}
+
 #add_context map: *Map;
 
 init_map :: () {
@@ -28,6 +34,10 @@ get_room_at_wrapping_index :: (req_idx: int) -> *Room {
     return table_find_pointer(context.room_table, context.map.available_rooms[idx]);
 }
 
+get_room_from_hash :: (hash: u32) -> *Room {
+    return table_find_pointer(context.room_table, hash);
+}
+
 next_map_selected_idx :: () {
     new_idx := context.map.selected_idx + 1;
     if new_idx >= context.map.available_rooms.count then new_idx = 0;
@@ -38,6 +48,34 @@ prev_map_selected_idx :: () {
     new_idx := context.map.selected_idx - 1;
     if new_idx < 0 then new_idx = context.map.available_rooms.count - 1;
     context.map.selected_idx = new_idx;
+}
+
+rotate_map_selected_room :: () {
+    new_rot := context.editor_state.map_cursor_rotation + 1;
+    if new_rot > 3 then new_rot = 0;
+    context.editor_state.map_cursor_rotation = new_rot;
+}
+
+place_room_at_position :: () {
+    if is_action_buffered(.CONFIRM) {
+        avail_idx := context.map.selected_idx;
+        coord_idx := coord_to_index(context.editor_state.map_cursor_position, .MAP);
+
+        if context.map.occupied[coord_idx] {
+            // play sound and trigger some juice
+        } else {
+            context.map.occupied[coord_idx] = true;
+            placed_room: Placed_Room;
+            placed_room.room_hash = context.map.available_rooms[avail_idx];
+            placed_room.coord = context.editor_state.map_cursor_position;
+            placed_room.rotation = context.editor_state.map_cursor_rotation;
+
+            array_add(*context.map.placed_rooms, placed_room);
+            array_ordered_remove_by_index(*context.map.available_rooms, avail_idx);
+
+            next_map_selected_idx();
+        }
+    }
 }
 
 move_map_cursor :: () {
@@ -89,12 +127,13 @@ map_screen_update :: () {
         consume_action(.MENU_DOWN);
         next_map_selected_idx();
     }
-}
 
-Placed_Room :: struct {
-    room_hash: u32;
-    coord: Coord;
-    rotation: u8;
+    if is_action_buffered(.MAP_SCREEN_ROTATE) {
+        consume_action(.MAP_SCREEN_ROTATE);
+        rotate_map_selected_room();
+    }
+
+    place_room_at_position();
 }
 
 render_room_and_frame :: (room: *Room, position: Vector2, size: Vector2) {

@@ -22,6 +22,7 @@ render :: () {
     // render_rune(context.current_editor_room.rune, .{700, 500}, .{300, 300}, .{1, 1, 1, 1});
 
     render_gameplay_ui();
+    render_map_placed_rooms();
     render_editor_ui();
     swap_buffers(window);
 }
@@ -89,40 +90,16 @@ render_selection :: () {
                            .{1, 1, 1, 0.3});
         }
     case 1;
-        room := get_room_at_wrapping_index(context.map.selected_idx);
-        set_shader_for_images(*room.texture);
-        left, right, bot, top := render_boundaries_from_cell(context.editor_state.map_cursor_position);
-        immediate_quad(
-                       .{left, bot},
-                       .{right, bot},
-                       .{right, top},
-                       .{left, top},
-                       .{1, 1, 1, 0.3});
-    }
+        if context.map.available_rooms.count > 0 {
+            room := get_room_at_wrapping_index(context.map.selected_idx);
+            room_sprite := make_sprite(*room.texture);
 
-    if get_editor_mode() == {
-    case 0;
-        set_shader_for_color(true);
-
-        immediate_quad(
-                       .{left, bot},
-                       .{right, bot},
-                       .{right, top},
-                       .{left, top},
-                       .{1, 1, 1, 0.3});
-    case 1;
-        room := get_room_at_wrapping_index(context.map.selected_idx);
-        if room {
-            set_shader_for_images(*room.texture);
-        } else {
-            set_shader_for_color(true);
+            left, right, bot, top := render_boundaries_from_cell(context.editor_state.map_cursor_position);
+            rot := cast(float32)context.editor_state.map_cursor_rotation * (PI / 2);
+            pos := Vector2.{(left + right) / 2, (top + bot) / 2};
+            size := Vector2.{right - left, top - bot};
+            render_sprite(room_sprite, pos, size, rotation = rot, color = .{1, 1, 1, 0.3});
         }
-        immediate_quad(
-                       .{left, bot},
-                       .{right, bot},
-                       .{right, top},
-                       .{left, top},
-                       .{1, 1, 1, 0.3});
     }
 }
 
@@ -149,5 +126,18 @@ render_room_tiles :: (r: *Room) {
                                .{0, 1, 0, 1});
             }
         }
+    }
+}
+
+render_map_placed_rooms :: () {
+    for context.map.placed_rooms {
+        room := get_room_from_hash(it.room_hash);
+        room_sprite := make_sprite(*room.texture);
+
+        left, right, bot, top := render_boundaries_from_cell(it.coord);
+        rot := cast(float32)it.rotation * (PI / 2);
+        pos := Vector2.{(left + right) / 2, (top + bot) / 2};
+        size := Vector2.{right - left, top - bot};
+        render_sprite(room_sprite, pos, size, rotation = rot, color = .{1, 1, 1, 1});
     }
 }

@@ -12,6 +12,7 @@ Action :: enum {
     MENU_RIGHT;
     MENU_UP;
     MENU_DOWN;
+    MAP_SCREEN_ROTATE;
     // Gameplay
     MOVE_LEFT;
     MOVE_RIGHT;
@@ -27,6 +28,8 @@ init_input :: () {
     // Menu
     register_input(.MENU_UP, .ARROW_UP);
     register_input(.MENU_DOWN, .ARROW_DOWN);
+    register_input(.MAP_SCREEN_ROTATE, #char "R");
+    register_input(.CONFIRM, .ENTER);
     // Gameplay
     register_input(.MOVE_LEFT, #char "A");
     register_input(.MOVE_RIGHT, #char "D");
