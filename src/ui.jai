@@ -25,6 +25,7 @@ Editor_State :: struct {
     mouse_captured: bool;
     map_cursor_position: Coord;
     map_cursor_rotation: u8;
+    load_static_rooms: bool;
     primary_window: Subwindow_Info = .{
                                        rect = #run get_rect(20, cast(float32)WINDOW_HEIGHT - 510, 400, 500),
                                        draw = draw_primary_window,
@@ -74,21 +75,33 @@ render_editor_ui :: () {
 
 draw_file_load_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     editor_state := context.editor_state;
+    toggle_rect := get_rect(r.x + 20, r.y + r.h - 60, 200, 50);
+    toggle_pressed := base_checkbox(toggle_rect, "Static", editor_state.load_static_rooms, *editor_state.editor_theme.checkbox_theme);
+    if toggle_pressed {
+        if editor_state.load_static_rooms {
+            context.editor_state.load_static_rooms = false;
+        } else {
+            context.editor_state.load_static_rooms = true;
+        }
+    }
+
     button_extents := Vector2.{200, 60};
-    room_files_rect := get_rect(r.x + 20, r.y + 20, r.w - 40, r.h - 40);
+    room_files_rect := get_rect(r.x + 20, r.y + 20, r.w - 40, r.h - 80);
     scroll_region, inside := begin_scrollable_region(room_files_rect, *editor_state.editor_theme.scrollable_region_theme);
     s := inside;
     s.y = s.y + s.h - button_extents.y;
     s.h = button_extents.y;
     s.y += editor_state.load_window_scroll_value;
+    subdir := ifx editor_state.load_static_rooms "static" else "placeable";
+    dir_path := tprint("assets/rooms/%", subdir);
 
-    for file_list("assets/rooms",, temp) {
+    for file_list(dir_path,, temp) {
         _, _, extension, filename := path_decomp(it);
         if equal(extension, "room") {
             pressed := button(s, filename, identifier = it_index);
             s.y -= 60;
             if pressed {
-                context.current_editor_room.* = load_room(filename);
+                context.current_editor_room.* = load_room(filename, context.editor_state.load_static_rooms);
                 editor_state.file_load_window.open = false;
             }
         }
@@ -100,6 +113,7 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     editor_state := context.editor_state;
     room_ptr := context.current_editor_room;
     rune_ptr := *room_ptr.rune;
+    flags_ptr := *room_ptr.flags;
     dropdown_rect := get_rect(r.x, r.y + r.h - 50, r.w, 50);
     y_pos := dropdown_rect.y - dropdown_rect.h - 10;
     x_pos := dropdown_rect.x + 5;
@@ -183,6 +197,9 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
                 rune_ptr.encircled = true;
             }
         }
+        // Flags
+        flags_margin := x_pos + 20;
+        enum_flag_display(flags_ptr, flags_margin);
 
         save_button_rect := get_rect(x_pos, y_pos, 110, 30);
         save_pressed := button(save_button_rect, "Save Room");
@@ -211,6 +228,25 @@ room_marking_display :: (label: string, marking: Markings, loc := #caller_locati
             `rune_ptr.markings &= ~marking;
         } else {
             `rune_ptr.markings |= marking;
+        }
+    }
+}
+
+enum_flag_display :: (ptr_to_enum: *$T, left_margin: float32) #expand {
+    enum_type_info := cast(*Type_Info_Enum)T;
+    for 0..enum_type_info.names.count - 1 {
+        m_rect := get_rect(left_margin, `y_pos, 200, 30);
+        `y_pos -= 30;
+        name := enum_type_info.names[it];
+        value := cast(T)enum_type_info.values[it];
+        has_flag := ptr_to_enum.* & value == value;
+        m_pressed := base_checkbox(m_rect, name, has_flag, *`editor_state.editor_theme.checkbox_theme, identifier = it);
+        if m_pressed {
+            if has_flag {
+                ptr_to_enum.* &= ~value;
+            } else {
+                ptr_to_enum.* |= value;
+            }
         }
     }
 }

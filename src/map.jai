@@ -46,15 +46,16 @@ Extra_Entity_Data :: struct {
 
 Room_Flags :: enum_flags u16 {
     DISCOVERED :: 1 << 0;
-    ENTERED_NORTH :: 1 << 1;
-    ENTERED_SOUTH :: 1 << 2;
-    ENTERED_EAST :: 1 << 3;
-    ENTERED_WEST :: 1 << 4;
-    NO_ROTATE :: 1 << 5;
-    NO_MOVE_X :: 1 << 6;
-    NO_MOVE_Y :: 1 << 7;
-    NO_PICKUP :: 1 << 8;
-    MUST_BE_PLACED :: 1 << 9;
+    STATIC :: 1 << 1;
+    ENTERED_NORTH :: 1 << 2;
+    ENTERED_SOUTH :: 1 << 3;
+    ENTERED_EAST :: 1 << 4;
+    ENTERED_WEST :: 1 << 5;
+    NO_ROTATE :: 1 << 6;
+    NO_MOVE_X :: 1 << 7;
+    NO_MOVE_Y :: 1 << 8;
+    NO_PICKUP :: 1 << 9;
+    MUST_BE_PLACED :: 1 << 10;
 }
 
 Coord :: struct {
@@ -88,7 +89,9 @@ init_map :: () {
     }
 
     for context.room_table {
-        array_add(*context.map.available_rooms, it_index);
+        if it.flags & .STATIC == 0 {
+            array_add(*context.map.available_rooms, it_index);
+        }
     }
 }
 
@@ -281,7 +284,6 @@ parse_tiles :: (r: *Room) {
     for <y: 0..ROOM_HEIGHT - 1 {
         for x: 0..ROOM_WIDTH - 1 {
             if is_valid_wall(x, y) {
-                print("Found a wall at: %,% | %!\n", x, y, coord_to_index(.{xx x, xx y}));
                 left := x;
                 right := x;
                 top := y;
