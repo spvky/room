@@ -35,7 +35,7 @@ save_room :: (r: Room) {
         print("No entity data in %, skipping writing it!\n", path);
     }
 
-    img_path := tprint("%/%.png", ROOMS_PATH, r.name);
+    img_path := tprint("%/%/%.png", ROOMS_PATH, subdir, r.name);
     replace_chars(img_path, " ", #char "_");
     generate_room_png(*r, img_path);
 }
