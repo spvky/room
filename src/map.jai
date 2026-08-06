@@ -3,6 +3,11 @@ ROOM_HEIGHT :: 22;
 MAP_WIDTH :: 10;
 MAP_HEIGHT :: 10;
 
+World :: struct {
+    tiles: [ROOM_WIDTH * ROOM_HEIGHT * MAP_WIDTH * MAP_HEIGHT]Room_Tile;
+    parsed: [ROOM_WIDTH * ROOM_HEIGHT * MAP_WIDTH * MAP_HEIGHT]bool;
+}
+
 Map :: struct {
     // Rooms currently placed in the map
     placed_rooms: [..]Placed_Room;
@@ -14,7 +19,6 @@ Map :: struct {
 }
 
 Room :: struct {
-    // May want to store these seperately in a meta data file
     flags: Room_Flags;
     int_grid: [ROOM_WIDTH * ROOM_HEIGHT]Room_Tile;
     rune: Rune;
@@ -59,13 +63,28 @@ Room_Flags :: enum_flags u16 {
 }
 
 Coord :: struct {
-    x: s8;
-    y: s8;
+    x: s16;
+    y: s16;
+}
+
+operator + :: (a: Coord, b: Coord) -> Coord {
+    c: Coord;
+    c.x = a.x + b.x;
+    c.y = a.y + b.y;
+    return c;
+}
+
+operator - :: (a: Coord, b: Coord) -> Coord {
+    c: Coord;
+    c.x = a.x - b.x;
+    c.y = a.y - b.y;
+    return c;
 }
 
 Coord_Kind :: enum u8 {
     ROOM;
     MAP;
+    WORLD;
 }
 
 #add_context current_editor_room: *Room;
@@ -177,7 +196,15 @@ check_tile_value :: (r: *Room, c: Coord) -> Room_Tile {
 }
 
 rotate_coord :: (c: Coord, kind: Coord_Kind = .ROOM) -> Coord #expand {
-    width := ifx kind == .ROOM then ROOM_WIDTH else MAP_WIDTH;
+    width: int;
+    if kind == {
+    case .ROOM;
+        width = ROOM_WIDTH;
+    case .MAP;
+        width = MAP_WIDTH;
+    case .WORLD;
+        width = ROOM_WIDTH * MAP_WIDTH;
+    }
     return .{xx width - c.y - 1, c.x};
 }
 
@@ -332,6 +359,35 @@ parse_tiles :: (r: *Room) {
     }
 }
 
+add_room_tiles_to_tilemap :: (w: *World, pr: *Placed_Room) {
+    r := get_room_from_hash(pr.room_hash);
+    assert(r != null, "Hit null room pointer while adding room tiles to tilemap!\n");
+    start_x: s16 = pr.coord.x * xx ROOM_WIDTH;
+    start_y: s16 = pr.coord.y * xx ROOM_HEIGHT;
+
+    room_copy := r.*;
+
+    if pr.rotation > 0 {
+        for 0..pr.rotation {
+            room_copy = rotate_room(room_copy);
+        }
+    }
+
+    for x: 0..ROOM_WIDTH - 1 {
+        for y: 0..ROOM_HEIGHT - 1 {
+            room_coord := Coord.{xx x, xx y};
+            world_coord := room_coord + Coord.{start_x, start_y};
+            tile := check_tile_value(*room_copy, room_coord);
+            if tile != .EMPTY {
+                room_idx := coord_to_index(room_coord);
+                world_idx := coord_to_index(world_coord, .WORLD);
+                w.tiles[world_idx] = room_copy.int_grid[room_idx];
+                // This may be all I need for placing the actual tiles, work on translating entity data once baking is done, there aren't any entities yet
+            }
+        }
+    }
+}
+
 map_screen_update :: () {
     move_map_cursor();
     if is_action_buffered(.MENU_UP) {
@@ -348,6 +404,4 @@ map_screen_update :: () {
         consume_action(.MAP_SCREEN_ROTATE);
         rotate_map_selected_room();
     }
-
-    place_room_at_position();
 }
