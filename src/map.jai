@@ -225,20 +225,35 @@ rotate_room :: (r: Room) -> Room {
 }
 
 rotate_room_exits :: (exits: Room_Exits, rot: int = 0) -> Room_Exits {
+    // macro to write *slightly* less code
+    _has_exit :: (exit: Room_Exits) -> bool #expand {
+        return `n & exit == exit;
+    }
+
     if rot == 0 then return exits;
     n := exits;
     for 1..rot {
         ir: Room_Exits;
-        if n & .NORTH_EAST == .NORTH_EAST |= .WEST_NORTH
-           if n & .NORTH == .NORTH then ir |= .WEST;
-           if n & .NORTH_WEST == .NORTH_WEST then ir |= .WEST_SOUTH;
-
-           if n & .WEST_NORTH == .WEST_NORTH
-               if n & .WEST == .WEST then ir |= .SOUTH;
-           if n & .SOUTH == .SOUTH then ir |= .EAST;
-           if n & .EAST == .EAST then ir |= .NORTH;
-       }
-   }
+        // North
+        if _has_exit(.NORTH_EAST) then ir |= .WEST_NORTH;
+        if _has_exit(.NORTH) then ir |= .WEST;
+        if _has_exit(.NORTH_WEST) then ir |= .WEST_SOUTH;
+        // West
+        if _has_exit(.WEST_NORTH) then ir |= .SOUTH_WEST;
+        if _has_exit(.WEST) then ir |= .SOUTH;
+        if _has_exit(.WEST_SOUTH) then ir |= .SOUTH_EAST;
+        // South
+        if _has_exit(.SOUTH_EAST) then ir |= .EAST_SOUTH;
+        if _has_exit(.SOUTH) then ir |= .EAST;
+        if _has_exit(.SOUTH_WEST) then ir |= .EAST_NORTH;
+        // East
+        if _has_exit(.EAST_SOUTH) then ir |= .NORTH_EAST;
+        if _has_exit(.EAST) then ir |= .NORTH;
+        if _has_exit(.EAST_NORTH) then ir |= .NORTH_WEST;
+        n = ir;
+    }
+    return n;
+}
 
 coord_to_index :: (c: Coord, kind: Coord_Kind = .ROOM) -> int {
     width: int;
