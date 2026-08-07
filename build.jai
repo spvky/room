@@ -45,6 +45,7 @@ init :: () {
     init_rooms();
     init_map();
     init_input();
+    init_world();
 }
 
 #import "Basic";
