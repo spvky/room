@@ -2,10 +2,12 @@ ROOM_WIDTH :: 22;
 ROOM_HEIGHT :: 22;
 MAP_WIDTH :: 10;
 MAP_HEIGHT :: 10;
+WORLD_WIDTH :: #run ROOM_WIDTH * MAP_WIDTH + (MAP_WIDTH + 1);
+WORLD_HEIGHT :: #run ROOM_HEIGHT * MAP_HEIGHT + (MAP_HEIGHT + 1);
 
 World :: struct {
-    tiles: [ROOM_WIDTH * ROOM_HEIGHT * MAP_WIDTH * MAP_HEIGHT]Room_Tile;
-    parsed: [ROOM_WIDTH * ROOM_HEIGHT * MAP_WIDTH * MAP_HEIGHT]bool;
+    tiles: [WORLD_WIDTH * WORLD_HEIGHT]Room_Tile;
+    parsed: [WORLD_WIDTH * WORLD_HEIGHT]bool;
 }
 
 Map :: struct {
@@ -20,6 +22,7 @@ Map :: struct {
 
 Room :: struct {
     flags: Room_Flags;
+    exits: Room_Exits;
     int_grid: [ROOM_WIDTH * ROOM_HEIGHT]Room_Tile;
     rune: Rune;
     name: string;
@@ -46,6 +49,21 @@ Extra_Entity_Data :: struct {
     path_end: Coord;
     parent_pos: Coord;
     child_pos: Coord;
+}
+
+Room_Exits :: enum_flags u16 {
+    NORTH :: 1 << 0;
+    NORTH_WEST :: 1 << 1;
+    WEST_NORTH :: 1 << 2;
+    WEST :: 1 << 3;
+    WEST_SOUTH :: 1 << 4;
+    SOUTH_WEST :: 1 << 5;
+    SOUTH :: 1 << 6;
+    SOUTH_EAST :: 1 << 7;
+    EAST_SOUTH :: 1 << 8;
+    EAST :: 1 << 9;
+    EAST_NORTH :: 1 << 10;
+    NORTH_EAST :: 1 << 11;
 }
 
 Room_Flags :: enum_flags u16 {
@@ -119,6 +137,23 @@ init_world :: () {
     if !context.world {
         context.world = New(World);
     }
+    reset_world_tilemap();
+}
+
+reset_world_tilemap :: () {
+    world := context.world;
+    for x: 0..WORLD_WIDTH - 1 {
+        for y: 0..WORLD_HEIGHT - 1 {
+            idx := coord_to_index(.{xx x, xx y}, .WORLD);
+            if x == 0 || y == 0 {
+                world.tiles[idx] = .WALL;
+            } else if x % 23 == 0 || y % 23 == 0 {
+                world.tiles[idx] = .WALL;
+            } else {
+                world.tiles[idx] = .EMPTY;
+            }
+        }
+    }
 }
 
 make_editor_room :: (name: string) -> Room {
@@ -189,8 +224,32 @@ rotate_room :: (r: Room) -> Room {
     return out;
 }
 
+rotate_room_exits :: (exits: Room_Exits, rot: int = 0) -> Room_Exits {
+    if rot == 0 then return exits;
+    n := exits;
+    for 1..rot {
+        ir: Room_Exits;
+        if n & .NORTH_EAST == .NORTH_EAST |= .WEST_NORTH
+           if n & .NORTH == .NORTH then ir |= .WEST;
+           if n & .NORTH_WEST == .NORTH_WEST then ir |= .WEST_SOUTH;
+
+           if n & .WEST_NORTH == .WEST_NORTH
+               if n & .WEST == .WEST then ir |= .SOUTH;
+           if n & .SOUTH == .SOUTH then ir |= .EAST;
+           if n & .EAST == .EAST then ir |= .NORTH;
+       }
+   }
+
 coord_to_index :: (c: Coord, kind: Coord_Kind = .ROOM) -> int {
-    width := ifx kind == .ROOM then ROOM_WIDTH else MAP_WIDTH;
+    width: int;
+    if kind == {
+    case .ROOM;
+        width = ROOM_WIDTH;
+    case .MAP;
+        width = MAP_WIDTH;
+    case .WORLD;
+        width = WORLD_WIDTH;
+    }
     return (c.y * width) + c.x;
 }
 
@@ -206,7 +265,7 @@ rotate_coord :: (c: Coord, kind: Coord_Kind = .ROOM) -> Coord #expand {
     case .MAP;
         width = MAP_WIDTH;
     case .WORLD;
-        width = ROOM_WIDTH * MAP_WIDTH;
+        width = WORLD_WIDTH;
     }
     return .{xx width - c.y - 1, c.x};
 }
@@ -362,14 +421,14 @@ parse_tiles :: (r: *Room) {
     }
 }
 
-write_room_tiles_to_tilemap :: () {
+write_room_tiles_to_world_tilemap :: () {
     world := context.world;
     map := context.map;
     for map.placed_rooms {
         r := get_room_from_hash(it.room_hash);
         assert(r != null, "Hit null room pointer while adding room tiles to tilemap!\n");
-        start_x: s16 = it.coord.x * xx ROOM_WIDTH;
-        start_y: s16 = it.coord.y * xx ROOM_HEIGHT;
+        start_x: s16 = it.coord.x * xx ROOM_WIDTH + (1 + it.coord.x); // Wall offset
+        start_y: s16 = it.coord.y * xx ROOM_HEIGHT + (1 + it.coord.y); // Wall offset
 
         room_copy := r.*;
 

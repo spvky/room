@@ -14,6 +14,9 @@ save_room :: (r: Room) {
     // Flags
     success := file_write(*file, *r.flags, size_of(Room_Flags));
     room_assert("Failed to write room flags!");
+    // Exits
+    success = file_write(*file, *r.exits, size_of(Room_Exits));
+    room_assert("Failed to write room exits!");
     // Int Grid
     success = file_write(*file, *r.int_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Room_Tile));
     room_assert("Failed to write int_grid!");
@@ -54,6 +57,9 @@ load_room :: (filename: string, static := false) -> Room {
     // Flags
     success := file_read(file, *r.flags, size_of(Room_Flags));
     room_assert("Failed to read room flags!");
+    // Exits
+    success = file_read(file, *r.exits, size_of(Room_Exits));
+    room_assert("Failed to read room exits!");
     // Int Grid
     success = file_read(file, *r.int_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Room_Tile));
     room_assert("Failure when reading room int_grid!");
