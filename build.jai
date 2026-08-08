@@ -9,6 +9,11 @@ main :: () {
     set_render_target(window);
     init();
 
+    // _, _, bot, _ := render_boundaries_from_cell(.{0, 20});
+    // _, _, _, top := render_boundaries_from_cell(.{0, 21});
+    // 
+    // print("Top: % | Bot: %\n", top, bot);
+
     while !should_close {
         update_window_events();
         now := seconds_since_init();

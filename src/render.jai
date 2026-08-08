@@ -71,6 +71,29 @@ render_grid :: () {
     }
 }
 
+draw_current_room_exits :: () {
+    _has_exit :: (exit: Room_Exits) -> bool #expand {
+        return `room.exits & exit == exit;
+    }
+    room := context.current_editor_room;
+
+    h_west_start: float32 = 445;
+    h_west_end: float32 = 538.636;
+    h_east_start: float32 = 1381.363;
+    h_east_end: float32 = 1475;
+    h_center_start: float32 = 913.181;
+    h_center_end: float32 = 1006.818;
+
+    v_north_start: float32 = 1055;
+    v_north_end: float32 = 961.363;
+    v_south_start: float32 = 118.636;
+    v_south_end: float32 = 25;
+    v_center_start: float32 = 586.818;
+    v_center_end: float32 = 493.181;
+
+    // Actually draw the lines tomorrow 8/7/2026 11:39:09 PM
+}
+
 render_boundaries_from_cell :: (c: Coord) -> float32, float32, float32, float32 {
     height := ifx context.editor_state.editor_type == 0 then ROOM_HEIGHT else MAP_HEIGHT;
     tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary := get_tile_ui_data(height);
