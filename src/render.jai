@@ -62,6 +62,7 @@ render_grid :: () {
     case 0;
         for 0..ROOM_HEIGHT {
             grid_lines(ROOM_HEIGHT);
+            draw_current_room_exits(ROOM_HEIGHT);
         }
         // Map
     case 1;
@@ -71,7 +72,7 @@ render_grid :: () {
     }
 }
 
-draw_current_room_exits :: () {
+draw_current_room_exits :: (height: int) {
     _has_exit :: (exit: Room_Exits) -> bool #expand {
         return `room.exits & exit == exit;
     }
@@ -91,7 +92,100 @@ draw_current_room_exits :: () {
     v_center_start: float32 = 586.818;
     v_center_end: float32 = 493.181;
 
-    // Actually draw the lines tomorrow 8/7/2026 11:39:09 PM
+    tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary := get_tile_ui_data(height);
+
+    color := Vector4.{0.7, 0.7, 0, 1};
+
+    if _has_exit(.NORTH_EAST) {
+        immediate_quad(
+                       .{h_east_start, top_boundary + 2.5},
+                       .{h_east_start, top_boundary - 2.5},
+                       .{h_east_end, top_boundary - 2.5},
+                       .{h_east_end, top_boundary + 2.5}, color);
+    }
+    if _has_exit(.NORTH) {
+        immediate_quad(
+                       .{h_center_start, top_boundary + 2.5},
+                       .{h_center_start, top_boundary - 2.5},
+                       .{h_center_end, top_boundary - 2.5},
+                       .{h_center_end, top_boundary + 2.5}, color);
+    }
+    if _has_exit(.NORTH_WEST) {
+        immediate_quad(
+                       .{h_west_start, top_boundary + 2.5},
+                       .{h_west_start, top_boundary - 2.5},
+                       .{h_west_end, top_boundary - 2.5},
+                       .{h_west_end, top_boundary + 2.5}, color);
+    }
+    if _has_exit(.SOUTH_EAST) {
+        immediate_quad(
+                       .{h_east_start, bot_boundary + 2.5},
+                       .{h_east_start, bot_boundary - 2.5},
+                       .{h_east_end, bot_boundary - 2.5},
+                       .{h_east_end, bot_boundary + 2.5}, color);
+    }
+    if _has_exit(.SOUTH) {
+        immediate_quad(
+                       .{h_center_start, bot_boundary + 2.5},
+                       .{h_center_start, bot_boundary - 2.5},
+                       .{h_center_end, bot_boundary - 2.5},
+                       .{h_center_end, bot_boundary + 2.5}, color);
+    }
+    if _has_exit(.SOUTH_WEST) {
+        immediate_quad(
+                       .{h_west_start, bot_boundary + 2.5},
+                       .{h_west_start, bot_boundary - 2.5},
+                       .{h_west_end, bot_boundary - 2.5},
+                       .{h_west_end, bot_boundary + 2.5}, color);
+    }
+    if _has_exit(.EAST_SOUTH) {
+        immediate_quad(
+                       .{right_boundary - 2.5, v_south_start},
+                       .{right_boundary - 2.5, v_south_end},
+                       .{right_boundary + 2.5, v_south_end},
+                       .{right_boundary + 2.5, v_south_start},
+                       color);
+    }
+    if _has_exit(.EAST) {
+        immediate_quad(
+                       .{right_boundary - 2.5, v_center_start},
+                       .{right_boundary - 2.5, v_center_end},
+                       .{right_boundary + 2.5, v_center_end},
+                       .{right_boundary + 2.5, v_center_start},
+                       color);
+    }
+    if _has_exit(.EAST_NORTH) {
+        immediate_quad(
+                       .{right_boundary - 2.5, v_north_start},
+                       .{right_boundary - 2.5, v_north_end},
+                       .{right_boundary + 2.5, v_north_end},
+                       .{right_boundary + 2.5, v_north_start},
+                       color);
+    }
+    if _has_exit(.WEST_SOUTH) {
+        immediate_quad(
+                       .{left_boundary - 2.5, v_south_start},
+                       .{left_boundary - 2.5, v_south_end},
+                       .{left_boundary + 2.5, v_south_end},
+                       .{left_boundary + 2.5, v_south_start},
+                       color);
+    }
+    if _has_exit(.WEST) {
+        immediate_quad(
+                       .{left_boundary - 2.5, v_center_start},
+                       .{left_boundary - 2.5, v_center_end},
+                       .{left_boundary + 2.5, v_center_end},
+                       .{left_boundary + 2.5, v_center_start},
+                       color);
+    }
+    if _has_exit(.WEST_NORTH) {
+        immediate_quad(
+                       .{left_boundary - 2.5, v_north_start},
+                       .{left_boundary - 2.5, v_north_end},
+                       .{left_boundary + 2.5, v_north_end},
+                       .{left_boundary + 2.5, v_north_start},
+                       color);
+    }
 }
 
 render_boundaries_from_cell :: (c: Coord) -> float32, float32, float32, float32 {
