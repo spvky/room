@@ -27,7 +27,7 @@ Editor_State :: struct {
     map_cursor_rotation: u8;
     load_static_rooms: bool;
     primary_window: Subwindow_Info = .{
-                                       rect = #run get_rect(20, cast(float32)WINDOW_HEIGHT - 510, 400, 500),
+                                       rect = #run get_rect(5, cast(float32)WINDOW_HEIGHT - 910, 430, 900),
                                        draw = draw_primary_window,
                                        title_text = "Editor"};
     file_load_window: Subwindow_Info = .{
@@ -113,7 +113,6 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     editor_state := context.editor_state;
     room_ptr := context.current_editor_room;
     rune_ptr := *room_ptr.rune;
-    flags_ptr := *room_ptr.flags;
     dropdown_rect := get_rect(r.x, r.y + r.h - 50, r.w, 50);
     y_pos := dropdown_rect.y - dropdown_rect.h - 10;
     x_pos := dropdown_rect.x + 5;
@@ -199,8 +198,13 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
         }
         // Flags
         flags_margin := x_pos + 20;
-        enum_flag_display(flags_ptr, flags_margin);
+        enum_flag_display(*room_ptr.flags, flags_margin, y_pos);
 
+        // Exits
+        exits_margin := x_pos + 195;
+        enum_flag_display(*room_ptr.exits, exits_margin, y_pos);
+
+        y_pos -= 400;
         save_button_rect := get_rect(x_pos, y_pos, 110, 30);
         save_pressed := button(save_button_rect, "Save Room");
         if save_pressed {
@@ -232,15 +236,16 @@ room_marking_display :: (label: string, marking: Markings, loc := #caller_locati
     }
 }
 
-enum_flag_display :: (ptr_to_enum: *$T, left_margin: float32) #expand {
+enum_flag_display :: (ptr_to_enum: *$T, left_margin: float32, top_margin: float32, loc := #caller_location) #expand {
     enum_type_info := cast(*Type_Info_Enum)T;
+    y_pos := top_margin;
     for 0..enum_type_info.names.count - 1 {
-        m_rect := get_rect(left_margin, `y_pos, 200, 30);
-        `y_pos -= 30;
+        m_rect := get_rect(left_margin, y_pos, 140, 22);
+        y_pos -= 30;
         name := enum_type_info.names[it];
         value := cast(T)enum_type_info.values[it];
         has_flag := ptr_to_enum.* & value == value;
-        m_pressed := base_checkbox(m_rect, name, has_flag, *`editor_state.editor_theme.checkbox_theme, identifier = it);
+        m_pressed := base_checkbox(m_rect, name, has_flag, *`editor_state.editor_theme.checkbox_theme, identifier = it, loc = loc);
         if m_pressed {
             if has_flag {
                 ptr_to_enum.* &= ~value;

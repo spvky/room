@@ -52,18 +52,18 @@ Extra_Entity_Data :: struct {
 }
 
 Room_Exits :: enum_flags u16 {
-    NORTH :: 1 << 0;
-    NORTH_WEST :: 1 << 1;
-    WEST_NORTH :: 1 << 2;
-    WEST :: 1 << 3;
-    WEST_SOUTH :: 1 << 4;
-    SOUTH_WEST :: 1 << 5;
-    SOUTH :: 1 << 6;
-    SOUTH_EAST :: 1 << 7;
-    EAST_SOUTH :: 1 << 8;
-    EAST :: 1 << 9;
-    EAST_NORTH :: 1 << 10;
-    NORTH_EAST :: 1 << 11;
+    NORTH_EAST :: 1 << 0;
+    NORTH :: 1 << 1;
+    NORTH_WEST :: 1 << 2;
+    WEST_NORTH :: 1 << 3;
+    WEST :: 1 << 4;
+    WEST_SOUTH :: 1 << 5;
+    SOUTH_WEST :: 1 << 6;
+    SOUTH :: 1 << 7;
+    SOUTH_EAST :: 1 << 8;
+    EAST_SOUTH :: 1 << 9;
+    EAST :: 1 << 10;
+    EAST_NORTH :: 1 << 11;
 }
 
 Room_Flags :: enum_flags u16 {

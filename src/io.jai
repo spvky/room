@@ -1,4 +1,5 @@
 ROOMS_PATH :: "assets/rooms";
+ASSET_VERSION: float32: 0.1;
 
 save_room :: (r: Room) {
     is_static := r.flags & .STATIC == .STATIC;
@@ -11,8 +12,11 @@ save_room :: (r: Room) {
         file_close(*file);
         print("Finished writing room to %\n", path);
     }
+    // Version
+    version: float32 = ASSET_VERSION;
+    success := file_write(*file, *version, size_of(float32));
     // Flags
-    success := file_write(*file, *r.flags, size_of(Room_Flags));
+    success = file_write(*file, *r.flags, size_of(Room_Flags));
     room_assert("Failed to write room flags!");
     // Exits
     success = file_write(*file, *r.exits, size_of(Room_Exits));
@@ -43,7 +47,7 @@ save_room :: (r: Room) {
     generate_room_png(*r, img_path);
 }
 
-load_room :: (filename: string, static := false) -> Room {
+load_room :: (filename: string, static := false) -> Room, bool {
     // Helper for logging loading errors
     subdir: string = ifx static "static" else "placeable";
     path := tprint("%/%/%", ROOMS_PATH, subdir, filename);
@@ -54,8 +58,15 @@ load_room :: (filename: string, static := false) -> Room {
         print("Finished reading room from %\n", path);
     }
     r: Room;
+    // Version
+    version: float32;
+    success := file_read(file, *version, size_of(float32));
+    if version != ASSET_VERSION {
+        print("Room at % had a version number of %, when it should be %, skipping...\n", path, version, ASSET_VERSION);
+        return r, false;
+    }
     // Flags
-    success := file_read(file, *r.flags, size_of(Room_Flags));
+    success = file_read(file, *r.flags, size_of(Room_Flags));
     room_assert("Failed to read room flags!");
     // Exits
     success = file_read(file, *r.exits, size_of(Room_Exits));
@@ -90,7 +101,7 @@ load_room :: (filename: string, static := false) -> Room {
     texture_ok := texture_load_from_file(*r.texture, img_path);
     room_assert("Failure to load room texture!");
 
-    return r;
+    return r, true;
 }
 
 load_all_rooms :: () {
@@ -98,11 +109,13 @@ load_all_rooms :: () {
     for file_list("assets/rooms/placeable",, temp) {
         _, _, extension, filename := path_decomp(it);
         if equal(extension, "room") {
-            room := load_room(filename); // Put the room into the map from here
-            room_hash := djb2_hash(room.name);
+            room, success := load_room(filename); // Put the room into the map from here
+            if success {
+                room_hash := djb2_hash(room.name);
 
-            table_add(context.room_table, room_hash, room);
-            print("Room: % | % has been added to the table\n", room.name, room_hash);
+                table_add(context.room_table, room_hash, room);
+                print("Placeable Room: % | % has been added to the table\n", room.name, room_hash);
+            }
         }
     }
 
@@ -110,11 +123,13 @@ load_all_rooms :: () {
     for file_list("assets/rooms/static",, temp) {
         _, _, extension, filename := path_decomp(it);
         if equal(extension, "room") {
-            room := load_room(filename, true); // Put the room into the map from here
-            room_hash := djb2_hash(room.name);
+            room, success := load_room(filename, true); // Put the room into the map from here
+            if success {
+                room_hash := djb2_hash(room.name);
 
-            table_add(context.room_table, room_hash, room);
-            print("Room: % | % has been added to the table\n", room.name, room_hash);
+                table_add(context.room_table, room_hash, room);
+                print("Static Room: % | % has been added to the table\n", room.name, room_hash);
+            }
         }
     }
 }
@@ -124,21 +139,8 @@ room_assert :: (msg: string) #expand {
     assert(`success, "(%) %\n", `path, msg);
 }
 
-// Writes a passed (static) struct to file
-write_struct_to_file :: (file: *File, t: *$T) {
-    struct_info := cast(*Type_Info_Struct)type_info(T);
-    for struct_info.members {
-        should_skip: bool;
-        for field_note: it.notes if equal(field_note, "ignore_serialize") should_skip = true;
-        if should_skip continue;
-
-        success := file_write(file, (cast(*u8)t) + it.offset_in_bytes, it.type.runtime_size);
-        assert(success, "Failed to write struct field %\nin file %\n", it.name, file);
-    }
-}
-
 generate_room_png :: (r: *Room, path: string) {
-    // Helper types/macros//////////////////////////
+    // Helper types/macros //////////////////////////
     Room_Color :: enum {
         COLOR_EMPTY;
         COLOR_WALL;
@@ -146,12 +148,12 @@ generate_room_png :: (r: *Room, path: string) {
 
     _set_pixel :: (color: Room_Color) #expand {
         if color == {
-        case .COLOR_EMPTY;
+        case .COLOR_WALL;
             `data[(`i * `channels)] = 255;
             `data[(`i * `channels) + 1] = 255;
             `data[(`i * `channels) + 2] = 255;
             `data[(`i * `channels) + 3] = 255;
-        case .COLOR_WALL;
+        case .COLOR_EMPTY;
             `data[(`i * `channels)] = 80;
             `data[(`i * `channels) + 1] = 115;
             `data[(`i * `channels) + 2] = 240;
@@ -165,7 +167,7 @@ generate_room_png :: (r: *Room, path: string) {
 
     channels: s32: 4;
     data: [(ROOM_WIDTH + 2) * (ROOM_HEIGHT + 2) * channels]u8;
-    stride := xx ROOM_HEIGHT * channels;
+    stride := xx (ROOM_HEIGHT + 2) * channels;
 
     i: int;
     for <y: 0..ROOM_HEIGHT + 1 {
@@ -174,21 +176,21 @@ generate_room_png :: (r: *Room, path: string) {
                 // Drawing border
                 is_wall: bool = true;
 
-                if _has_exit(.NORTH_EAST) && (x == 21 || x == 22) && y == 0 then is_wall = false;
-                if _has_exit(.NORTH) && (x == 11 || x == 12) && y == 0 then is_wall = false;
-                if _has_exit(.NORTH_WEST) && (x == 1 || x == 2) && y == 0 then is_wall = false;
+                if _has_exit(.NORTH_EAST) && (x == 21 || x == 22) && y == 23 then is_wall = false;
+                if _has_exit(.NORTH) && (x == 11 || x == 12) && y == 23 then is_wall = false;
+                if _has_exit(.NORTH_WEST) && (x == 1 || x == 2) && y == 23 then is_wall = false;
 
-                if _has_exit(.SOUTH_EAST) && (x == 21 || x == 22) && y == 23 then is_wall = false;
-                if _has_exit(.SOUTH) && (x == 11 || x == 12) && y == 23 then is_wall = false;
-                if _has_exit(.SOUTH_WEST) && (x == 1 || x == 2) && y == 23 then is_wall = false;
+                if _has_exit(.SOUTH_EAST) && (x == 21 || x == 22) && y == 0 then is_wall = false;
+                if _has_exit(.SOUTH) && (x == 11 || x == 12) && y == 0 then is_wall = false;
+                if _has_exit(.SOUTH_WEST) && (x == 1 || x == 2) && y == 0 then is_wall = false;
 
-                if _has_exit(.EAST_NORTH) && (y == 1 || y == 2) && x == 23 then is_wall = false;
+                if _has_exit(.EAST_NORTH) && (y == 21 || y == 22) && x == 23 then is_wall = false;
                 if _has_exit(.EAST) && (y == 11 || y == 12) && x == 23 then is_wall = false;
-                if _has_exit(.EAST_SOUTH) && (y == 21 || y == 22) && x == 23 then is_wall = false;
+                if _has_exit(.EAST_SOUTH) && (y == 1 || y == 2) && x == 23 then is_wall = false;
 
-                if _has_exit(.WEST_NORTH) && (y == 1 || y == 2) && x == 0 then is_wall = false;
+                if _has_exit(.WEST_NORTH) && (y == 21 || y == 22) && x == 0 then is_wall = false;
                 if _has_exit(.WEST) && (y == 11 || y == 12) && x == 0 then is_wall = false;
-                if _has_exit(.WEST_SOUTH) && (y == 21 || y == 22) && x == 0 then is_wall = false;
+                if _has_exit(.WEST_SOUTH) && (y == 1 || y == 2) && x == 0 then is_wall = false;
 
                 if is_wall {
                     _set_pixel(.COLOR_WALL);
@@ -197,37 +199,17 @@ generate_room_png :: (r: *Room, path: string) {
                 }
             } else {
                 // Drawing room internals
-                value := check_tile_value(r, .{xx x, xx y});
+                value := check_tile_value(r, .{xx (x - 1), xx (y - 1)});
                 if value == {
                 case .WALL;
                     _set_pixel(.COLOR_WALL);
-                    // data[(i * channels)] = 255;
-                    // data[(i * channels) + 1] = 255;
-                    // data[(i * channels) + 2] = 255;
-                    // data[(i * channels) + 3] = 255;
-
                 case .EMPTY;
                     _set_pixel(.COLOR_EMPTY);
-                    // data[(i * channels)] = 80;
-                    // data[(i * channels) + 1] = 115;
-                    // data[(i * channels) + 2] = 240;
-                    // data[(i * channels) + 3] = 255;
                 }
             }
             i += 1;
         }
     }
-
-    // for 0..ROOM_WIDTH * ROOM_HEIGHT - 1 {
-    //     r.int;
-    //     if it < xx ROOM_WIDTH {
-    //         data[it * channels] = 255;
-    //     }
-    //     data[(it * channels) + 1] = 125;
-    //     data[(it * channels) + 2] = 125;
-    //     data[(it * channels) + 3] = 255;
-    // }
-    // Get output path, but the writing here works
     raw_path := to_c_string(path);
     defer free(raw_path);
     stbi_write_png(raw_path, xx (ROOM_WIDTH + 2), xx (ROOM_HEIGHT + 2), channels, *data, stride);
