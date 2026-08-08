@@ -144,6 +144,7 @@ generate_room_png :: (r: *Room, path: string) {
     Room_Color :: enum {
         COLOR_EMPTY;
         COLOR_WALL;
+        COLOR_EXIT;
     }
 
     _set_pixel :: (color: Room_Color) #expand {
@@ -157,6 +158,11 @@ generate_room_png :: (r: *Room, path: string) {
             `data[(`i * `channels)] = 80;
             `data[(`i * `channels) + 1] = 115;
             `data[(`i * `channels) + 2] = 240;
+            `data[(`i * `channels) + 3] = 255;
+        case .COLOR_EXIT;
+            `data[(`i * `channels)] = 255;
+            `data[(`i * `channels) + 1] = 255;
+            `data[(`i * `channels) + 2] = 0;
             `data[(`i * `channels) + 3] = 255;
         }
     }

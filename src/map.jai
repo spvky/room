@@ -7,12 +7,13 @@ WORLD_HEIGHT :: #run ROOM_HEIGHT * MAP_HEIGHT + (MAP_HEIGHT + 1);
 
 World :: struct {
     tiles: [WORLD_WIDTH * WORLD_HEIGHT]Room_Tile;
+    rooms: [MAP_WIDTH * MAP_HEIGHT]Map_Room;
     parsed: [WORLD_WIDTH * WORLD_HEIGHT]bool;
 }
 
 Map :: struct {
     // Rooms currently placed in the map
-    placed_rooms: [..]Placed_Room;
+    placed_room_cards: [..]Room_Card;
     // Grid to indicate which cells have a room placed in them
     occupied: [MAP_WIDTH * MAP_HEIGHT]bool;
     // Array of rooms available to place
@@ -30,10 +31,15 @@ Room :: struct {
     texture: Texture;
 }
 
-Placed_Room :: struct {
+Room_Card :: struct {
     room_hash: u32;
     coord: Coord;
     rotation: u8;
+}
+
+Map_Room :: struct {
+    flags: Room_Flags;
+    exits: Room_Exits;
 }
 
 Room_Tile :: enum u8 {
@@ -327,12 +333,12 @@ place_room_at_position :: () {
             // play sound and trigger some juice
         } else {
             context.map.occupied[coord_idx] = true;
-            placed_room: Placed_Room;
-            placed_room.room_hash = context.map.available_rooms[avail_idx];
-            placed_room.coord = context.editor_state.map_cursor_position;
-            placed_room.rotation = context.editor_state.map_cursor_rotation;
+            room_card: Room_Card;
+            room_card.room_hash = context.map.available_rooms[avail_idx];
+            room_card.coord = context.editor_state.map_cursor_position;
+            room_card.rotation = context.editor_state.map_cursor_rotation;
 
-            array_add(*context.map.placed_rooms, placed_room);
+            array_add(*context.map.placed_room_cards, room_card);
             array_ordered_remove_by_index(*context.map.available_rooms, avail_idx);
 
             next_map_selected_idx();
@@ -439,9 +445,9 @@ parse_tiles :: (r: *Room) {
 write_room_tiles_to_world_tilemap :: () {
     world := context.world;
     map := context.map;
-    for map.placed_rooms {
+    for map.placed_room_cards {
         r := get_room_from_hash(it.room_hash);
-        assert(r != null, "Hit null room pointer while adding room tiles to tilemap!\n");
+        assert(r != null, "Hit null room pointer while adding room tiles to tilemap.\nSkipping placed room %!\n", it.room_hash);
         start_x: s16 = it.coord.x * xx ROOM_WIDTH + (1 + it.coord.x); // Wall offset
         start_y: s16 = it.coord.y * xx ROOM_HEIGHT + (1 + it.coord.y); // Wall offset
 

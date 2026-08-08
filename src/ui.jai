@@ -27,7 +27,7 @@ Editor_State :: struct {
     map_cursor_rotation: u8;
     load_static_rooms: bool;
     primary_window: Subwindow_Info = .{
-                                       rect = #run get_rect(5, cast(float32)WINDOW_HEIGHT - 910, 430, 900),
+                                       rect = #run get_rect(5, cast(float32)WINDOW_HEIGHT - 880, 350, 870),
                                        draw = draw_primary_window,
                                        title_text = "Editor"};
     file_load_window: Subwindow_Info = .{
@@ -151,8 +151,8 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
 
         // Runes
         // Crescents
-        crescent_rect := get_rect(x_pos - 100, y_pos, 300, 30);
-        label(crescent_rect, "Rune", *editor_state.editor_theme.label_theme);
+        rune_label_rect := get_rect(x_pos - 110, y_pos, 300, 30);
+        label(rune_label_rect, "Rune", *editor_state.editor_theme.label_theme);
         y_pos -= 30;
         render_rune(rune_ptr.*, .{x_pos + 290, y_pos - 20}, .{100, 100}, .{1, 1, 1, 1});
         base_marking_x := x_pos + 20;
@@ -198,10 +198,14 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
         }
         // Flags
         flags_margin := x_pos + 20;
+        flag_label_rect := get_rect(flags_margin - 130, y_pos + 30, 300, 30);
+        label(flag_label_rect, "Flags", *editor_state.editor_theme.label_theme);
         enum_flag_display(*room_ptr.flags, flags_margin, y_pos);
 
         // Exits
         exits_margin := x_pos + 195;
+        exit_label_rect := get_rect(exits_margin - 130, y_pos + 30, 300, 30);
+        label(exit_label_rect, "Exits", *editor_state.editor_theme.label_theme);
         enum_flag_display(*room_ptr.exits, exits_margin, y_pos);
 
         y_pos -= 400;

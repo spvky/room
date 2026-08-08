@@ -19,12 +19,9 @@ render :: () {
         render_room_tiles(context.current_editor_room);
     }
     #if OS == .WINDOWS render_selection();
-    // render_colliders();
-    // render_sprite(player_sprite, .{500, 500}, .{200, 200});
-    // render_rune(context.current_editor_room.rune, .{700, 500}, .{300, 300}, .{1, 1, 1, 1});
 
     render_gameplay_ui();
-    render_map_placed_rooms();
+    render_map_placed_room_cards();
     render_editor_ui();
     swap_buffers(window);
 }
@@ -254,8 +251,8 @@ render_room_tiles :: (r: *Room) {
     }
 }
 
-render_map_placed_rooms :: () {
-    for context.map.placed_rooms {
+render_map_placed_room_cards :: () {
+    for context.map.placed_room_cards {
         room := get_room_from_hash(it.room_hash);
         room_sprite := make_sprite(*room.texture);
 
