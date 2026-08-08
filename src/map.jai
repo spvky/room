@@ -442,10 +442,11 @@ parse_tiles :: (r: *Room) {
     }
 }
 
-write_room_tiles_to_world_tilemap :: () {
+write_room_cards_to_world :: () {
     world := context.world;
     map := context.map;
     for map.placed_room_cards {
+        // Write the rotated rune land exits to the world map
         r := get_room_from_hash(it.room_hash);
         assert(r != null, "Hit null room pointer while adding room tiles to tilemap.\nSkipping placed room %!\n", it.room_hash);
         start_x: s16 = it.coord.x * xx ROOM_WIDTH + (1 + it.coord.x); // Wall offset
