@@ -25,22 +25,21 @@ main :: () {
         }
         #if OS == .WINDOWS get_mouse_cell();
         process_input(delta);
-        if get_editor_mode() == {
-        case 0;
-            #if OS == .WINDOWS {
-                paint_tile_values();
-            }
-        case 1;
+        if context.game_state == {
+        case .ROOM_DESIGNER;
+            #if OS == .WINDOWS paint_tile_values();
+        case .MAP_PLACEMENT;
             map_screen_update();
         }
         render();
+        game_state_update();
         reset_temporary_storage();
     }
 }
 
-get_editor_mode :: () -> s32 {
-    return context.editor_state.editor_type;
-}
+// get_editor_mode :: () -> s32 {
+//     return context.editor_state.editor_type;
+// }
 
 init :: () {
     init_camera();
@@ -78,3 +77,4 @@ init :: () {
 #load "src/camera.jai";
 #load "src/map.jai";
 #load "src/game_ui.jai";
+#load "src/game_state.jai";

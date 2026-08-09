@@ -191,8 +191,8 @@ paint_tile_values :: () {
 }
 
 get_mouse_cell :: () -> Coord, bool {
-    width := ifx context.editor_state.editor_type == 0 then ROOM_WIDTH else MAP_WIDTH;
-    height := ifx context.editor_state.editor_type == 0 then ROOM_HEIGHT else MAP_HEIGHT;
+    width := ROOM_WIDTH;
+    height := ROOM_HEIGHT;
     tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary := get_tile_ui_data(height);
     mouse_x, mouse_y, ok := get_mouse_pointer_position();
 

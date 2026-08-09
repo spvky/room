@@ -16,7 +16,6 @@ MAP_VIEW :: 1;
 GAME_VIEW :: 2;
 
 Editor_State :: struct {
-    editor_type: s32;
     editor_theme: Overall_Theme;
     room_options: Room_Editor_Options;
     show_file_load_window: bool;
@@ -61,7 +60,7 @@ init_ui_icons :: () {
     TILE_ICONS[1] = .{sprite = *context.atlas.crate};
 }
 
-render_editor_ui :: () {
+render_room_designer_ui :: () {
     editor_state := context.editor_state;
 
     current_time := to_float64_seconds(current_time_monotonic());
@@ -117,110 +116,106 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     y_pos := dropdown_rect.y - dropdown_rect.h - 10;
     x_pos := dropdown_rect.x + 5;
 
-    dropdown(dropdown_rect, EDITOR_MODES, *editor_state.editor_type);
-    if context.editor_state.editor_type == {
-    case 0;
-        // Tile painting
-        room_options := *editor_state.room_options;
-        tile_type_rect := get_rect(x_pos, y_pos, 200, 50);
-        y_pos -= 50;
-        dropdown(tile_type_rect, TILE_TYPES, *room_options.tile_type);
+    // Tile painting
+    room_options := *editor_state.room_options;
+    tile_type_rect := get_rect(x_pos, y_pos, 200, 50);
+    y_pos -= 50;
+    dropdown(tile_type_rect, TILE_TYPES, *room_options.tile_type);
 
-        left := tile_type_rect.x + tile_type_rect.w;
-        right := left + 50;
-        top := tile_type_rect.y + tile_type_rect.h;
-        bot := tile_type_rect.y;
+    left := tile_type_rect.x + tile_type_rect.w;
+    right := left + 50;
+    top := tile_type_rect.y + tile_type_rect.h;
+    bot := tile_type_rect.y;
 
-        // Tile Display Index
-        tdi := context.editor_state.room_options.tile_type;
+    // Tile Display Index
+    tdi := context.editor_state.room_options.tile_type;
 
-        if TILE_ICONS[tdi].sprite {
-            s := TILE_ICONS[tdi].sprite;
-            set_shader_for_images(s.texture);
-            immediate_quad(.{left, top}, .{left, bot}, .{right, bot}, .{right, top}, TILE_ICONS[tdi].color, s.uvs[0], s.uvs[1], s.uvs[2], s.uvs[3]);
-        } else {
-            set_shader_for_color();
-            immediate_quad(.{left, top}, .{left, bot}, .{right, bot}, .{right, top}, TILE_ICONS[tdi].color);
-        }
-
-        // Name
-        name_rect := get_rect(x_pos, y_pos, 300, 40);
-        name_action, new_name := text_input(name_rect, context.current_editor_room.name, *editor_state.editor_theme.text_input_theme);
-        if name_action & .ENTERED || name_action & .TEXT_MODIFIED modify_string(*context.current_editor_room.name, new_name);
-        y_pos -= 45;
-
-        // Runes
-        // Crescents
-        rune_label_rect := get_rect(x_pos - 110, y_pos, 300, 30);
-        label(rune_label_rect, "Rune", *editor_state.editor_theme.label_theme);
-        y_pos -= 30;
-        render_rune(rune_ptr.*, .{x_pos + 290, y_pos - 20}, .{100, 100}, .{1, 1, 1, 1});
-        base_marking_x := x_pos + 20;
-        marking_x := base_marking_x;
-        // Crescents
-        room_marking_display("Do", .DO);
-        room_marking_display("So", .SO);
-        room_marking_display("Ko", .KO);
-        room_marking_display("Lo", .LO);
-        y_pos -= 30;
-        marking_x = base_marking_x;
-        // Slants
-        room_marking_display("El", .EL);
-        room_marking_display("En", .EN);
-        room_marking_display("Ek", .EK);
-        room_marking_display("Et", .ET);
-        y_pos -= 30;
-        marking_x = base_marking_x;
-        // Tears
-        room_marking_display("Ti", .TI);
-        room_marking_display("Li", .LI);
-        room_marking_display("Ki", .KI);
-        room_marking_display("Di", .DI);
-        y_pos -= 30;
-        marking_x = base_marking_x;
-        // Orbs
-        room_marking_display("Ta", .TA);
-        room_marking_display("Da", .DA);
-        room_marking_display("La", .LA);
-        room_marking_display("Ka", .KA);
-        y_pos -= 30;
-        marking_x = base_marking_x;
-        // Sun
-        su_rect := get_rect(marking_x, y_pos, 50, 30);
-        y_pos -= 70;
-        su_pressed := base_checkbox(su_rect, "Su", rune_ptr.encircled, *editor_state.editor_theme.checkbox_theme);
-        if su_pressed {
-            if rune_ptr.encircled {
-                rune_ptr.encircled = false;
-            } else {
-                rune_ptr.encircled = true;
-            }
-        }
-        // Flags
-        flags_margin := x_pos + 20;
-        flag_label_rect := get_rect(flags_margin - 130, y_pos + 30, 300, 30);
-        label(flag_label_rect, "Flags", *editor_state.editor_theme.label_theme);
-        enum_flag_display(*room_ptr.flags, flags_margin, y_pos);
-
-        // Exits
-        exits_margin := x_pos + 195;
-        exit_label_rect := get_rect(exits_margin - 130, y_pos + 30, 300, 30);
-        label(exit_label_rect, "Exits", *editor_state.editor_theme.label_theme);
-        enum_flag_display(*room_ptr.exits, exits_margin, y_pos);
-
-        y_pos -= 400;
-        save_button_rect := get_rect(x_pos, y_pos, 110, 30);
-        save_pressed := button(save_button_rect, "Save Room");
-        if save_pressed {
-            parse_tiles(room_ptr);
-            // print("% Colliders added to %\n", room_ptr.colliders.count, room_ptr.name);
-            save_room(room_ptr.*);
-        }
-
-        load_button_rect := get_rect(x_pos + 120, y_pos, 110, 30);
-        load_pressed := button(load_button_rect, "Load Room");
-        if load_pressed editor_state.file_load_window.open = true;
+    if TILE_ICONS[tdi].sprite {
+        s := TILE_ICONS[tdi].sprite;
+        set_shader_for_images(s.texture);
+        immediate_quad(.{left, top}, .{left, bot}, .{right, bot}, .{right, top}, TILE_ICONS[tdi].color, s.uvs[0], s.uvs[1], s.uvs[2], s.uvs[3]);
+    } else {
+        set_shader_for_color();
+        immediate_quad(.{left, top}, .{left, bot}, .{right, bot}, .{right, top}, TILE_ICONS[tdi].color);
     }
+
+    // Name
+    name_rect := get_rect(x_pos, y_pos, 300, 40);
+    name_action, new_name := text_input(name_rect, context.current_editor_room.name, *editor_state.editor_theme.text_input_theme);
+    if name_action & .ENTERED || name_action & .TEXT_MODIFIED modify_string(*context.current_editor_room.name, new_name);
+    y_pos -= 45;
+
+    // Runes
+    // Crescents
+    rune_label_rect := get_rect(x_pos - 110, y_pos, 300, 30);
+    label(rune_label_rect, "Rune", *editor_state.editor_theme.label_theme);
+    y_pos -= 30;
+    render_rune(rune_ptr.*, .{x_pos + 290, y_pos - 20}, .{100, 100}, .{1, 1, 1, 1});
+    base_marking_x := x_pos + 20;
+    marking_x := base_marking_x;
+    // Crescents
+    room_marking_display("Do", .DO);
+    room_marking_display("So", .SO);
+    room_marking_display("Ko", .KO);
+    room_marking_display("Lo", .LO);
+    y_pos -= 30;
+    marking_x = base_marking_x;
+    // Slants
+    room_marking_display("El", .EL);
+    room_marking_display("En", .EN);
+    room_marking_display("Ek", .EK);
+    room_marking_display("Et", .ET);
+    y_pos -= 30;
+    marking_x = base_marking_x;
+    // Tears
+    room_marking_display("Ti", .TI);
+    room_marking_display("Li", .LI);
+    room_marking_display("Ki", .KI);
+    room_marking_display("Di", .DI);
+    y_pos -= 30;
+    marking_x = base_marking_x;
+    // Orbs
+    room_marking_display("Ta", .TA);
+    room_marking_display("Da", .DA);
+    room_marking_display("La", .LA);
+    room_marking_display("Ka", .KA);
+    y_pos -= 30;
+    marking_x = base_marking_x;
+    // Sun
+    su_rect := get_rect(marking_x, y_pos, 50, 30);
+    y_pos -= 70;
+    su_pressed := base_checkbox(su_rect, "Su", rune_ptr.encircled, *editor_state.editor_theme.checkbox_theme);
+    if su_pressed {
+        if rune_ptr.encircled {
+            rune_ptr.encircled = false;
+        } else {
+            rune_ptr.encircled = true;
+        }
+    }
+    // Flags
+    flags_margin := x_pos + 20;
+    flag_label_rect := get_rect(flags_margin - 130, y_pos + 30, 300, 30);
+    label(flag_label_rect, "Flags", *editor_state.editor_theme.label_theme);
+    enum_flag_display(*room_ptr.flags, flags_margin, y_pos);
+
+    // Exits
+    exits_margin := x_pos + 195;
+    exit_label_rect := get_rect(exits_margin - 130, y_pos + 30, 300, 30);
+    label(exit_label_rect, "Exits", *editor_state.editor_theme.label_theme);
+    enum_flag_display(*room_ptr.exits, exits_margin, y_pos);
+
+    y_pos -= 400;
+    save_button_rect := get_rect(x_pos, y_pos, 110, 30);
+    save_pressed := button(save_button_rect, "Save Room");
+    if save_pressed {
+        parse_tiles(room_ptr);
+        // print("% Colliders added to %\n", room_ptr.colliders.count, room_ptr.name);
+        save_room(room_ptr.*);
+    }
+
+    load_button_rect := get_rect(x_pos + 120, y_pos, 110, 30);
+    load_pressed := button(load_button_rect, "Load Room");
+    if load_pressed editor_state.file_load_window.open = true;
 }
 
 #import "GetRect";

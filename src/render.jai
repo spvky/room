@@ -14,15 +14,14 @@ get_tile_ui_data :: (height: int) -> float32, float32, float32, float32, float32
 
 render :: () {
     clear_render_target(0.2, 0.1, 0.5, 1);
-    render_grid();
-    if context.editor_state.editor_type == 0 {
-        render_room_tiles(context.current_editor_room);
+    if context.game_state == {
+    case .MAP_PLACEMENT;
+        render_map_placement();
+    case .ROOM_DESIGNER;
+        render_room_designer();
+    case .GAMEPLAY;
     }
-    #if OS == .WINDOWS render_selection();
 
-    render_gameplay_ui();
-    render_map_placed_room_cards();
-    render_editor_ui();
     swap_buffers(window);
 }
 
@@ -53,16 +52,13 @@ render_grid :: () {
     }
 
     set_shader_for_color(true);
-
-    if context.editor_state.editor_type == {
-        // Room
-    case 0;
+    if context.game_state == {
+    case .ROOM_DESIGNER;
         for 0..ROOM_HEIGHT {
             grid_lines(ROOM_HEIGHT);
             draw_current_room_exits(ROOM_HEIGHT);
         }
-        // Map
-    case 1;
+    case .MAP_PLACEMENT;
         for 0..MAP_HEIGHT {
             grid_lines(MAP_HEIGHT);
         }
@@ -186,42 +182,39 @@ draw_current_room_exits :: (height: int) {
 }
 
 render_boundaries_from_cell :: (c: Coord) -> float32, float32, float32, float32 {
-    height := ifx context.editor_state.editor_type == 0 then ROOM_HEIGHT else MAP_HEIGHT;
-    tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary := get_tile_ui_data(height);
+    if context.game_state == .ROOM_DESIGNER || context.game_state == .MAP_PLACEMENT {
+        height := ifx in_game_state(.ROOM_DESIGNER) then ROOM_HEIGHT else MAP_HEIGHT;
+        tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary := get_tile_ui_data(height);
 
-    left := left_boundary + (tile_height * xx c.x);
-    right := left_boundary + (tile_height * (xx c.x + 1));
-    bot := bot_boundary + (tile_height * xx c.y);
-    top := bot_boundary + (tile_height * (xx c.y + 1));
-    return left, right, bot, top;
+        left := left_boundary + (tile_height * xx c.x);
+        right := left_boundary + (tile_height * (xx c.x + 1));
+        bot := bot_boundary + (tile_height * xx c.y);
+        top := bot_boundary + (tile_height * (xx c.y + 1));
+        return left, right, bot, top;
+    } else {
+        return 0, 0, 0, 0;
+    }
 }
 
-render_selection :: () {
-    left, right, bot, top: float32;
-    if get_editor_mode() == {
-    case 0;
-        set_shader_for_color(true);
-        cell, ok := get_mouse_cell();
-        if ok {
-            left, right, bot, top := render_boundaries_from_cell(cell);
-            immediate_quad(
-                           .{left, bot},
-                           .{right, bot},
-                           .{right, top},
-                           .{left, top},
-                           .{1, 1, 1, 0.3});
-        }
-    case 1;
-        if context.map.available_rooms.count > 0 {
-            room := get_room_at_wrapping_index(context.map.selected_idx);
-            room_sprite := make_sprite(*room.texture);
+// #ROOM_DESIGNER_RENDERING
+render_room_designer :: () {
+    render_grid();
+    #if OS == .WINDOWS render_room_designer_mouse_selection();
+    render_room_tiles(context.current_editor_room);
+    render_room_designer_ui();
+}
 
-            left, right, bot, top := render_boundaries_from_cell(context.editor_state.map_cursor_position);
-            rot := cast(float32)context.editor_state.map_cursor_rotation * (PI / 2);
-            pos := Vector2.{(left + right) / 2, (top + bot) / 2};
-            size := Vector2.{right - left, top - bot};
-            render_sprite(room_sprite, pos, size, rotation = rot, color = .{1, 1, 1, 0.3});
-        }
+render_room_designer_mouse_selection :: () {
+    set_shader_for_color(true);
+    cell, ok := get_mouse_cell();
+    if ok {
+        left, right, bot, top := render_boundaries_from_cell(cell);
+        immediate_quad(
+                       .{left, bot},
+                       .{right, bot},
+                       .{right, top},
+                       .{left, top},
+                       .{1, 1, 1, 0.3});
     }
 }
 
@@ -248,6 +241,26 @@ render_room_tiles :: (r: *Room) {
                                .{0, 1, 0, 1});
             }
         }
+    }
+}
+
+// #MAP_PLACEMENT_RENDERING
+render_map_placement :: () {
+    render_grid();
+    render_map_placement_selected_room();
+    render_map_placed_room_cards();
+    render_map_placement_ui();
+}
+render_map_placement_selected_room :: () {
+    if context.map.available_rooms.count > 0 {
+        room := get_room_at_wrapping_index(context.map.selected_idx);
+        room_sprite := make_sprite(*room.texture);
+
+        left, right, bot, top := render_boundaries_from_cell(context.editor_state.map_cursor_position);
+        rot := cast(float32)context.editor_state.map_cursor_rotation * (PI / 2);
+        pos := Vector2.{(left + right) / 2, (top + bot) / 2};
+        size := Vector2.{right - left, top - bot};
+        render_sprite(room_sprite, pos, size, rotation = rot, color = .{1, 1, 1, 0.3});
     }
 }
 
