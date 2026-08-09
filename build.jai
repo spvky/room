@@ -69,7 +69,7 @@ init :: () {
 #load "src/input.jai";
 #load "src/runes.jai";
 #load "src/player.jai";
-#load "src/ui.jai";
+#load "src/room_designer.jai";
 #load "src/thing.jai";
 #load "src/collision.jai";
 #load "src/io.jai";

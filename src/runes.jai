@@ -68,30 +68,33 @@ rune_indices_from_bits :: (rune: Rune) -> [..]int {
 }
 
 rotate_rune :: (rune: Rune, rot: int = 1) -> Rune {
+    _contains :: (m: Markings) -> bool #expand {
+        return `n & m == m;
+    }
     if rot == 0 then return rune;
     n := rune.markings;
     for 1..rot {
         ir: Markings;
         // Crescents
-        if n & .DO == .DO then ir |= .SO;
-        if n & .SO == .SO then ir |= .KO;
-        if n & .KO == .KO then ir |= .LO;
-        if n & .LO == .LO then ir |= .DO;
+        if _contains(.DO) then ir |= .SO;
+        if _contains(.SO) then ir |= .KO;
+        if _contains(.KO) then ir |= .LO;
+        if _contains(.LO) then ir |= .DO;
         // Slants
-        if n & .EL == .EL then ir |= .EN;
-        if n & .EN == .EN then ir |= .EK;
-        if n & .EK == .EK then ir |= .ET;
-        if n & .ET == .ET then ir |= .EL;
+        if _contains(.EL) then ir |= .EN;
+        if _contains(.EN) then ir |= .EK;
+        if _contains(.EK) then ir |= .ET;
+        if _contains(.ET) then ir |= .EL;
         // Tears
-        if n & .TI == .TI then ir |= .LI;
-        if n & .LI == .LI then ir |= .KI;
-        if n & .KI == .KI then ir |= .DI;
-        if n & .DI == .DI then ir |= .TI;
+        if _contains(.TI) then ir |= .LI;
+        if _contains(.LI) then ir |= .KI;
+        if _contains(.KI) then ir |= .DI;
+        if _contains(.DI) then ir |= .TI;
         // Orbs
-        if n & .TA == .TA then ir |= .DA;
-        if n & .DA == .DA then ir |= .LA;
-        if n & .LA == .LA then ir |= .KA;
-        if n & .KA == .KA then ir |= .DA;
+        if _contains(.TA) then ir |= .DA;
+        if _contains(.DA) then ir |= .LA;
+        if _contains(.LA) then ir |= .KA;
+        if _contains(.KA) then ir |= .DA;
         n = ir;
     }
     return Rune.{markings = n};

@@ -38,8 +38,9 @@ Room_Card :: struct {
 }
 
 Map_Room :: struct {
-    flags: Room_Flags;
+    rune: Rune;
     exits: Room_Exits;
+    exists: bool;
 }
 
 Room_Tile :: enum u8 {
@@ -70,6 +71,13 @@ Room_Exits :: enum_flags u16 {
     EAST_SOUTH :: 1 << 9;
     EAST :: 1 << 10;
     EAST_NORTH :: 1 << 11;
+}
+
+Map_Direction :: enum {
+    EAST;
+    SOUTH;
+    WEST;
+    NORTH;
 }
 
 Room_Flags :: enum_flags u16 {
@@ -227,6 +235,7 @@ rotate_room :: (r: Room) -> Room {
                                                       child_pos = rotate_coord(it.child_pos)});
     }
     out.rune = rotate_rune(r.rune, 1);
+    out.exits = rotate_room_exits(out.exits, 1);
     return out;
 }
 
@@ -442,11 +451,14 @@ parse_tiles :: (r: *Room) {
     }
 }
 
+bake_world :: () {
+    write_room_cards_to_world();
+}
+
 write_room_cards_to_world :: () {
     world := context.world;
     map := context.map;
     for map.placed_room_cards {
-        // Write the rotated rune land exits to the world map
         r := get_room_from_hash(it.room_hash);
         assert(r != null, "Hit null room pointer while adding room tiles to tilemap.\nSkipping placed room %!\n", it.room_hash);
         start_x: s16 = it.coord.x * xx ROOM_WIDTH + (1 + it.coord.x); // Wall offset
@@ -460,8 +472,13 @@ write_room_cards_to_world :: () {
             }
         }
 
-        for x: 0..ROOM_WIDTH - 1 {
-            for y: 0..ROOM_HEIGHT - 1 {
+        // Write Room exits and rune to the world map
+        map_to_place := Map_Room.{room_copy.rune, room_copy.exits, true};
+        placed_idx := coord_to_index(it.coord, .MAP);
+        world.rooms[placed_idx] = map_to_place;
+
+        for y: 0..ROOM_HEIGHT - 1 {
+            for x: 0..ROOM_WIDTH - 1 {
                 room_coord := Coord.{xx x, xx y};
                 world_coord := room_coord + Coord.{start_x, start_y};
                 tile := check_tile_value(*room_copy, room_coord);
@@ -473,6 +490,51 @@ write_room_cards_to_world :: () {
             }
         }
     }
+}
+
+open_map_exits :: () {
+    world := context.world;
+    for <y: 0..MAP_HEIGHT - 1 {
+        for x: 0..MAP_WIDTH - 1 {
+            current_coord := Coord.{xx x, xx y};
+            current_room := world.rooms[coord_to_index(current_coord, .MAP)];
+            if !current_room.exists continue;
+            east_exits: Room_Exits;
+            south_exits: Room_Exits;
+            if x < MAP_WIDTH - 1 {
+                east_neighbor := world.rooms[coord_to_index(current_coord + .{1, 0}, .MAP)];
+                if east_neighbor.exists {
+                    east_exits = exits_match(current_room.exits, east_neighbor.exits, .EAST);
+                }
+            }
+            if y > 0 {
+                south_neighbor := world.rooms[coord_to_index(current_coord + .{0, -1}, .MAP)];
+                if south_neighbor.exists {
+                    south_exits = exits_match(current_room.exits, south_neighbor.exits, .SOUTH);
+                }
+            }
+            // Set the tiles corresponding to the exits to empty
+        }
+    }
+}
+
+// Takes 2 rooms and a coord relative to the first and returns which of the first rooms exits are clear
+exits_match :: (a: Room_Exits, b: Room_Exits, direction: Map_Direction) -> Room_Exits {
+    _contains :: (e: Room_Exits, ce: Room_Exits) -> bool {
+        return e & ce == ce;
+    }
+    matches: Room_Exits;
+    if direction == {
+    case .EAST;
+        if _contains(a, .EAST_NORTH) && _contains(b, .WEST_NORTH) then matches |= .EAST_NORTH;
+        if _contains(a, .EAST) && _contains(b, .WEST) then matches |= .EAST;
+        if _contains(a, .EAST_SOUTH) && _contains(b, .WEST_SOUTH) then matches |= .EAST_SOUTH;
+    case .SOUTH;
+        if _contains(a, .SOUTH_EAST) && _contains(b, .NORTH_EAST) then matches |= .SOUTH_EAST;
+        if _contains(a, .SOUTH) && _contains(b, .NORTH) then matches |= .SOUTH;
+        if _contains(a, .SOUTH_WEST) && _contains(b, .NORTH_WEST) then matches |= .SOUTH_WEST;
+    }
+    return matches;
 }
 
 map_screen_update :: () {
