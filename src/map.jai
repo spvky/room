@@ -46,7 +46,7 @@ Map_Room :: struct {
 Room_Tile :: enum u8 {
     EMPTY;
     WALL;
-    SLOPE;
+    BLANK;
 }
 
 Extra_Entity_Data :: struct {
@@ -159,13 +159,14 @@ reset_world_tilemap :: () {
     for x: 0..WORLD_WIDTH - 1 {
         for y: 0..WORLD_HEIGHT - 1 {
             idx := coord_to_index(.{xx x, xx y}, .WORLD);
-            if x == 0 || y == 0 {
-                world.tiles[idx] = .WALL;
-            } else if x % 23 == 0 || y % 23 == 0 {
-                world.tiles[idx] = .WALL;
-            } else {
-                world.tiles[idx] = .EMPTY;
-            }
+            // if x == 0 || y == 0 {
+            //     world.tiles[idx] = .WALL;
+            // } else if x % 23 == 0 || y % 23 == 0 {
+            //     world.tiles[idx] = .WALL;
+            // } else {
+            //     world.tiles[idx] = .EMPTY;
+            // }
+            world.tiles[idx] = .BLANK;
         }
     }
 }
@@ -484,27 +485,39 @@ write_room_cards_to_world :: () {
                 room_coord := Coord.{xx x, xx y};
                 world_coord := room_coord + Coord.{start_x, start_y};
                 tile := check_tile_value(*room_copy, room_coord);
-                if tile != .EMPTY {
-                    world_idx := coord_to_index(world_coord, .WORLD);
-                    world.tiles[world_idx] = tile;
-                    // This may be all I need for placing the actual tiles, work on translating entity data once baking is done, there aren't any entities yet
-                }
+                world_idx := coord_to_index(world_coord, .WORLD);
+                world.tiles[world_idx] = tile;
+                // This may be all I need for placing the actual tiles, work on translating entity data once baking is done, there aren't any entities yet
             }
         }
     }
 }
 
 open_map_exits :: () {
-    contains :: (e: Room_Exits, ce: Room_Exits) -> bool {
+    _Late_Tile_Update :: struct {
+        idx: int;
+        tile: Room_Tile;
+    }
+    _contains :: (e: Room_Exits, ce: Room_Exits) -> bool {
         return e & ce == ce;
     }
     world := context.world;
+    late_tile_updates: [..]_Late_Tile_Update;
+    late_tile_updates.allocator = temp;
     for <y: 0..MAP_HEIGHT - 1 {
         for x: 0..MAP_WIDTH - 1 {
             current_coord := Coord.{xx x, xx y};
             origin_tile := Coord.{current_coord.x * xx (ROOM_WIDTH + 1), current_coord.y * xx (ROOM_HEIGHT + 1)};
             current_room := world.rooms[coord_to_index(current_coord, .MAP)];
             if !current_room.exists continue;
+            // Place the maps border
+            for by: 0..ROOM_HEIGHT + 1 {
+                for bx: 0..ROOM_WIDTH + 1 {
+                    if bx == 0 || bx == ROOM_WIDTH + 1 || by == 0 || by == ROOM_HEIGHT + 1 {
+                        world.tiles[coord_to_index(origin_tile + .{xx bx, xx by}, .WORLD)] = .WALL;
+                    }
+                }
+            }
             east_exits: Room_Exits;
             south_exits: Room_Exits;
             if x < MAP_WIDTH - 1 {
@@ -521,36 +534,54 @@ open_map_exits :: () {
             }
             // Set the tiles corresponding to the exits to empty
             if east_exits != 0 {
-                if contains(east_exits, .EAST_NORTH) {
-                    world.tiles[coord_to_index(origin_tile + .{ROOM_WIDTH + 1, ROOM_HEIGHT}, .WORLD)] = .EMPTY;
-                    world.tiles[coord_to_index(origin_tile + .{ROOM_WIDTH + 1, ROOM_HEIGHT - 1}, .WORLD)] = .EMPTY;
+                if _contains(east_exits, .EAST_NORTH) {
+                    id1 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, ROOM_HEIGHT}, .WORLD);
+                    id2 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, ROOM_HEIGHT - 1}, .WORLD);
+                    array_add(*late_tile_updates, .{id1, .EMPTY});
+                    array_add(*late_tile_updates, .{id2, .EMPTY});
                 }
-                if contains(east_exits, .EAST) {
-                    world.tiles[coord_to_index(origin_tile + .{ROOM_WIDTH + 1, ROOM_HEIGHT / 2}, .WORLD)] = .EMPTY;
-                    world.tiles[coord_to_index(origin_tile + .{ROOM_WIDTH + 1, (ROOM_HEIGHT / 2) + 1}, .WORLD)] = .EMPTY;
+                if _contains(east_exits, .EAST) {
+                    id1 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, ROOM_HEIGHT / 2}, .WORLD);
+                    id2 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, (ROOM_HEIGHT / 2) + 1}, .WORLD);
+                    array_add(*late_tile_updates, .{id1, .EMPTY});
+                    array_add(*late_tile_updates, .{id2, .EMPTY});
                 }
-                if contains(east_exits, .EAST_SOUTH) {
-                    world.tiles[coord_to_index(origin_tile + .{ROOM_WIDTH + 1, 0}, .WORLD)] = .EMPTY;
-                    world.tiles[coord_to_index(origin_tile + .{ROOM_WIDTH + 1, 1}, .WORLD)] = .EMPTY;
+                if _contains(east_exits, .EAST_SOUTH) {
+                    id1 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, 0}, .WORLD);
+                    id2 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, 1}, .WORLD);
+                    array_add(*late_tile_updates, .{id1, .EMPTY});
+                    array_add(*late_tile_updates, .{id2, .EMPTY});
                 }
             }
 
             if south_exits != 0 {
-                if contains(south_exits, .SOUTH_EAST) {
-                    world.tiles[coord_to_index(origin_tile + .{ROOM_WIDTH, 0}, .WORLD)] = .EMPTY;
-                    world.tiles[coord_to_index(origin_tile + .{ROOM_WIDTH - 1, 0}, .WORLD)] = .EMPTY;
+                if _contains(south_exits, .SOUTH_EAST) {
+                    id1 := coord_to_index(origin_tile + .{ROOM_WIDTH, 0}, .WORLD);
+                    id2 := coord_to_index(origin_tile + .{ROOM_WIDTH - 1, 0}, .WORLD);
+                    array_add(*late_tile_updates, .{id1, .EMPTY});
+                    array_add(*late_tile_updates, .{id2, .EMPTY});
                 }
-                if contains(south_exits, .SOUTH) {
-                    world.tiles[coord_to_index(origin_tile + .{ROOM_WIDTH / 2, 0}, .WORLD)] = .EMPTY;
-                    world.tiles[coord_to_index(origin_tile + .{(ROOM_WIDTH / 2) + 1, 0}, .WORLD)] = .EMPTY;
+                if _contains(south_exits, .SOUTH) {
+                    id1 := coord_to_index(origin_tile + .{ROOM_WIDTH / 2, 0}, .WORLD);
+                    id2 := coord_to_index(origin_tile + .{(ROOM_WIDTH / 2) + 1, 0}, .WORLD);
+                    array_add(*late_tile_updates, .{id1, .EMPTY});
+                    array_add(*late_tile_updates, .{id2, .EMPTY});
                 }
-                if contains(south_exits, .SOUTH_WEST) {
-                    world.tiles[coord_to_index(origin_tile + .{2, 0}, .WORLD)] = .EMPTY;
-                    world.tiles[coord_to_index(origin_tile + .{1, 0}, .WORLD)] = .EMPTY;
+                if _contains(south_exits, .SOUTH_WEST) {
+                    id1 := coord_to_index(origin_tile + .{2, 0}, .WORLD);
+                    id2 := coord_to_index(origin_tile + .{1, 0}, .WORLD);
+                    array_add(*late_tile_updates, .{id1, .EMPTY});
+                    array_add(*late_tile_updates, .{id2, .EMPTY});
                 }
             }
         }
     }
+
+    // Final tile updates, right now it's just punching exit holes while still allowing each room to create it's border
+    for late_tile_updates {
+        world.tiles[it.idx] = it.tile;
+    }
+    array_free(late_tile_updates);
 }
 
 // Takes 2 rooms and a coord relative to the first and returns which of the first rooms exits are clear
@@ -592,6 +623,7 @@ map_screen_update :: () {
     place_room_at_position();
 
     if is_action_buffered(.BAKE_MAP) {
+        consume_action(.BAKE_MAP);
         bake_world();
     }
 }

@@ -232,13 +232,6 @@ render_room_tiles :: (r: *Room) {
                                .{right, bot},
                                .{right, top},
                                .{0, 0, 1, 1});
-            case .SLOPE;
-                immediate_quad(
-                               .{left, top},
-                               .{left, bot},
-                               .{right, bot},
-                               .{right, top},
-                               .{0, 1, 0, 1});
             }
         }
     }

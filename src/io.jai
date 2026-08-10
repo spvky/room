@@ -139,7 +139,7 @@ generate_room_png :: (r: *Room, path: string) {
     Room_Color :: enum {
         COLOR_EMPTY;
         COLOR_WALL;
-        COLOR_EXIT;
+        COLOR_BLANK;
     }
 
     _set_pixel :: (color: Room_Color) #expand {
@@ -154,9 +154,9 @@ generate_room_png :: (r: *Room, path: string) {
             `data[(`i * `channels) + 1] = 115;
             `data[(`i * `channels) + 2] = 240;
             `data[(`i * `channels) + 3] = 255;
-        case .COLOR_EXIT;
-            `data[(`i * `channels)] = 255;
-            `data[(`i * `channels) + 1] = 255;
+        case .COLOR_BLANK;
+            `data[(`i * `channels)] = 0;
+            `data[(`i * `channels) + 1] = 0;
             `data[(`i * `channels) + 2] = 0;
             `data[(`i * `channels) + 3] = 255;
         }
@@ -221,7 +221,7 @@ generate_world_map_png :: (path: string) {
     Room_Color :: enum {
         COLOR_EMPTY;
         COLOR_WALL;
-        COLOR_EXIT;
+        COLOR_BLANK;
     }
 
     _set_pixel :: (color: Room_Color) #expand {
@@ -236,9 +236,9 @@ generate_world_map_png :: (path: string) {
             `data[(`i * `channels) + 1] = 115;
             `data[(`i * `channels) + 2] = 240;
             `data[(`i * `channels) + 3] = 255;
-        case .COLOR_EXIT;
-            `data[(`i * `channels)] = 255;
-            `data[(`i * `channels) + 1] = 255;
+        case .COLOR_BLANK;
+            `data[(`i * `channels)] = 0;
+            `data[(`i * `channels) + 1] = 0;
             `data[(`i * `channels) + 2] = 0;
             `data[(`i * `channels) + 3] = 255;
         }
@@ -262,6 +262,8 @@ generate_world_map_png :: (path: string) {
                 _set_pixel(.COLOR_EMPTY);
             case .WALL;
                 _set_pixel(.COLOR_WALL);
+            case .BLANK;
+                _set_pixel(.COLOR_BLANK);
             }
             i += 1;
         }
