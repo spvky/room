@@ -493,10 +493,14 @@ write_room_cards_to_world :: () {
 }
 
 open_map_exits :: () {
+    contains :: (e: Room_Exits, ce: Room_Exits) -> bool {
+        return e & ce == ce;
+    }
     world := context.world;
     for <y: 0..MAP_HEIGHT - 1 {
         for x: 0..MAP_WIDTH - 1 {
             current_coord := Coord.{xx x, xx y};
+            origin_tile := Coord.{current_coord.x * xx (ROOM_WIDTH + 1), current_coord.y * xx (ROOM_HEIGHT + 1)};
             current_room := world.rooms[coord_to_index(current_coord, .MAP)];
             if !current_room.exists continue;
             east_exits: Room_Exits;
@@ -514,25 +518,54 @@ open_map_exits :: () {
                 }
             }
             // Set the tiles corresponding to the exits to empty
+            if east_exits != 0 {
+                if contains(east_exits, .EAST_NORTH) {
+                    world.tiles[coord_to_index(origin_tile + .{ROOM_WIDTH + 1, ROOM_HEIGHT}, .WORLD)] = .EMPTY;
+                    world.tiles[coord_to_index(origin_tile + .{ROOM_WIDTH + 1, ROOM_HEIGHT - 1}, .WORLD)] = .EMPTY;
+                }
+                if contains(east_exits, .EAST) {
+                    world.tiles[coord_to_index(origin_tile + .{ROOM_WIDTH + 1, ROOM_HEIGHT / 2}, .WORLD)] = .EMPTY;
+                    world.tiles[coord_to_index(origin_tile + .{ROOM_WIDTH + 1, (ROOM_HEIGHT / 2) + 1}, .WORLD)] = .EMPTY;
+                }
+                if contains(east_exits, .EAST_SOUTH) {
+                    world.tiles[coord_to_index(origin_tile + .{ROOM_WIDTH + 1, 0}, .WORLD)] = .EMPTY;
+                    world.tiles[coord_to_index(origin_tile + .{ROOM_WIDTH + 1, 1}, .WORLD)] = .EMPTY;
+                }
+            }
+
+            if south_exits != 0 {
+                if contains(south_exits, .SOUTH_EAST) {
+                    world.tiles[coord_to_index(origin_tile + .{ROOM_WIDTH, 0}, .WORLD)] = .EMPTY;
+                    world.tiles[coord_to_index(origin_tile + .{ROOM_WIDTH - 1, 0}, .WORLD)] = .EMPTY;
+                }
+                if contains(south_exits, .SOUTH) {
+                    world.tiles[coord_to_index(origin_tile + .{ROOM_WIDTH / 2, 0}, .WORLD)] = .EMPTY;
+                    world.tiles[coord_to_index(origin_tile + .{(ROOM_WIDTH / 2) + 1, 0}, .WORLD)] = .EMPTY;
+                }
+                if contains(south_exits, .SOUTH_WEST) {
+                    world.tiles[coord_to_index(origin_tile + .{2, 0}, .WORLD)] = .EMPTY;
+                    world.tiles[coord_to_index(origin_tile + .{1, 0}, .WORLD)] = .EMPTY;
+                }
+            }
         }
     }
 }
 
 // Takes 2 rooms and a coord relative to the first and returns which of the first rooms exits are clear
 exits_match :: (a: Room_Exits, b: Room_Exits, direction: Map_Direction) -> Room_Exits {
-    _contains :: (e: Room_Exits, ce: Room_Exits) -> bool {
+    contains :: (e: Room_Exits, ce: Room_Exits) -> bool {
         return e & ce == ce;
     }
     matches: Room_Exits;
     if direction == {
     case .EAST;
-        if _contains(a, .EAST_NORTH) && _contains(b, .WEST_NORTH) then matches |= .EAST_NORTH;
-        if _contains(a, .EAST) && _contains(b, .WEST) then matches |= .EAST;
-        if _contains(a, .EAST_SOUTH) && _contains(b, .WEST_SOUTH) then matches |= .EAST_SOUTH;
+        if contains(a, .EAST_NORTH) && contains(b, .WEST_NORTH) then matches |= .EAST_NORTH;
+        if contains(a, .EAST) && contains(b, .WEST) then matches |= .EAST;
+        if contains(a, .EAST_SOUTH) && contains(b, .WEST_SOUTH) then matches |= .EAST_SOUTH;
     case .SOUTH;
-        if _contains(a, .SOUTH_EAST) && _contains(b, .NORTH_EAST) then matches |= .SOUTH_EAST;
-        if _contains(a, .SOUTH) && _contains(b, .NORTH) then matches |= .SOUTH;
-        if _contains(a, .SOUTH_WEST) && _contains(b, .NORTH_WEST) then matches |= .SOUTH_WEST;
+        if contains(a, .SOUTH_EAST) && contains(b, .NORTH_EAST) then matches |= .SOUTH_EAST;
+        if contains(a, .SOUTH) && contains(b, .NORTH) then matches |= .SOUTH;
+        if contains(a, .SOUTH_WEST) && contains(b, .NORTH_WEST) then matches |= .SOUTH_WEST;
     }
     return matches;
 }
