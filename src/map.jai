@@ -235,7 +235,7 @@ rotate_room :: (r: Room) -> Room {
                                                       child_pos = rotate_coord(it.child_pos)});
     }
     out.rune = rotate_rune(r.rune, 1);
-    out.exits = rotate_room_exits(out.exits, 1);
+    out.exits = rotate_room_exits(r.exits, 1);
     return out;
 }
 
@@ -453,6 +453,8 @@ parse_tiles :: (r: *Room) {
 
 bake_world :: () {
     write_room_cards_to_world();
+    open_map_exits();
+    generate_world_map_png("assets/world.png");
 }
 
 write_room_cards_to_world :: () {
@@ -473,9 +475,9 @@ write_room_cards_to_world :: () {
         }
 
         // Write Room exits and rune to the world map
-        map_to_place := Map_Room.{room_copy.rune, room_copy.exits, true};
+        room_to_place := Map_Room.{room_copy.rune, room_copy.exits, true};
         placed_idx := coord_to_index(it.coord, .MAP);
-        world.rooms[placed_idx] = map_to_place;
+        world.rooms[placed_idx] = room_to_place;
 
         for y: 0..ROOM_HEIGHT - 1 {
             for x: 0..ROOM_WIDTH - 1 {
@@ -588,4 +590,8 @@ map_screen_update :: () {
     }
 
     place_room_at_position();
+
+    if is_action_buffered(.BAKE_MAP) {
+        bake_world();
+    }
 }

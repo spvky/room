@@ -17,27 +17,27 @@ save_room :: (r: Room) {
     success := file_write(*file, *version, size_of(float32));
     // Flags
     success = file_write(*file, *r.flags, size_of(Room_Flags));
-    room_assert("Failed to write room flags!");
+    _room_assert("Failed to write room flags!");
     // Exits
     success = file_write(*file, *r.exits, size_of(Room_Exits));
-    room_assert("Failed to write room exits!");
+    _room_assert("Failed to write room exits!");
     // Int Grid
     success = file_write(*file, *r.int_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Room_Tile));
-    room_assert("Failed to write int_grid!");
+    _room_assert("Failed to write int_grid!");
     // Rune
     success = file_write(*file, *r.rune, size_of(Rune));
-    room_assert("Failed to write room rune!");
+    _room_assert("Failed to write room rune!");
     // Name
     success = file_write(*file, *r.name.count, size_of(int));
-    room_assert("Failed to write name string length for room!");
+    _room_assert("Failed to write name string length for room!");
     success = file_write(*file, r.name.data, r.name.count);
-    room_assert("Failed to write room name!");
+    _room_assert("Failed to write room name!");
     // Extra Entity Data
     success = file_write(*file, *r.extra_data.count, size_of(int));
-    room_assert("Failed to write extra entity data count!");
+    _room_assert("Failed to write extra entity data count!");
     if r.extra_data.count > 0 {
         success = file_write(*file, r.extra_data.data, size_of(Extra_Entity_Data) * r.extra_data.count);
-        room_assert("Failed to write extra entity data!");
+        _room_assert("Failed to write extra entity data!");
     } else {
         print("No entity data in %, skipping writing it!\n", path);
     }
@@ -67,31 +67,31 @@ load_room :: (filename: string, static := false) -> Room, bool {
     }
     // Flags
     success = file_read(file, *r.flags, size_of(Room_Flags));
-    room_assert("Failed to read room flags!");
+    _room_assert("Failed to read room flags!");
     // Exits
     success = file_read(file, *r.exits, size_of(Room_Exits));
-    room_assert("Failed to read room exits!");
+    _room_assert("Failed to read room exits!");
     // Int Grid
     success = file_read(file, *r.int_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Room_Tile));
-    room_assert("Failure when reading room int_grid!");
+    _room_assert("Failure when reading room int_grid!");
     // Rune
     success = file_read(file, *r.rune, size_of(Rune));
-    room_assert("Failed to read room rune!");
+    _room_assert("Failed to read room rune!");
     // Name
     name_length: int;
     success = file_read(file, *name_length, size_of(int));
-    room_assert("Failed to read room name length!");
+    _room_assert("Failed to read room name length!");
     r.name = alloc_string(name_length);
     success = file_read(file, r.name.data, name_length);
-    room_assert("Failure when reading room name!");
+    _room_assert("Failure when reading room name!");
     // Extra Entity Data
     entity_data_count: int;
     success = file_read(file, *entity_data_count, size_of(int));
-    room_assert("Failure when reading entity data count!");
+    _room_assert("Failure when reading entity data count!");
     if entity_data_count > 0 {
         array_reserve(*r.extra_data, entity_data_count);
         success = file_read(file, r.extra_data.data, size_of(Extra_Entity_Data) * r.extra_data.count);
-        room_assert("Failure when reading entity data!");
+        _room_assert("Failure when reading entity data!");
     } else {
         print("No entity data in %, skipping reading it!\n", path);
     }
@@ -99,7 +99,7 @@ load_room :: (filename: string, static := false) -> Room, bool {
     img_path := tprint("%/%/%.png", ROOMS_PATH, subdir, r.name);
     replace_chars(img_path, " ", #char "_");
     texture_ok := texture_load_from_file(*r.texture, img_path);
-    room_assert("Failure to load room texture!");
+    _room_assert("Failure to load room texture!");
 
     return r, true;
 }
@@ -132,11 +132,6 @@ load_all_rooms :: () {
             }
         }
     }
-}
-
-#scope_file
-room_assert :: (msg: string) #expand {
-    assert(`success, "(%) %\n", `path, msg);
 }
 
 generate_room_png :: (r: *Room, path: string) {
@@ -219,6 +214,66 @@ generate_room_png :: (r: *Room, path: string) {
     raw_path := to_c_string(path);
     defer free(raw_path);
     stbi_write_png(raw_path, xx (ROOM_WIDTH + 2), xx (ROOM_HEIGHT + 2), channels, *data, stride);
+}
+
+generate_world_map_png :: (path: string) {
+    // Helper types/macros //////////////////////////
+    Room_Color :: enum {
+        COLOR_EMPTY;
+        COLOR_WALL;
+        COLOR_EXIT;
+    }
+
+    _set_pixel :: (color: Room_Color) #expand {
+        if color == {
+        case .COLOR_WALL;
+            `data[(`i * `channels)] = 255;
+            `data[(`i * `channels) + 1] = 255;
+            `data[(`i * `channels) + 2] = 255;
+            `data[(`i * `channels) + 3] = 255;
+        case .COLOR_EMPTY;
+            `data[(`i * `channels)] = 80;
+            `data[(`i * `channels) + 1] = 115;
+            `data[(`i * `channels) + 2] = 240;
+            `data[(`i * `channels) + 3] = 255;
+        case .COLOR_EXIT;
+            `data[(`i * `channels)] = 255;
+            `data[(`i * `channels) + 1] = 255;
+            `data[(`i * `channels) + 2] = 0;
+            `data[(`i * `channels) + 3] = 255;
+        }
+    }
+    _has_exit :: (exit: Room_Exits) -> bool #expand {
+        return `r.exits & exit == exit;
+    }
+    // /////////////////////////////////////////////
+    world := context.world;
+
+    channels: s32: 4;
+    data: [(WORLD_WIDTH * WORLD_HEIGHT) * channels]u8;
+    stride := xx (WORLD_HEIGHT) * channels;
+
+    i: int;
+    for <y: 0..WORLD_HEIGHT - 1 {
+        for x: 0..WORLD_WIDTH - 1 {
+            tile := world.tiles[coord_to_index(.{xx x, xx y}, .WORLD)];
+            if tile == {
+            case .EMPTY;
+                _set_pixel(.COLOR_EMPTY);
+            case .WALL;
+                _set_pixel(.COLOR_WALL);
+            }
+            i += 1;
+        }
+    }
+    raw_path := to_c_string(path);
+    defer free(raw_path);
+    stbi_write_png(raw_path, xx WORLD_WIDTH, xx WORLD_HEIGHT, channels, *data, stride);
+}
+
+#scope_file
+_room_assert :: (msg: string) #expand {
+    assert(`success, "(%) %\n", `path, msg);
 }
 
 to_c_string :: (s: string) -> *u8 {

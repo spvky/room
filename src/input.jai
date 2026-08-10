@@ -21,6 +21,7 @@ Action :: enum {
     // Debug
     GOTO_ROOM_DESIGNER;
     GOTO_MAP_PLACEMENT;
+    BAKE_MAP;
 }
 
 init_input :: () {
@@ -38,8 +39,10 @@ init_input :: () {
     register_input(.MOVE_RIGHT, #char "D");
     register_input(.MOVE_UP, #char "W");
     register_input(.MOVE_DOWN, #char "S");
+    // Debug
     register_input(.GOTO_ROOM_DESIGNER, #char "`");
     register_input(.GOTO_MAP_PLACEMENT, .BACKSPACE);
+    register_input(.BAKE_MAP, #char "J");
 }
 
 process_input :: (delta: float32) {
