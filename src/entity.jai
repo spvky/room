@@ -147,20 +147,3 @@ make_wall :: (left: int, right: int, top: int, bot: int) {
     wall_entity.props = .RENDERABLE | .STATIC | .COLLIDABLE;
     entity_add(wall_entity);
 }
-
-// make_static_aabb_from_grid :: (left: int, right: int, bot: int, top: int, tile_height: float32) -> Editor_Collider {
-//     entity: Entity;
-//     entity.shape_kind = .RECTANGLE;
-//     entity.props = .RENDERABLE | .STATIC | .COLLIDABLE;
-//     f_left: float32 = tile_height * xx left;
-//     f_bot: float32 = tile_height * xx bot;
-//     f_right: float32 = tile_height * (xx right + 1);
-//     f_top: float32 = tile_height * (xx top + 1);
-// 
-//     width := f_right - f_left;
-//     height := f_top - f_bot;
-//     entity.position = (Vector2.{f_left, f_bot} + Vector2.{f_right, f_top}) / 2;
-//     entity.extents = Vector2.{width / 2, height / 2};
-// 
-//     return entity;
-// }
