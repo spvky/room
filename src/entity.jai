@@ -1,4 +1,3 @@
-// When loading a room alot of these values will be prefabs that are inferred from the entity types in the int grid
 Entity_Manager :: struct {
     items: [..]Entity;
     freelist: [..]Entity_Handle;
@@ -9,6 +8,7 @@ Entity :: struct {
     #as using rigibody: Rigidbody;
     props: Entity_Properties;
     flags: Entity_Flags;
+    tag: Entity_Tag;
     using sprite: Sprite; @ignore_serialize
     handle: Entity_Handle; @ignore_serialize
     parent: Entity_Handle; @ignore_serialize
@@ -38,6 +38,10 @@ Collision_Shape :: enum {
     TRIANGLE;
     CIRCLE;
     CAPSULE;
+}
+
+Entity_Tag :: enum u64 {
+    WALL;
 }
 
 Entity_Properties :: enum_flags u32 {
@@ -126,6 +130,22 @@ for_expansion :: (e: *Entity_Manager, body: Code, flags: For_Flags) #expand {
         `it_index := index;
         #insert body;
     }
+}
+
+// Entity Helper procs
+make_wall :: (left: int, right: int, top: int, bot: int) {
+    wall_entity: Entity;
+    f_left: float32 = xx left * TILE_SIZE;
+    f_right: float32 = (xx right + 1) * TILE_SIZE;
+    f_top: float32 = (xx top + 1) * TILE_SIZE;
+    f_bot: float32 = xx bot * TILE_SIZE;
+
+    wall_entity.position = Vector2.{(f_left + f_right) / 2, (f_top + f_bot) / 2};
+    wall_entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
+    wall_entity.shape_kind = .RECTANGLE;
+    wall_entity.tag = .WALL;
+    wall_entity.props = .RENDERABLE | .STATIC | .COLLIDABLE;
+    entity_add(wall_entity);
 }
 
 // make_static_aabb_from_grid :: (left: int, right: int, bot: int, top: int, tile_height: float32) -> Editor_Collider {

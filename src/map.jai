@@ -4,11 +4,11 @@ MAP_WIDTH :: 10;
 MAP_HEIGHT :: 10;
 WORLD_WIDTH :: #run ROOM_WIDTH * MAP_WIDTH + (MAP_WIDTH + 1);
 WORLD_HEIGHT :: #run ROOM_HEIGHT * MAP_HEIGHT + (MAP_HEIGHT + 1);
+TILE_SIZE: float32: 8;
 
 World :: struct {
     tiles: [WORLD_WIDTH * WORLD_HEIGHT]Room_Tile;
     rooms: [MAP_WIDTH * MAP_HEIGHT]Map_Room;
-    parsed: [WORLD_WIDTH * WORLD_HEIGHT]bool;
 }
 
 Map :: struct {
@@ -159,13 +159,6 @@ reset_world_tilemap :: () {
     for x: 0..WORLD_WIDTH - 1 {
         for y: 0..WORLD_HEIGHT - 1 {
             idx := coord_to_index(.{xx x, xx y}, .WORLD);
-            // if x == 0 || y == 0 {
-            //     world.tiles[idx] = .WALL;
-            // } else if x % 23 == 0 || y % 23 == 0 {
-            //     world.tiles[idx] = .WALL;
-            // } else {
-            //     world.tiles[idx] = .EMPTY;
-            // }
             world.tiles[idx] = .BLANK;
         }
     }
@@ -288,6 +281,10 @@ check_tile_value :: (r: *Room, c: Coord) -> Room_Tile {
     return r.int_grid[coord_to_index(c)];
 }
 
+check_world_tile_value :: (c: Coord) -> Room_Tile {
+    return context.world.tiles[coord_to_index(c, .WORLD)];
+}
+
 rotate_coord :: (c: Coord, kind: Coord_Kind = .ROOM) -> Coord #expand {
     width: int;
     if kind == {
@@ -396,7 +393,8 @@ move_map_cursor :: () {
 
 parse_tiles :: (r: *Room) {
     is_valid_wall :: (x: int, y: int) -> bool #expand {
-        return !`parsed[coord_to_index(.{xx x, xx y})] && check_tile_value(`r, .{xx x, xx y}) == .WALL;
+        coord := Coord.{xx x, xx y};
+        return !`parsed[coord_to_index(coord)] && check_world_tile_value(coord) == .WALL;
     }
 
     // Calculate all walls first
@@ -456,6 +454,12 @@ bake_world :: () {
     write_room_cards_to_world();
     open_map_exits();
     generate_world_map_png("assets/world.png");
+    parse_entities_from_tiles();
+    print("Parsed % entities!\n------------------------\n", context.entities.count);
+    for *context.entities {
+        print("%\n", it.*);
+    }
+    print("---------------------------------\n");
 }
 
 write_room_cards_to_world :: () {
@@ -601,6 +605,53 @@ exits_match :: (a: Room_Exits, b: Room_Exits, direction: Map_Direction) -> Room_
         if contains(a, .SOUTH_WEST) && contains(b, .NORTH_WEST) then matches |= .SOUTH_WEST;
     }
     return matches;
+}
+
+parse_entities_from_tiles :: () {
+    is_valid_wall :: (x: int, y: int) -> bool #expand {
+        coord := Coord.{xx x, xx y};
+        return !`parsed[coord_to_index(coord, .WORLD)] && check_world_tile_value(coord) == .WALL;
+    }
+
+    // Calculate all walls first
+    parsed: [WORLD_WIDTH * WORLD_HEIGHT]bool;
+    for <y: 0..WORLD_HEIGHT - 1 {
+        for x: 0..WORLD_WIDTH - 1 {
+            if is_valid_wall(x, y) {
+                left := x;
+                right := x;
+                top := y;
+                bot := y;
+
+                ix := x;
+                iy := y;
+                while is_valid_wall(ix, iy) {
+                    right = ix;
+                    if ix == WORLD_WIDTH - 1 break;
+                    ix += 1;
+                }
+                for left..right parsed[coord_to_index(.{xx it, xx iy}, .WORLD)] = true;
+                complete_row: bool;
+
+                while y_loop := true {
+                    iy -= 1;
+                    if iy < 0 break y_loop;
+                    ix := left;
+                    while x_loop := ix <= right {
+                        if is_valid_wall(ix, iy) {
+                            ix += 1;
+                        } else {
+                            break y_loop;
+                        }
+                    }
+                    for left..right parsed[coord_to_index(.{xx it, xx iy}, .WORLD)] = true;
+                    bot = iy;
+                }
+                // Create Wall entity
+                make_wall(left, right, top, bot);
+            }
+        }
+    }
 }
 
 map_screen_update :: () {
