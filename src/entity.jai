@@ -4,12 +4,14 @@ Entity_Manager :: struct {
     count: u32;
 }
 
+#add_context entities: *Entity_Manager;
+
 Entity :: struct {
     #as using rigibody: Rigidbody;
     props: Entity_Properties;
     flags: Entity_Flags;
     tag: Entity_Tag;
-    using sprite: Sprite; @ignore_serialize
+    sprite: *Sprite; @ignore_serialize
     handle: Entity_Handle; @ignore_serialize
     parent: Entity_Handle; @ignore_serialize
     first_child: Entity_Handle; @ignore_serialize
@@ -56,8 +58,6 @@ Entity_Flags :: enum_flags u32 {
     IN_WATER :: 1 << 1;
     POWERED :: 1 << 2;
 }
-
-#add_context entities: *Entity_Manager;
 
 operator == :: (a: Entity_Handle, b: Entity_Handle) -> bool {
     return a.index == b.index && a.generation == b.generation;
@@ -145,5 +145,6 @@ make_wall :: (left: int, right: int, top: int, bot: int) {
     wall_entity.shape_kind = .RECTANGLE;
     wall_entity.tag = .WALL;
     wall_entity.props = .RENDERABLE | .STATIC | .COLLIDABLE;
+    wall_entity.sprite = *context.atlas.crate;
     entity_add(wall_entity);
 }

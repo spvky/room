@@ -108,11 +108,11 @@ render_rune :: (r: Rune, position: Vector2, size: Vector2, color: Vector4 = .{0,
     atlas := context.atlas;
     for rune_indices_from_bits(r) {
         sprite := sprite_from_atlas(*atlas.rune_atlas, it);
-        render_sprite(sprite, position, size, color = color);
+        render_sprite(*sprite, position, size, color = color);
     }
 
     if r.encircled {
         sprite := sprite_from_atlas(*atlas.rune_atlas, 16);
-        render_sprite(sprite, position, size, color = color);
+        render_sprite(*sprite, position, size, color = color);
     }
 }

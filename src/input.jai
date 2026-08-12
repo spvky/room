@@ -21,6 +21,7 @@ Action :: enum {
     // Debug
     GOTO_ROOM_DESIGNER;
     GOTO_MAP_PLACEMENT;
+    GOTO_GAMEPLAY;
     BAKE_MAP;
 }
 
@@ -42,6 +43,7 @@ init_input :: () {
     // Debug
     register_input(.GOTO_ROOM_DESIGNER, #char "`");
     register_input(.GOTO_MAP_PLACEMENT, .BACKSPACE);
+    register_input(.GOTO_GAMEPLAY, #char "0");
     register_input(.BAKE_MAP, #char "J");
 }
 

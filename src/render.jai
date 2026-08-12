@@ -16,10 +16,11 @@ render :: () {
     clear_render_target(0.2, 0.1, 0.5, 1);
     if context.game_state == {
     case .MAP_PLACEMENT;
-        render_map_placement();
+        render_map_placement_scene();
     case .ROOM_DESIGNER;
-        render_room_designer();
+        render_room_designer_scene();
     case .GAMEPLAY;
+        render_gameplay_scene();
     }
 
     swap_buffers(window);
@@ -197,7 +198,7 @@ render_boundaries_from_cell :: (c: Coord) -> float32, float32, float32, float32 
 }
 
 // #ROOM_DESIGNER_RENDERING
-render_room_designer :: () {
+render_room_designer_scene :: () {
     render_grid();
     #if OS == .WINDOWS render_room_designer_mouse_selection();
     render_room_tiles(context.current_editor_room);
@@ -238,7 +239,7 @@ render_room_tiles :: (r: *Room) {
 }
 
 // #MAP_PLACEMENT_RENDERING
-render_map_placement :: () {
+render_map_placement_scene :: () {
     render_grid();
     render_map_placement_selected_room();
     render_map_placed_room_cards();
@@ -253,7 +254,7 @@ render_map_placement_selected_room :: () {
         rot := cast(float32)context.editor_state.map_cursor_rotation * (PI / 2);
         pos := Vector2.{(left + right) / 2, (top + bot) / 2};
         size := Vector2.{right - left, top - bot};
-        render_sprite(room_sprite, pos, size, rotation = rot, color = .{1, 1, 1, 0.3});
+        render_sprite(*room_sprite, pos, size, rotation = rot, color = .{1, 1, 1, 0.3});
     }
 }
 
@@ -266,15 +267,29 @@ render_map_placed_room_cards :: () {
         rot := cast(float32)it.rotation * (PI / 2);
         pos := Vector2.{(left + right) / 2, (top + bot) / 2};
         size := Vector2.{right - left, top - bot};
-        render_sprite(room_sprite, pos, size, rotation = rot, color = .{1, 1, 1, 1});
+        render_sprite(*room_sprite, pos, size, rotation = rot, color = .{1, 1, 1, 1});
     }
 }
 
 render_room_and_frame :: (room: *Room, position: Vector2, size: Vector2) {
     frame_sprite := make_sprite(*context.atlas.room_frame_texture);
-    render_sprite(frame_sprite, position, size);
+    render_sprite(*frame_sprite, position, size);
     room_sprite := make_sprite(*room.texture);
-    render_sprite(room_sprite, position, size * 0.4583);
+    render_sprite(*room_sprite, position, size * 0.4583);
     rune_pos := position - (size / 2) + (.{size.x * 0.18, size.y * 0.1458});
     render_rune(room.rune, rune_pos, size * 0.25, .{1, 1, 1, 1});
+}
+
+// #GAMEPLAY_RENDERING
+render_gameplay_scene :: () {
+    render_entities();
+}
+
+render_entities :: () {
+    for *context.entities {
+        if it.props & .RENDERABLE == .RENDERABLE {
+            // pos := cam_relative_position(it.position);
+            render_sprite(it.sprite, it.position, it.extents);
+        }
+    }
 }

@@ -16,7 +16,7 @@ render_map_placement_ui :: () {
                     render_room_and_frame(room, .{x, y}, size);
                 } else {
                     sprite := make_sprite(*room.texture);
-                    render_sprite(sprite, .{x, y}, size * 0.4583);
+                    render_sprite(*sprite, .{x, y}, size * 0.4583);
                 }
             }
             y -= 220;
