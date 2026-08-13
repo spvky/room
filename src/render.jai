@@ -1,6 +1,15 @@
 DISPLAY_WIDTH :: 320;
 DISPLAY_HEIGHT :: 180;
 
+#add_context gameplay_texture: *Texture;
+
+init_rendering :: () {
+    if !context.gameplay_texture {
+        context.gameplay_texture = New(Texture);
+        context.gameplay_texture.* = texture_create_render_target(DISPLAY_WIDTH, DISPLAY_WIDTH, xx 4, .No_Skip_Mipmaps);
+    }
+}
+
 get_tile_ui_data :: (height: int) -> float32, float32, float32, float32, float32, float32 {
     tile_height: float32 = (cast(float32)(WINDOW_HEIGHT - 50) / cast(float32)height);
     grid_height: float32 = tile_height * cast(float32)height;
@@ -234,7 +243,7 @@ render_room_tiles :: (r: *Room) {
                                .{right, top},
                                .{0, 0, 1, 1});
             }
-        }
+        }texture_create_render_target;
     }
 }
 
@@ -282,14 +291,33 @@ render_room_and_frame :: (room: *Room, position: Vector2, size: Vector2) {
 
 // #GAMEPLAY_RENDERING
 render_gameplay_scene :: () {
+    set_render_target(context.gameplay_texture);
+    clear_render_target(1, 0, 0, 1);
     render_entities();
+    set_render_target(window);
+    set_shader_for_images(context.gameplay_texture);
+    sv: [4]Vector2;
+    sv[0] = .{0, 0};
+    sv[1] = .{xx WINDOW_WIDTH, 0};
+    sv[2] = .{xx WINDOW_WIDTH, xx WINDOW_WIDTH};
+    sv[3] = .{0, xx WINDOW_WIDTH};
+    immediate_quad(sv[0], sv[1], sv[2], sv[3], .{1, 1, 1, 1});
 }
 
 render_entities :: () {
+    if is_action_held(.MENU_UP) {
+        context.camera.target.x += 0.01;
+        print("Target: %\n", context.camera.target);
+    }
+    if is_action_held(.MENU_DOWN) {
+        context.camera.target.x += -0.01;
+        print("Target: %\n", context.camera.target);
+    }
+    // render_sprite(*context.atlas.crate, .{160, 90}, .{100, 100});
     for *context.entities {
         if it.props & .RENDERABLE == .RENDERABLE {
-            // pos := cam_relative_position(it.position);
-            render_sprite(it.sprite, it.position, it.extents);
+            pos := cam_relative_position(it.position);
+            render_sprite(it.sprite, pos, it.extents);
         }
     }
 }
