@@ -292,6 +292,9 @@ render_room_and_frame :: (room: *Room, position: Vector2, size: Vector2) {
 // #GAMEPLAY_RENDERING
 render_gameplay_scene :: () {
     set_render_target(context.gameplay_texture);
+    // Set the GL_Nearest flag to remove antialiasing
+    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
     clear_render_target(1, 0, 0, 1);
     render_entities();
     set_render_target(window);

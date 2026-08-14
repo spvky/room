@@ -59,6 +59,7 @@ init :: () {
 #import "Hash_Table";
 #import "Hash";
 #import "stb_image_write";
+GL :: #import "GL";
 #load "src/assets.jai";
 #load "src/render.jai";
 #load "src/input.jai";
