@@ -23,6 +23,18 @@ Edge :: struct {
     center: Vector2;
 }
 
+static_rectangle_nearest_point :: (p: Vector2, rb: *Rigidbody) -> Vector2 {
+    min_x, max_x := rb.position.x - (rb.extents.x / 2), rb.position.x + (rb.extents.x / 2);
+    min_y, max_y := rb.position.y - (rb.extents.y / 2), rb.position.y + (rb.extents.y / 2);
+    ret: Vector2;
+    ret.x = clamp(p.x, min_x, max_x);
+    ret.y = clamp(p.y, min_y, max_y);
+    return ret;
+}
+
+rb_collision :: (a: *Rigidbody, b: *Rigidbody) {
+}
+
 // Return a resizable array with the edges (center and normal) of a collision shape, using the temporary allocator, returns an empty array if the thing is not a collider
 // get_shape_edges :: (thing: *Thing) -> [..]Edge {
 //     edges: [..]Edge;

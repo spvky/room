@@ -4,7 +4,7 @@ MAP_WIDTH :: 10;
 MAP_HEIGHT :: 10;
 WORLD_WIDTH :: #run ROOM_WIDTH * MAP_WIDTH + (MAP_WIDTH + 1);
 WORLD_HEIGHT :: #run ROOM_HEIGHT * MAP_HEIGHT + (MAP_HEIGHT + 1);
-TILE_SIZE: float32: 8;
+TILE_SIZE: float32: 16;
 
 World :: struct {
     tiles: [WORLD_WIDTH * WORLD_HEIGHT]Room_Tile;

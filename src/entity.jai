@@ -29,15 +29,13 @@ Rigidbody :: struct {
     rotation: float32;
     shape_kind: Collision_Shape;
     // Collision fields
-    triangle_vertices: [3]Vector2;
-    #overlay (triangle_vertices) extents: Vector2;
-    #overlay (triangle_vertices) radius: float32;
-    #overlay (triangle_vertices[0].y) height: float32;
+    extents: Vector2;
+    #overlay (extents) radius: float32;
+    #overlay (extents.y) height: float32;
 }
 
 Collision_Shape :: enum {
     RECTANGLE;
-    TRIANGLE;
     CIRCLE;
     CAPSULE;
 }

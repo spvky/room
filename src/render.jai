@@ -1,5 +1,5 @@
-DISPLAY_WIDTH :: 320;
-DISPLAY_HEIGHT :: 180;
+DISPLAY_WIDTH :: #run cast(s32)(TILE_SIZE * 40); // 320;
+DISPLAY_HEIGHT :: #run cast(s32)((cast(float32)TILE_SIZE * 22.5)); // 180;
 
 #add_context gameplay_texture: *Texture;
 
@@ -295,7 +295,7 @@ render_gameplay_scene :: () {
     // Set the GL_Nearest flag to remove antialiasing
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-    clear_render_target(1, 0, 0, 1);
+    clear_render_target(0, 0, 0, 1);
     render_entities();
     set_render_target(window);
     set_shader_for_images(context.gameplay_texture);
@@ -307,15 +307,16 @@ render_gameplay_scene :: () {
     immediate_quad(sv[0], sv[1], sv[2], sv[3], .{1, 1, 1, 1});
 }
 
+player_pos := Vector2.{0, 32};
+
 render_entities :: () {
-    if is_action_held(.MENU_UP) {
-        context.camera.target.x += 0.01;
-        print("Target: %\n", context.camera.target);
+    if is_action_held(.MOVE_RIGHT) {
+        player_pos.x += 0.01;
     }
-    if is_action_held(.MENU_DOWN) {
-        context.camera.target.x += -0.01;
-        print("Target: %\n", context.camera.target);
+    if is_action_held(.MOVE_LEFT) {
+        player_pos.x -= 0.01;
     }
+    draw_player(player_pos);
     // render_sprite(*context.atlas.crate, .{160, 90}, .{100, 100});
     for *context.entities {
         if it.props & .RENDERABLE == .RENDERABLE {
