@@ -20,6 +20,8 @@ main :: () {
         #if OS == .WINDOWS get_mouse_cell();
         process_input(delta);
         if context.game_state == {
+        case .GAMEPLAY;
+            gameplay_update();
         case .ROOM_DESIGNER;
             #if OS == .WINDOWS paint_tile_values();
         case .MAP_PLACEMENT;
@@ -31,10 +33,6 @@ main :: () {
     }
 }
 
-// get_editor_mode :: () -> s32 {
-//     return context.editor_state.editor_type;
-// }
-
 init :: () {
     init_camera();
     init_rendering();
@@ -45,6 +43,7 @@ init :: () {
     init_map();
     init_input();
     init_world();
+    init_static_collision_table();
 }
 
 #import "Basic";
@@ -66,11 +65,11 @@ GL :: #import "GL";
 #load "src/runes.jai";
 #load "src/player.jai";
 #load "src/room_designer.jai";
-#load "src/thing.jai";
+#load "src/entity.jai";
 #load "src/collision.jai";
 #load "src/io.jai";
-#load "src/entity.jai";
 #load "src/camera.jai";
 #load "src/map.jai";
 #load "src/game_ui.jai";
 #load "src/game_state.jai";
+#load "src/gameplay.jai";

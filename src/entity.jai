@@ -61,6 +61,12 @@ operator == :: (a: Entity_Handle, b: Entity_Handle) -> bool {
     return a.index == b.index && a.generation == b.generation;
 }
 
+handle_compare :: (a: Entity_Handle, b: Entity_Handle) -> bool {
+    return a.index == b.index && a.generation == b.generation;
+}
+
+handle_hash :: (a: Entity_Handle) -> u32 {return sdbm_hash(*a, size_of(Entity_Handle));}
+
 init_entities :: () {
     if !context.entities {
         context.entities = New(Entity_Manager);

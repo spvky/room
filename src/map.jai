@@ -455,11 +455,8 @@ bake_world :: () {
     open_map_exits();
     generate_world_map_png("assets/world.png");
     parse_entities_from_tiles();
-    print("Parsed % entities!\n------------------------\n", context.entities.count);
-    for *context.entities {
-        print("%\n", it.*);
-    }
-    print("---------------------------------\n");
+    rebuild_static_collision_table();
+    print("Found % static entities while re-building the static collision table!\n", context.static_collision_table.count);
 }
 
 write_room_cards_to_world :: () {
