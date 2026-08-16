@@ -32,12 +32,13 @@ Edge :: struct {
     center: Vector2;
 }
 
-#add_context static_collision_table: *Table(Entity_Handle, [..]Axis_Interval_Pair, given_hash_function = handle_hash, given_compare_function = handle_compare);
+Static_Collision_Table :: Table(Entity_Handle, [..]Axis_Interval_Pair, given_hash_function = handle_hash, given_compare_function = handle_compare);
+
+#add_context static_collision_table: *Static_Collision_Table;
 
 init_static_collision_table :: () {
     if !context.static_collision_table {
-        context.static_collision_table = New(Table(Entity_Handle, [..]Axis_Interval_Pair, given_hash_function = handle_hash, given_compare_function = handle_compare));
-        // context.static_collision_table.given_compare_function = (a: Entity_Handle, b: Entity_Handle) -> bool {return a.index == b.index && a.generation == b.generation;};
+        context.static_collision_table = New(Static_Collision_Table);
     }
 }
 
