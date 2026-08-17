@@ -308,6 +308,7 @@ render_gameplay_scene :: () {
 }
 
 player_pos := Vector2.{0, 32};
+player_colliding: bool;
 
 render_entities :: () {
     if is_action_held(.MOVE_RIGHT) {
@@ -316,7 +317,9 @@ render_entities :: () {
     if is_action_held(.MOVE_LEFT) {
         player_pos.x -= 0.01;
     }
-    draw_player(player_pos);
+
+    pos := cam_relative_position(player_pos);
+    draw_player(pos);
     // render_sprite(*context.atlas.crate, .{160, 90}, .{100, 100});
     for *context.entities {
         if it.props & .RENDERABLE == .RENDERABLE {

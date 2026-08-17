@@ -47,11 +47,13 @@ draw_player :: (position: Vector2) {
     top: float32 = position.y + (half_tile);
     bot: float32 = position.y - (half_tile);
 
+    color: Vector4 = ifx player_colliding then Vector4.{0, 0, 1, 1} else Vector4.{1, 1, 1, 1};
+
     set_shader_for_images(*context.atlas.player_texture);
     immediate_quad(
                    .{left, bot},
                    .{right, bot},
                    .{right, top},
                    .{left, top},
-                   .{1, 1, 1, 1});
+                   color);
 }

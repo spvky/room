@@ -62,12 +62,13 @@ dynamic_vs_static_collision_test :: (d: *Entity, s: *Entity, mode := Collision_M
     if mode == {
     case .AABB;
     case .SAT;
-        static_ai_pairs := table_find_pointer(context.static_collision_table, d.handle);
+        static_ai_pairs := table_find_pointer(context.static_collision_table, s.handle);
+        // print("Fetching cached collision data for handle: %\n", d.handle);
         if static_ai_pairs != null {
             axes: [..]Vector2;
             min_depth: float32 = FLOAT32_MAX;
             axes.allocator = temp;
-            save_rigidbody_axes(d, *axes);
+            store_rigidbody_axes(d, *axes);
             if axes.count > 0 {
                 for axes {
                     ia := project_rigidbody_along_axis(d, it);
@@ -126,8 +127,8 @@ dynamic_vs_dynamic_collision_test :: (a: *Rigidbody, b: *Rigidbody, mode := Coll
     case .SAT;
         axes: [..]Vector2;
         axes.allocator = temp;
-        save_rigidbody_axes(a, *axes);
-        save_rigidbody_axes(b, *axes);
+        store_rigidbody_axes(a, *axes);
+        store_rigidbody_axes(b, *axes);
 
         min_depth: float32 = FLOAT32_MAX;
         for axes {
@@ -178,7 +179,7 @@ project_rigidbody_along_axis :: (rb: *Rigidbody, a: Vector2) -> Interval {
     return Interval.{min, max};
 }
 
-save_rigidbody_axes :: (rb: *Rigidbody, axes: *[..]Vector2) {
+store_rigidbody_axes :: (rb: *Rigidbody, axes: *[..]Vector2) {
     if rb.shape_kind == .CIRCLE || rb.shape_kind == .CAPSULE return;
     if rb.rotation == 0 {
         if axes.count == 0 {
@@ -197,59 +198,3 @@ static_rectangle_nearest_point :: (p: Vector2, rb: *Rigidbody) -> Vector2 {
     ret.y = clamp(p.y, min_y, max_y);
     return ret;
 }
-
-// Return a resizable array with the edges (center and normal) of a collision shape, using the temporary allocator, returns an empty array if the thing is not a collider
-// get_shape_edges :: (thing: *Thing) -> [..]Edge {
-//     edges: [..]Edge;
-//     edges.allocator = temp;
-//     if thing.kind == .COLLISION {
-//         if thing.collision_shape == {
-//         case .AABB;
-// 
-//         case .TRIANGLE;
-//             ab := thing.triangle_verts[1] - thing.triangle_verts[0];
-//             n1 := normalize(Vector2.{ab.y, -ab.x});
-//             if dot(Vector2.{0, 0}, n1) > 0 then n1 = -n1;
-//             ab_center := (thing.triangle_verts[0] + thing.triangle_verts[1]) / 2;
-//             array_add(*edges, .{normal = n1, center = ab_center});
-// 
-//             bc := thing.triangle_verts[2] - thing.triangle_verts[1];
-//             n2 := normalize(Vector2.{bc.y, -bc.x});
-//             if dot(Vector2.{0, 0}, n2) > 0 then n2 = -n2;
-//             bc_center := (thing.triangle_verts[1] + thing.triangle_verts[2]) / 2;
-//             array_add(*edges, .{normal = n2, center = bc_center});
-// 
-//             ca := thing.triangle_verts[0] - thing.triangle_verts[2];
-//             n3 := normalize(Vector2.{ca.y, -ca.x});
-//             if dot(Vector2.{0, 0}, n3) > 0 then n3 = -n3;
-//             ca_center := (thing.triangle_verts[2] + thing.triangle_verts[0]) / 2;
-//             array_add(*edges, .{normal = n3, center = ca_center});
-// 
-//         case .POLYGON;
-//             ab := thing.polygon_verts[1] - thing.polygon_verts[0];
-//             n1 := normalize(Vector2.{ab.y, -ab.x});
-//             if dot(Vector2.{0, 0}, n1) > 0 then n1 = -n1;
-//             ab_center := (thing.polygon_verts[0] + thing.polygon_verts[1]) / 2;
-//             array_add(*edges, .{normal = n1, center = ab_center});
-// 
-//             bc := thing.polygon_verts[2] - thing.polygon_verts[1];
-//             n2 := normalize(Vector2.{bc.y, -bc.x});
-//             if dot(Vector2.{0, 0}, n2) > 0 then n2 = -n2;
-//             bc_center := (thing.polygon_verts[1] + thing.polygon_verts[2]) / 2;
-//             array_add(*edges, .{normal = n2, center = bc_center});
-// 
-//             cd := thing.polygon_verts[3] - thing.polygon_verts[2];
-//             n3 := normalize(Vector2.{cd.y, -cd.x});
-//             if dot(Vector2.{0, 0}, n3) > 0 then n3 = -n3;
-//             cd_center := (thing.polygon_verts[2] + thing.polygon_verts[3]) / 2;
-//             array_add(*edges, .{normal = n3, center = cd_center});
-// 
-//             da := thing.polygon_verts[0] - thing.polygon_verts[3];
-//             n4 := normalize(Vector2.{da.y, -da.x});
-//             if dot(Vector2.{0, 0}, n4) > 0 then n4 = -n4;
-//             da_center := (thing.polygon_verts[3] + thing.polygon_verts[0]) / 2;
-//             array_add(*edges, .{normal = n4, center = da_center});
-//         }
-//     }
-//     return edges;
-// }
