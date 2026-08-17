@@ -1,5 +1,5 @@
 ROOMS_PATH :: "assets/rooms";
-ASSET_VERSION: float32: 0.1;
+ASSET_VERSION: float32: 0.2;
 
 save_room :: (r: Room) {
     is_static := r.flags & .STATIC == .STATIC;
@@ -22,8 +22,11 @@ save_room :: (r: Room) {
     success = file_write(*file, *r.exits, size_of(Room_Exits));
     _room_assert("Failed to write room exits!");
     // Int Grid
-    success = file_write(*file, *r.int_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Room_Tile));
+    success = file_write(*file, *r.int_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Collision_Tile));
     _room_assert("Failed to write int_grid!");
+    // Entity Grid
+    success = file_write(*file, *r.entity_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Entity_Tile));
+    _room_assert("Failed to write entity_grid!");
     // Rune
     success = file_write(*file, *r.rune, size_of(Rune));
     _room_assert("Failed to write room rune!");
@@ -72,8 +75,11 @@ load_room :: (filename: string, static := false) -> Room, bool {
     success = file_read(file, *r.exits, size_of(Room_Exits));
     _room_assert("Failed to read room exits!");
     // Int Grid
-    success = file_read(file, *r.int_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Room_Tile));
+    success = file_read(file, *r.int_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Collision_Tile));
     _room_assert("Failure when reading room int_grid!");
+    // Entity Grid
+    success = file_read(file, *r.entity_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Entity_Tile));
+    _room_assert("Failure when reading room entity_grid!");
     // Rune
     success = file_read(file, *r.rune, size_of(Rune));
     _room_assert("Failed to read room rune!");
@@ -200,7 +206,7 @@ generate_room_png :: (r: *Room, path: string) {
                 }
             } else {
                 // Drawing room internals
-                value := check_tile_value(r, .{xx (x - 1), xx (y - 1)});
+                value := check_collision_tile_value(r, .{xx (x - 1), xx (y - 1)});
                 if value == {
                 case .WALL;
                     _set_pixel(.COLOR_WALL);
@@ -256,7 +262,7 @@ generate_world_map_png :: (path: string) {
     i: int;
     for <y: 0..WORLD_HEIGHT - 1 {
         for x: 0..WORLD_WIDTH - 1 {
-            tile := world.tiles[coord_to_index(.{xx x, xx y}, .WORLD)];
+            tile := world.collision[coord_to_index(.{xx x, xx y}, .WORLD)];
             if tile == {
             case .EMPTY;
                 _set_pixel(.COLOR_EMPTY);

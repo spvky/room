@@ -1,10 +1,8 @@
-/* I think there is a way to generate a lot of this comp time, should probably look at a named enum and for each one
-1. Add name into the Tile Types array
-2. 
-*/
-EDITOR_MODES: [2]string: .["Room", "Map"];
-TILE_TYPES: [4]string: .["Wall", "Crate", "Moving Block", "Button"];
-TILE_ICONS: [4]Ui_Icon;
+EDITOR_MODES: [2]string: .["Collision", "Entities"];
+COLLISION_TILE_TYPES: [1]string: .["Wall"];
+COLLISION_TILE_ICONS: [1]Ui_Icon;
+ENTITY_TILE_TYPES: [2]string: .["Crate", "Player Spawn"];
+ENTITY_TILE_ICONS: [2]Ui_Icon;
 
 Ui_Icon :: struct {
     sprite: *Sprite;
@@ -17,7 +15,9 @@ GAME_VIEW :: 2;
 
 Editor_State :: struct {
     editor_theme: Overall_Theme;
-    room_options: Room_Editor_Options;
+    editor_type: s32;
+    collision_tile_type: s32;
+    entity_tile_type: s32;
     show_file_load_window: bool;
     load_window_scroll_value: float32;
     kb_captured: bool;
@@ -36,10 +36,6 @@ Editor_State :: struct {
                                          title_text = "Load Room"};
 }
 
-Room_Editor_Options :: struct {
-    tile_type: s32;
-}
-
 #add_context editor_state: *Editor_State;
 
 init_editor :: () {
@@ -55,9 +51,11 @@ init_editor :: () {
 
 init_ui_icons :: () {
     // Wall
-    TILE_ICONS[0] = .{color = .{0, 0, 1, 1}};
+    COLLISION_TILE_ICONS[0] = .{color = .{1, 1, 1, 1}};
     // Crate
-    TILE_ICONS[1] = .{sprite = *context.atlas.crate};
+    ENTITY_TILE_ICONS[0] = .{sprite = *context.atlas.crate};
+    // Player Spawn
+    ENTITY_TILE_ICONS[1] = .{color = .{0.6, 0.5, 0, 1}};
 }
 
 render_room_designer_ui :: () {
@@ -117,26 +115,45 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     x_pos := dropdown_rect.x + 5;
 
     // Tile painting
-    room_options := *editor_state.room_options;
     tile_type_rect := get_rect(x_pos, y_pos, 200, 50);
     y_pos -= 50;
-    dropdown(tile_type_rect, TILE_TYPES, *room_options.tile_type);
+    dropdown(dropdown_rect, EDITOR_MODES, *editor_state.editor_type);
+    if editor_state.editor_type == {
+    case 0;
+        dropdown(tile_type_rect, COLLISION_TILE_TYPES, *editor_state.collision_tile_type);
+    case 1;
+        dropdown(tile_type_rect, ENTITY_TILE_TYPES, *editor_state.entity_tile_type);
+    }
 
     left := tile_type_rect.x + tile_type_rect.w;
     right := left + 50;
     top := tile_type_rect.y + tile_type_rect.h;
     bot := tile_type_rect.y;
 
-    // Tile Display Index
-    tdi := context.editor_state.room_options.tile_type;
+    if editor_state.editor_type == {
+    case 0;
+        // Tile Display Index
+        tdi := context.editor_state.collision_tile_type;
 
-    if TILE_ICONS[tdi].sprite {
-        s := TILE_ICONS[tdi].sprite;
-        set_shader_for_images(s.texture);
-        immediate_quad(.{left, top}, .{left, bot}, .{right, bot}, .{right, top}, TILE_ICONS[tdi].color, s.uvs[0], s.uvs[1], s.uvs[2], s.uvs[3]);
-    } else {
-        set_shader_for_color();
-        immediate_quad(.{left, top}, .{left, bot}, .{right, bot}, .{right, top}, TILE_ICONS[tdi].color);
+        if COLLISION_TILE_ICONS[tdi].sprite {
+            s := COLLISION_TILE_ICONS[tdi].sprite;
+            set_shader_for_images(s.texture);
+            immediate_quad(.{left, top}, .{left, bot}, .{right, bot}, .{right, top}, COLLISION_TILE_ICONS[tdi].color, s.uvs[0], s.uvs[1], s.uvs[2], s.uvs[3]);
+        } else {
+            set_shader_for_color();
+            immediate_quad(.{left, top}, .{left, bot}, .{right, bot}, .{right, top}, COLLISION_TILE_ICONS[tdi].color);
+        }
+    case 1;
+        tdi := context.editor_state.entity_tile_type;
+
+        if ENTITY_TILE_ICONS[tdi].sprite {
+            s := ENTITY_TILE_ICONS[tdi].sprite;
+            set_shader_for_images(s.texture);
+            immediate_quad(.{left, top}, .{left, bot}, .{right, bot}, .{right, top}, ENTITY_TILE_ICONS[tdi].color, s.uvs[0], s.uvs[1], s.uvs[2], s.uvs[3]);
+        } else {
+            set_shader_for_color();
+            immediate_quad(.{left, top}, .{left, bot}, .{right, bot}, .{right, top}, ENTITY_TILE_ICONS[tdi].color);
+        }
     }
 
     // Name
@@ -216,6 +233,58 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     load_button_rect := get_rect(x_pos + 120, y_pos, 110, 30);
     load_pressed := button(load_button_rect, "Load Room");
     if load_pressed editor_state.file_load_window.open = true;
+}
+
+paint_tile_values :: () {
+    room_ptr := context.current_editor_room;
+    if !context.editor_state.mouse_captured {
+        if is_action_held(.EDITOR_LEFT_CLICK) {
+            cell, ok := get_mouse_cell();
+            if context.editor_state.editor_type == {
+            case 0;
+                value_to_paint: Collision_Tile = xx (context.editor_state.collision_tile_type + 1);
+                if ok {
+                    set_collision_tile_value(room_ptr, value_to_paint, cell);
+                }
+            case 1;
+                value_to_paint: Entity_Tile = xx (context.editor_state.entity_tile_type + 1);
+                if ok {
+                    set_entity_tile_value(room_ptr, value_to_paint, cell);
+                }
+            }
+        }
+
+        if is_action_held(.EDITOR_RIGHT_CLICK) {
+            cell, ok := get_mouse_cell();
+            if context.editor_state.editor_type == {
+            case 0;
+                if ok {
+                    set_collision_tile_value(room_ptr, .EMPTY, cell);
+                }
+            case 1;
+                if ok {
+                    set_entity_tile_value(room_ptr, .EMPTY, cell);
+                }
+            }
+        }
+    }
+}
+
+get_mouse_cell :: () -> Coord, bool {
+    width := ROOM_WIDTH;
+    height := ROOM_HEIGHT;
+    tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary := get_tile_ui_data(height);
+    mouse_x, mouse_y, ok := get_mouse_pointer_position();
+
+    mouse_y = WINDOW_HEIGHT - mouse_y; // Flip mouse y to match grid row ordering
+    in_bounds: bool;
+
+    mouse_x = (mouse_x - xx left_boundary) / xx tile_height;
+    mouse_y = (mouse_y - xx bot_boundary) / xx tile_height;
+
+    in_bounds = mouse_x >= 0 && mouse_x < width && mouse_y >= 0 && mouse_y < height;
+
+    return .{xx mouse_x, xx mouse_y}, ok && in_bounds;
 }
 
 #import "GetRect";

@@ -7,7 +7,8 @@ WORLD_HEIGHT :: #run ROOM_HEIGHT * MAP_HEIGHT + (MAP_HEIGHT + 1);
 TILE_SIZE: float32: 16;
 
 World :: struct {
-    tiles: [WORLD_WIDTH * WORLD_HEIGHT]Room_Tile;
+    collision: [WORLD_WIDTH * WORLD_HEIGHT]Collision_Tile;
+    entities: [WORLD_WIDTH * WORLD_HEIGHT]Entity_Tile;
     rooms: [MAP_WIDTH * MAP_HEIGHT]Map_Room;
 }
 
@@ -24,7 +25,8 @@ Map :: struct {
 Room :: struct {
     flags: Room_Flags;
     exits: Room_Exits;
-    int_grid: [ROOM_WIDTH * ROOM_HEIGHT]Room_Tile;
+    int_grid: [ROOM_WIDTH * ROOM_HEIGHT]Collision_Tile;
+    entity_grid: [ROOM_WIDTH * ROOM_HEIGHT]Entity_Tile;
     rune: Rune;
     name: string;
     extra_data: [..]Extra_Entity_Data;
@@ -43,10 +45,16 @@ Map_Room :: struct {
     exists: bool;
 }
 
-Room_Tile :: enum u8 {
+Collision_Tile :: enum u8 {
     EMPTY;
     WALL;
     BLANK;
+}
+
+Entity_Tile :: enum u16 {
+    EMPTY;
+    CRATE;
+    PLAYER_SPAWN;
 }
 
 Extra_Entity_Data :: struct {
@@ -159,7 +167,7 @@ reset_world_tilemap :: () {
     for x: 0..WORLD_WIDTH - 1 {
         for y: 0..WORLD_HEIGHT - 1 {
             idx := coord_to_index(.{xx x, xx y}, .WORLD);
-            world.tiles[idx] = .BLANK;
+            world.collision[idx] = .BLANK;
         }
     }
 }
@@ -168,45 +176,6 @@ make_editor_room :: (name: string) -> Room {
     room: Room;
     room.name = copy_string(name);
     return room;
-}
-
-// Room Editing
-
-paint_tile_values :: () {
-    room_ptr := context.current_editor_room;
-    if !context.editor_state.mouse_captured {
-        if is_action_held(.EDITOR_LEFT_CLICK) {
-            cell, ok := get_mouse_cell();
-            value_to_paint: Room_Tile = xx (context.editor_state.room_options.tile_type + 1);
-            if ok {
-                set_tile_value(room_ptr, value_to_paint, cell);
-            }
-        }
-
-        if is_action_held(.EDITOR_RIGHT_CLICK) {
-            cell, ok := get_mouse_cell();
-            if ok {
-                set_tile_value(room_ptr, .EMPTY, cell);
-            }
-        }
-    }
-}
-
-get_mouse_cell :: () -> Coord, bool {
-    width := ROOM_WIDTH;
-    height := ROOM_HEIGHT;
-    tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary := get_tile_ui_data(height);
-    mouse_x, mouse_y, ok := get_mouse_pointer_position();
-
-    mouse_y = WINDOW_HEIGHT - mouse_y; // Flip mouse y to match grid row ordering
-    in_bounds: bool;
-
-    mouse_x = (mouse_x - xx left_boundary) / xx tile_height;
-    mouse_y = (mouse_y - xx bot_boundary) / xx tile_height;
-
-    in_bounds = mouse_x >= 0 && mouse_x < width && mouse_y >= 0 && mouse_y < height;
-
-    return .{xx mouse_x, xx mouse_y}, ok && in_bounds;
 }
 
 rotate_room :: (r: Room) -> Room {
@@ -277,12 +246,15 @@ coord_to_index :: (c: Coord, kind: Coord_Kind = .ROOM) -> int {
     return (c.y * width) + c.x;
 }
 
-check_tile_value :: (r: *Room, c: Coord) -> Room_Tile {
+check_collision_tile_value :: (r: *Room, c: Coord) -> Collision_Tile {
     return r.int_grid[coord_to_index(c)];
 }
+check_entity_tile_value :: (r: *Room, c: Coord) -> Entity_Tile {
+    return r.entity_grid[coord_to_index(c)];
+}
 
-check_world_tile_value :: (c: Coord) -> Room_Tile {
-    return context.world.tiles[coord_to_index(c, .WORLD)];
+check_world_tile_value :: (c: Coord) -> Collision_Tile {
+    return context.world.collision[coord_to_index(c, .WORLD)];
 }
 
 rotate_coord :: (c: Coord, kind: Coord_Kind = .ROOM) -> Coord #expand {
@@ -298,9 +270,14 @@ rotate_coord :: (c: Coord, kind: Coord_Kind = .ROOM) -> Coord #expand {
     return .{xx width - c.y - 1, c.x};
 }
 
-set_tile_value :: (r: *Room, value: Room_Tile, c: Coord) {
+set_collision_tile_value :: (r: *Room, value: Collision_Tile, c: Coord) {
     idx := coord_to_index(c);
     r.int_grid[idx] = value;
+}
+
+set_entity_tile_value :: (r: *Room, value: Entity_Tile, c: Coord) {
+    idx := coord_to_index(c);
+    r.entity_grid[idx] = value;
 }
 
 // Map Placement and editing
@@ -434,20 +411,6 @@ parse_tiles :: (r: *Room) {
             }
         }
     }
-
-    // Start a second loop for non wall entities
-    for <y: 0..ROOM_HEIGHT - 1 {
-        for x: 0..ROOM_WIDTH - 1 {
-            if check_tile_value(r, .{xx x, xx y}) == {
-            case 2;
-                // Crate
-            case 3;
-                // Moving Block - These will get greedy meshed together to make them look nice but move as one big complex collider
-            case 4;
-                // Button triggers an attached moving block
-            }
-        }
-    }
 }
 
 bake_world :: () {
@@ -485,9 +448,9 @@ write_room_cards_to_world :: () {
             for x: 0..ROOM_WIDTH - 1 {
                 room_coord := Coord.{xx x, xx y};
                 world_coord := room_coord + Coord.{start_x, start_y};
-                tile := check_tile_value(*room_copy, room_coord);
+                tile := check_collision_tile_value(*room_copy, room_coord);
                 world_idx := coord_to_index(world_coord, .WORLD);
-                world.tiles[world_idx] = tile;
+                world.collision[world_idx] = tile;
                 // This may be all I need for placing the actual tiles, work on translating entity data once baking is done, there aren't any entities yet
             }
         }
@@ -497,7 +460,7 @@ write_room_cards_to_world :: () {
 open_map_exits :: () {
     _Late_Tile_Update :: struct {
         idx: int;
-        tile: Room_Tile;
+        tile: Collision_Tile;
     }
     _contains :: (e: Room_Exits, ce: Room_Exits) -> bool {
         return e & ce == ce;
@@ -515,7 +478,7 @@ open_map_exits :: () {
             for by: 0..ROOM_HEIGHT + 1 {
                 for bx: 0..ROOM_WIDTH + 1 {
                     if bx == 0 || bx == ROOM_WIDTH + 1 || by == 0 || by == ROOM_HEIGHT + 1 {
-                        world.tiles[coord_to_index(origin_tile + .{xx bx, xx by}, .WORLD)] = .WALL;
+                        world.collision[coord_to_index(origin_tile + .{xx bx, xx by}, .WORLD)] = .WALL;
                     }
                 }
             }
@@ -580,7 +543,7 @@ open_map_exits :: () {
 
     // Final tile updates, right now it's just punching exit holes while still allowing each room to create it's border
     for late_tile_updates {
-        world.tiles[it.idx] = it.tile;
+        world.collision[it.idx] = it.tile;
     }
     array_free(late_tile_updates);
 }

@@ -208,9 +208,18 @@ render_boundaries_from_cell :: (c: Coord) -> float32, float32, float32, float32 
 
 // #ROOM_DESIGNER_RENDERING
 render_room_designer_scene :: () {
-    render_grid();
-    #if OS == .WINDOWS render_room_designer_mouse_selection();
-    render_room_tiles(context.current_editor_room);
+    if context.editor_state.editor_type == {
+    case 0;
+        render_room_entities(context.current_editor_room, true);
+        render_grid();
+        #if OS == .WINDOWS render_room_designer_mouse_selection();
+        render_room_collision(context.current_editor_room);
+    case 1;
+        render_room_collision(context.current_editor_room, true);
+        render_grid();
+        #if OS == .WINDOWS render_room_designer_mouse_selection();
+        render_room_entities(context.current_editor_room);
+    }
     render_room_designer_ui();
 }
 
@@ -228,12 +237,14 @@ render_room_designer_mouse_selection :: () {
     }
 }
 
-render_room_tiles :: (r: *Room) {
+render_room_collision :: (r: *Room, faded := false) {
     for <y: 0..ROOM_HEIGHT - 1 {
         for x: 0..ROOM_WIDTH - 1 {
             coord := Coord.{xx x, xx y};
-            val := check_tile_value(r, coord);
+            val := check_collision_tile_value(r, coord);
             left, right, bot, top := render_boundaries_from_cell(coord);
+            color: Vector4;
+            alpha: float32 = ifx faded then 0.3 else 1;
             if val == {
             case .WALL;
                 immediate_quad(
@@ -241,9 +252,43 @@ render_room_tiles :: (r: *Room) {
                                .{left, bot},
                                .{right, bot},
                                .{right, top},
-                               .{0, 0, 1, 1});
+                               .{1, 1, 1, alpha});
             }
-        }texture_create_render_target;
+        }
+    }
+}
+
+render_room_entities :: (r: *Room, faded := false) {
+    for <y: 0..ROOM_HEIGHT - 1 {
+        for x: 0..ROOM_WIDTH - 1 {
+            coord := Coord.{xx x, xx y};
+            val := check_entity_tile_value(r, coord);
+            left, right, bot, top := render_boundaries_from_cell(coord);
+            color: Vector4;
+            alpha: float32 = ifx faded then 0.3 else 1;
+            if val == {
+            case .CRATE;
+                set_shader_for_images(context.atlas.crate.texture);
+                immediate_quad(
+                               .{left, top},
+                               .{left, bot},
+                               .{right, bot},
+                               .{right, top},
+                               .{1, 1, 1, alpha},
+                               .{0, 1 - 0.03125},
+                               .{0.03125, 1 - 0.03125},
+                               .{0.03125, 1},
+                               .{0, 1});
+            case .PLAYER_SPAWN;
+                set_shader_for_color(true);
+                immediate_quad(
+                               .{left, top},
+                               .{left, bot},
+                               .{right, bot},
+                               .{right, top},
+                               .{0.6, 0.5, 0, alpha});
+            }
+        }
     }
 }
 
@@ -254,6 +299,7 @@ render_map_placement_scene :: () {
     render_map_placed_room_cards();
     render_map_placement_ui();
 }
+
 render_map_placement_selected_room :: () {
     if context.map.available_rooms.count > 0 {
         room := get_room_at_wrapping_index(context.map.selected_idx);
@@ -307,7 +353,7 @@ render_gameplay_scene :: () {
     immediate_quad(sv[0], sv[1], sv[2], sv[3], .{1, 1, 1, 1});
 }
 
-player_pos := Vector2.{0, 32};
+player_pos := Vector2.{64, 32};
 player_colliding: bool;
 
 render_entities :: () {
@@ -320,7 +366,6 @@ render_entities :: () {
 
     pos := cam_relative_position(player_pos);
     draw_player(pos);
-    // render_sprite(*context.atlas.crate, .{160, 90}, .{100, 100});
     for *context.entities {
         if it.props & .RENDERABLE == .RENDERABLE {
             pos := cam_relative_position(it.position);
