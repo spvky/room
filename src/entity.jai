@@ -42,6 +42,7 @@ Collision_Shape :: enum {
 
 Entity_Tag :: enum u64 {
     WALL;
+    CRATE;
 }
 
 Entity_Properties :: enum_flags u32 {
@@ -149,6 +150,18 @@ make_wall :: (left: int, right: int, top: int, bot: int) {
     wall_entity.shape_kind = .RECTANGLE;
     wall_entity.tag = .WALL;
     wall_entity.props = .RENDERABLE | .STATIC | .COLLIDABLE;
-    wall_entity.sprite = *context.atlas.crate;
+    wall_entity.sprite = *context.atlas.checker;
     entity_add(wall_entity);
+}
+
+make_crate :: (c: Coord) {
+    crate_entity: Entity;
+    half_tile := Vector2.{TILE_SIZE, TILE_SIZE} / 2;
+    crate_entity.position = Vector2.{xx c.x * TILE_SIZE, xx c.y * TILE_SIZE} + half_tile;
+    crate_entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
+    crate_entity.shape_kind = .RECTANGLE;
+    crate_entity.tag = .CRATE;
+    crate_entity.props = .RENDERABLE | .COLLIDABLE;
+    crate_entity.sprite = *context.atlas.crate;
+    entity_add(crate_entity);
 }

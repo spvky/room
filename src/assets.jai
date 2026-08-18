@@ -4,6 +4,7 @@ Asset_Atlas :: struct {
     room_frame_texture: Texture;
     collision_circle: Texture;
     crate: Sprite;
+    checker: Sprite;
     player_texture: Texture;
 }
 
@@ -27,6 +28,7 @@ init_textures :: () {
     ok = texture_load_from_memory(*atlas.collision_circle, cast([]u8)collision_circle_bytes);
     if !ok print("Failed to load collision circle texture from memory!\n");
     atlas.crate = sprite_from_atlas(*atlas.tile_atlas, 0);
+    atlas.checker = sprite_from_atlas(*atlas.tile_atlas, 1);
     texture_load_from_file(*atlas.player_texture, "assets/player.png");
 }
 

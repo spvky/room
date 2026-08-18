@@ -107,6 +107,10 @@ Coord :: struct {
     y: s16;
 }
 
+operator == :: (a: Coord, b: Coord) -> bool {
+    return a.x == b.x && a.y == b.y;
+}
+
 operator + :: (a: Coord, b: Coord) -> Coord {
     c: Coord;
     c.x = a.x + b.x;
@@ -168,6 +172,7 @@ reset_world_tilemap :: () {
         for y: 0..WORLD_HEIGHT - 1 {
             idx := coord_to_index(.{xx x, xx y}, .WORLD);
             world.collision[idx] = .BLANK;
+            world.entities[idx] = .EMPTY;
         }
     }
 }
@@ -185,6 +190,7 @@ rotate_room :: (r: Room) -> Room {
             new_index := coord_to_index(.{xx (ROOM_WIDTH - y - 1), xx x});
             old_index := coord_to_index(.{xx x, xx y});
             out.int_grid[new_index] = r.int_grid[old_index];
+            out.entity_grid[new_index] = r.entity_grid[old_index];
         }
     }
 
@@ -253,8 +259,12 @@ check_entity_tile_value :: (r: *Room, c: Coord) -> Entity_Tile {
     return r.entity_grid[coord_to_index(c)];
 }
 
-check_world_tile_value :: (c: Coord) -> Collision_Tile {
+check_world_collision_tile_value :: (c: Coord) -> Collision_Tile {
     return context.world.collision[coord_to_index(c, .WORLD)];
+}
+
+check_world_entity_tile_value :: (c: Coord) -> Entity_Tile {
+    return context.world.entities[coord_to_index(c, .WORLD)];
 }
 
 rotate_coord :: (c: Coord, kind: Coord_Kind = .ROOM) -> Coord #expand {
@@ -278,6 +288,16 @@ set_collision_tile_value :: (r: *Room, value: Collision_Tile, c: Coord) {
 set_entity_tile_value :: (r: *Room, value: Entity_Tile, c: Coord) {
     idx := coord_to_index(c);
     r.entity_grid[idx] = value;
+}
+
+set_world_collision_tile_value :: (value: Collision_Tile, c: Coord) {
+    idx := coord_to_index(c, .WORLD);
+    context.world.collision[idx] = value;
+}
+
+set_world_entity_tile_value :: (value: Entity_Tile, c: Coord) {
+    idx := coord_to_index(c, .WORLD);
+    context.world.entities[idx] = value;
 }
 
 // Map Placement and editing
@@ -371,7 +391,7 @@ move_map_cursor :: () {
 parse_tiles :: (r: *Room) {
     is_valid_wall :: (x: int, y: int) -> bool #expand {
         coord := Coord.{xx x, xx y};
-        return !`parsed[coord_to_index(coord)] && check_world_tile_value(coord) == .WALL;
+        return !`parsed[coord_to_index(coord)] && check_world_collision_tile_value(coord) == .WALL;
     }
 
     // Calculate all walls first
@@ -448,9 +468,11 @@ write_room_cards_to_world :: () {
             for x: 0..ROOM_WIDTH - 1 {
                 room_coord := Coord.{xx x, xx y};
                 world_coord := room_coord + Coord.{start_x, start_y};
-                tile := check_collision_tile_value(*room_copy, room_coord);
+                collision_tile := check_collision_tile_value(*room_copy, room_coord);
+                entity_tile := check_entity_tile_value(*room_copy, room_coord);
                 world_idx := coord_to_index(world_coord, .WORLD);
-                world.collision[world_idx] = tile;
+                world.collision[world_idx] = collision_tile;
+                world.entities[world_idx] = entity_tile;
                 // This may be all I need for placing the actual tiles, work on translating entity data once baking is done, there aren't any entities yet
             }
         }
@@ -570,10 +592,10 @@ exits_match :: (a: Room_Exits, b: Room_Exits, direction: Map_Direction) -> Room_
 parse_entities_from_tiles :: () {
     is_valid_wall :: (x: int, y: int) -> bool #expand {
         coord := Coord.{xx x, xx y};
-        return !`parsed[coord_to_index(coord, .WORLD)] && check_world_tile_value(coord) == .WALL;
+        return !`parsed[coord_to_index(coord, .WORLD)] && check_world_collision_tile_value(coord) == .WALL;
     }
 
-    // Calculate all walls first
+    // Calculate the collision layer
     parsed: [WORLD_WIDTH * WORLD_HEIGHT]bool;
     for <y: 0..WORLD_HEIGHT - 1 {
         for x: 0..WORLD_WIDTH - 1 {
@@ -609,6 +631,71 @@ parse_entities_from_tiles :: () {
                 }
                 // Create Wall entity
                 make_wall(left, right, top, bot);
+            }
+        }
+    }
+
+    for *parsed {
+        it.* = false;
+    }
+
+    for y: 0..WORLD_HEIGHT - 1 {
+        for x: 0..WORLD_WIDTH - 1 {
+            coord := Coord.{xx x, xx y};
+            if !parsed[coord_to_index(coord, .WORLD)] {
+                entity := check_world_entity_tile_value(coord);
+                if entity == {
+                case .CRATE;
+                    print("Started Parsing a crate at %,%\n", x, y);
+                    // travelling coord
+                    t_coord := coord;
+                    t_coord.y -= 1;
+                    if t_coord.y < 0 {
+                        make_crate(coord);
+                        parsed[coord_to_index(coord, .WORLD)] = true;
+                        continue;
+                    }
+                    col_bellow: Collision_Tile;
+                    ent_bellow: Entity_Tile;
+                    while t_coord.y > 0 {
+                        col_bellow = check_world_collision_tile_value(t_coord);
+                        ent_bellow = check_world_entity_tile_value(t_coord);
+                        if col_bellow == .EMPTY && ent_bellow == .EMPTY {
+                            parsed[coord_to_index(t_coord, .WORLD)] = true;
+                            print("Crate Falling: % --> %\n", coord, t_coord);
+                            t_coord.y -= 1;
+                            continue;
+                        }
+
+                        if col_bellow == {
+                        case .WALL;
+                            print("Crate Hit Wall: % --> %\n", coord, t_coord);
+                            break;
+                        case .BLANK;
+                            print("CRATE FELL INTO A BLANK TILE, SOMETHING IS WRONG!\n");
+                            break;
+                        }
+
+                        if ent_bellow == {
+                        case .CRATE;
+                            print("Crate Hit a Crate: % --> %\n", coord, t_coord);
+                            break;
+                        }
+                        t_coord.y -= 1;
+                    }
+                    if t_coord != coord {
+                        // print("Mismatched Coords, crate must have fallen\n");
+                        parsed[coord_to_index(coord, .WORLD)] = true;
+                        set_world_entity_tile_value(.EMPTY, coord);
+                        new_coord := t_coord + .{0, 1};
+
+                        parsed[coord_to_index(new_coord, .WORLD)] = true;
+                        set_world_entity_tile_value(.CRATE, new_coord);
+                        make_crate(new_coord);
+                    }
+                case .EMPTY;
+                    parsed[coord_to_index(coord, .WORLD)] = true;
+                }
             }
         }
     }
