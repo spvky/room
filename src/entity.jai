@@ -15,6 +15,7 @@ Entity :: struct {
     handle: Entity_Handle; @ignore_serialize
     parent: Entity_Handle; @ignore_serialize
     first_child: Entity_Handle; @ignore_serialize
+    last_child: Entity_Handle; @ignore_serialze
     prev_sibling: Entity_Handle; @ignore_serialize
     next_sibling: Entity_Handle; @ignore_serialize
     entity_signals: [..]Entity_Signal; @ignore_serialize
@@ -142,7 +143,6 @@ entity_get :: (handle: Entity_Handle, e: *Entity_Manager = context.entities) -> 
 entity_remove :: (handle: Entity_Handle, e: *Entity_Manager = context.entities, depth := 0) {
     if handle.index > 0 && cast(int)handle.index < e.items.count && e.items[handle.index].handle == handle {
         print("Start removal at depth: % with handle %\n", depth, handle);
-        // Remove Children
         entity := entity_get(handle);
         print("Got entity for removal % with handle %\n", entity, handle);
         if entity.first_child != NULL_HANDLE {
@@ -154,21 +154,6 @@ entity_remove :: (handle: Entity_Handle, e: *Entity_Manager = context.entities, 
             }
 
             entity_remove(entity.first_child, depth = depth + 1);
-
-            // while  {
-            //     current_child := entity_get(current_child_handle);
-            //     next_sibling_handle := current_child.next_sibling;
-            // 
-            //     array_add(*e.freelist, current_child_handle);
-            //     e.items[current_child_handle.index] = .{};
-            //     e.count -= 1;
-            // 
-            //     if next_sibling_handle == NULL_HANDLE {
-            //         break;
-            //     } else {
-            //         current_child_handle = next_sibling_handle;
-            //     }
-            // }
         }
 
         if entity.next_sibling != NULL_HANDLE {
@@ -188,18 +173,6 @@ entity_remove :: (handle: Entity_Handle, e: *Entity_Manager = context.entities, 
             parent.first_child = entity.next_sibling;
         }
 
-        // if entity.next_sibling != NULL_HANDLE {
-        //     sibling := entity_get(entity.next_sibling);
-        //     if sibling.next_sibling {
-        //     }
-        //     current_child_handle := entity.first_child;
-        // 
-        //     current_child := entity_get(current_child_handle);
-        //     next_sibling_handle := current_child.next_sibling;
-        //     array_add(*e.freelist, current_child_handle);
-        //     e.items[current_child_handle.index] = .{};
-        //     e.count -= 1;
-        // }
         print("Add Item to freelist at handle: %\n", handle);
         array_add(*e.freelist, handle);
         print("Clearing Item at handle: %\n", handle);
@@ -214,36 +187,35 @@ entity_valid :: (handle: Entity_Handle, e: *Entity_Manager = context.entities) -
 }
 
 entity_add_child :: (parent_handle: Entity_Handle, child_entity: Entity, e: *Entity_Manager = context.entities) -> Entity_Handle {
-    new_child_handle: Entity_Handle;
-    print("Adding child to %\n", parent_handle);
-    parent_entity := entity_get(parent_handle);
-    if parent_entity {
-        child_entity_shadow := child_entity;
-        child_entity_shadow.parent = parent_handle;
-        new_child_handle = entity_add(child_entity_shadow);
-        if parent_entity.first_child == NULL_HANDLE {
-            print("\tReceiving Parent % has no children, adding %\n", parent_handle, new_child_handle);
-            print("\t--New parent % pre child %\n", parent_handle, parent_entity.first_child);
-            parent_entity.first_child = new_child_handle;
-            print("\t--New parent % post child %\n", parent_handle, parent_entity.first_child);
-        } else {
-            print("\t\tReceiving parent % has a first child %, searching for last sibling to add %!\n", parent_handle, parent_entity.first_child, new_child_handle);
-            current_child_handle := parent_entity.first_child;
-            current_child := entity_get(current_child_handle);
-
-            while entity_get(current_child.next_sibling) {
-                current_child_handle = current_child.next_sibling;
-                current_child = entity_get(current_child_handle);
-            }
-            current_child.next_sibling = new_child_handle;
-            new_child := entity_get(new_child_handle);
-            new_child.prev_sibling = current_child_handle;
+    child_handle: Entity_Handle;
+    // check if parent is still valid
+    if entity_valid(parent_handle) {
+        child_handle = entity_add(child_entity);
+        if child_handle == NULL_HANDLE {
+            print("Tried to add entity child and still have a null handle, something is wrong!\n");
+            return child_handle;
         }
-    } else {
-        print("Attempted to add a child to parent with handle %, parent is not valid!", parent_handle);
+
+        parent_ptr := entity_get(parent_handle);
+        child_ptr := entity_get(child_handle);
+        child_ptr.parent = parent_handle;
+
+        // you can also keep a handle to the last child to avoid iterating the list when inserting
+        // assert((parent_ptr.first_child == NULL_HANDLE && parent_ptr.last_child == NULL_HANDLE) ||
+        //        (parent_ptr.first_child != NULL_HANDLE && parent_ptr.last_child != NULL_HANDLE));
+
+        child_ptr.prev_sibling = parent_ptr.last_child;
+        if parent_ptr.last_child == NULL_HANDLE {
+            parent_ptr.first_child = child_handle;
+            parent_ptr.last_child = child_handle;
+        } else {
+            prev_sibling := entity_get(parent_ptr.last_child);
+            print("Prev sibling is invalid handle, something is wrong!\n");
+            prev_sibling.next_sibling = child_handle;
+            parent_ptr.last_child = child_handle;
+        }
     }
-    // Why is 
-    return new_child_handle;
+    return child_handle;
 }
 
 for_expansion :: (e: *Entity_Manager, body: Code, flags: For_Flags) #expand {

@@ -49,20 +49,16 @@ init :: () {
 
 entity_relation_test :: () {
     a := entity_add(Entity.{});
+
     b := entity_add_child(a, Entity.{});
     c := entity_add_child(a, Entity.{});
     d := entity_add_child(a, Entity.{});
     e := entity_add_child(a, Entity.{});
-
     f := entity_add_child(c, Entity.{});
     g := entity_add_child(c, Entity.{});
-
     h := entity_add_child(e, Entity.{});
-    i := entity_add_child(e, Entity.{});
 
     print("Entities count: %!\n", context.entities.count);
-    // entity_remove(c);
-    // print("Entities count: %!\n", context.entities.count);
     print("A: % | % child % parent %\n", a, entity_get(a), entity_get(a).first_child, entity_get(a).parent);
     print("B: % | % child % parent % \n", b, entity_get(b), entity_get(b).first_child, entity_get(b).parent);
     print("C: % | % child % parent % \n", c, entity_get(c), entity_get(c).first_child, entity_get(c).parent);
