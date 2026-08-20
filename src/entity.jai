@@ -18,7 +18,6 @@ Entity :: struct {
     last_child: Entity_Handle; @ignore_serialze
     prev_sibling: Entity_Handle; @ignore_serialize
     next_sibling: Entity_Handle; @ignore_serialize
-    entity_signals: [..]Entity_Signal; @ignore_serialize
 }
 
 Entity_Handle :: struct {
@@ -64,9 +63,11 @@ Entity_Tag :: enum u8 {
 Entity_Properties :: enum_flags u32 {
     RENDERABLE :: 1 << 0;
     STATIC :: 1 << 1;
-    COLLIDABLE :: 1 << 2;
+    SOLID :: 1 << 2;
     GRAVITY_AFFECTED :: 1 << 3;
     SENSOR :: 1 << 4;
+    RELATIVE_POSITION :: 1 << 5;
+    RELATIVE_ROTATION :: 1 << 6;
 }
 
 Entity_Flags :: enum_flags u32 {
@@ -74,25 +75,26 @@ Entity_Flags :: enum_flags u32 {
     IN_WATER :: 1 << 1;
     POWERED :: 1 << 2;
 }
-Entity_Signal :: struct {
-    kind: Entity_Flag_Signal_Kind;
-    relationship: Entity_Flag_Signal_Relationship;
-    tag: Entity_Tag;
-    flags: Entity_Flags;
-}
 
-// Entity Signals
-Entity_Flag_Signal_Kind :: enum {
-    ADD_FLAG;
-    REMOVE_FLAG;
-}
-
-Entity_Flag_Signal_Relationship :: enum {
-    PARENT;
-    CHILD;
-    CHILD_WITH_TAG;
-    NEXT_SIBLING;
-}
+// // Entity Signals
+// Entity_Signal :: struct {
+//     kind: Entity_Flag_Signal_Kind;
+//     relationship: Entity_Flag_Signal_Relationship;
+//     tag: Entity_Tag;
+//     flags: Entity_Flags;
+// }
+// 
+// Entity_Flag_Signal_Kind :: enum {
+//     ADD_FLAG;
+//     REMOVE_FLAG;
+// }
+// 
+// Entity_Flag_Signal_Relationship :: enum {
+//     PARENT;
+//     CHILD;
+//     CHILD_WITH_TAG;
+//     NEXT_SIBLING;
+// }
 
 init_entities :: () {
     if !context.entities {
@@ -122,7 +124,7 @@ entity_add :: (new_entity: Entity, e: *Entity_Manager = context.entities) -> Ent
     }
 
     if e.items.count == 0 {
-        array_add(*e.items, Entity.{}, true);
+        array_add(*e.items, Entity.{});
     }
 
     index := cast(u32)e.items.count;
@@ -241,7 +243,7 @@ make_wall :: (left: int, right: int, top: int, bot: int) {
     wall_entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
     wall_entity.shape_kind = .RECTANGLE;
     wall_entity.tag = .WALL;
-    wall_entity.props = .RENDERABLE | .STATIC | .COLLIDABLE;
+    wall_entity.props = .RENDERABLE | .STATIC | .SOLID;
     wall_entity.sprite = *context.atlas.checker;
     entity_add(wall_entity);
 }
@@ -253,7 +255,16 @@ make_crate :: (c: Coord) {
     crate_entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
     crate_entity.shape_kind = .RECTANGLE;
     crate_entity.tag = .CRATE;
-    crate_entity.props = .RENDERABLE | .COLLIDABLE;
+    crate_entity.props = .RENDERABLE | .SOLID;
     crate_entity.sprite = *context.atlas.crate;
-    entity_add(crate_entity);
+    crate_handle := entity_add(crate_entity);
+
+    // Ground Sensor Entity
+    gse: Entity;
+    gse.position = Vector2.{0, -TILE_SIZE};
+    gse.extents = Vector2.{TILE_SIZE, TILE_SIZE / 8};
+    gse.shape_kind = .RECTANGLE;
+    gse.tag = .GROUND_SESOR;
+    gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
+    entity_add_child(crate_handle, gse);
 }
