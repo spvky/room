@@ -42,7 +42,6 @@ Rigidbody :: struct {
     velocity: Vector2;
     rotation: float32;
     shape_kind: Collision_Shape;
-    // Collision fields
     extents: Vector2;
     #overlay (extents) radius: float32;
     #overlay (extents.y) height: float32;
@@ -248,6 +247,25 @@ make_wall :: (left: int, right: int, top: int, bot: int) {
     entity_add(wall_entity);
 }
 
+entity_has_props :: (h: Entity_Handle, props: Entity_Properties) -> bool {
+    ent := entity_get(h);
+    if !ent {
+        print("Attempted to check props on an entity by an invalid handle!\n");
+        return false;
+    } else {
+        return ent.props & props == props;
+    }
+}
+
+entity_has_props :: (e: *Entity, props: Entity_Properties) -> bool {
+    if !e {
+        print("Attempted to check props on an entity by an invalid pointer!\n");
+        return false;
+    } else {
+        return e.props & props == props;
+    }
+}
+
 make_crate :: (c: Coord) {
     crate_entity: Entity;
     half_tile := Vector2.{TILE_SIZE, TILE_SIZE} / 2;
@@ -264,7 +282,7 @@ make_crate :: (c: Coord) {
     gse.position = Vector2.{0, -TILE_SIZE};
     gse.extents = Vector2.{TILE_SIZE, TILE_SIZE / 8};
     gse.shape_kind = .RECTANGLE;
-    gse.tag = .GROUND_SESOR;
+    gse.tag = .GROUND_SENSOR;
     gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
     entity_add_child(crate_handle, gse);
 }

@@ -18,3 +18,10 @@ gameplay_update :: () {
     }
     player_colliding = hit;
 }
+
+sensor_collision :: () {
+    for *context.entities {
+        if entity_has_props(it, .SENSOR) {
+        }
+    }
+}
