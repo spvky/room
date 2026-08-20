@@ -19,9 +19,47 @@ gameplay_update :: () {
     player_colliding = hit;
 }
 
+set_relative_position_and_rotations :: () {
+    for *context.entities {
+        if entity_has_props(it, .RELATIVE_POSITION | .RELATIVE_ROTATION) {
+            if entity_valid(it.parent) {
+                parent := entity_get(it.parent);
+                origin := parent.position;
+                theta := parent.rotation;
+                if theta != 0.0 {
+                    rotated_offset := Vector2.{
+                                               (it.offset.x * cos(theta)) - (it.offset.y * sin(theta)),
+                                               (it.offset.x * sin(theta)) + (it.offset.y * cos(theta))};
+                    it.position = origin + rotated_offset;
+                } else {
+                    it.position = origin + it.offset;
+                }
+            }
+        }
+    }
+}
+
 sensor_collision :: () {
     for *context.entities {
-        if entity_has_props(it, .SENSOR) {
+        if entity_has_props(it, .SENSOR) && it.parent != NULL_HANDLE {
+            if it.tag == {
+            case .GROUND_SENSOR;
+                touching_ground: bool;
+
+                // Check static collisions
+                for static_info, static_handle: context.static_collision_table {
+                    if entity_valid(static_handle) {
+                        static_body := entity_get(static_handle);
+                        _, did_collide := dynamic_vs_static_collision_test(it, static_body);
+                        if did_collide then touching_ground = false;
+                    }
+                }
+
+                // Check dynamic collisions
+                // for *other_entity, other_idx: *context.entities {
+                //     // Por que?!
+                // }
+            }
         }
     }
 }
