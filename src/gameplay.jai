@@ -41,24 +41,31 @@ set_relative_position_and_rotations :: () {
 
 sensor_collision :: () {
     for *context.entities {
-        if entity_has_props(it, .SENSOR) && it.parent != NULL_HANDLE {
-            if it.tag == {
-            case .GROUND_SENSOR;
-                touching_ground: bool;
+        if !(entity_has_props(it, .SENSOR) && entity_valid(it.parent)) continue;
+        if it.tag == {
+        case .GROUND_SENSOR;
+            touching_ground: bool;
 
-                // Check static collisions
-                for static_info, static_handle: context.static_collision_table {
-                    if entity_valid(static_handle) {
-                        static_body := entity_get(static_handle);
-                        _, did_collide := dynamic_vs_static_collision_test(it, static_body);
-                        if did_collide then touching_ground = false;
-                    }
-                }
+            // Check static collisions
+            for static_info, static_handle: context.static_collision_table {
+                if !entity_valid(static_handle) continue;
+                static_body := entity_get(static_handle);
+                _, did_collide := dynamic_vs_static_collision_test(it, static_body);
+                if did_collide touching_ground = true;
+            }
 
-                // Check dynamic collisions
-                // for *other_entity, other_idx: *context.entities {
-                //     // Por que?!
-                // }
+            // Check dynamic collisions
+            for *other_entity: context.entities {
+                if other_entity == it || other_entity.handle == it.parent || !entity_has_props(other_entity, .SOLID) continue;
+                _, did_collide := dynamic_vs_dynamic_collision_test(it, other_entity);
+                if did_collide touching_ground = true;
+            }
+
+            parent_entity := entity_get(it.parent);
+            if touching_ground {
+                parent_entity.flags |= .GROUNDED;
+            } else {
+                parent_entity.flags &= ~.GROUNDED;
             }
         }
     }

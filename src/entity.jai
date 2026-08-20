@@ -77,26 +77,6 @@ Entity_Flags :: enum_flags u32 {
     PHYSICS_REST :: 1 << 3;
 }
 
-// // Entity Signals
-// Entity_Signal :: struct {
-//     kind: Entity_Flag_Signal_Kind;
-//     relationship: Entity_Flag_Signal_Relationship;
-//     tag: Entity_Tag;
-//     flags: Entity_Flags;
-// }
-// 
-// Entity_Flag_Signal_Kind :: enum {
-//     ADD_FLAG;
-//     REMOVE_FLAG;
-// }
-// 
-// Entity_Flag_Signal_Relationship :: enum {
-//     PARENT;
-//     CHILD;
-//     CHILD_WITH_TAG;
-//     NEXT_SIBLING;
-// }
-
 init_entities :: () {
     if !context.entities {
         context.entities = New(Entity_Manager);
