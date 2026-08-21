@@ -100,3 +100,5 @@ GL :: #import "GL";
 #load "src/game_state.jai";
 #load "src/gameplay.jai";
 #load "src/rope.jai";
+#load "src/events.jai";
+#load "src/dev_util.jai";

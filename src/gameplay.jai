@@ -17,24 +17,26 @@ gameplay_update :: () {
         }
     }
     player_colliding = hit;
+    // benchmark_code("Main Loop", #code {
+    set_relative_position_and_rotations();
+    sensor_collision();
+    // });
 }
 
 set_relative_position_and_rotations :: () {
     for *context.entities {
-        if entity_has_props(it, .RELATIVE_POSITION | .RELATIVE_ROTATION) {
-            if entity_valid(it.parent) {
-                parent := entity_get(it.parent);
-                origin := parent.position;
-                theta := parent.rotation;
-                if theta != 0.0 {
-                    rotated_offset := Vector2.{
-                                               (it.offset.x * cos(theta)) - (it.offset.y * sin(theta)),
-                                               (it.offset.x * sin(theta)) + (it.offset.y * cos(theta))};
-                    it.position = origin + rotated_offset;
-                } else {
-                    it.position = origin + it.offset;
-                }
-            }
+        if !(entity_has_props(it, .RELATIVE_POSITION | .RELATIVE_ROTATION) && entity_valid(it.parent)) continue;
+
+        parent := entity_get(it.parent);
+        origin := parent.position;
+        theta := parent.rotation;
+        if theta != 0.0 {
+            rotated_offset := Vector2.{
+                                       (it.offset.x * cos(theta)) - (it.offset.y * sin(theta)),
+                                       (it.offset.x * sin(theta)) + (it.offset.y * cos(theta))};
+            it.position = origin + rotated_offset;
+        } else {
+            it.position = origin + it.offset;
         }
     }
 }
@@ -62,11 +64,7 @@ sensor_collision :: () {
             }
 
             parent_entity := entity_get(it.parent);
-            if touching_ground {
-                parent_entity.flags |= .GROUNDED;
-            } else {
-                parent_entity.flags &= ~.GROUNDED;
-            }
+            if touching_ground then parent_entity.flags |= .GROUNDED; else parent_entity.flags &= ~.GROUNDED;
         }
     }
 }
