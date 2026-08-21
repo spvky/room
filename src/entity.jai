@@ -39,7 +39,8 @@ handle_hash :: (a: Entity_Handle) -> u32 {return sdbm_hash(*a, size_of(Entity_Ha
 
 Rigidbody :: struct {
     position: Vector2;
-    offset: Vector2; // used on children
+    offset: Vector2;
+    move_delta: Vector2;
     velocity: Vector2;
     rotation: float32;
     shape_kind: Collision_Shape;
@@ -55,6 +56,7 @@ Collision_Shape :: enum {
 }
 
 Entity_Tag :: enum u8 {
+    PLAYER;
     WALL;
     CRATE;
     GROUND_SENSOR;
@@ -261,8 +263,8 @@ make_crate :: (c: Coord) {
 
     // Ground Sensor Entity
     gse: Entity;
-    gse.offset = Vector2.{0, -TILE_SIZE};
-    gse.extents = Vector2.{TILE_SIZE * 0.8, TILE_SIZE / 8};
+    gse.offset = Vector2.{0, -TILE_SIZE / 2};
+    gse.extents = Vector2.{TILE_SIZE * 0.95, TILE_SIZE / 8};
     gse.shape_kind = .RECTANGLE;
     gse.tag = .GROUND_SENSOR;
     gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;

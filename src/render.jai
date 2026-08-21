@@ -343,6 +343,7 @@ render_gameplay_scene :: () {
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
     clear_render_target(0, 0, 0, 1);
     render_entities();
+    debug_render_colliders();
     set_render_target(window);
     set_shader_for_images(context.gameplay_texture);
     sv: [4]Vector2;
@@ -367,9 +368,42 @@ render_entities :: () {
     pos := cam_relative_position(player_pos);
     draw_player(pos);
     for *context.entities {
-        if it.props & .RENDERABLE == .RENDERABLE {
-            pos := cam_relative_position(it.position);
-            render_sprite(it.sprite, pos, it.extents);
+        if !entity_has_props(it, .RENDERABLE) continue;
+        pos := cam_relative_position(it.position);
+        render_sprite(it.sprite, pos, it.extents);
+    }
+}
+
+draw_entity_collider :: inline (e: *Entity, color: Vector4) {
+    p: [4]Vector2;
+    half := e.extents / 2;
+    pos := cam_relative_position(e.position);
+    if e.shape_kind == {
+    case .RECTANGLE;
+        p[0] = pos + .{-half.x, half.y};
+        p[1] = pos + .{-half.x, -half.y};
+        p[2] = pos + .{half.x, -half.y};
+        p[3] = pos + .{half.x, half.y};
+    case .CIRCLE;
+        p[0] = pos + .{e.radius, e.radius};
+        p[1] = pos + .{-e.radius, -e.radius};
+        p[2] = pos + .{e.radius, -e.radius};
+        p[3] = pos + .{e.radius, e.radius};
+    }
+    immediate_quad(p[0], p[1], p[2], p[3], color);
+}
+
+debug_render_colliders :: () {
+    for *context.entities {
+        // if !entity_has_props(it, .SENSOR) continue;
+        if it.shape_kind == {
+        case .RECTANGLE;
+            set_shader_for_color(true);
+        case .CIRCLE;
+            set_shader_for_images(*context.atlas.player_texture);
         }
+        color := Vector4.{0, 0, 1, 0.3};
+        if entity_has_props(it, .SENSOR) color = .{0.98, 0.95, 0.21, 0.3};
+        draw_entity_collider(it, color);
     }
 }
