@@ -36,3 +36,11 @@ set_player_move_delta :: () {
         // print("Delta: %\n", player.movement_delta.x);
     }
 }
+
+player_jump :: () {
+    player := player_get();
+    if is_action_buffered(.JUMP) && entity_has_flags(player, .GROUNDED) {
+        consume_action(.JUMP);
+        player.velocity.y = PLAYER_JUMP_SPEED;
+    }
+}

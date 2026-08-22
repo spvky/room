@@ -123,25 +123,24 @@ apply_velocity :: (delta: float32) {
 }
 
 apply_gravity :: (delta: float32) {
-    print("%\n", delta);
     for *context.entities {
         if !entity_has_props(it, .GRAVITY_AFFECTED) || entity_has_flags(it, .GROUNDED) continue;
-        if it.velocity.y >= 0 it.velocity.y -= RISING_GRAVITY * delta;
-        if it.velocity.y < 0 it.velocity.y -= FALLING_GRAVITY * delta;
+        if it.velocity.y >= 0 it.velocity.y += RISING_GRAVITY * delta;
+        if it.velocity.y < 0 it.velocity.y += FALLING_GRAVITY * delta;
     }
 }
 
 #scope_file
 calculate_jump_speed :: () -> float32 {
-    return (-2 * JUMP_HEIGHT) / TIME_TO_PEAK;
+    return (2 * JUMP_HEIGHT) / TIME_TO_PEAK;
 }
 
 calculate_rising_gravity :: () -> float32 {
-    return (2 * JUMP_HEIGHT) / (TIME_TO_PEAK * TIME_TO_PEAK);
+    return (-2 * JUMP_HEIGHT) / (TIME_TO_PEAK * TIME_TO_PEAK);
 }
 
 calculate_falling_gravity :: () -> float32 {
-    return (2 * JUMP_HEIGHT) / (TIME_TO_DESCENT * TIME_TO_DESCENT);
+    return (-2 * JUMP_HEIGHT) / (TIME_TO_DESCENT * TIME_TO_DESCENT);
 }
 
 calculate_lateral_speed :: () -> float32 {

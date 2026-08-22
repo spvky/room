@@ -18,6 +18,7 @@ Action :: enum {
     MOVE_RIGHT;
     MOVE_DOWN;
     MOVE_UP;
+    JUMP;
     // Debug
     GOTO_ROOM_DESIGNER;
     GOTO_MAP_PLACEMENT;
@@ -40,6 +41,7 @@ init_input :: () {
     register_input(.MOVE_RIGHT, #char "D");
     register_input(.MOVE_UP, #char "W");
     register_input(.MOVE_DOWN, #char "S");
+    register_input(.JUMP, .SPACEBAR);
     // Debug
     register_input(.GOTO_ROOM_DESIGNER, #char "`");
     register_input(.GOTO_MAP_PLACEMENT, #char "9");
