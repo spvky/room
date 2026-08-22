@@ -35,6 +35,7 @@ main :: () {
 
 init :: () {
     init_camera();
+    init_player();
     init_rendering();
     init_textures();
     init_editor();
@@ -44,7 +45,6 @@ init :: () {
     init_input();
     init_world();
     init_static_collision_table();
-    entity_relation_test();
 }
 
 entity_relation_test :: () {

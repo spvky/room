@@ -693,6 +693,8 @@ parse_entities_from_tiles :: () {
                         set_world_entity_tile_value(.CRATE, new_coord);
                         make_crate(new_coord);
                     }
+                case .PLAYER_SPAWN;
+                    if !player_is_valid() then make_player(coord);
                 case .EMPTY;
                     parsed[coord_to_index(coord, .WORLD)] = true;
                 }

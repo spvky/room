@@ -341,9 +341,9 @@ render_gameplay_scene :: () {
     // Set the GL_Nearest flag to remove antialiasing
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-    clear_render_target(0, 0, 0, 1);
+    clear_render_target(0, 0, 0.2, 1);
     render_entities();
-    debug_render_colliders();
+    // debug_render_colliders();
     set_render_target(window);
     set_shader_for_images(context.gameplay_texture);
     sv: [4]Vector2;
@@ -364,13 +364,16 @@ render_entities :: () {
     if is_action_held(.MOVE_LEFT) {
         player_pos.x -= 0.01;
     }
-
-    pos := cam_relative_position(player_pos);
-    draw_player(pos);
+    render_sprite(*context.atlas.player_sprite, .{200, 200}, .{100, 100});
     for *context.entities {
         if !entity_has_props(it, .RENDERABLE) continue;
         pos := cam_relative_position(it.position);
-        render_sprite(it.sprite, pos, it.extents);
+        if it.shape_kind == {
+        case .RECTANGLE;
+            render_sprite(it.sprite, pos, it.extents);
+        case .CIRCLE;
+            render_sprite(it.sprite, pos, .{it.radius * 2, it.radius * 2});
+        }
     }
 }
 
@@ -400,7 +403,7 @@ debug_render_colliders :: () {
         case .RECTANGLE;
             set_shader_for_color(true);
         case .CIRCLE;
-            set_shader_for_images(*context.atlas.player_texture);
+            set_shader_for_images(*context.atlas.collision_circle);
         }
         color := Vector4.{0, 0, 1, 0.3};
         if entity_has_props(it, .SENSOR) color = .{0.98, 0.95, 0.21, 0.3};

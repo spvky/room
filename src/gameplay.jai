@@ -17,10 +17,9 @@ gameplay_update :: () {
         }
     }
     player_colliding = hit;
-    // benchmark_code("Main Loop", #code {
     set_relative_position_and_rotations();
     sensor_collision();
-    // });
+    set_player_move_delta();
 }
 
 set_relative_position_and_rotations :: () {
@@ -42,6 +41,7 @@ set_relative_position_and_rotations :: () {
 }
 
 sensor_collision :: () {
+    player := player_get();
     for *context.entities {
         if !(entity_has_props(it, .SENSOR) && entity_valid(it.parent)) continue;
         if it.tag == {

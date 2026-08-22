@@ -11,6 +11,7 @@ Entity :: struct {
     props: Entity_Properties;
     flags: Entity_Flags;
     tag: Entity_Tag;
+    state: Entity_State;
     sprite: *Sprite; @ignore_serialize
     handle: Entity_Handle; @ignore_serialize
     parent: Entity_Handle; @ignore_serialize
@@ -77,6 +78,13 @@ Entity_Flags :: enum_flags u32 {
     IN_WATER :: 1 << 1;
     POWERED :: 1 << 2;
     PHYSICS_REST :: 1 << 3;
+}
+
+Entity_State :: enum u8 {
+    STAND;
+    MOVING;
+    RISING;
+    FALLING;
 }
 
 init_entities :: () {
@@ -214,23 +222,6 @@ for_expansion :: (e: *Entity_Manager, body: Code, flags: For_Flags) #expand {
     }
 }
 
-// Entity Helper procs
-make_wall :: (left: int, right: int, top: int, bot: int) {
-    wall_entity: Entity;
-    f_left: float32 = xx left * TILE_SIZE;
-    f_right: float32 = (xx right + 1) * TILE_SIZE;
-    f_top: float32 = (xx top + 1) * TILE_SIZE;
-    f_bot: float32 = xx bot * TILE_SIZE;
-
-    wall_entity.position = Vector2.{(f_left + f_right) / 2, (f_top + f_bot) / 2};
-    wall_entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
-    wall_entity.shape_kind = .RECTANGLE;
-    wall_entity.tag = .WALL;
-    wall_entity.props = .RENDERABLE | .STATIC | .SOLID;
-    wall_entity.sprite = *context.atlas.checker;
-    entity_add(wall_entity);
-}
-
 entity_has_props :: (h: Entity_Handle, props: Entity_Properties) -> bool {
     ent := entity_get(h);
     if !ent {
@@ -250,12 +241,50 @@ entity_has_props :: (e: *Entity, props: Entity_Properties) -> bool {
     }
 }
 
+// Entity Helper procs
+make_player :: (c: Coord) {
+    player_entity: Entity;
+    half_tile := Vector2.{TILE_SIZE, TILE_SIZE} / 2;
+    player_entity.position = Vector2.{xx c.x * TILE_SIZE, xx c.y * TILE_SIZE} + half_tile;
+    player_entity.shape_kind = .CIRCLE;
+    player_entity.radius = TILE_SIZE / 2;
+    player_entity.tag = .PLAYER;
+    player_entity.props = .RENDERABLE;
+    player_entity.sprite = *context.atlas.player_sprite;
+    context.player_handle.* = entity_add(player_entity);
+
+    // Ground Sensor Entity
+    gse: Entity;
+    gse.offset = Vector2.{0, -TILE_SIZE / 2};
+    gse.extents = Vector2.{TILE_SIZE * 0.8, TILE_SIZE / 8};
+    gse.shape_kind = .RECTANGLE;
+    gse.tag = .GROUND_SENSOR;
+    gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
+    entity_add_child(context.player_handle.*, gse);
+}
+
+make_wall :: (left: int, right: int, top: int, bot: int) {
+    wall_entity: Entity;
+    f_left: float32 = xx left * TILE_SIZE;
+    f_right: float32 = (xx right + 1) * TILE_SIZE;
+    f_top: float32 = (xx top + 1) * TILE_SIZE;
+    f_bot: float32 = xx bot * TILE_SIZE;
+
+    wall_entity.position = Vector2.{(f_left + f_right) / 2, (f_top + f_bot) / 2};
+    wall_entity.shape_kind = .RECTANGLE;
+    wall_entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
+    wall_entity.tag = .WALL;
+    wall_entity.props = .RENDERABLE | .STATIC | .SOLID;
+    wall_entity.sprite = *context.atlas.checker;
+    entity_add(wall_entity);
+}
+
 make_crate :: (c: Coord) {
     crate_entity: Entity;
     half_tile := Vector2.{TILE_SIZE, TILE_SIZE} / 2;
     crate_entity.position = Vector2.{xx c.x * TILE_SIZE, xx c.y * TILE_SIZE} + half_tile;
-    crate_entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
     crate_entity.shape_kind = .RECTANGLE;
+    crate_entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
     crate_entity.tag = .CRATE;
     crate_entity.props = .RENDERABLE | .SOLID;
     crate_entity.sprite = *context.atlas.crate;

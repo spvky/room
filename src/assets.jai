@@ -5,7 +5,7 @@ Asset_Atlas :: struct {
     collision_circle: Texture;
     crate: Sprite;
     checker: Sprite;
-    player_texture: Texture;
+    player_sprite: Sprite;
 }
 
 frame_bytes :: #run read_entire_file("assets/room_frame.png");
@@ -27,9 +27,9 @@ init_textures :: () {
     if !ok print("Failed to load room frame texture from memory!\n");
     ok = texture_load_from_memory(*atlas.collision_circle, cast([]u8)collision_circle_bytes);
     if !ok print("Failed to load collision circle texture from memory!\n");
+    atlas.player_sprite = make_sprite(*atlas.collision_circle);
     atlas.crate = sprite_from_atlas(*atlas.tile_atlas, 0);
     atlas.checker = sprite_from_atlas(*atlas.tile_atlas, 1);
-    texture_load_from_file(*atlas.player_texture, "assets/player.png");
 }
 
 draw_player :: (position: Vector2) {
