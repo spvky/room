@@ -41,7 +41,7 @@ handle_hash :: (a: Entity_Handle) -> u32 {return sdbm_hash(*a, size_of(Entity_Ha
 Rigidbody :: struct {
     position: Vector2;
     offset: Vector2;
-    move_delta: Vector2;
+    movement_delta: Vector2;
     velocity: Vector2;
     rotation: float32;
     shape_kind: Collision_Shape;
@@ -66,11 +66,13 @@ Entity_Tag :: enum u8 {
 Entity_Properties :: enum_flags u32 {
     RENDERABLE :: 1 << 0;
     STATIC :: 1 << 1;
-    SOLID :: 1 << 2;
-    GRAVITY_AFFECTED :: 1 << 3;
-    SENSOR :: 1 << 4;
-    RELATIVE_POSITION :: 1 << 5;
-    RELATIVE_ROTATION :: 1 << 6;
+    DYNAMIC :: 1 << 2;
+    SOLID :: 1 << 3;
+    GRAVITY_AFFECTED :: 1 << 4;
+    SENSOR :: 1 << 5;
+    RELATIVE_POSITION :: 1 << 6;
+    RELATIVE_ROTATION :: 1 << 7;
+    SELF_PROPELLED :: 1 << 8;
 }
 
 Entity_Flags :: enum_flags u32 {
@@ -222,7 +224,7 @@ for_expansion :: (e: *Entity_Manager, body: Code, flags: For_Flags) #expand {
     }
 }
 
-entity_has_props :: (h: Entity_Handle, props: Entity_Properties) -> bool {
+entity_has_props :: inline (h: Entity_Handle, props: Entity_Properties) -> bool {
     ent := entity_get(h);
     if !ent {
         print("Attempted to check props on an entity by an invalid handle!\n");
@@ -232,12 +234,31 @@ entity_has_props :: (h: Entity_Handle, props: Entity_Properties) -> bool {
     }
 }
 
-entity_has_props :: (e: *Entity, props: Entity_Properties) -> bool {
+entity_has_props :: inline (e: *Entity, props: Entity_Properties) -> bool {
     if !e {
         print("Attempted to check props on an entity by an invalid pointer!\n");
         return false;
     } else {
         return e.props & props == props;
+    }
+}
+
+entity_has_flags :: inline (h: Entity_Handle, flags: Entity_Flags) -> bool {
+    ent := entity_get(h);
+    if !ent {
+        print("Attempted to check flags on an entity by an invalid handle!\n");
+        return false;
+    } else {
+        return ent.flags & flags == flags;
+    }
+}
+
+entity_has_flags :: inline (e: *Entity, flags: Entity_Flags) -> bool {
+    if !e {
+        print("Attempted to check flags on an entity by an invalid pointer!\n");
+        return false;
+    } else {
+        return e.flags & flags == flags;
     }
 }
 
@@ -249,8 +270,9 @@ make_player :: (c: Coord) {
     player_entity.shape_kind = .CIRCLE;
     player_entity.radius = TILE_SIZE / 2;
     player_entity.tag = .PLAYER;
-    player_entity.props = .RENDERABLE;
+    player_entity.props = .RENDERABLE | .GRAVITY_AFFECTED | .DYNAMIC | .SELF_PROPELLED;
     player_entity.sprite = *context.atlas.player_sprite;
+    player_entity.movement_delta.x = -1;
     context.player_handle.* = entity_add(player_entity);
 
     // Ground Sensor Entity
@@ -286,7 +308,7 @@ make_crate :: (c: Coord) {
     crate_entity.shape_kind = .RECTANGLE;
     crate_entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
     crate_entity.tag = .CRATE;
-    crate_entity.props = .RENDERABLE | .SOLID;
+    crate_entity.props = .RENDERABLE | .SOLID | .GRAVITY_AFFECTED | .DYNAMIC;
     crate_entity.sprite = *context.atlas.crate;
     crate_handle := entity_add(crate_entity);
 

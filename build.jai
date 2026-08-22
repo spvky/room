@@ -13,6 +13,12 @@ main :: () {
         now := seconds_since_init();
         raw_delta: float64 = now - last_time;
         delta := cast(float32)raw_delta;
+
+        // Clamp Delta to make debugging easier but also alert that our delta is slow
+        if delta >= 0.008333 {
+            print("Unusually High Delta: %, clamping to 0.008333 (120 FPS)\n", delta);
+            delta = 0.008333;
+        }
         last_time = now;
         for event: events_this_frame {
             getrect_handle_event(event);
@@ -21,7 +27,7 @@ main :: () {
         process_input(delta);
         if context.game_state == {
         case .GAMEPLAY;
-            gameplay_update();
+            gameplay_update(delta);
         case .ROOM_DESIGNER;
             #if OS == .WINDOWS paint_tile_values();
         case .MAP_PLACEMENT;
@@ -101,4 +107,5 @@ GL :: #import "GL";
 #load "src/gameplay.jai";
 #load "src/rope.jai";
 #load "src/events.jai";
+#load "src/physics.jai";
 #load "src/dev_util.jai";

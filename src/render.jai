@@ -341,9 +341,9 @@ render_gameplay_scene :: () {
     // Set the GL_Nearest flag to remove antialiasing
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-    clear_render_target(0, 0, 0.2, 1);
+    clear_render_target(0.5, 0.5, 0.5, 1);
     render_entities();
-    // debug_render_colliders();
+    debug_render_colliders();
     set_render_target(window);
     set_shader_for_images(context.gameplay_texture);
     sv: [4]Vector2;
