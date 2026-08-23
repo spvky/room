@@ -1,6 +1,8 @@
 Camera :: struct {
-    target: Vector2;
+    target_position: Vector2;
+    position: Vector2;
     zoom: float32;
+    room_offset := Vector2.{-74, 12};
 }
 
 #add_context camera: *Camera;
@@ -8,10 +10,9 @@ Camera :: struct {
 init_camera :: () {
     if !context.camera {
         context.camera = New(Camera);
-        context.camera.target = .{-54, 12};
     }
 }
 
 cam_relative_position :: (pos: Vector2) -> Vector2 {
-    return pos - context.camera.target;
+    return pos - context.camera.position;
 }
