@@ -39,6 +39,11 @@ set_player_move_delta :: () {
 
 player_jump :: () {
     player := player_get();
+    c, in_bounds := calculate_map_coord_from_position(player.position);
+    if in_bounds {
+        context.camera.target = Vector2.{xx c.x * (TILE_SIZE * 23), xx c.y * (TILE_SIZE * 23)} + Vector2.{-54, 12};
+    }
+
     if is_action_buffered(.JUMP) && entity_has_flags(player, .GROUNDED) {
         consume_action(.JUMP);
         player.velocity.y = PLAYER_JUMP_SPEED;

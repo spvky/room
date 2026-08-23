@@ -533,8 +533,8 @@ open_map_exits :: () {
                     array_add(*late_tile_updates, .{id2, .EMPTY});
                 }
                 if _contains(east_exits, .EAST_SOUTH) {
-                    id1 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, 0}, .WORLD);
-                    id2 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, 1}, .WORLD);
+                    id1 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, 1}, .WORLD);
+                    id2 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, 2}, .WORLD);
                     array_add(*late_tile_updates, .{id1, .EMPTY});
                     array_add(*late_tile_updates, .{id2, .EMPTY});
                 }
@@ -726,4 +726,14 @@ map_screen_update :: () {
         consume_action(.BAKE_MAP);
         bake_world();
     }
+}
+
+calculate_map_coord_from_position :: (position: Vector2) -> Coord, bool {
+    raw_conversion := Vector2.{position.x / TILE_SIZE, position.y / TILE_SIZE};
+    c := Coord.{xx raw_conversion.x, xx raw_conversion.y};
+    if c.x == 0 && c.y == 0 return c, false;
+    if c.x % 23 == 0 || c.y % 23 == 0 return c, false;
+    c.x = c.x / 23;
+    c.y = c.y / 23;
+    return c, true;
 }

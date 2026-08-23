@@ -8,7 +8,7 @@ Camera :: struct {
 init_camera :: () {
     if !context.camera {
         context.camera = New(Camera);
-        context.camera.target = .{-62, 5};
+        context.camera.target = .{-54, 12};
     }
 }
 

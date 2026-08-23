@@ -12,6 +12,7 @@ Entity :: struct {
     flags: Entity_Flags;
     tag: Entity_Tag;
     state: Entity_State;
+    current_coord: Coord;
     sprite: *Sprite; @ignore_serialize
     handle: Entity_Handle; @ignore_serialize
     parent: Entity_Handle; @ignore_serialize
