@@ -43,7 +43,7 @@ player_jump :: () {
     if is_action_held(.MENU_DOWN) context.camera.room_offset.x += 0.05;
     c, in_bounds := calculate_map_coord_from_position(player.position);
     if in_bounds {
-        context.camera.position = Vector2.{xx c.x * (TILE_SIZE * 23), xx c.y * (TILE_SIZE * 23)} + context.camera.room_offset;
+        context.camera.target_position = Vector2.{xx c.x * (TILE_SIZE * 23), xx c.y * (TILE_SIZE * 23)} + context.camera.room_offset;
     }
 
     if is_action_buffered(.JUMP) && entity_has_flags(player, .GROUNDED) {

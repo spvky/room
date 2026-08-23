@@ -28,6 +28,7 @@ Room :: struct {
     int_grid: [ROOM_WIDTH * ROOM_HEIGHT]Collision_Tile;
     entity_grid: [ROOM_WIDTH * ROOM_HEIGHT]Entity_Tile;
     rune: Rune;
+    map_position: Coord;
     name: string;
     extra_data: [..]Extra_Entity_Data;
     texture: Texture;

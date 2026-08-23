@@ -343,7 +343,7 @@ render_gameplay_scene :: () {
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
     clear_render_target(0.5, 0.5, 0.5, 1);
     render_entities();
-    debug_render_colliders();
+    // debug_render_colliders();
     set_render_target(window);
     set_shader_for_images(context.gameplay_texture);
     sv: [4]Vector2;
@@ -364,7 +364,6 @@ render_entities :: () {
     if is_action_held(.MOVE_LEFT) {
         player_pos.x -= 0.01;
     }
-    render_sprite(*context.atlas.player_sprite, .{200, 200}, .{100, 100});
     for *context.entities {
         if !entity_has_props(it, .RENDERABLE) continue;
         pos := cam_relative_position(it.position);

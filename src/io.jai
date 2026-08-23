@@ -1,5 +1,5 @@
 ROOMS_PATH :: "assets/rooms";
-ASSET_VERSION: float32: 0.2;
+ASSET_VERSION: float32: 0.3;
 
 save_room :: (r: Room) {
     is_static := r.flags & .STATIC == .STATIC;
@@ -30,6 +30,9 @@ save_room :: (r: Room) {
     // Rune
     success = file_write(*file, *r.rune, size_of(Rune));
     _room_assert("Failed to write room rune!");
+    // Map Position
+    success = file_write(*file, *r.map_position, size_of(Coord));
+    _room_assert("Failed to write map position!");
     // Name
     success = file_write(*file, *r.name.count, size_of(int));
     _room_assert("Failed to write name string length for room!");
@@ -83,6 +86,9 @@ load_room :: (filename: string, static := false) -> Room, bool {
     // Rune
     success = file_read(file, *r.rune, size_of(Rune));
     _room_assert("Failed to read room rune!");
+    // Map Position
+    success = file_read(file, *r.map_position, size_of(Coord));
+    _room_assert("Failed to read map position!");
     // Name
     name_length: int;
     success = file_read(file, *name_length, size_of(int));

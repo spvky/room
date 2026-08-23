@@ -233,6 +233,12 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     load_button_rect := get_rect(x_pos + 120, y_pos, 110, 30);
     load_pressed := button(load_button_rect, "Load Room");
     if load_pressed editor_state.file_load_window.open = true;
+
+    y_pos -= 40;
+
+    if context.current_editor_room.flags & .STATIC == .STATIC {
+        map_position_display(x_pos + 350, x_pos + 650, y_pos + 600, y_pos + 300);
+    }
 }
 
 paint_tile_values :: () {
@@ -319,6 +325,53 @@ enum_flag_display :: (ptr_to_enum: *$T, left_margin: float32, top_margin: float3
                 ptr_to_enum.* &= ~value;
             } else {
                 ptr_to_enum.* |= value;
+            }
+        }
+    }
+}
+
+map_position_display :: (left: float32, right: float32, top: float32, bot: float32) {
+    display_width: float32 = right - left;
+    total_margin_width := display_width * 0.1;
+    total_tile_width := display_width * 0.9;
+    margin_width := total_margin_width * 0.1;
+    tile_width := total_tile_width * 0.1;
+
+    display_height: float32 = top - bot;
+    total_margin_height := display_height * 0.1;
+    total_tile_height := display_height * 0.9;
+    margin_height := total_margin_height * 0.1;
+    tile_height := total_tile_height * 0.1;
+
+    // immediate_quad(.{left, bot}, .{right, bot}, .{right, top}, .{left, top}, .{0.2, 0, 0.2, 1});
+
+    for y: 0..MAP_HEIGHT - 1 {
+        for x: 0..MAP_WIDTH - 1 {
+            c := Coord.{xx x, xx y};
+
+            min := Vector2.{
+                            left + (xx x * (margin_width + tile_width)),
+                            bot + (xx y * (margin_height + tile_height))};
+
+            max := min + .{tile_width, tile_height};
+
+            color := ifx context.current_editor_room.map_position == c then Vector4.{0, 0.4, 0.15, 1} else Vector4.{1, 1, 1, 1};
+
+            immediate_quad(min, Vector2.{max.x, min.y}, max, Vector2.{min.x, max.y}, color);
+
+            raw_x, raw_y, ok := get_mouse_pointer_position();
+            raw_y = WINDOW_HEIGHT - raw_y;
+
+            if ok {
+                mouse_x := cast(float32)raw_x;
+                mouse_y := cast(float32)raw_y;
+
+                if mouse_x > min.x && mouse_x < max.x && mouse_y > min.y && mouse_y < max.y {
+                    if is_action_buffered(.EDITOR_LEFT_CLICK) {
+                        consume_action(.EDITOR_LEFT_CLICK);
+                        context.current_editor_room.map_position = c;
+                    }
+                }
             }
         }
     }
