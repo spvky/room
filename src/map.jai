@@ -156,6 +156,12 @@ init_map :: () {
     for context.room_table {
         if it.flags & .STATIC == 0 {
             array_add(*context.map.available_rooms, it_index);
+        } else {
+            room_card: Room_Card;
+            room_card.room_hash = it_index;
+            room_card.coord = it.map_position;
+            room_card.rotation = 0;
+            array_add(*context.map.placed_room_cards, room_card);
         }
     }
 }
