@@ -1,6 +1,6 @@
 EDITOR_MODES: [2]string: .["Collision", "Entities"];
-COLLISION_TILE_TYPES: [1]string: .["Wall"];
-COLLISION_TILE_ICONS: [1]Ui_Icon;
+COLLISION_TILE_TYPES: [5]string: .["Wall", "Top Half", "Bot Half", "Left Half", "Right Half"];
+COLLISION_TILE_ICONS: [5]Ui_Icon;
 ENTITY_TILE_TYPES: [2]string: .["Crate", "Player Spawn"];
 ENTITY_TILE_ICONS: [2]Ui_Icon;
 
@@ -52,6 +52,10 @@ init_editor :: () {
 init_ui_icons :: () {
     // Wall
     COLLISION_TILE_ICONS[0] = .{color = .{1, 1, 1, 1}};
+    COLLISION_TILE_ICONS[1] = .{sprite = *context.atlas.top_half};
+    COLLISION_TILE_ICONS[2] = .{sprite = *context.atlas.bot_half};
+    COLLISION_TILE_ICONS[3] = .{sprite = *context.atlas.left_half};
+    COLLISION_TILE_ICONS[4] = .{sprite = *context.atlas.right_half};
     // Crate
     ENTITY_TILE_ICONS[0] = .{sprite = *context.atlas.crate};
     // Player Spawn

@@ -243,6 +243,8 @@ render_room_collision :: (r: *Room, faded := false) {
             coord := Coord.{xx x, xx y};
             val := check_collision_tile_value(r, coord);
             left, right, bot, top := render_boundaries_from_cell(coord);
+            v_mid := (top + bot) / 2;
+            h_mid := (right + left) / 2;
             color: Vector4;
             alpha: float32 = ifx faded then 0.3 else 1;
             if val == {
@@ -250,6 +252,34 @@ render_room_collision :: (r: *Room, faded := false) {
                 immediate_quad(
                                .{left, top},
                                .{left, bot},
+                               .{right, bot},
+                               .{right, top},
+                               .{1, 1, 1, alpha});
+            case .TOP_HALF;
+                immediate_quad(
+                               .{left, top},
+                               .{left, v_mid},
+                               .{right, v_mid},
+                               .{right, top},
+                               .{1, 1, 1, alpha});
+            case .BOT_HALF;
+                immediate_quad(
+                               .{left, v_mid},
+                               .{left, bot},
+                               .{right, bot},
+                               .{right, v_mid},
+                               .{1, 1, 1, alpha});
+            case .LEFT_HALF;
+                immediate_quad(
+                               .{left, top},
+                               .{left, bot},
+                               .{h_mid, bot},
+                               .{h_mid, top},
+                               .{1, 1, 1, alpha});
+            case .RIGHT_HALF;
+                immediate_quad(
+                               .{h_mid, top},
+                               .{h_mid, bot},
                                .{right, bot},
                                .{right, top},
                                .{1, 1, 1, alpha});

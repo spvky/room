@@ -3,7 +3,8 @@ Camera :: struct {
     position: Vector2;
     zoom: float32;
     smoothing: float32 = 10;
-    room_offset := Vector2.{-104, 12};
+    // room_offset := Vector2.{-104, 12};
+    room_offset := Vector2.{0, 12};
 }
 
 #add_context camera: *Camera;

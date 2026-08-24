@@ -49,6 +49,10 @@ Map_Room :: struct {
 Collision_Tile :: enum u8 {
     EMPTY;
     WALL;
+    TOP_HALF;
+    BOT_HALF;
+    LEFT_HALF;
+    RIGHT_HALF;
     BLANK;
 }
 
@@ -196,7 +200,7 @@ rotate_room :: (r: Room) -> Room {
         for y: 0..ROOM_HEIGHT - 1 {
             new_index := coord_to_index(.{xx (ROOM_WIDTH - y - 1), xx x});
             old_index := coord_to_index(.{xx x, xx y});
-            out.int_grid[new_index] = r.int_grid[old_index];
+            out.int_grid[new_index] = rotate_collision_tile(r.int_grid[old_index]);
             out.entity_grid[new_index] = r.entity_grid[old_index];
         }
     }
@@ -213,6 +217,21 @@ rotate_room :: (r: Room) -> Room {
     out.rune = rotate_rune(r.rune, 1);
     out.exits = rotate_room_exits(r.exits, 1);
     return out;
+}
+
+rotate_collision_tile :: (t: Collision_Tile) -> Collision_Tile {
+    tile := t;
+    if t == {
+    case .TOP_HALF;
+        tile = .LEFT_HALF;
+    case .LEFT_HALF;
+        tile = .BOT_HALF;
+    case .BOT_HALF;
+        tile = .RIGHT_HALF;
+    case .RIGHT_HALF;
+        tile = .TOP_HALF;
+    }
+    return tile;
 }
 
 rotate_room_exits :: (exits: Room_Exits, rot: int = 0) -> Room_Exits {

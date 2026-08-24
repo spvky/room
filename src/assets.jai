@@ -4,6 +4,10 @@ Asset_Atlas :: struct {
     room_frame_texture: Texture;
     collision_circle: Texture;
     crate: Sprite;
+    top_half: Sprite;
+    bot_half: Sprite;
+    left_half: Sprite;
+    right_half: Sprite;
     checker: Sprite;
     player_sprite: Sprite;
 }
@@ -30,6 +34,10 @@ init_textures :: () {
     atlas.player_sprite = make_sprite(*atlas.collision_circle);
     atlas.crate = sprite_from_atlas(*atlas.tile_atlas, 0);
     atlas.checker = sprite_from_atlas(*atlas.tile_atlas, 1);
+    atlas.top_half = sprite_from_atlas(*atlas.tile_atlas, 2);
+    atlas.bot_half = sprite_from_atlas(*atlas.tile_atlas, 3);
+    atlas.left_half = sprite_from_atlas(*atlas.tile_atlas, 4);
+    atlas.right_half = sprite_from_atlas(*atlas.tile_atlas, 5);
 }
 
 draw_player :: (position: Vector2) {
