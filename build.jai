@@ -8,6 +8,7 @@ main :: () {
     window = create_window(WINDOW_WIDTH, WINDOW_HEIGHT, "Room");
     set_render_target(window);
     init();
+    image_write_test("testingagain.png");
     while !should_close {
         update_window_events();
         now := seconds_since_init();

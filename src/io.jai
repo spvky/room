@@ -51,6 +51,10 @@ save_room :: (r: Room) {
     img_path := tprint("%/%/%.png", ROOMS_PATH, subdir, r.name);
     replace_chars(img_path, " ", #char "_");
     generate_room_png(*r, img_path);
+
+    // new_img_path := tprint("%/%/%_new.png", ROOMS_PATH, subdir, r.name);
+    // replace_chars(img_path, " ", #char "_");
+    // generate_room_png_new(*r, new_img_path);
 }
 
 load_room :: (filename: string, static := false) -> Room, bool {
@@ -146,86 +150,230 @@ load_all_rooms :: () {
     }
 }
 
+// generate_room_png :: (r: *Room, path: string) {
+//     // Helper types/macros //////////////////////////
+//     Room_Color :: enum {
+//         COLOR_EMPTY;
+//         COLOR_WALL;
+//         COLOR_BLANK;
+//     }
+// 
+//     _set_pixel :: (color: Room_Color) #expand {
+//         if color == {
+//         case .COLOR_WALL;
+//             `data[(`i * `channels)] = 255;
+//             `data[(`i * `channels) + 1] = 255;
+//             `data[(`i * `channels) + 2] = 255;
+//             `data[(`i * `channels) + 3] = 255;
+//         case .COLOR_EMPTY;
+//             `data[(`i * `channels)] = 80;
+//             `data[(`i * `channels) + 1] = 115;
+//             `data[(`i * `channels) + 2] = 240;
+//             `data[(`i * `channels) + 3] = 255;
+//         case .COLOR_BLANK;
+//             `data[(`i * `channels)] = 0;
+//             `data[(`i * `channels) + 1] = 0;
+//             `data[(`i * `channels) + 2] = 0;
+//             `data[(`i * `channels) + 3] = 255;
+//         }
+//     }
+//     _has_exit :: (exit: Room_Exits) -> bool #expand {
+//         return `r.exits & exit == exit;
+//     }
+//     // ////////////////////////////////////////////////
+// 
+//     channels: s32: 4;
+//     data: [(ROOM_WIDTH + 2) * (ROOM_HEIGHT + 2) * channels]u8;
+//     stride := xx (ROOM_HEIGHT + 2) * channels;
+// 
+//     i: int;
+//     for <y: 0..ROOM_HEIGHT + 1 {
+//         for x: 0..ROOM_WIDTH + 1 {
+//             if x == 0 || x == ROOM_WIDTH + 1 || y == 0 || y == ROOM_HEIGHT + 1 {
+//                 // Drawing border
+//                 is_wall: bool = true;
+// 
+//                 if _has_exit(.NORTH_EAST) && (x == 21 || x == 22) && y == 23 then is_wall = false;
+//                 if _has_exit(.NORTH) && (x == 11 || x == 12) && y == 23 then is_wall = false;
+//                 if _has_exit(.NORTH_WEST) && (x == 1 || x == 2) && y == 23 then is_wall = false;
+// 
+//                 if _has_exit(.SOUTH_EAST) && (x == 21 || x == 22) && y == 0 then is_wall = false;
+//                 if _has_exit(.SOUTH) && (x == 11 || x == 12) && y == 0 then is_wall = false;
+//                 if _has_exit(.SOUTH_WEST) && (x == 1 || x == 2) && y == 0 then is_wall = false;
+// 
+//                 if _has_exit(.EAST_NORTH) && (y == 21 || y == 22) && x == 23 then is_wall = false;
+//                 if _has_exit(.EAST) && (y == 11 || y == 12) && x == 23 then is_wall = false;
+//                 if _has_exit(.EAST_SOUTH) && (y == 1 || y == 2) && x == 23 then is_wall = false;
+// 
+//                 if _has_exit(.WEST_NORTH) && (y == 21 || y == 22) && x == 0 then is_wall = false;
+//                 if _has_exit(.WEST) && (y == 11 || y == 12) && x == 0 then is_wall = false;
+//                 if _has_exit(.WEST_SOUTH) && (y == 1 || y == 2) && x == 0 then is_wall = false;
+// 
+//                 if is_wall {
+//                     _set_pixel(.COLOR_WALL);
+//                 } else {
+//                     _set_pixel(.COLOR_EMPTY);
+//                 }
+//             } else {
+//                 // Drawing room internals
+//                 value := check_collision_tile_value(r, .{xx (x - 1), xx (y - 1)});
+//                 if value == {
+//                 case .WALL;
+//                     _set_pixel(.COLOR_WALL);
+//                 case .EMPTY;
+//                     _set_pixel(.COLOR_EMPTY);
+//                 }
+//             }
+//             i += 1;
+//         }
+//     }
+//     raw_path := to_c_string(path);
+//     defer free(raw_path);
+//     print("Old Png: Stride %\n", stride);
+//     stbi_write_png(raw_path, xx (ROOM_WIDTH + 2), xx (ROOM_HEIGHT + 2), channels, *data, stride);
+// }
+
 generate_room_png :: (r: *Room, path: string) {
-    // Helper types/macros //////////////////////////
+    Pixel :: struct {
+        r: u8;
+        g: u8;
+        b: u8;
+        a: u8;
+    }
     Room_Color :: enum {
         COLOR_EMPTY;
         COLOR_WALL;
         COLOR_BLANK;
+        COLOR_RED;
     }
-
-    _set_pixel :: (color: Room_Color) #expand {
+    _set_pixel :: (idx: int, color: Room_Color) #expand {
         if color == {
         case .COLOR_WALL;
-            `data[(`i * `channels)] = 255;
-            `data[(`i * `channels) + 1] = 255;
-            `data[(`i * `channels) + 2] = 255;
-            `data[(`i * `channels) + 3] = 255;
+            `pixel_data[idx] = .{255, 255, 255, 255};
         case .COLOR_EMPTY;
-            `data[(`i * `channels)] = 80;
-            `data[(`i * `channels) + 1] = 115;
-            `data[(`i * `channels) + 2] = 240;
-            `data[(`i * `channels) + 3] = 255;
+            `pixel_data[idx] = .{80, 115, 240, 255};
         case .COLOR_BLANK;
-            `data[(`i * `channels)] = 0;
-            `data[(`i * `channels) + 1] = 0;
-            `data[(`i * `channels) + 2] = 0;
-            `data[(`i * `channels) + 3] = 255;
+            `pixel_data[idx] = .{0, 0, 0, 255};
+        case .COLOR_RED;
+            `pixel_data[idx] = .{255, 0, 0, 255};
+        }
+    }
+    _set_tile :: (tile: Collision_Tile) #expand {
+        if tile == {
+        case .WALL;
+            _set_pixel(`tl, .COLOR_WALL);
+            _set_pixel(`tr, .COLOR_WALL);
+            _set_pixel(`bl, .COLOR_WALL);
+            _set_pixel(`br, .COLOR_WALL);
+        case .EMPTY;
+            _set_pixel(`tl, .COLOR_EMPTY);
+            _set_pixel(`tr, .COLOR_EMPTY);
+            _set_pixel(`bl, .COLOR_EMPTY);
+            _set_pixel(`br, .COLOR_EMPTY);
+        case .TOP_HALF;
+            _set_pixel(`tl, .COLOR_WALL);
+            _set_pixel(`tr, .COLOR_WALL);
+            _set_pixel(`bl, .COLOR_EMPTY);
+            _set_pixel(`br, .COLOR_EMPTY);
+        case .BOT_HALF;
+            _set_pixel(`tl, .COLOR_EMPTY);
+            _set_pixel(`tr, .COLOR_EMPTY);
+            _set_pixel(`bl, .COLOR_WALL);
+            _set_pixel(`br, .COLOR_WALL);
+        case .LEFT_HALF;
+            _set_pixel(`tl, .COLOR_WALL);
+            _set_pixel(`tr, .COLOR_EMPTY);
+            _set_pixel(`bl, .COLOR_WALL);
+            _set_pixel(`br, .COLOR_EMPTY);
+        case .RIGHT_HALF;
+            _set_pixel(`tl, .COLOR_EMPTY);
+            _set_pixel(`tr, .COLOR_WALL);
+            _set_pixel(`bl, .COLOR_EMPTY);
+            _set_pixel(`br, .COLOR_WALL);
         }
     }
     _has_exit :: (exit: Room_Exits) -> bool #expand {
         return `r.exits & exit == exit;
     }
-    // /////////////////////////////////////////////
 
-    channels: s32: 4;
-    data: [(ROOM_WIDTH + 2) * (ROOM_HEIGHT + 2) * channels]u8;
-    stride := xx (ROOM_HEIGHT + 2) * channels;
+    pixel_array_width :: (ROOM_WIDTH + 2) * 2;
+    pixel_array_height :: (ROOM_HEIGHT + 2) * 2;
+    pixel_data: [pixel_array_width * pixel_array_height]Pixel;
 
-    i: int;
-    for <y: 0..ROOM_HEIGHT + 1 {
+    for y: 0..ROOM_HEIGHT + 1 {
         for x: 0..ROOM_WIDTH + 1 {
+            by := y * 2;
+            bx := x * 2;
+            bl := by * pixel_array_width + bx;
+            br := by * pixel_array_width + (bx + 1);
+            tl := (by + 1) * pixel_array_width + bx;
+            tr := (by + 1) * pixel_array_width + (bx + 1);
+
             if x == 0 || x == ROOM_WIDTH + 1 || y == 0 || y == ROOM_HEIGHT + 1 {
-                // Drawing border
                 is_wall: bool = true;
 
-                if _has_exit(.NORTH_EAST) && (x == 21 || x == 22) && y == 23 then is_wall = false;
-                if _has_exit(.NORTH) && (x == 11 || x == 12) && y == 23 then is_wall = false;
-                if _has_exit(.NORTH_WEST) && (x == 1 || x == 2) && y == 23 then is_wall = false;
+                if _has_exit(.NORTH_EAST) && (x == 21 || x == 22) && y == 0 then is_wall = false;
+                if _has_exit(.NORTH) && (x == 11 || x == 12) && y == 0 then is_wall = false;
+                if _has_exit(.NORTH_WEST) && (x == 1 || x == 2) && y == 0 then is_wall = false;
 
-                if _has_exit(.SOUTH_EAST) && (x == 21 || x == 22) && y == 0 then is_wall = false;
-                if _has_exit(.SOUTH) && (x == 11 || x == 12) && y == 0 then is_wall = false;
-                if _has_exit(.SOUTH_WEST) && (x == 1 || x == 2) && y == 0 then is_wall = false;
+                if _has_exit(.SOUTH_EAST) && (x == 21 || x == 22) && y == 23 then is_wall = false;
+                if _has_exit(.SOUTH) && (x == 11 || x == 12) && y == 23 then is_wall = false;
+                if _has_exit(.SOUTH_WEST) && (x == 1 || x == 2) && y == 23 then is_wall = false;
 
-                if _has_exit(.EAST_NORTH) && (y == 21 || y == 22) && x == 23 then is_wall = false;
+                if _has_exit(.EAST_NORTH) && (y == 1 || y == 2) && x == 23 then is_wall = false;
                 if _has_exit(.EAST) && (y == 11 || y == 12) && x == 23 then is_wall = false;
-                if _has_exit(.EAST_SOUTH) && (y == 1 || y == 2) && x == 23 then is_wall = false;
+                if _has_exit(.EAST_SOUTH) && (y == 21 || y == 22) && x == 23 then is_wall = false;
 
-                if _has_exit(.WEST_NORTH) && (y == 21 || y == 22) && x == 0 then is_wall = false;
+                if _has_exit(.WEST_NORTH) && (y == 1 || y == 2) && x == 0 then is_wall = false;
                 if _has_exit(.WEST) && (y == 11 || y == 12) && x == 0 then is_wall = false;
-                if _has_exit(.WEST_SOUTH) && (y == 1 || y == 2) && x == 0 then is_wall = false;
+                if _has_exit(.WEST_SOUTH) && (y == 21 || y == 22) && x == 0 then is_wall = false;
 
                 if is_wall {
-                    _set_pixel(.COLOR_WALL);
+                    _set_tile(.WALL);
                 } else {
-                    _set_pixel(.COLOR_EMPTY);
+                    _set_tile(.EMPTY);
                 }
             } else {
-                // Drawing room internals
-                value := check_collision_tile_value(r, .{xx (x - 1), xx (y - 1)});
-                if value == {
-                case .WALL;
-                    _set_pixel(.COLOR_WALL);
-                case .EMPTY;
-                    _set_pixel(.COLOR_EMPTY);
-                }
+                tile := check_collision_tile_value(r, .{xx (x - 1), xx (y - 1)});
+                _set_tile(tile);
             }
-            i += 1;
         }
     }
+
+    channels: s32: 4;
+    stride := pixel_array_width * channels;
     raw_path := to_c_string(path);
     defer free(raw_path);
-    stbi_write_png(raw_path, xx (ROOM_WIDTH + 2), xx (ROOM_HEIGHT + 2), channels, *data, stride);
+    stbi_write_png(raw_path, xx pixel_array_width, xx pixel_array_height, channels, *pixel_data, stride);
+}
+
+image_write_test :: (path: string) {
+    Pixel :: struct {
+        r: u8;
+        g: u8;
+        b: u8;
+        a: u8;
+    }
+
+    pixel_data: [48 * 48]Pixel;
+    for 0..(48 * 48) - 1 {
+        pixel_data[it] = .{255, 0, 0, 255};
+    }
+
+    for 0..(24 * 24) - 1 {
+        if it == 12 {
+            pixel_data[(it * 2)] = .{0, 255, 0, 255};
+            pixel_data[(it * 2) + 1] = .{0, 0, 255, 255};
+            pixel_data[(it * 2) + 96] = .{255, 255, 255, 255};
+            pixel_data[(it * 2) + 97] = .{0, 0, 0, 255};
+        }
+    }
+
+    channels: s32: 4;
+    stride := 48 * channels;
+    raw_path := to_c_string(path);
+    defer free(raw_path);
+    stbi_write_png(raw_path, 48, 48, channels, *pixel_data, stride);
 }
 
 generate_world_map_png :: (path: string) {
