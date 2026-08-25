@@ -51,10 +51,6 @@ save_room :: (r: Room) {
     img_path := tprint("%/%/%.png", ROOMS_PATH, subdir, r.name);
     replace_chars(img_path, " ", #char "_");
     generate_room_png(*r, img_path);
-
-    // new_img_path := tprint("%/%/%_new.png", ROOMS_PATH, subdir, r.name);
-    // replace_chars(img_path, " ", #char "_");
-    // generate_room_png_new(*r, new_img_path);
 }
 
 load_room :: (filename: string, static := false) -> Room, bool {
@@ -149,89 +145,6 @@ load_all_rooms :: () {
         }
     }
 }
-
-// generate_room_png :: (r: *Room, path: string) {
-//     // Helper types/macros //////////////////////////
-//     Room_Color :: enum {
-//         COLOR_EMPTY;
-//         COLOR_WALL;
-//         COLOR_BLANK;
-//     }
-// 
-//     _set_pixel :: (color: Room_Color) #expand {
-//         if color == {
-//         case .COLOR_WALL;
-//             `data[(`i * `channels)] = 255;
-//             `data[(`i * `channels) + 1] = 255;
-//             `data[(`i * `channels) + 2] = 255;
-//             `data[(`i * `channels) + 3] = 255;
-//         case .COLOR_EMPTY;
-//             `data[(`i * `channels)] = 80;
-//             `data[(`i * `channels) + 1] = 115;
-//             `data[(`i * `channels) + 2] = 240;
-//             `data[(`i * `channels) + 3] = 255;
-//         case .COLOR_BLANK;
-//             `data[(`i * `channels)] = 0;
-//             `data[(`i * `channels) + 1] = 0;
-//             `data[(`i * `channels) + 2] = 0;
-//             `data[(`i * `channels) + 3] = 255;
-//         }
-//     }
-//     _has_exit :: (exit: Room_Exits) -> bool #expand {
-//         return `r.exits & exit == exit;
-//     }
-//     // ////////////////////////////////////////////////
-// 
-//     channels: s32: 4;
-//     data: [(ROOM_WIDTH + 2) * (ROOM_HEIGHT + 2) * channels]u8;
-//     stride := xx (ROOM_HEIGHT + 2) * channels;
-// 
-//     i: int;
-//     for <y: 0..ROOM_HEIGHT + 1 {
-//         for x: 0..ROOM_WIDTH + 1 {
-//             if x == 0 || x == ROOM_WIDTH + 1 || y == 0 || y == ROOM_HEIGHT + 1 {
-//                 // Drawing border
-//                 is_wall: bool = true;
-// 
-//                 if _has_exit(.NORTH_EAST) && (x == 21 || x == 22) && y == 23 then is_wall = false;
-//                 if _has_exit(.NORTH) && (x == 11 || x == 12) && y == 23 then is_wall = false;
-//                 if _has_exit(.NORTH_WEST) && (x == 1 || x == 2) && y == 23 then is_wall = false;
-// 
-//                 if _has_exit(.SOUTH_EAST) && (x == 21 || x == 22) && y == 0 then is_wall = false;
-//                 if _has_exit(.SOUTH) && (x == 11 || x == 12) && y == 0 then is_wall = false;
-//                 if _has_exit(.SOUTH_WEST) && (x == 1 || x == 2) && y == 0 then is_wall = false;
-// 
-//                 if _has_exit(.EAST_NORTH) && (y == 21 || y == 22) && x == 23 then is_wall = false;
-//                 if _has_exit(.EAST) && (y == 11 || y == 12) && x == 23 then is_wall = false;
-//                 if _has_exit(.EAST_SOUTH) && (y == 1 || y == 2) && x == 23 then is_wall = false;
-// 
-//                 if _has_exit(.WEST_NORTH) && (y == 21 || y == 22) && x == 0 then is_wall = false;
-//                 if _has_exit(.WEST) && (y == 11 || y == 12) && x == 0 then is_wall = false;
-//                 if _has_exit(.WEST_SOUTH) && (y == 1 || y == 2) && x == 0 then is_wall = false;
-// 
-//                 if is_wall {
-//                     _set_pixel(.COLOR_WALL);
-//                 } else {
-//                     _set_pixel(.COLOR_EMPTY);
-//                 }
-//             } else {
-//                 // Drawing room internals
-//                 value := check_collision_tile_value(r, .{xx (x - 1), xx (y - 1)});
-//                 if value == {
-//                 case .WALL;
-//                     _set_pixel(.COLOR_WALL);
-//                 case .EMPTY;
-//                     _set_pixel(.COLOR_EMPTY);
-//                 }
-//             }
-//             i += 1;
-//         }
-//     }
-//     raw_path := to_c_string(path);
-//     defer free(raw_path);
-//     print("Old Png: Stride %\n", stride);
-//     stbi_write_png(raw_path, xx (ROOM_WIDTH + 2), xx (ROOM_HEIGHT + 2), channels, *data, stride);
-// }
 
 generate_room_png :: (r: *Room, path: string) {
     Pixel :: struct {

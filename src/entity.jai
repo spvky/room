@@ -302,6 +302,71 @@ make_wall :: (left: int, right: int, top: int, bot: int) {
     entity_add(wall_entity);
 }
 
+make_top_wall :: (left: int, right: int, y: int) {
+    top_half_entity: Entity;
+    f_left: float32 = xx left * TILE_SIZE;
+    f_right: float32 = (xx right + 1) * TILE_SIZE;
+    f_top: float32 = (xx y + 1) * TILE_SIZE;
+    f_bot: float32 = f_top - (TILE_SIZE / 2);
+
+    top_half_entity.position = Vector2.{(f_left + f_right) / 2, (f_top + f_bot) / 2};
+    top_half_entity.shape_kind = .RECTANGLE;
+    top_half_entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
+    top_half_entity.tag = .WALL;
+    top_half_entity.props = .RENDERABLE | .STATIC | .SOLID;
+    top_half_entity.sprite = *context.atlas.checker;
+    entity_add(top_half_entity);
+}
+
+make_bot_wall :: (left: int, right: int, y: int) {
+    bot_half_entity: Entity;
+    f_left: float32 = xx left * TILE_SIZE;
+    f_right: float32 = (xx right + 1) * TILE_SIZE;
+    f_bot: float32 = xx y * TILE_SIZE;
+    f_top: float32 = f_bot + (TILE_SIZE / 2.0);
+
+    bot_half_entity.position = Vector2.{(f_left + f_right) / 2, (f_top + f_bot) / 2};
+    bot_half_entity.shape_kind = .RECTANGLE;
+    bot_half_entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
+    bot_half_entity.tag = .WALL;
+    bot_half_entity.props = .RENDERABLE | .STATIC | .SOLID;
+    bot_half_entity.sprite = *context.atlas.checker;
+    entity_add(bot_half_entity);
+}
+
+make_left_wall :: (top: int, bot: int, x: int) {
+    left_half_entity: Entity;
+    f_left: float32 = xx x * TILE_SIZE;
+    f_right: float32 = f_left + (TILE_SIZE / 2.0);
+    f_top: float32 = (xx top + 1) * TILE_SIZE;
+    f_bot: float32 = xx bot * TILE_SIZE;
+
+    left_half_entity.position = Vector2.{(f_left + f_right) / 2, (f_top + f_bot) / 2};
+    left_half_entity.shape_kind = .RECTANGLE;
+    left_half_entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
+    left_half_entity.tag = .WALL;
+    left_half_entity.props = .RENDERABLE | .STATIC | .SOLID;
+    left_half_entity.sprite = *context.atlas.checker;
+    entity_add(left_half_entity);
+}
+
+make_right_wall :: (top: int, bot: int, x: int) {
+    right_half_entity: Entity;
+
+    f_right: float32 = (xx x + 1) * TILE_SIZE;
+    f_left: float32 = f_right - (TILE_SIZE / 2);
+    f_top: float32 = (xx top + 1) * TILE_SIZE;
+    f_bot: float32 = xx bot * TILE_SIZE;
+
+    right_half_entity.position = Vector2.{(f_left + f_right) / 2, (f_top + f_bot) / 2};
+    right_half_entity.shape_kind = .RECTANGLE;
+    right_half_entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
+    right_half_entity.tag = .WALL;
+    right_half_entity.props = .RENDERABLE | .STATIC | .SOLID;
+    right_half_entity.sprite = *context.atlas.checker;
+    entity_add(right_half_entity);
+}
+
 make_crate :: (c: Coord) {
     crate_entity: Entity;
     half_tile := Vector2.{TILE_SIZE, TILE_SIZE} / 2;

@@ -499,7 +499,6 @@ write_room_cards_to_world :: () {
                 world_idx := coord_to_index(world_coord, .WORLD);
                 world.collision[world_idx] = collision_tile;
                 world.entities[world_idx] = entity_tile;
-                // This may be all I need for placing the actual tiles, work on translating entity data once baking is done, there aren't any entities yet
             }
         }
     }
@@ -625,38 +624,87 @@ parse_entities_from_tiles :: () {
     parsed: [WORLD_WIDTH * WORLD_HEIGHT]bool;
     for <y: 0..WORLD_HEIGHT - 1 {
         for x: 0..WORLD_WIDTH - 1 {
-            if is_valid_wall(x, y) {
-                left := x;
-                right := x;
-                top := y;
-                bot := y;
+            coord := Coord.{xx x, xx y};
+            if !parsed[coord_to_index(coord, .WORLD)] {
+                tile := check_world_collision_tile_value(coord);
+                if tile == {
+                case .WALL;
+                    left := x;
+                    right := x;
+                    top := y;
+                    bot := y;
 
-                ix := x;
-                iy := y;
-                while is_valid_wall(ix, iy) {
-                    right = ix;
-                    if ix == WORLD_WIDTH - 1 break;
-                    ix += 1;
-                }
-                for left..right parsed[coord_to_index(.{xx it, xx iy}, .WORLD)] = true;
-                complete_row: bool;
-
-                while y_loop := true {
-                    iy -= 1;
-                    if iy < 0 break y_loop;
-                    ix := left;
-                    while x_loop := ix <= right {
-                        if is_valid_wall(ix, iy) {
-                            ix += 1;
-                        } else {
-                            break y_loop;
-                        }
+                    ix := x;
+                    iy := y;
+                    while is_valid_wall(ix, iy) {
+                        right = ix;
+                        if ix == WORLD_WIDTH - 1 break;
+                        ix += 1;
                     }
                     for left..right parsed[coord_to_index(.{xx it, xx iy}, .WORLD)] = true;
-                    bot = iy;
+                    complete_row: bool;
+
+                    while y_loop := true {
+                        iy -= 1;
+                        if iy < 0 break y_loop;
+                        ix := left;
+                        while x_loop := ix <= right {
+                            if is_valid_wall(ix, iy) {
+                                ix += 1;
+                            } else {
+                                break y_loop;
+                            }
+                        }
+                        for left..right parsed[coord_to_index(.{xx it, xx iy}, .WORLD)] = true;
+                        bot = iy;
+                    }
+                    // Create Wall entity
+                    make_wall(left, right, top, bot);
+                case .TOP_HALF;
+                    left := x;
+                    right := x;
+                    ix := x;
+                    while !parsed[coord_to_index(.{xx ix, xx y})] && check_world_collision_tile_value(.{xx ix, xx y}) == .TOP_HALF {
+                        right = ix;
+                        parsed[coord_to_index(.{xx ix, xx y})] = true;
+                        if ix == WORLD_WIDTH - 1 break;
+                        ix += 1;
+                    }
+                    make_top_wall(left, right, y);
+                case .BOT_HALF;
+                    left := x;
+                    right := x;
+                    ix := x;
+                    while !parsed[coord_to_index(.{xx ix, xx y})] && check_world_collision_tile_value(.{xx ix, xx y}) == .BOT_HALF {
+                        right = ix;
+                        parsed[coord_to_index(.{xx ix, xx y})] = true;
+                        if ix == WORLD_WIDTH - 1 break;
+                        ix += 1;
+                    }
+                    make_bot_wall(left, right, y);
+                case .LEFT_HALF;
+                    top := y;
+                    bot := y;
+                    iy := y;
+                    while !parsed[coord_to_index(.{xx x, xx iy})] && check_world_collision_tile_value(.{xx x, xx iy}) == .LEFT_HALF {
+                        bot = iy;
+                        parsed[coord_to_index(.{xx x, xx iy})] = true;
+                        if iy == 0 break;
+                        iy -= 1;
+                    }
+                    make_left_wall(top, bot, x);
+                case .RIGHT_HALF;
+                    top := y;
+                    bot := y;
+                    iy := y;
+                    while !parsed[coord_to_index(.{xx x, xx iy})] && check_world_collision_tile_value(.{xx x, xx iy}) == .RIGHT_HALF {
+                        bot = iy;
+                        parsed[coord_to_index(.{xx x, xx iy})] = true;
+                        if iy == 0 break;
+                        iy -= 1;
+                    }
+                    make_right_wall(top, bot, x);
                 }
-                // Create Wall entity
-                make_wall(left, right, top, bot);
             }
         }
     }
