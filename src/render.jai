@@ -46,18 +46,18 @@ render_grid :: () {
         }
         y_pos: float32 = (xx `it * tile_height) + bot_boundary;
         immediate_quad(
-                       .{left_boundary, y_pos + 2.5},
-                       .{left_boundary, y_pos - 2.5},
-                       .{right_boundary, y_pos - 2.5},
-                       .{right_boundary, y_pos + 2.5},
+                       .{left_boundary, y_pos + 1.5},
+                       .{left_boundary, y_pos - 1.5},
+                       .{right_boundary, y_pos - 1.5},
+                       .{right_boundary, y_pos + 1.5},
                        line_color);
 
         x_pos: float32 = (xx `it * tile_height) + left_boundary;
         immediate_quad(
-                       .{x_pos - 2.5, top_boundary},
-                       .{x_pos - 2.5, bot_boundary},
-                       .{x_pos + 2.5, bot_boundary},
-                       .{x_pos + 2.5, top_boundary},
+                       .{x_pos - 1.5, top_boundary},
+                       .{x_pos - 1.5, bot_boundary},
+                       .{x_pos + 1.5, bot_boundary},
+                       .{x_pos + 1.5, top_boundary},
                        line_color);
     }
 

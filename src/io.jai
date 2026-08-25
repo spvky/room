@@ -1,5 +1,6 @@
 ROOMS_PATH :: "assets/rooms";
-ASSET_VERSION: float32: 0.3;
+ASSET_VERSION: float32: 0.4;
+PIXELS_PER_TILE :: 2;
 
 save_room :: (r: Room) {
     is_static := r.flags & .STATIC == .STATIC;
@@ -209,8 +210,8 @@ generate_room_png :: (r: *Room, path: string) {
         return `r.exits & exit == exit;
     }
 
-    pixel_array_width :: (ROOM_WIDTH + 2) * 2;
-    pixel_array_height :: (ROOM_HEIGHT + 2) * 2;
+    pixel_array_width :: (ROOM_WIDTH + (COLUMN_WIDTH * 2)) * PIXELS_PER_TILE;
+    pixel_array_height :: (ROOM_HEIGHT + (COLUMN_WIDTH * 2)) * PIXELS_PER_TILE;
     pixel_data: [pixel_array_width * pixel_array_height]Pixel;
 
     for y: 0..ROOM_HEIGHT + 1 {
