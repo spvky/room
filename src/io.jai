@@ -260,35 +260,6 @@ generate_room_png :: (r: *Room, path: string) {
     stbi_write_png(raw_path, xx pixel_array_width, xx pixel_array_height, channels, *pixel_data, stride);
 }
 
-image_write_test :: (path: string) {
-    Pixel :: struct {
-        r: u8;
-        g: u8;
-        b: u8;
-        a: u8;
-    }
-
-    pixel_data: [48 * 48]Pixel;
-    for 0..(48 * 48) - 1 {
-        pixel_data[it] = .{255, 0, 0, 255};
-    }
-
-    for 0..(24 * 24) - 1 {
-        if it == 12 {
-            pixel_data[(it * 2)] = .{0, 255, 0, 255};
-            pixel_data[(it * 2) + 1] = .{0, 0, 255, 255};
-            pixel_data[(it * 2) + 96] = .{255, 255, 255, 255};
-            pixel_data[(it * 2) + 97] = .{0, 0, 0, 255};
-        }
-    }
-
-    channels: s32: 4;
-    stride := 48 * channels;
-    raw_path := to_c_string(path);
-    defer free(raw_path);
-    stbi_write_png(raw_path, 48, 48, channels, *pixel_data, stride);
-}
-
 generate_world_map_png :: (path: string) {
     // Helper types/macros //////////////////////////
     Room_Color :: enum {

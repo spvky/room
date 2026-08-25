@@ -166,6 +166,7 @@ init_map :: () {
             room_card.coord = it.map_position;
             room_card.rotation = 0;
             array_add(*context.map.placed_room_cards, room_card);
+            context.map.occupied[coord_to_index(room_card.coord, .MAP)] = true;
         }
     }
 }
@@ -354,12 +355,18 @@ rotate_map_selected_room :: () {
     context.editor_state.map_cursor_rotation = new_rot;
 }
 
+map_tile_occupied :: inline (c: Coord) -> bool {
+    return context.map.occupied[coord_to_index(c, .MAP)];
+}
+
 place_room_at_position :: () {
     if is_action_buffered(.CONFIRM) {
+        consume_action(.CONFIRM);
         avail_idx := context.map.selected_idx;
         coord_idx := coord_to_index(context.editor_state.map_cursor_position, .MAP);
 
         if context.map.occupied[coord_idx] {
+            print("TRIED TO PLACE MAP IN OCCUPIED SPACE BECAUSE IM INCONSIDERATE\n");
             // play sound and trigger some juice
         } else {
             context.map.occupied[coord_idx] = true;
@@ -658,7 +665,6 @@ parse_entities_from_tiles :: () {
                         for left..right parsed[coord_to_index(.{xx it, xx iy}, .WORLD)] = true;
                         bot = iy;
                     }
-                    // Create Wall entity
                     make_wall(left, right, top, bot);
                 case .TOP_HALF;
                     left := x;
@@ -666,10 +672,11 @@ parse_entities_from_tiles :: () {
                     ix := x;
                     while !parsed[coord_to_index(.{xx ix, xx y})] && check_world_collision_tile_value(.{xx ix, xx y}) == .TOP_HALF {
                         right = ix;
-                        parsed[coord_to_index(.{xx ix, xx y})] = true;
                         if ix == WORLD_WIDTH - 1 break;
                         ix += 1;
                     }
+
+                    for left..right parsed[coord_to_index(.{xx it, xx y}, .WORLD)] = true;
                     make_top_wall(left, right, y);
                 case .BOT_HALF;
                     left := x;
@@ -677,10 +684,10 @@ parse_entities_from_tiles :: () {
                     ix := x;
                     while !parsed[coord_to_index(.{xx ix, xx y})] && check_world_collision_tile_value(.{xx ix, xx y}) == .BOT_HALF {
                         right = ix;
-                        parsed[coord_to_index(.{xx ix, xx y})] = true;
                         if ix == WORLD_WIDTH - 1 break;
                         ix += 1;
                     }
+                    for left..right parsed[coord_to_index(.{xx it, xx y}, .WORLD)] = true;
                     make_bot_wall(left, right, y);
                 case .LEFT_HALF;
                     top := y;
@@ -688,10 +695,10 @@ parse_entities_from_tiles :: () {
                     iy := y;
                     while !parsed[coord_to_index(.{xx x, xx iy})] && check_world_collision_tile_value(.{xx x, xx iy}) == .LEFT_HALF {
                         bot = iy;
-                        parsed[coord_to_index(.{xx x, xx iy})] = true;
                         if iy == 0 break;
                         iy -= 1;
                     }
+                    for bot..top parsed[coord_to_index(.{xx x, xx it}, .WORLD)] = true;
                     make_left_wall(top, bot, x);
                 case .RIGHT_HALF;
                     top := y;
@@ -699,10 +706,10 @@ parse_entities_from_tiles :: () {
                     iy := y;
                     while !parsed[coord_to_index(.{xx x, xx iy})] && check_world_collision_tile_value(.{xx x, xx iy}) == .RIGHT_HALF {
                         bot = iy;
-                        parsed[coord_to_index(.{xx x, xx iy})] = true;
                         if iy == 0 break;
                         iy -= 1;
                     }
+                    for bot..top parsed[coord_to_index(.{xx x, xx it}, .WORLD)] = true;
                     make_right_wall(top, bot, x);
                 }
             }
@@ -758,7 +765,6 @@ parse_entities_from_tiles :: () {
                         t_coord.y -= 1;
                     }
                     if t_coord != coord {
-                        // print("Mismatched Coords, crate must have fallen\n");
                         parsed[coord_to_index(coord, .WORLD)] = true;
                         set_world_entity_tile_value(.EMPTY, coord);
                         new_coord := t_coord + .{0, 1};

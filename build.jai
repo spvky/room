@@ -8,7 +8,6 @@ main :: () {
     window = create_window(WINDOW_WIDTH, WINDOW_HEIGHT, "Room");
     set_render_target(window);
     init();
-    image_write_test("testingagain.png");
     while !should_close {
         update_window_events();
         now := seconds_since_init();
@@ -52,31 +51,6 @@ init :: () {
     init_input();
     init_world();
     init_static_collision_table();
-}
-
-entity_relation_test :: () {
-    a := entity_add(Entity.{});
-
-    b := entity_add_child(a, Entity.{});
-    c := entity_add_child(a, Entity.{});
-    d := entity_add_child(a, Entity.{});
-    e := entity_add_child(a, Entity.{});
-    f := entity_add_child(c, Entity.{});
-    g := entity_add_child(c, Entity.{});
-    h := entity_add_child(e, Entity.{});
-
-    print("Entities count: %!\n", context.entities.count);
-    entity_remove(e);
-
-    print("Entities count: %!\n", context.entities.count);
-    // print("A: % | % child % parent %\n", a, entity_get(a), entity_get(a).first_child, entity_get(a).parent);
-    // print("B: % | % child % parent % \n", b, entity_get(b), entity_get(b).first_child, entity_get(b).parent);
-    // print("C: % | % child % parent % \n", c, entity_get(c), entity_get(c).first_child, entity_get(c).parent);
-    // print("D: % | % child % parent % \n", d, entity_get(d), entity_get(d).first_child, entity_get(d).parent);
-    // print("E: % | % child % parent % \n", e, entity_get(e), entity_get(e).first_child, entity_get(e).parent);
-    // print("F: % | % child % parent % \n", f, entity_get(f), entity_get(f).first_child, entity_get(f).parent);
-    // print("G: % | % child % parent % \n", g, entity_get(g), entity_get(g).first_child, entity_get(g).parent);
-    // print("H: % | % child % parent % \n", h, entity_get(h), entity_get(h).first_child, entity_get(h).parent);
 }
 
 #import "Basic";
