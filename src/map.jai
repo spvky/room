@@ -1,6 +1,7 @@
 COLUMN_WIDTH :: 1;
 ROOM_WIDTH :: 44;
 ROOM_HEIGHT :: 44;
+HALF_ROOM_SIZE :: ROOM_WIDTH / 2;
 MAP_WIDTH :: 10;
 MAP_HEIGHT :: 10;
 WORLD_WIDTH :: #run ROOM_WIDTH * MAP_WIDTH + (MAP_WIDTH + COLUMN_WIDTH);
@@ -562,8 +563,12 @@ open_map_exits :: () {
                 if _contains(east_exits, .EAST) {
                     id1 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, ROOM_HEIGHT / 2}, .WORLD);
                     id2 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, (ROOM_HEIGHT / 2) + 1}, .WORLD);
+                    id3 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, (ROOM_HEIGHT / 2) + 2}, .WORLD);
+                    id4 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, (ROOM_HEIGHT / 2) - 1}, .WORLD);
                     array_add(*late_tile_updates, .{id1, .EMPTY});
                     array_add(*late_tile_updates, .{id2, .EMPTY});
+                    array_add(*late_tile_updates, .{id3, .EMPTY});
+                    array_add(*late_tile_updates, .{id4, .EMPTY});
                 }
                 if _contains(east_exits, .EAST_SOUTH) {
                     id1 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, 1}, .WORLD);
@@ -583,6 +588,8 @@ open_map_exits :: () {
                 if _contains(south_exits, .SOUTH) {
                     id1 := coord_to_index(origin_tile + .{ROOM_WIDTH / 2, 0}, .WORLD);
                     id2 := coord_to_index(origin_tile + .{(ROOM_WIDTH / 2) + 1, 0}, .WORLD);
+                    id3 := coord_to_index(origin_tile + .{(ROOM_WIDTH / 2) + 2, 0}, .WORLD);
+                    id4 := coord_to_index(origin_tile + .{(ROOM_WIDTH / 2) - 1, 0}, .WORLD);
                     array_add(*late_tile_updates, .{id1, .EMPTY});
                     array_add(*late_tile_updates, .{id2, .EMPTY});
                 }

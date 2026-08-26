@@ -371,7 +371,7 @@ map_position_display :: (left: float32, right: float32, top: float32, bot: float
                 mouse_y := cast(float32)raw_y;
 
                 if mouse_x > min.x && mouse_x < max.x && mouse_y > min.y && mouse_y < max.y {
-                    if is_action_buffered(.EDITOR_LEFT_CLICK) {
+                    if is_action_buffered(.EDITOR_LEFT_CLICK) && context.editor_state.mouse_captured {
                         consume_action(.EDITOR_LEFT_CLICK);
                         context.current_editor_room.map_position = c;
                     }

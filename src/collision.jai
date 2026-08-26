@@ -184,7 +184,7 @@ store_rigidbody_axes :: (rb: *Rigidbody, axes: *[..]Vector2) {
     if rb.rotation == 0 {
         if axes.count == 0 {
             array_add(axes, Vector2.{1, 0});
-            array_add(axes, Vector2.{1, 1});
+            array_add(axes, Vector2.{0, 1});
         }
     } else {
     }

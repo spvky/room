@@ -206,6 +206,7 @@ generate_room_png :: (r: *Room, path: string) {
             _set_pixel(`br, .COLOR_WALL);
         }
     }
+
     _has_exit :: (exit: Room_Exits) -> bool #expand {
         return `r.exits & exit == exit;
     }
@@ -226,21 +227,22 @@ generate_room_png :: (r: *Room, path: string) {
             if x == 0 || x == ROOM_WIDTH + 1 || y == 0 || y == ROOM_HEIGHT + 1 {
                 is_wall: bool = true;
 
-                if _has_exit(.NORTH_EAST) && (x == 21 || x == 22) && y == 0 then is_wall = false;
-                if _has_exit(.NORTH) && (x == 11 || x == 12) && y == 0 then is_wall = false;
+                // Will only work with even numbered, square maps
+                if _has_exit(.NORTH_EAST) && (x == ROOM_WIDTH - 1 || x == ROOM_WIDTH) && y == 0 then is_wall = false;
+                if _has_exit(.NORTH) && (x == HALF_ROOM_SIZE - 1 || x == HALF_ROOM_SIZE || x == HALF_ROOM_SIZE + 1 || x == HALF_ROOM_SIZE + 2) && y == 0 then is_wall = false;
                 if _has_exit(.NORTH_WEST) && (x == 1 || x == 2) && y == 0 then is_wall = false;
 
-                if _has_exit(.SOUTH_EAST) && (x == 21 || x == 22) && y == 23 then is_wall = false;
-                if _has_exit(.SOUTH) && (x == 11 || x == 12) && y == 23 then is_wall = false;
-                if _has_exit(.SOUTH_WEST) && (x == 1 || x == 2) && y == 23 then is_wall = false;
+                if _has_exit(.SOUTH_EAST) && (x == ROOM_WIDTH - 1 || x == ROOM_WIDTH) && y == ROOM_HEIGHT + 1 then is_wall = false;
+                if _has_exit(.SOUTH) && (x == HALF_ROOM_SIZE - 1 || x == HALF_ROOM_SIZE || x == HALF_ROOM_SIZE + 1 || x == HALF_ROOM_SIZE + 2) && y == ROOM_HEIGHT + 1 then is_wall = false;
+                if _has_exit(.SOUTH_WEST) && (x == 1 || x == 2) && y == ROOM_HEIGHT + 1 then is_wall = false;
 
-                if _has_exit(.EAST_NORTH) && (y == 1 || y == 2) && x == 23 then is_wall = false;
-                if _has_exit(.EAST) && (y == 11 || y == 12) && x == 23 then is_wall = false;
-                if _has_exit(.EAST_SOUTH) && (y == 21 || y == 22) && x == 23 then is_wall = false;
+                if _has_exit(.EAST_NORTH) && (y == 1 || y == 2) && x == ROOM_WIDTH + 1 then is_wall = false;
+                if _has_exit(.EAST) && (y == HALF_ROOM_SIZE - 1 || y == HALF_ROOM_SIZE || y == HALF_ROOM_SIZE + 1 || y == HALF_ROOM_SIZE + 2) && x == ROOM_WIDTH + 1 then is_wall = false;
+                if _has_exit(.EAST_SOUTH) && (y == ROOM_HEIGHT - 1 || y == ROOM_HEIGHT) && x == ROOM_WIDTH + 1 then is_wall = false;
 
                 if _has_exit(.WEST_NORTH) && (y == 1 || y == 2) && x == 0 then is_wall = false;
-                if _has_exit(.WEST) && (y == 11 || y == 12) && x == 0 then is_wall = false;
-                if _has_exit(.WEST_SOUTH) && (y == 21 || y == 22) && x == 0 then is_wall = false;
+                if _has_exit(.WEST) && (y == HALF_ROOM_SIZE - 1 || y == HALF_ROOM_SIZE || y == HALF_ROOM_SIZE + 1 || y == HALF_ROOM_SIZE + 2) && x == 0 then is_wall = false;
+                if _has_exit(.WEST_SOUTH) && (y == ROOM_HEIGHT - 1 || y == ROOM_HEIGHT) && x == 0 then is_wall = false;
 
                 if is_wall {
                     _set_tile(.WALL);
