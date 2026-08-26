@@ -228,21 +228,21 @@ generate_room_png :: (r: *Room, path: string) {
                 is_wall: bool = true;
 
                 // Will only work with even numbered, square maps
-                if _has_exit(.NORTH_EAST) && (x == ROOM_WIDTH - 1 || x == ROOM_WIDTH) && y == 0 then is_wall = false;
-                if _has_exit(.NORTH) && (x == HALF_ROOM_SIZE - 1 || x == HALF_ROOM_SIZE || x == HALF_ROOM_SIZE + 1 || x == HALF_ROOM_SIZE + 2) && y == 0 then is_wall = false;
-                if _has_exit(.NORTH_WEST) && (x == 1 || x == 2) && y == 0 then is_wall = false;
+                if _has_exit(.NORTH_EAST) && (x == ROOM_WIDTH - 1 || x == ROOM_WIDTH) && y == ROOM_HEIGHT + 1 then is_wall = false;
+                if _has_exit(.NORTH) && (x == HALF_ROOM_SIZE - 1 || x == HALF_ROOM_SIZE || x == HALF_ROOM_SIZE + 1 || x == HALF_ROOM_SIZE + 2) && y == ROOM_HEIGHT + 1 then is_wall = false;
+                if _has_exit(.NORTH_WEST) && (x == 1 || x == 2) && y == ROOM_HEIGHT + 1 then is_wall = false;
 
-                if _has_exit(.SOUTH_EAST) && (x == ROOM_WIDTH - 1 || x == ROOM_WIDTH) && y == ROOM_HEIGHT + 1 then is_wall = false;
-                if _has_exit(.SOUTH) && (x == HALF_ROOM_SIZE - 1 || x == HALF_ROOM_SIZE || x == HALF_ROOM_SIZE + 1 || x == HALF_ROOM_SIZE + 2) && y == ROOM_HEIGHT + 1 then is_wall = false;
-                if _has_exit(.SOUTH_WEST) && (x == 1 || x == 2) && y == ROOM_HEIGHT + 1 then is_wall = false;
+                if _has_exit(.SOUTH_EAST) && (x == ROOM_WIDTH - 1 || x == ROOM_WIDTH) && y == 0 then is_wall = false;
+                if _has_exit(.SOUTH) && (x == HALF_ROOM_SIZE - 1 || x == HALF_ROOM_SIZE || x == HALF_ROOM_SIZE + 1 || x == HALF_ROOM_SIZE + 2) && y == 0 then is_wall = false;
+                if _has_exit(.SOUTH_WEST) && (x == 1 || x == 2) && y == 0 then is_wall = false;
 
-                if _has_exit(.EAST_NORTH) && (y == 1 || y == 2) && x == ROOM_WIDTH + 1 then is_wall = false;
+                if _has_exit(.EAST_SOUTH) && (y == 1 || y == 2) && x == ROOM_WIDTH + 1 then is_wall = false;
                 if _has_exit(.EAST) && (y == HALF_ROOM_SIZE - 1 || y == HALF_ROOM_SIZE || y == HALF_ROOM_SIZE + 1 || y == HALF_ROOM_SIZE + 2) && x == ROOM_WIDTH + 1 then is_wall = false;
-                if _has_exit(.EAST_SOUTH) && (y == ROOM_HEIGHT - 1 || y == ROOM_HEIGHT) && x == ROOM_WIDTH + 1 then is_wall = false;
+                if _has_exit(.EAST_NORTH) && (y == ROOM_HEIGHT - 1 || y == ROOM_HEIGHT) && x == ROOM_WIDTH + 1 then is_wall = false;
 
-                if _has_exit(.WEST_NORTH) && (y == 1 || y == 2) && x == 0 then is_wall = false;
+                if _has_exit(.WEST_SOUTH) && (y == 1 || y == 2) && x == 0 then is_wall = false;
                 if _has_exit(.WEST) && (y == HALF_ROOM_SIZE - 1 || y == HALF_ROOM_SIZE || y == HALF_ROOM_SIZE + 1 || y == HALF_ROOM_SIZE + 2) && x == 0 then is_wall = false;
-                if _has_exit(.WEST_SOUTH) && (y == ROOM_HEIGHT - 1 || y == ROOM_HEIGHT) && x == 0 then is_wall = false;
+                if _has_exit(.WEST_NORTH) && (y == ROOM_HEIGHT - 1 || y == ROOM_HEIGHT) && x == 0 then is_wall = false;
 
                 if is_wall {
                     _set_tile(.WALL);
@@ -260,6 +260,8 @@ generate_room_png :: (r: *Room, path: string) {
     stride := pixel_array_width * channels;
     raw_path := to_c_string(path);
     defer free(raw_path);
+
+    stbi_flip_vertically_on_write(1);
     stbi_write_png(raw_path, xx pixel_array_width, xx pixel_array_height, channels, *pixel_data, stride);
 }
 
