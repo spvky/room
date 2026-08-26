@@ -228,11 +228,7 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     y_pos -= 400;
     save_button_rect := get_rect(x_pos, y_pos, 110, 30);
     save_pressed := button(save_button_rect, "Save Room");
-    if save_pressed {
-        parse_tiles(room_ptr);
-        // print("% Colliders added to %\n", room_ptr.colliders.count, room_ptr.name);
-        save_room(room_ptr.*);
-    }
+    if save_pressed then save_room(room_ptr.*);
 
     load_button_rect := get_rect(x_pos + 120, y_pos, 110, 30);
     load_pressed := button(load_button_rect, "Load Room");

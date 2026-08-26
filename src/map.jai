@@ -423,51 +423,6 @@ move_map_cursor :: () {
     }
 }
 
-parse_tiles :: (r: *Room) {
-    is_valid_wall :: (x: int, y: int) -> bool #expand {
-        coord := Coord.{xx x, xx y};
-        return !`parsed[coord_to_index(coord)] && check_world_collision_tile_value(coord) == .WALL;
-    }
-
-    // Calculate all walls first
-    parsed: [ROOM_WIDTH * ROOM_HEIGHT]bool;
-    for <y: 0..ROOM_HEIGHT - 1 {
-        for x: 0..ROOM_WIDTH - 1 {
-            if is_valid_wall(x, y) {
-                left := x;
-                right := x;
-                top := y;
-                bot := y;
-
-                ix := x;
-                iy := y;
-                while is_valid_wall(ix, iy) {
-                    right = ix;
-                    if ix == ROOM_WIDTH - 1 break;
-                    ix += 1;
-                }
-                for left..right parsed[coord_to_index(.{xx it, xx iy})] = true;
-                complete_row: bool;
-
-                while y_loop := true {
-                    iy -= 1;
-                    if iy < 0 break y_loop;
-                    ix := left;
-                    while x_loop := ix <= right {
-                        if is_valid_wall(ix, iy) {
-                            ix += 1;
-                        } else {
-                            break y_loop;
-                        }
-                    }
-                    for left..right parsed[coord_to_index(.{xx it, xx iy})] = true;
-                    bot = iy;
-                }
-            }
-        }
-    }
-}
-
 bake_world :: () {
     write_room_cards_to_world();
     open_map_exits();
