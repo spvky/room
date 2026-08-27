@@ -34,6 +34,8 @@ init_input :: () {
     // Menu
     register_input(.MENU_UP, .ARROW_UP);
     register_input(.MENU_DOWN, .ARROW_DOWN);
+    register_input(.MENU_LEFT, .ARROW_LEFT);
+    register_input(.MENU_RIGHT, .ARROW_RIGHT);
     register_input(.MAP_SCREEN_ROTATE, #char "R");
     register_input(.CONFIRM, .ENTER);
     // Gameplay

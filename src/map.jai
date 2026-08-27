@@ -775,8 +775,8 @@ calculate_map_coord_from_position :: (position: Vector2) -> Coord, bool {
     raw_conversion := Vector2.{position.x / TILE_SIZE, position.y / TILE_SIZE};
     c := Coord.{xx raw_conversion.x, xx raw_conversion.y};
     if c.x == 0 && c.y == 0 return c, false;
-    if c.x % 23 == 0 || c.y % 23 == 0 return c, false;
-    c.x = c.x / 23;
-    c.y = c.y / 23;
+    if c.x % (ROOM_WIDTH + COLUMN_WIDTH) == 0 || c.y % (ROOM_HEIGHT + COLUMN_WIDTH) == 0 return c, false;
+    c.x = c.x / (ROOM_WIDTH + COLUMN_WIDTH);
+    c.y = c.y / (ROOM_HEIGHT + COLUMN_WIDTH);
     return c, true;
 }

@@ -1,6 +1,7 @@
 gameplay_update :: (delta: float32) {
     // Camera
     camera_smoothing(delta);
+    camera_follow();
     // Numbers
     set_player_move_delta();
     player_jump();

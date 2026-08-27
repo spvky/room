@@ -39,12 +39,17 @@ set_player_move_delta :: () {
 
 player_jump :: () {
     player := player_get();
-    if is_action_held(.MENU_UP) context.camera.room_offset.x -= 0.05;
-    if is_action_held(.MENU_DOWN) context.camera.room_offset.x += 0.05;
+    // if is_action_held(.MENU_UP) context.camera.room_offset.x -= 0.05;
+    // if is_action_held(.MENU_DOWN) context.camera.room_offset.x += 0.05;
     c, in_bounds := calculate_map_coord_from_position(player.position);
-    if in_bounds {
-        context.camera.target_position = Vector2.{xx c.x * (TILE_SIZE * 23), xx c.y * (TILE_SIZE * 23)} + context.camera.room_offset;
-    }
+    if in_bounds then context.camera.target_room = c;
+    // if in_bounds {
+    //     context.camera.target_room = c;
+    //     // x_divisor: float32 = xx (ROOM_WIDTH + COLUMN_WIDTH);
+    //     // y_divisor: float32 = xx (ROOM_HEIGHT + COLUMN_WIDTH);
+    //     // 
+    //     // context.camera.target_position = Vector2.{xx c.x * (TILE_SIZE * x_divisor), xx c.y * (TILE_SIZE * y_divisor)} + context.camera.room_offset;
+    // }
 
     if is_action_buffered(.JUMP) && entity_has_flags(player, .GROUNDED) {
         consume_action(.JUMP);

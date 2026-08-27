@@ -382,6 +382,14 @@ render_gameplay_scene :: () {
     sv[2] = .{xx WINDOW_WIDTH, xx WINDOW_WIDTH};
     sv[3] = .{0, xx WINDOW_WIDTH};
     immediate_quad(sv[0], sv[1], sv[2], sv[3], .{1, 1, 1, 1});
+    center_x: float32 = (cast(float32)WINDOW_WIDTH) / 2;
+    center_y: float32 = (cast(float32)WINDOW_HEIGHT) / 2;
+    center := Vector2.{center_x, center_y};
+    immediate_quad(
+                   center + .{-2, 2},
+                   center + .{-2, -2},
+                   center + .{2, -2},
+                   center + .{2, 2}, .{0, 0, 0, 1});
 }
 
 player_pos := Vector2.{64, 32};
