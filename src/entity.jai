@@ -47,6 +47,7 @@ Rigidbody :: struct {
     rotation: float32;
     shape_kind: Collision_Shape;
     extents: Vector2;
+    ray: Ray;
     #overlay (extents) radius: float32;
     #overlay (extents.y) height: float32;
 }
@@ -62,6 +63,7 @@ Entity_Tag :: enum u8 {
     WALL;
     CRATE;
     GROUND_SENSOR;
+    WALL_CASTER;
 }
 
 Entity_Properties :: enum_flags u32 {
@@ -74,6 +76,7 @@ Entity_Properties :: enum_flags u32 {
     RELATIVE_POSITION :: 1 << 6;
     RELATIVE_ROTATION :: 1 << 7;
     SELF_PROPELLED :: 1 << 8;
+    RAY_CASTER :: 1 << 9;
 }
 
 Entity_Flags :: enum_flags u32 {
@@ -81,6 +84,10 @@ Entity_Flags :: enum_flags u32 {
     IN_WATER :: 1 << 1;
     POWERED :: 1 << 2;
     PHYSICS_REST :: 1 << 3;
+}
+
+Entity_Message :: enum_flags u32 {
+    RAY_HIT_SOLID :: 1 << 0;
 }
 
 Entity_State :: enum u8 {
@@ -284,6 +291,15 @@ make_player :: (c: Coord) {
     gse.tag = .GROUND_SENSOR;
     gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
     entity_add_child(context.player_handle.*, gse);
+
+    // Left Ray Entity
+    lre: Entity;
+    lre.offset = Vector2.{(player_entity.radius * 0.9), 0};
+    lre.tag = .WALL_CASTER;
+    lre.ray.direction = .{1, 0};
+    lre.ray.max_toi = 32.0;
+    lre.props = .RAY_CASTER | .RELATIVE_POSITION | .RELATIVE_ROTATION;
+    entity_add_child(context.player_handle.*, lre);
 }
 
 make_wall :: (left: int, right: int, top: int, bot: int) {

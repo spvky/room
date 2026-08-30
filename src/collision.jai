@@ -7,6 +7,14 @@ Collision_Mode :: enum {
     AABB;
 }
 
+Ray :: struct {
+    direction: Vector2;
+    max_toi: float32;
+    hit: bool;
+    hit_point: Vector2;
+    hit_handle: Entity_Handle;
+}
+
 Interval :: struct {
     min: float32;
     max: float32;
@@ -27,9 +35,27 @@ Axis_Interval_Pair :: struct {
     interval: Interval;
 }
 
-Edge :: struct {
-    normal: Vector2;
-    center: Vector2;
+rigidbody_edges :: (r: *Rigidbody) -> [4][2]Vector2, bool {
+    edges: [4][2]Vector2;
+
+    if r.shape_kind == .RECTANGLE {
+        half_x := r.extents.x / 2;
+        half_y := r.extents.y / 2;
+
+        p: [4]Vector2;
+        p[0] = .{(-half_x) * cos(r.rotation) - (half_y) * sin(r.rotation), (-half_x) * sin(r.rotation) + (half_y) * cos(r.rotation)} + r.position;
+        p[1] = .{(-half_x) * cos(r.rotation) - (-half_y) * sin(r.rotation), (-half_x) * sin(r.rotation) + (-half_y) * cos(r.rotation)} + r.position;
+        p[2] = .{(half_x) * cos(r.rotation) - (-half_y) * sin(r.rotation), (half_x) * sin(r.rotation) + (-half_y) * cos(r.rotation)} + r.position;
+        p[3] = .{(half_x) * cos(r.rotation) - (half_y) * sin(r.rotation), (half_x) * sin(r.rotation) + (half_y) * cos(r.rotation)} + r.position;
+
+        edges[0] = .[p[0], p[1]];
+        edges[1] = .[p[1], p[2]];
+        edges[2] = .[p[2], p[3]];
+        edges[3] = .[p[3], p[0]];
+        return edges, true;
+    }
+
+    return edges, false;
 }
 
 Static_Collision_Table :: Table(Entity_Handle, [..]Axis_Interval_Pair, given_hash_function = handle_hash, given_compare_function = handle_compare);
@@ -149,6 +175,43 @@ dynamic_vs_dynamic_collision_test :: (a: *Rigidbody, b: *Rigidbody, mode := Coll
         // Just axis alligned, but will support rotation
     }
     return collision, true;
+}
+
+line_intersection_test :: (a: Vector2, b: Vector2, c: Vector2, d: Vector2) -> Vector2, bool {
+    o1 := line_orientation(a, b, c);
+    o2 := line_orientation(a, b, d);
+    o3 := line_orientation(c, d, a);
+    o4 := line_orientation(c, d, b);
+
+    // If orientations don't match, we should intersect at some point
+    if (o1 != o2 && o3 != o4) {
+        a1 := b.y - a.y;
+        b1 := a.x - b.x;
+        c1 := a1 * a.x + b1 * a.y;
+
+        a2 := d.y - c.y;
+        b2 := c.x - d.x;
+        c2 := a2 * c.x + b2 * d.y;
+
+        determinant := a1 * b2 - a2 * b1;
+
+        if determinant != 0 {
+            p: Vector2;
+            p.x = (c1 * b2 - c2 * b1) / determinant;
+            p.y = (a1 * c2 - a2 * c1) / determinant;
+            // print("RAYCAST HIT! % - %\n", a, b);
+            return p, true;
+        }
+    }
+
+    return Vector2.{}, false;
+}
+
+line_orientation :: (a: Vector2, b: Vector2, c: Vector2) -> s8 {
+    val := (b.y - a.y) * (c.x - b.x) - (b.x - a.x) * (c.y - b.y);
+    if val == 0 return 0;
+    result: s8 = ifx val > 0.0 then cast(s8)1 else cast(s8)2;
+    return result;
 }
 
 // SAT

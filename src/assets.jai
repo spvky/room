@@ -40,19 +40,19 @@ init_textures :: () {
     atlas.right_half = sprite_from_atlas(*atlas.tile_atlas, 5);
 }
 
-draw_player :: (position: Vector2) {
-    half_tile := TILE_SIZE / 2;
-    left: float32 = position.x - (half_tile);
-    right: float32 = position.x + (half_tile);
-    top: float32 = position.y + (half_tile);
-    bot: float32 = position.y - (half_tile);
-    color: Vector4 = ifx player_colliding then Vector4.{0, 0, 1, 1} else Vector4.{1, 1, 1, 1};
-
-    set_shader_for_images(*context.atlas.collision_circle);
-    immediate_quad(
-                   .{left, bot},
-                   .{right, bot},
-                   .{right, top},
-                   .{left, top},
-                   color);
-}
+// draw_player :: (position: Vector2) {
+//     half_tile := TILE_SIZE / 2;
+//     left: float32 = position.x - (half_tile);
+//     right: float32 = position.x + (half_tile);
+//     top: float32 = position.y + (half_tile);
+//     bot: float32 = position.y - (half_tile);
+//     color: Vector4 = ifx player_colliding then Vector4.{0, 0, 1, 1} else Vector4.{1, 1, 1, 1};
+// 
+//     set_shader_for_images(*context.atlas.collision_circle);
+//     immediate_quad(
+//                    .{left, bot},
+//                    .{right, bot},
+//                    .{right, top},
+//                    .{left, top},
+//                    color);
+// }

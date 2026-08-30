@@ -115,6 +115,47 @@ sensor_collision :: () {
     }
 }
 
+raycast_collision :: () {
+    for *context.entities {
+        if !(entity_has_props(it, .RAY_CASTER)) continue;
+        ray_start := it.position;
+        ray_end := it.position + (it.ray.direction * it.ray.max_toi);
+        hit_dist := FLOAT32_MAX;
+        hit_point: Vector2;
+        hit_handle: Entity_Handle;
+        did_hit := false;
+        if it.tag == {
+        case .WALL_CASTER;
+            for *other_entity: context.entities {
+                if !entity_has_props(other_entity, .SOLID) || other_entity.tag != .CRATE continue;
+                edges, is_rect := rigidbody_edges(other_entity);
+                if is_rect {
+                    for e: edges {
+                        int_point, intersects := line_intersection_test(e[0], e[1], ray_start, ray_end);
+                        // debug
+                        if intersects {
+                            dist := distance_squared(int_point, ray_start);
+                            if dist < hit_dist {
+                                did_hit = true;
+                                hit_dist = dist;
+                                hit_point = int_point;
+                                hit_handle = other_entity.handle;
+                            }
+                        }
+                    }
+                }
+            }
+            if did_hit {
+                it.ray.hit = true;
+                it.ray.hit_point = hit_point;
+                it.ray.hit_handle = hit_handle;
+            } else {
+                it.ray.hit = false;
+            }
+        }
+    }
+}
+
 apply_velocity :: (delta: float32) {
     for *context.entities {
         if !entity_has_props(it, .DYNAMIC) || entity_has_flags(it, .PHYSICS_REST) continue;

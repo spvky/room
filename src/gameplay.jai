@@ -11,6 +11,7 @@ gameplay_update :: (delta: float32) {
     // Collision
     sensor_collision();
     body_collision();
+    raycast_collision();
 
     // Dynamics
     apply_gravity(delta);

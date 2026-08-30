@@ -3,18 +3,6 @@ Rune :: struct {
     encircled: bool;
 }
 
-operator == :: (a: Rune, b: Rune) -> bool {
-    return a.markings == b.markings && a.encircled == b.encircled;
-}
-
-operator + :: (a: Rune, b: Rune) -> Rune {
-    c: Rune;
-    c.markings |= a.markings;
-    c.markings |= b.markings;
-    c.encircled = a.encircled || b.encircled;
-    return c;
-}
-
 Markings :: enum_flags u16 {
     // Crescent
     DO :: 1 << 0;
@@ -38,8 +26,35 @@ Markings :: enum_flags u16 {
     KA :: 1 << 15;
 }
 
+operator + :: (a: Rune, b: Rune) -> Rune {
+    c: Rune;
+    c.markings |= a.markings | b.markings;
+    if a.encircled || b.encircled then c.encircled = true;
+    return c;
+}
+
+operator == :: (a: Rune, b: Rune) -> bool {
+    return a.markings == b.markings && a.encircled == b.encircled;
+}
+
 make_rune :: (markings: Markings, encircled: bool = false) -> Rune {
     return Rune.{markings, encircled};
+}
+
+Effect_Rune :: enum {
+    NONE;
+    RAIN;
+    HEAT;
+    LIGHTNING;
+}
+
+WATER :: Rune.{
+               markings = .KO | .LO | .DI,
+               encircled = true};
+
+parse_effect_rune :: (r: Rune) -> Effect_Rune {
+    if r == WATER return .RAIN;
+    return .NONE;
 }
 
 rune_indices_from_bits :: (rune: Rune) -> [..]int {

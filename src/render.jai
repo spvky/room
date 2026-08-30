@@ -373,7 +373,6 @@ render_gameplay_scene :: () {
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
     clear_render_target(0.5, 0.5, 0.5, 1);
     render_entities();
-    debug_render_colliders();
     set_render_target(window);
     set_shader_for_images(context.gameplay_texture);
     sv: [4]Vector2;
@@ -382,14 +381,7 @@ render_gameplay_scene :: () {
     sv[2] = .{xx WINDOW_WIDTH, xx WINDOW_WIDTH};
     sv[3] = .{0, xx WINDOW_WIDTH};
     immediate_quad(sv[0], sv[1], sv[2], sv[3], .{1, 1, 1, 1});
-    center_x: float32 = (cast(float32)WINDOW_WIDTH) / 2;
-    center_y: float32 = (cast(float32)WINDOW_HEIGHT) / 2;
-    center := Vector2.{center_x, center_y};
-    immediate_quad(
-                   center + .{-2, 2},
-                   center + .{-2, -2},
-                   center + .{2, -2},
-                   center + .{2, 2}, .{0, 0, 0, 1});
+    // draw_dot(.{960, 540}, 50, .{1, 0, 0, 1});
 }
 
 player_pos := Vector2.{64, 32};

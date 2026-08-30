@@ -13,6 +13,47 @@ ROOM_VIEW :: 0;
 MAP_VIEW :: 1;
 GAME_VIEW :: 2;
 
+Room :: struct {
+    flags: Room_Flags;
+    exits: Room_Exits;
+    int_grid: [ROOM_WIDTH * ROOM_HEIGHT]Collision_Tile;
+    entity_grid: [ROOM_WIDTH * ROOM_HEIGHT]Entity_Tile;
+    rune: Rune;
+    map_position: Coord;
+    name: string;
+    extra_data: [..]Extra_Entity_Data;
+    texture: Texture;
+}
+
+Room_Exits :: enum_flags u16 {
+    NORTH_EAST :: 1 << 0;
+    NORTH :: 1 << 1;
+    NORTH_WEST :: 1 << 2;
+    WEST_NORTH :: 1 << 3;
+    WEST :: 1 << 4;
+    WEST_SOUTH :: 1 << 5;
+    SOUTH_WEST :: 1 << 6;
+    SOUTH :: 1 << 7;
+    SOUTH_EAST :: 1 << 8;
+    EAST_SOUTH :: 1 << 9;
+    EAST :: 1 << 10;
+    EAST_NORTH :: 1 << 11;
+}
+
+Room_Flags :: enum_flags u16 {
+    DISCOVERED :: 1 << 0;
+    STATIC :: 1 << 1;
+    ENTERED_NORTH :: 1 << 2;
+    ENTERED_SOUTH :: 1 << 3;
+    ENTERED_EAST :: 1 << 4;
+    ENTERED_WEST :: 1 << 5;
+    NO_ROTATE :: 1 << 6;
+    NO_MOVE_X :: 1 << 7;
+    NO_MOVE_Y :: 1 << 8;
+    NO_PICKUP :: 1 << 9;
+    MUST_BE_PLACED :: 1 << 10;
+}
+
 Editor_State :: struct {
     editor_theme: Overall_Theme;
     editor_type: s32;
