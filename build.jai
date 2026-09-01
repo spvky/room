@@ -85,3 +85,4 @@ GL :: #import "GL";
 #load "src/physics.jai";
 #load "src/dev_util.jai";
 #load "src/parsing.jai";
+#load "src/water.jai";
