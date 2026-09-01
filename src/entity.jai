@@ -77,6 +77,7 @@ Entity_Properties :: enum_flags u32 {
     RELATIVE_ROTATION :: 1 << 7;
     SELF_PROPELLED :: 1 << 8;
     RAY_CASTER :: 1 << 9;
+    ANIMATED :: 1 << 10;
 }
 
 Entity_Flags :: enum_flags u32 {
