@@ -5,7 +5,7 @@ ENTITY_TILE_TYPES: [2]string: .["Crate", "Player Spawn"];
 ENTITY_TILE_ICONS: [2]Ui_Icon;
 
 Ui_Icon :: struct {
-    sprite: *Sprite;
+    sprite: Sprite;
     color: Vector4 = .{1, 1, 1, 1};
 }
 
@@ -92,13 +92,14 @@ init_editor :: () {
 
 init_ui_icons :: () {
     // Wall
+    atlas := context.atlas;
     COLLISION_TILE_ICONS[0] = .{color = .{1, 1, 1, 1}};
-    COLLISION_TILE_ICONS[1] = .{sprite = *context.atlas.top_half};
-    COLLISION_TILE_ICONS[2] = .{sprite = *context.atlas.bot_half};
-    COLLISION_TILE_ICONS[3] = .{sprite = *context.atlas.left_half};
-    COLLISION_TILE_ICONS[4] = .{sprite = *context.atlas.right_half};
+    COLLISION_TILE_ICONS[1] = .{sprite = sprite_from_atlas(*atlas.tile_atlas, 2)};
+    COLLISION_TILE_ICONS[2] = .{sprite = sprite_from_atlas(*atlas.tile_atlas, 3)};
+    COLLISION_TILE_ICONS[3] = .{sprite = sprite_from_atlas(*atlas.tile_atlas, 4)};
+    COLLISION_TILE_ICONS[4] = .{sprite = sprite_from_atlas(*atlas.tile_atlas, 5)};
     // Crate
-    ENTITY_TILE_ICONS[0] = .{sprite = *context.atlas.crate};
+    ENTITY_TILE_ICONS[0] = .{sprite = sprite_from_atlas(*atlas.tile_atlas, 0)};
     // Player Spawn
     ENTITY_TILE_ICONS[1] = .{color = .{0.6, 0.5, 0, 1}};
 }
@@ -180,7 +181,7 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
         // Tile Display Index
         tdi := context.editor_state.collision_tile_type;
 
-        if COLLISION_TILE_ICONS[tdi].sprite {
+        if COLLISION_TILE_ICONS[tdi].sprite.texture {
             s := COLLISION_TILE_ICONS[tdi].sprite;
             set_shader_for_images(s.texture);
             immediate_quad(.{left, top}, .{left, bot}, .{right, bot}, .{right, top}, COLLISION_TILE_ICONS[tdi].color, s.uvs[0], s.uvs[1], s.uvs[2], s.uvs[3]);
@@ -191,7 +192,7 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     case 1;
         tdi := context.editor_state.entity_tile_type;
 
-        if ENTITY_TILE_ICONS[tdi].sprite {
+        if ENTITY_TILE_ICONS[tdi].sprite.texture {
             s := ENTITY_TILE_ICONS[tdi].sprite;
             set_shader_for_images(s.texture);
             immediate_quad(.{left, top}, .{left, bot}, .{right, bot}, .{right, top}, ENTITY_TILE_ICONS[tdi].color, s.uvs[0], s.uvs[1], s.uvs[2], s.uvs[3]);

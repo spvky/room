@@ -298,7 +298,7 @@ render_room_entities :: (r: *Room, faded := false) {
             alpha: float32 = ifx faded then 0.3 else 1;
             if val == {
             case .CRATE;
-                set_shader_for_images(context.atlas.crate.texture);
+                set_shader_for_images(*context.atlas.tile_atlas.texture);
                 immediate_quad(
                                .{left, top},
                                .{left, bot},
@@ -373,6 +373,7 @@ render_gameplay_scene :: () {
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
     clear_render_target(0.5, 0.5, 0.5, 1);
     render_entities();
+    debug_render_colliders();
     set_render_target(window);
     set_shader_for_images(context.gameplay_texture);
     sv: [4]Vector2;
@@ -397,11 +398,12 @@ render_entities :: () {
     for *context.entities {
         if !entity_has_props(it, .RENDERABLE) continue;
         pos := cam_relative_position(it.position);
+        sprite := get_current_animation_frame(*it.animation_player);
         if it.shape_kind == {
         case .RECTANGLE;
-            render_sprite(it.sprite, pos, it.extents);
+            render_sprite(*sprite, pos, it.extents);
         case .CIRCLE;
-            render_sprite(it.sprite, pos, .{it.radius * 2, it.radius * 2});
+            render_sprite(*sprite, pos, .{it.radius * 2, it.radius * 2});
         }
     }
 }

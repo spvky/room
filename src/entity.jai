@@ -13,13 +13,13 @@ Entity :: struct {
     tag: Entity_Tag;
     state: Entity_State;
     current_coord: Coord;
-    sprite: *Sprite; @ignore_serialize
-    handle: Entity_Handle; @ignore_serialize
-    parent: Entity_Handle; @ignore_serialize
-    first_child: Entity_Handle; @ignore_serialize
-    last_child: Entity_Handle; @ignore_serialze
-    prev_sibling: Entity_Handle; @ignore_serialize
-    next_sibling: Entity_Handle; @ignore_serialize
+    animation_player: Sprite_Animation_Player;
+    handle: Entity_Handle;
+    parent: Entity_Handle;
+    first_child: Entity_Handle;
+    last_child: Entity_Handle;
+    prev_sibling: Entity_Handle;
+    next_sibling: Entity_Handle;
 }
 
 Entity_Handle :: struct {
@@ -272,16 +272,16 @@ entity_has_flags :: inline (e: *Entity, flags: Entity_Flags) -> bool {
 
 // Entity Helper procs
 make_player :: (c: Coord) {
-    player_entity: Entity;
+    entity: Entity;
     half_tile := Vector2.{TILE_SIZE, TILE_SIZE} / 2;
-    player_entity.position = Vector2.{xx c.x * TILE_SIZE, xx c.y * TILE_SIZE} + half_tile;
-    player_entity.shape_kind = .CIRCLE;
-    player_entity.radius = TILE_SIZE / 2;
-    player_entity.tag = .PLAYER;
-    player_entity.props = .RENDERABLE | .GRAVITY_AFFECTED | .DYNAMIC | .SELF_PROPELLED;
-    player_entity.sprite = *context.atlas.player_sprite;
-    player_entity.movement_delta.x = -1;
-    context.player_handle.* = entity_add(player_entity);
+    entity.position = Vector2.{xx c.x * TILE_SIZE, xx c.y * TILE_SIZE} + half_tile;
+    entity.shape_kind = .CIRCLE;
+    entity.radius = TILE_SIZE / 2;
+    entity.tag = .PLAYER;
+    entity.props = .RENDERABLE | .GRAVITY_AFFECTED | .DYNAMIC | .SELF_PROPELLED;
+    entity.animation_player = make_static_tile_sprite(6);
+    entity.movement_delta.x = -1;
+    context.player_handle.* = entity_add(entity);
 
     // Ground Sensor Entity
     gse: Entity;
@@ -294,7 +294,7 @@ make_player :: (c: Coord) {
 
     // Left Ray Entity
     lre: Entity;
-    lre.offset = Vector2.{(player_entity.radius * 0.9), 0};
+    lre.offset = Vector2.{(entity.radius * 0.9), 0};
     lre.tag = .WALL_CASTER;
     lre.ray.direction = .{1, 0};
     lre.ray.max_toi = 32.0;
@@ -303,96 +303,96 @@ make_player :: (c: Coord) {
 }
 
 make_wall :: (left: int, right: int, top: int, bot: int) {
-    wall_entity: Entity;
+    entity: Entity;
     f_left: float32 = xx left * TILE_SIZE;
     f_right: float32 = (xx right + 1) * TILE_SIZE;
     f_top: float32 = (xx top + 1) * TILE_SIZE;
     f_bot: float32 = xx bot * TILE_SIZE;
 
-    wall_entity.position = Vector2.{(f_left + f_right) / 2, (f_top + f_bot) / 2};
-    wall_entity.shape_kind = .RECTANGLE;
-    wall_entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
-    wall_entity.tag = .WALL;
-    wall_entity.props = .RENDERABLE | .STATIC | .SOLID;
-    wall_entity.sprite = *context.atlas.checker;
-    entity_add(wall_entity);
+    entity.position = Vector2.{(f_left + f_right) / 2, (f_top + f_bot) / 2};
+    entity.shape_kind = .RECTANGLE;
+    entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
+    entity.tag = .WALL;
+    entity.props = .RENDERABLE | .STATIC | .SOLID;
+    entity.animation_player = make_static_tile_sprite(1);
+    entity_add(entity);
 }
 
 make_top_wall :: (left: int, right: int, y: int) {
-    top_half_entity: Entity;
+    entity: Entity;
     f_left: float32 = xx left * TILE_SIZE;
     f_right: float32 = (xx right + 1) * TILE_SIZE;
     f_top: float32 = (xx y + 1) * TILE_SIZE;
     f_bot: float32 = f_top - (TILE_SIZE / 2);
 
-    top_half_entity.position = Vector2.{(f_left + f_right) / 2, (f_top + f_bot) / 2};
-    top_half_entity.shape_kind = .RECTANGLE;
-    top_half_entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
-    top_half_entity.tag = .WALL;
-    top_half_entity.props = .RENDERABLE | .STATIC | .SOLID;
-    top_half_entity.sprite = *context.atlas.checker;
-    entity_add(top_half_entity);
+    entity.position = Vector2.{(f_left + f_right) / 2, (f_top + f_bot) / 2};
+    entity.shape_kind = .RECTANGLE;
+    entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
+    entity.tag = .WALL;
+    entity.props = .RENDERABLE | .STATIC | .SOLID;
+    entity.animation_player = make_static_tile_sprite(1);
+    entity_add(entity);
 }
 
 make_bot_wall :: (left: int, right: int, y: int) {
-    bot_half_entity: Entity;
+    entity: Entity;
     f_left: float32 = xx left * TILE_SIZE;
     f_right: float32 = (xx right + 1) * TILE_SIZE;
     f_bot: float32 = xx y * TILE_SIZE;
     f_top: float32 = f_bot + (TILE_SIZE / 2.0);
 
-    bot_half_entity.position = Vector2.{(f_left + f_right) / 2, (f_top + f_bot) / 2};
-    bot_half_entity.shape_kind = .RECTANGLE;
-    bot_half_entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
-    bot_half_entity.tag = .WALL;
-    bot_half_entity.props = .RENDERABLE | .STATIC | .SOLID;
-    bot_half_entity.sprite = *context.atlas.checker;
-    entity_add(bot_half_entity);
+    entity.position = Vector2.{(f_left + f_right) / 2, (f_top + f_bot) / 2};
+    entity.shape_kind = .RECTANGLE;
+    entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
+    entity.tag = .WALL;
+    entity.props = .RENDERABLE | .STATIC | .SOLID;
+    entity.animation_player = make_static_tile_sprite(1);
+    entity_add(entity);
 }
 
 make_left_wall :: (top: int, bot: int, x: int) {
-    left_half_entity: Entity;
+    entity: Entity;
     f_left: float32 = xx x * TILE_SIZE;
     f_right: float32 = f_left + (TILE_SIZE / 2.0);
     f_top: float32 = (xx top + 1) * TILE_SIZE;
     f_bot: float32 = xx bot * TILE_SIZE;
 
-    left_half_entity.position = Vector2.{(f_left + f_right) / 2, (f_top + f_bot) / 2};
-    left_half_entity.shape_kind = .RECTANGLE;
-    left_half_entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
-    left_half_entity.tag = .WALL;
-    left_half_entity.props = .RENDERABLE | .STATIC | .SOLID;
-    left_half_entity.sprite = *context.atlas.checker;
-    entity_add(left_half_entity);
+    entity.position = Vector2.{(f_left + f_right) / 2, (f_top + f_bot) / 2};
+    entity.shape_kind = .RECTANGLE;
+    entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
+    entity.tag = .WALL;
+    entity.props = .RENDERABLE | .STATIC | .SOLID;
+    entity.animation_player = make_static_tile_sprite(1);
+    entity_add(entity);
 }
 
 make_right_wall :: (top: int, bot: int, x: int) {
-    right_half_entity: Entity;
+    entity: Entity;
 
     f_right: float32 = (xx x + 1) * TILE_SIZE;
     f_left: float32 = f_right - (TILE_SIZE / 2);
     f_top: float32 = (xx top + 1) * TILE_SIZE;
     f_bot: float32 = xx bot * TILE_SIZE;
 
-    right_half_entity.position = Vector2.{(f_left + f_right) / 2, (f_top + f_bot) / 2};
-    right_half_entity.shape_kind = .RECTANGLE;
-    right_half_entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
-    right_half_entity.tag = .WALL;
-    right_half_entity.props = .RENDERABLE | .STATIC | .SOLID;
-    right_half_entity.sprite = *context.atlas.checker;
-    entity_add(right_half_entity);
+    entity.position = Vector2.{(f_left + f_right) / 2, (f_top + f_bot) / 2};
+    entity.shape_kind = .RECTANGLE;
+    entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
+    entity.tag = .WALL;
+    entity.props = .RENDERABLE | .STATIC | .SOLID;
+    entity.animation_player = make_static_tile_sprite(1);
+    entity_add(entity);
 }
 
 make_crate :: (c: Coord) {
-    crate_entity: Entity;
+    entity: Entity;
     half_tile := Vector2.{TILE_SIZE, TILE_SIZE} / 2;
-    crate_entity.position = Vector2.{xx c.x * TILE_SIZE, xx c.y * TILE_SIZE} + half_tile;
-    crate_entity.shape_kind = .RECTANGLE;
-    crate_entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
-    crate_entity.tag = .CRATE;
-    crate_entity.props = .RENDERABLE | .SOLID | .GRAVITY_AFFECTED | .DYNAMIC;
-    crate_entity.sprite = *context.atlas.crate;
-    crate_handle := entity_add(crate_entity);
+    entity.position = Vector2.{xx c.x * TILE_SIZE, xx c.y * TILE_SIZE} + half_tile;
+    entity.shape_kind = .RECTANGLE;
+    entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
+    entity.tag = .CRATE;
+    entity.props = .RENDERABLE | .SOLID | .GRAVITY_AFFECTED | .DYNAMIC;
+    entity.animation_player = make_static_tile_sprite(0);
+    crate_handle := entity_add(entity);
 
     // Ground Sensor Entity
     gse: Entity;

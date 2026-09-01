@@ -56,6 +56,7 @@ Entity_Tile :: enum u16 {
     EMPTY;
     CRATE;
     PLAYER_SPAWN;
+    GEAR;
 }
 
 Extra_Entity_Data :: struct {
@@ -65,6 +66,7 @@ Extra_Entity_Data :: struct {
     path_end: Coord;
     parent_pos: Coord;
     child_pos: Coord;
+    direction: Map_Direction;
 }
 
 Map_Direction :: enum {
