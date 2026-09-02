@@ -79,6 +79,8 @@ Entity_Properties :: enum_flags u32 {
     SELF_PROPELLED :: 1 << 8;
     RAY_CASTER :: 1 << 9;
     ANIMATED :: 1 << 10;
+    DEATH_ZONE :: 1 << 11;
+    UNSTABLE :: 1 << 12;
 }
 
 Entity_Flags :: enum_flags u32 {
@@ -283,7 +285,7 @@ make_entity :: (c: Coord, kind: Entity_Tag) {
         entity.tag = .PLAYER;
         entity.props = .RENDERABLE | .GRAVITY_AFFECTED | .DYNAMIC | .SELF_PROPELLED;
         entity.animation_player = make_static_tile_sprite(6);
-        entity.movement_delta.x = -1;
+        entity.movement_delta.x = 0;
         context.player_handle.* = entity_add(entity);
 
         // Ground Sensor Entity
@@ -329,7 +331,7 @@ make_entity :: (c: Coord, kind: Entity_Tag) {
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
         entity.tag = .GEAR;
-        entity.props = .RENDERABLE | .ANIMATED | .SOLID | .STATIC;
+        entity.props = .RENDERABLE | .ANIMATED | .SOLID | .STATIC | .DEATH_ZONE | .UNSTABLE;
         entity.animation_player = Sprite_Animation_Player.{
                                                            atlas = *context.atlas.tile_atlas,
                                                            seconds_per_frame = 0.015,

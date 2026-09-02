@@ -1,8 +1,17 @@
+Player_Data :: struct {
+    last_stable_ground: Vector2;
+}
+
 #add_context player_handle: *Entity_Handle;
+#add_context player_data: *Player_Data;
 
 init_player :: () {
     if !context.player_handle {
         context.player_handle = New(Entity_Handle);
+    }
+
+    if !context.player_data {
+        context.player_data = New(Player_Data);
     }
 }
 
@@ -12,6 +21,14 @@ player_is_valid :: () -> bool {
 
 player_get :: () -> *Entity {
     return entity_get(context.player_handle.*);
+}
+
+reset_player :: () {
+    print("Resetting Player: %\n", context.player_data.last_stable_ground);
+    player := player_get();
+    player.movement_delta = .{};
+    player.position = context.player_data.last_stable_ground;
+    player.velocity = .{};
 }
 
 set_player_move_delta :: () {

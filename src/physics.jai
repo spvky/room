@@ -46,6 +46,7 @@ body_collision :: () {
             static_ptr := entity_get(static_handle);
             static_collision, static_collision_occurred := dynamic_vs_static_collision_test(it, static_ptr);
             if static_collision_occurred {
+                if it.handle == context.player_handle && entity_has_props(static_ptr, .DEATH_ZONE) then reset_player();
                 dir_to_static := normalize(static_ptr.position - it.position);
                 corrected_normal := ifx dot_product(dir_to_static, static_collision.normal) < 0 then static_collision.normal else -static_collision.normal;
                 it.position += corrected_normal * (static_collision.depth + 0.01);
@@ -92,6 +93,7 @@ sensor_collision :: () {
         case .GROUND_SENSOR;
             if !entity_valid(it.parent) continue;
             touching_ground: bool;
+            touching_unstable_ground: bool;
 
             // Check static collisions
             for static_info, static_handle: context.static_collision_table {
@@ -99,7 +101,10 @@ sensor_collision :: () {
                 static_body := entity_get(static_handle);
                 if !entity_has_props(static_body, .SOLID) continue;
                 _, did_collide := dynamic_vs_static_collision_test(it, static_body);
-                if did_collide touching_ground = true;
+                if did_collide {
+                    touching_ground = true;
+                    touching_unstable_ground = entity_has_props(static_body, .UNSTABLE);
+                }
             }
 
             // Check dynamic collisions
@@ -110,7 +115,14 @@ sensor_collision :: () {
             }
 
             parent_entity := entity_get(it.parent);
-            if touching_ground then parent_entity.flags |= .GROUNDED; else parent_entity.flags &= ~.GROUNDED;
+            if touching_ground {
+                parent_entity.flags |= .GROUNDED;
+                if it.parent == context.player_handle && !touching_unstable_ground {
+                    context.player_data.last_stable_ground = parent_entity.position;
+                }
+            } else {
+                parent_entity.flags &= ~.GROUNDED;
+            }
         }
     }
 }
