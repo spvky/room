@@ -288,7 +288,7 @@ parse_entities_from_tiles :: () {
                         for left..right parsed[coord_to_index(.{xx it, xx iy}, .WORLD)] = true;
                         bot = iy;
                     }
-                    make_wall(left, right, top, bot);
+                    make_wall(left, right, top, bot, .WALL);
                 case .TOP_HALF;
                     left := x;
                     right := x;
@@ -300,7 +300,7 @@ parse_entities_from_tiles :: () {
                     }
 
                     for left..right parsed[coord_to_index(.{xx it, xx y}, .WORLD)] = true;
-                    make_top_wall(left, right, y);
+                    make_wall(left, right, y, y, .TOP_HALF);
                 case .BOT_HALF;
                     left := x;
                     right := x;
@@ -311,7 +311,7 @@ parse_entities_from_tiles :: () {
                         ix += 1;
                     }
                     for left..right parsed[coord_to_index(.{xx it, xx y}, .WORLD)] = true;
-                    make_bot_wall(left, right, y);
+                    make_wall(left, right, y, y, .BOT_HALF);
                 case .LEFT_HALF;
                     top := y;
                     bot := y;
@@ -322,7 +322,7 @@ parse_entities_from_tiles :: () {
                         iy -= 1;
                     }
                     for bot..top parsed[coord_to_index(.{xx x, xx it}, .WORLD)] = true;
-                    make_left_wall(top, bot, x);
+                    make_wall(x, x, top, bot, .LEFT_HALF);
                 case .RIGHT_HALF;
                     top := y;
                     bot := y;
@@ -333,7 +333,7 @@ parse_entities_from_tiles :: () {
                         iy -= 1;
                     }
                     for bot..top parsed[coord_to_index(.{xx x, xx it}, .WORLD)] = true;
-                    make_right_wall(top, bot, x);
+                    make_wall(x, x, top, bot, .RIGHT_HALF);
                 }
             }
         }
@@ -355,7 +355,7 @@ parse_entities_from_tiles :: () {
                     t_coord := coord;
                     t_coord.y -= 1;
                     if t_coord.y < 0 {
-                        make_crate(coord);
+                        make_entity(coord, .CRATE);
                         parsed[coord_to_index(coord, .WORLD)] = true;
                         continue;
                     }
@@ -398,12 +398,12 @@ parse_entities_from_tiles :: () {
 
                         parsed[coord_to_index(new_coord, .WORLD)] = true;
                         set_world_entity_tile_value(.CRATE, new_coord);
-                        make_crate(new_coord);
+                        make_entity(new_coord, .CRATE);
                     }
                 case .PLAYER_SPAWN;
-                    if !player_is_valid() then make_player(coord);
+                    if !player_is_valid() then make_entity(coord, .PLAYER);
                 case .GEAR;
-                    make_gear(coord);
+                    make_entity(coord, .GEAR);
                 case .EMPTY;
                     parsed[coord_to_index(coord, .WORLD)] = true;
                 }
