@@ -64,6 +64,7 @@ Entity_Tag :: enum u8 {
     CRATE;
     GROUND_SENSOR;
     WALL_CASTER;
+    GEAR;
 }
 
 Entity_Properties :: enum_flags u32 {
@@ -403,4 +404,22 @@ make_crate :: (c: Coord) {
     gse.tag = .GROUND_SENSOR;
     gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
     entity_add_child(crate_handle, gse);
+}
+
+make_gear :: (c: Coord) {
+    entity: Entity;
+    half_tile := Vector2.{TILE_SIZE, TILE_SIZE} / 2;
+    entity.position = Vector2.{xx c.x * TILE_SIZE, xx c.y * TILE_SIZE} + half_tile;
+    entity.shape_kind = .RECTANGLE;
+    entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
+    entity.tag = .GEAR;
+    entity.props = .RENDERABLE | .ANIMATED | .SOLID | .STATIC;
+    entity.animation_player = Sprite_Animation_Player.{
+                                                       atlas = *context.atlas.tile_atlas,
+                                                       seconds_per_frame = 0.5,
+                                                       start = 17,
+                                                       idx = 17,
+                                                       length = 1};
+
+    entity_add(entity);
 }

@@ -402,6 +402,8 @@ parse_entities_from_tiles :: () {
                     }
                 case .PLAYER_SPAWN;
                     if !player_is_valid() then make_player(coord);
+                case .GEAR;
+                    make_gear(coord);
                 case .EMPTY;
                     parsed[coord_to_index(coord, .WORLD)] = true;
                 }

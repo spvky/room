@@ -317,6 +317,18 @@ render_room_entities :: (r: *Room, faded := false) {
                                .{right, bot},
                                .{right, top},
                                .{0.6, 0.5, 0, alpha});
+            case .GEAR;
+                set_shader_for_images(*context.atlas.tile_atlas.texture);
+                immediate_quad(
+                               .{left, top},
+                               .{left, bot},
+                               .{right, bot},
+                               .{right, top},
+                               .{1, 1, 1, alpha},
+                               .{0, 1 - 0.03125},
+                               .{0.03125, 1 - 0.0625},
+                               .{0.03125, 1 - 0.0625},
+                               .{0, 1 - 0.03125});
             }
         }
     }
@@ -373,7 +385,7 @@ render_gameplay_scene :: () {
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
     clear_render_target(0.5, 0.5, 0.5, 1);
     render_entities();
-    debug_render_colliders();
+    // debug_render_colliders();
     set_render_target(window);
     set_shader_for_images(context.gameplay_texture);
     sv: [4]Vector2;

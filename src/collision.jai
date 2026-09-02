@@ -2,6 +2,7 @@ Collision :: struct {
     normal: Vector2;
     depth: float32;
 }
+
 Collision_Mode :: enum {
     SAT;
     AABB;
@@ -59,6 +60,7 @@ rigidbody_edges :: (r: *Rigidbody) -> [4][2]Vector2, bool {
 }
 
 Static_Collision_Table :: Table(Entity_Handle, [..]Axis_Interval_Pair, given_hash_function = handle_hash, given_compare_function = handle_compare);
+Static_Raycast_Table :: Table(Entity_Handle, [..][2]Vector2, given_hash_function = handle_hash, given_compare_function = handle_compare);
 
 #add_context static_collision_table: *Static_Collision_Table;
 

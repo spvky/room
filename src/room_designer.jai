@@ -1,8 +1,8 @@
 EDITOR_MODES: [2]string: .["Collision", "Entities"];
 COLLISION_TILE_TYPES: [5]string: .["Wall", "Top Half", "Bot Half", "Left Half", "Right Half"];
 COLLISION_TILE_ICONS: [5]Ui_Icon;
-ENTITY_TILE_TYPES: [2]string: .["Crate", "Player Spawn"];
-ENTITY_TILE_ICONS: [2]Ui_Icon;
+ENTITY_TILE_TYPES: [3]string: .["Crate", "Player Spawn", "Gear"];
+ENTITY_TILE_ICONS: [3]Ui_Icon;
 
 Ui_Icon :: struct {
     sprite: Sprite;
@@ -102,6 +102,8 @@ init_ui_icons :: () {
     ENTITY_TILE_ICONS[0] = .{sprite = sprite_from_atlas(*atlas.tile_atlas, 0)};
     // Player Spawn
     ENTITY_TILE_ICONS[1] = .{color = .{0.6, 0.5, 0, 1}};
+    // Gear
+    ENTITY_TILE_ICONS[2] = .{sprite = sprite_from_atlas(*atlas.tile_atlas, 17)};
 }
 
 render_room_designer_ui :: () {
