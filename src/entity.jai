@@ -44,6 +44,7 @@ Rigidbody :: struct {
     offset: Vector2;
     movement_delta: Vector2;
     velocity: Vector2;
+    inherited_velocity: Vector2;
     rotation: float32;
     shape_kind: Collision_Shape;
     extents: Vector2;
@@ -323,7 +324,7 @@ make_entity :: (c: Coord, kind: Entity_Tag) {
         // Ground Sensor Entity
         gse: Entity;
         gse.offset = Vector2.{0, -TILE_SIZE / 2};
-        gse.extents = Vector2.{TILE_SIZE * 0.95, TILE_SIZE / 8};
+        gse.extents = Vector2.{TILE_SIZE * 0.98, TILE_SIZE / 8};
         gse.shape_kind = .RECTANGLE;
         gse.tag = .GROUND_SENSOR;
         gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;

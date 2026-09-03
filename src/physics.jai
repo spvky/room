@@ -120,7 +120,7 @@ decay_crate_x_velocity :: () {
     for *context.entities {
         if it.tag != .CRATE continue;
         if abs(it.velocity.x) > 1 {
-            it.velocity.x *= 0.9;
+            it.velocity.x *= 0.95;
         } else {
             it.velocity.x = 0;
         }
@@ -135,6 +135,7 @@ sensor_collision :: () {
             if !entity_valid(it.parent) continue;
             touching_ground: bool;
             touching_unstable_ground: bool;
+            parent_entity := entity_get(it.parent);
 
             // Check static collisions
             for static_info, static_handle: context.static_collision_table {
@@ -145,6 +146,11 @@ sensor_collision :: () {
                 if did_collide {
                     touching_ground = true;
                     touching_unstable_ground = entity_has_props(static_body, .UNSTABLE);
+
+                    parent_entity := entity_get(it.parent);
+                    if static_body.tag == .GEAR && parent_entity.tag == .CRATE {
+                        parent_entity.velocity.x = PLAYER_MOVE_SPEED / 3;
+                    }
                 }
             }
 
@@ -152,10 +158,12 @@ sensor_collision :: () {
             for *other_entity: context.entities {
                 if other_entity == it || other_entity.handle == it.parent || !entity_has_props(other_entity, .SOLID) || entity_has_props(other_entity, .STATIC) continue;
                 _, did_collide := dynamic_vs_dynamic_collision_test(it, other_entity);
-                if did_collide touching_ground = true;
+                if did_collide {
+                    touching_ground = true;
+                    parent_entity.inherited_velocity = other_entity.velocity;
+                }
             }
 
-            parent_entity := entity_get(it.parent);
             if touching_ground {
                 parent_entity.flags |= .GROUNDED;
                 if it.parent == context.player_handle && !touching_unstable_ground {
@@ -163,6 +171,7 @@ sensor_collision :: () {
                 }
             } else {
                 parent_entity.flags &= ~.GROUNDED;
+                parent_entity.inherited_velocity = .{};
             }
         case .RIGHT_SENSOR;
             if !entity_valid(it.parent) continue;
@@ -264,7 +273,7 @@ raycast_collision :: () {
 apply_velocity :: (delta: float32) {
     for *context.entities {
         if !entity_has_props(it, .DYNAMIC) || entity_has_flags(it, .PHYSICS_REST) continue;
-        it.position += it.velocity * delta;
+        it.position += (it.velocity + it.inherited_velocity) * delta;
     }
 }
 
