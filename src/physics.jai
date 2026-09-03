@@ -75,13 +75,54 @@ body_collision :: () {
                 x_dot := abs(dot(corrected_normal, Vector2.{1, 0}));
                 y_dot := abs(dot(corrected_normal, Vector2.{0, 1}));
                 // vel_to_dynamic := dot(dir_to_dynamic)
+
                 if x_dot > 0.1 {
-                    it.velocity.x = 0;
+                    if it.tag == .PLAYER && dynamic_ptr.tag == .CRATE {
+                        player_crate_pushing(it, dynamic_ptr);
+                    } else {
+                        it.velocity.x = 0;
+                    }
                 }
                 if y_dot > 0.1 {
                     it.velocity.y = 0;
                 }
             }
+        }
+    }
+}
+
+player_crate_pushing :: inline (p: *Entity, c: *Entity) {
+    if p.velocity.x > 0 {
+        if entity_has_flags(c, .RIGHT_BLOCKED) {
+            p.velocity.x = 0;
+        } else {
+            if abs(p.velocity.x) > PLAYER_MOVE_SPEED / 3 {
+                p.velocity.x = PLAYER_MOVE_SPEED / 3;
+            }
+
+            c.velocity.x = p.velocity.x;
+        }
+    }
+
+    if p.velocity.x < 0 {
+        if entity_has_flags(c, .LEFT_BLOCKED) {
+            p.velocity.x = 0;
+        } else {
+            if abs(p.velocity.x) > PLAYER_MOVE_SPEED / 3 {
+                p.velocity.x = -PLAYER_MOVE_SPEED / 3;
+            }
+            c.velocity.x = p.velocity.x;
+        }
+    }
+}
+
+decay_crate_x_velocity :: () {
+    for *context.entities {
+        if it.tag != .CRATE continue;
+        if abs(it.velocity.x) > 1 {
+            it.velocity.x *= 0.9;
+        } else {
+            it.velocity.x = 0;
         }
     }
 }
@@ -122,6 +163,58 @@ sensor_collision :: () {
                 }
             } else {
                 parent_entity.flags &= ~.GROUNDED;
+            }
+        case .RIGHT_SENSOR;
+            if !entity_valid(it.parent) continue;
+            touching_right: bool;
+
+            for static_info, static_handle: context.static_collision_table {
+                if !entity_valid(static_handle) continue;
+                static_body := entity_get(static_handle);
+                if !entity_has_props(static_body, .SOLID) continue;
+                _, did_collide := dynamic_vs_static_collision_test(it, static_body);
+                if did_collide {
+                    touching_right = true;
+                }
+            }
+
+            for *other_entity: context.entities {
+                if other_entity == it || other_entity.handle == it.parent || !entity_has_props(other_entity, .SOLID) || entity_has_props(other_entity, .STATIC) continue;
+                _, did_collide := dynamic_vs_dynamic_collision_test(it, other_entity);
+                if did_collide touching_right = true;
+            }
+
+            parent_entity := entity_get(it.parent);
+            if touching_right {
+                parent_entity.flags |= .RIGHT_BLOCKED;
+            } else {
+                parent_entity.flags &= ~.RIGHT_BLOCKED;
+            }
+        case .LEFT_SENSOR;
+            if !entity_valid(it.parent) continue;
+            touching_left: bool;
+
+            for static_info, static_handle: context.static_collision_table {
+                if !entity_valid(static_handle) continue;
+                static_body := entity_get(static_handle);
+                if !entity_has_props(static_body, .SOLID) continue;
+                _, did_collide := dynamic_vs_static_collision_test(it, static_body);
+                if did_collide {
+                    touching_left = true;
+                }
+            }
+
+            for *other_entity: context.entities {
+                if other_entity == it || other_entity.handle == it.parent || !entity_has_props(other_entity, .SOLID) || entity_has_props(other_entity, .STATIC) continue;
+                _, did_collide := dynamic_vs_dynamic_collision_test(it, other_entity);
+                if did_collide touching_left = true;
+            }
+
+            parent_entity := entity_get(it.parent);
+            if touching_left {
+                parent_entity.flags |= .LEFT_BLOCKED;
+            } else {
+                parent_entity.flags &= ~.LEFT_BLOCKED;
             }
         }
     }

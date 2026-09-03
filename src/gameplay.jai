@@ -1,4 +1,6 @@
 gameplay_update :: (delta: float32) {
+    // Upkeep
+    decay_crate_x_velocity();
     // Camera
     camera_smoothing(delta);
     camera_follow();

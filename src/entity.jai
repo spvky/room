@@ -65,6 +65,8 @@ Entity_Tag :: enum u8 {
     GROUND_SENSOR;
     WALL_CASTER;
     GEAR;
+    LEFT_SENSOR;
+    RIGHT_SENSOR;
 }
 
 Entity_Properties :: enum_flags u32 {
@@ -88,6 +90,8 @@ Entity_Flags :: enum_flags u32 {
     IN_WATER :: 1 << 1;
     POWERED :: 1 << 2;
     PHYSICS_REST :: 1 << 3;
+    LEFT_BLOCKED :: 1 << 4;
+    RIGHT_BLOCKED :: 1 << 5;
 }
 
 Entity_Message :: enum_flags u32 {
@@ -324,6 +328,24 @@ make_entity :: (c: Coord, kind: Entity_Tag) {
         gse.tag = .GROUND_SENSOR;
         gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
         entity_add_child(crate_handle, gse);
+
+        // Right Sensor
+        rse: Entity;
+        rse.offset = Vector2.{TILE_SIZE / 2, 0};
+        rse.extents = Vector2.{TILE_SIZE / 8, TILE_SIZE * 0.95};
+        rse.shape_kind = .RECTANGLE;
+        rse.tag = .RIGHT_SENSOR;
+        rse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
+        entity_add_child(crate_handle, rse);
+
+        // Left Sensor
+        lse: Entity;
+        lse.offset = Vector2.{-TILE_SIZE / 2, 0};
+        lse.extents = Vector2.{TILE_SIZE / 8, TILE_SIZE * 0.95};
+        lse.shape_kind = .RECTANGLE;
+        lse.tag = .LEFT_SENSOR;
+        lse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
+        entity_add_child(crate_handle, lse);
     case .GEAR;
         entity: Entity;
         half_tile := Vector2.{TILE_SIZE, TILE_SIZE} / 2;
