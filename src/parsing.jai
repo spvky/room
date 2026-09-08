@@ -129,6 +129,7 @@ write_room_cards_to_world :: () {
 }
 
 open_map_exits :: () {
+    // //////////////////////////////////////
     _Late_Tile_Update :: struct {
         idx: int;
         tile: Collision_Tile;
@@ -136,6 +137,7 @@ open_map_exits :: () {
     _contains :: (e: Room_Exits, ce: Room_Exits) -> bool {
         return e & ce == ce;
     }
+    // //////////////////////////////////////
     world := context.world;
     late_tile_updates: [..]_Late_Tile_Update;
     late_tile_updates.allocator = temp;
@@ -227,9 +229,12 @@ open_map_exits :: () {
 
 // Takes 2 rooms and a coord relative to the first and returns which of the first rooms exits are clear
 exits_match :: (a: Room_Exits, b: Room_Exits, direction: Map_Direction) -> Room_Exits {
+    // ////////////////////
     contains :: (e: Room_Exits, ce: Room_Exits) -> bool {
         return e & ce == ce;
     }
+
+    // ////////////////////
     matches: Room_Exits;
     if direction == {
     case .EAST;
@@ -245,10 +250,12 @@ exits_match :: (a: Room_Exits, b: Room_Exits, direction: Map_Direction) -> Room_
 }
 
 parse_entities_from_tiles :: () {
+    // ////////////////////////////////
     is_valid_wall :: (x: int, y: int) -> bool #expand {
         coord := Coord.{xx x, xx y};
         return !`parsed[coord_to_index(coord, .WORLD)] && check_world_collision_tile_value(coord) == .WALL;
     }
+    // ////////////////////////////////
 
     // Calculate the collision layer
     parsed: [WORLD_WIDTH * WORLD_HEIGHT]bool;

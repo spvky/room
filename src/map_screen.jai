@@ -113,6 +113,13 @@ init_rooms :: () {
     if !context.room_table {
         context.room_table = New(Table(u32, Room));
     }
+    rooms_refresh();
+}
+
+rooms_refresh :: () {
+    if context.room_table.count > 0 {
+        table_reset(context.room_table);
+    }
     load_all_rooms();
 }
 
@@ -120,6 +127,17 @@ init_map :: () {
     if !context.map {
         context.map = New(Map);
     }
+    map_refresh();
+}
+
+map_refresh :: () {
+    if context.map.available_rooms.count > 0 {
+        array_reset(*context.map.available_rooms);
+    }
+    if context.map.placed_room_cards.count > 0 {
+        array_reset(*context.map.placed_room_cards);
+    }
+    memset(*context.map.occupied, 0, MAP_WIDTH * MAP_HEIGHT);
 
     for context.room_table {
         if it.flags & .STATIC == 0 {

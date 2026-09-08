@@ -91,6 +91,37 @@ body_collision :: () {
     }
 }
 
+// Is this useful?
+zero_velo_on_axis :: (entity: *Entity, normal: Vector2) {
+    mag_along_axis := dot(entity.velocity, normal);
+    if mag_along_axis > 0 {
+        entity.velocity += mag_along_axis * -normal;
+    }
+}
+
+dynamic_entity_collisions :: (a: *Entity, b: *Entity, collision: Collision) {
+    // ////////////////////////////
+    pairing :: (t: Entity_Tag) -> bool #expand {
+        return `a.tag == t && `b.tag == t;
+    }
+    pairing :: (t1: Entity_Tag, t2: Entity_Tag) -> bool #expand {
+        return (`a.tag == t1 && `b.tag == t2) || (`a.tag == t2 && `b.tag == t1);
+    }
+    // //////////////////////////
+
+    if pairing(.PLAYER, .CRATE) {
+        player := ifx a.tag == .PLAYER then a else b;
+        crate := ifx a.tag == .CRATE then a else b;
+        player_crate_pushing(player, crate);
+    }
+
+    if pairing(.CRATE) {
+    }
+
+    // Add pair hash to dynamic collision map
+    // Also probably a good time to start tracking chunks to cut down on collision checks
+}
+
 player_crate_pushing :: inline (p: *Entity, c: *Entity) {
     if p.velocity.x > 0 {
         if entity_has_flags(c, .RIGHT_BLOCKED) {
