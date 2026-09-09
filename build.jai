@@ -50,7 +50,7 @@ init :: () {
     init_map();
     init_input();
     init_world();
-    init_static_collision_table();
+    init_collision_tables();
 }
 
 #import "Basic";

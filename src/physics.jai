@@ -61,8 +61,6 @@ body_collision :: () {
             }
         }
 
-        a := 0;
-
         // Dynamic Collision
         for *dynamic_ptr: context.entities {
             if !entity_has_props(dynamic_ptr, .SOLID) || !entity_has_props(dynamic_ptr, .DYNAMIC) continue;
@@ -71,7 +69,11 @@ body_collision :: () {
             if dynamic_collision_occurred {
                 dir_to_dynamic := normalize(dynamic_ptr.position - it.position);
                 corrected_normal := ifx dot_product(dir_to_dynamic, dynamic_collision.normal) < 0 then dynamic_collision.normal else -dynamic_collision.normal;
-                it.position += corrected_normal * (dynamic_collision.depth + 0.01);
+                push_amount := dynamic_collision.depth / 2;
+
+                it.position += corrected_normal * (push_amount + 0.01);
+                dynamic_ptr.position += -corrected_normal * (push_amount + 0.01);
+
                 x_dot := abs(dot(corrected_normal, Vector2.{1, 0}));
                 y_dot := abs(dot(corrected_normal, Vector2.{0, 1}));
                 // vel_to_dynamic := dot(dir_to_dynamic)
@@ -160,7 +162,9 @@ sensor_collision :: () {
                 _, did_collide := dynamic_vs_dynamic_collision_test(it, other_entity);
                 if did_collide {
                     touching_ground = true;
-                    parent_entity.inherited_velocity = other_entity.velocity;
+                    if !(other_entity.tag == .CRATE && parent_entity.tag == .CRATE) {
+                        parent_entity.inherited_velocity = other_entity.velocity;
+                    }
                 }
             }
 

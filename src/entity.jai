@@ -39,6 +39,16 @@ handle_compare :: (a: Entity_Handle, b: Entity_Handle) -> bool {
 
 handle_hash :: (a: Entity_Handle) -> u32 {return sdbm_hash(*a, size_of(Entity_Handle));}
 
+hash_handle_pair :: (a: Entity_Handle, b: Entity_Handle) -> u64 {
+    ahash := handle_hash(a);
+    bhash := handle_hash(b);
+    lower := ifx ahash < bhash then ahash else bhash;
+    upper := ifx ahash < bhash then bhash else ahash;
+    base := cast(u64)lower;
+    final := base << 32 | upper;
+    return final;
+}
+
 Rigidbody :: struct {
     position: Vector2;
     offset: Vector2;
@@ -333,7 +343,7 @@ make_entity :: (c: Coord, kind: Entity_Tag) {
         // Right Sensor
         rse: Entity;
         rse.offset = Vector2.{TILE_SIZE / 2, 0};
-        rse.extents = Vector2.{TILE_SIZE / 8, TILE_SIZE * 0.95};
+        rse.extents = Vector2.{TILE_SIZE / 7.5, TILE_SIZE * 0.95};
         rse.shape_kind = .RECTANGLE;
         rse.tag = .RIGHT_SENSOR;
         rse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
@@ -342,7 +352,7 @@ make_entity :: (c: Coord, kind: Entity_Tag) {
         // Left Sensor
         lse: Entity;
         lse.offset = Vector2.{-TILE_SIZE / 2, 0};
-        lse.extents = Vector2.{TILE_SIZE / 8, TILE_SIZE * 0.95};
+        lse.extents = Vector2.{TILE_SIZE / 7.5, TILE_SIZE * 0.95};
         lse.shape_kind = .RECTANGLE;
         lse.tag = .LEFT_SENSOR;
         lse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
