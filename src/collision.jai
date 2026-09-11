@@ -61,20 +61,24 @@ rigidbody_edges :: (r: *Rigidbody) -> [4][2]Vector2, bool {
 
 Static_Collision_Table :: Table(Entity_Handle, [..]Axis_Interval_Pair, given_hash_function = handle_hash, given_compare_function = handle_compare);
 Static_Raycast_Table :: Table(Entity_Handle, [..][2]Vector2, given_hash_function = handle_hash, given_compare_function = handle_compare);
-
-Dynamic_Collision_Table :: Table(u64, struct {});
+Dynamic_Collision_Hashes :: Table(u64, struct {});
 
 #add_context static_collision_table: *Static_Collision_Table;
-#add_context dynamic_collision_table: *Dynamic_Collision_Table;
+#add_context static_raycast_table: *Static_Raycast_Table;
+#add_context dynamic_collision_hashes: *Dynamic_Collision_Hashes;
 
 init_collision_tables :: () {
     if !context.static_collision_table {
         context.static_collision_table = New(Static_Collision_Table);
     }
 
-    if !context.dynamic_collision_table {
-        context.dynamic_collision_table = New(Dynamic_Collision_Table);
-        context.dynamic_collision_table.allocator = temp;
+    if !context.static_raycast_table {
+        context.static_raycast_table = New(Static_Raycast_Table);
+    }
+
+    if !context.dynamic_collision_hashes {
+        context.dynamic_collision_hashes = New(Dynamic_Collision_Hashes);
+        context.dynamic_collision_hashes.allocator = temp;
     }
 }
 
