@@ -125,6 +125,7 @@ init_entities :: () {
 entities_clear :: (e: *Entity_Manager = context.entities) {
     array_reset_keeping_memory(*e.items);
     array_reset_keeping_memory(*e.freelist);
+    e.count = 0;
 }
 
 entities_free :: (e: *Entity_Manager = context.entities) {
@@ -232,7 +233,6 @@ entity_add_child :: (parent_handle: Entity_Handle, child_entity: Entity, e: *Ent
             parent_ptr.last_child = child_handle;
         } else {
             prev_sibling := entity_get(parent_ptr.last_child);
-            print("Prev sibling is invalid handle, something is wrong!\n");
             prev_sibling.next_sibling = child_handle;
             parent_ptr.last_child = child_handle;
         }

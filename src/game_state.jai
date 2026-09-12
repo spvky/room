@@ -14,11 +14,13 @@ in_game_state :: (state: Game_State) -> bool #expand {
 game_state_update :: () {
     if is_action_buffered(.GOTO_ROOM_DESIGNER) context.game_state = .ROOM_DESIGNER;
     if is_action_buffered(.GOTO_MAP_PLACEMENT) {
+        consume_action(.GOTO_MAP_PLACEMENT);
         rooms_refresh();
         map_refresh();
         context.game_state = .MAP_PLACEMENT;
     }
     if is_action_buffered(.GOTO_GAMEPLAY) {
+        consume_action(.GOTO_GAMEPLAY);
         bake_world();
         context.game_state = .GAMEPLAY;
     }

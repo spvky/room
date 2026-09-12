@@ -61,7 +61,7 @@ rigidbody_edges :: (r: *Rigidbody) -> [4][2]Vector2, bool {
 
 Static_Collision_Table :: Table(Entity_Handle, [..]Axis_Interval_Pair, given_hash_function = handle_hash, given_compare_function = handle_compare);
 Static_Raycast_Table :: Table(Entity_Handle, [..][2]Vector2, given_hash_function = handle_hash, given_compare_function = handle_compare);
-Dynamic_Collision_Hashes :: Table(u64, struct {});
+Dynamic_Collision_Hashes :: Table(u64, void);
 
 #add_context static_collision_table: *Static_Collision_Table;
 #add_context static_raycast_table: *Static_Raycast_Table;
@@ -78,7 +78,26 @@ init_collision_tables :: () {
 
     if !context.dynamic_collision_hashes {
         context.dynamic_collision_hashes = New(Dynamic_Collision_Hashes);
-        context.dynamic_collision_hashes.allocator = temp;
+    }
+}
+
+pair_handle_hash :: (a: Entity_Handle, b: Entity_Handle) -> u64 #expand {
+    a_hash: u32 = sdbm_hash(*a, 4);
+    b_hash: u32 = sdbm_hash(*b, 4);
+    upper_hash := ifx a_hash > b_hash then a_hash else b_hash;
+    lower_hash := ifx a_hash > b_hash then b_hash else a_hash;
+    final_hash := ((cast(u64)upper_hash) << 32) | cast(u64)lower_hash;
+    return final_hash;
+}
+
+// Returns whether or not a pair of dynamic entities have had their collision solved this frame
+dynamic_collision_has_been_solved_this_frame :: (a: Entity_Handle, b: Entity_Handle) -> bool {
+    hash := pair_handle_hash(a, b);
+    if table_contains(context.dynamic_collision_hashes, hash) {
+        return true;
+    } else {
+        table_set(context.dynamic_collision_hashes, hash, default_of(void));
+        return false;
     }
 }
 
@@ -92,7 +111,7 @@ rebuild_static_collision_table :: () {
             iy := project_rigidbody_along_axis(it, Vector2.{0, 1});
             array_add(*ai_pairs, Axis_Interval_Pair.{axis = Vector2.{1, 0}, interval = ix});
             array_add(*ai_pairs, Axis_Interval_Pair.{axis = Vector2.{0, 1}, interval = iy});
-            table_add(context.static_collision_table, it.handle, ai_pairs);
+            table_set(context.static_collision_table, it.handle, ai_pairs);
         }
     }
 }

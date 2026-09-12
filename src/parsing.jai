@@ -15,6 +15,7 @@ Room_Modifier :: enum {
 }
 
 bake_world :: () {
+    entities_clear();
     write_room_cards_to_world();
     open_map_exits();
     generate_world_map_png("assets/world.png");
@@ -255,6 +256,10 @@ parse_entities_from_tiles :: () {
         coord := Coord.{xx x, xx y};
         return !`parsed[coord_to_index(coord, .WORLD)] && check_world_collision_tile_value(coord) == .WALL;
     }
+
+    parse_coordinate :: (c: Coord) #expand {
+        `parsed[coord_to_index(c, .WORLD)] = true;
+    }
     // ////////////////////////////////
 
     // Calculate the collision layer
@@ -353,67 +358,69 @@ parse_entities_from_tiles :: () {
     for y: 0..WORLD_HEIGHT - 1 {
         for x: 0..WORLD_WIDTH - 1 {
             coord := Coord.{xx x, xx y};
-            if !parsed[coord_to_index(coord, .WORLD)] {
-                entity := check_world_entity_tile_value(coord);
-                if entity == {
-                case .CRATE;
-                    print("Started Parsing a crate at %,%\n", x, y);
-                    // travelling coord
-                    t_coord := coord;
-                    t_coord.y -= 1;
-                    if t_coord.y < 0 {
-                        make_entity(coord, .CRATE);
-                        parsed[coord_to_index(coord, .WORLD)] = true;
+            if parsed[coord_to_index(coord, .WORLD)] continue;
+            parse_coordinate(coord);
+            entity := check_world_entity_tile_value(coord);
+            if entity == {
+            case .CRATE;
+                print("Started Parsing a crate at %,%\n", x, y);
+                print("[%,%] Parsed: %\n", x, y, parsed[coord_to_index(coord, .WORLD)]);
+                // travelling coord
+                t_coord := coord;
+                t_coord.y -= 1;
+                if t_coord.y < 0 {
+                    make_entity(coord, .CRATE);
+                    parsed[coord_to_index(t_coord, .WORLD)] = true;
+                    continue;
+                }
+                col_bellow: Collision_Tile;
+                ent_bellow: Entity_Tile;
+                while t_coord.y > 0 {
+                    col_bellow = check_world_collision_tile_value(t_coord);
+                    ent_bellow = check_world_entity_tile_value(t_coord);
+                    if col_bellow == .EMPTY && ent_bellow == .EMPTY {
+                        parsed[coord_to_index(t_coord, .WORLD)] = true;
+                        print("Crate Falling: % --> %\n", coord, t_coord);
+                        t_coord.y -= 1;
                         continue;
                     }
-                    col_bellow: Collision_Tile;
-                    ent_bellow: Entity_Tile;
-                    while t_coord.y > 0 {
-                        col_bellow = check_world_collision_tile_value(t_coord);
-                        ent_bellow = check_world_entity_tile_value(t_coord);
-                        if col_bellow == .EMPTY && ent_bellow == .EMPTY {
-                            parsed[coord_to_index(t_coord, .WORLD)] = true;
-                            print("Crate Falling: % --> %\n", coord, t_coord);
-                            t_coord.y -= 1;
-                            continue;
-                        }
 
-                        if col_bellow == {
-                        case .TOP_HALF; #through;
-                        case .BOT_HALF; #through;
-                        case .RIGHT_HALF; #through;
-                        case .LEFT_HALF; #through;
-                        case .WALL;
-                            print("Crate Hit Wall: % --> %\n", coord, t_coord);
-                            break;
-                        case .BLANK;
-                            print("CRATE FELL INTO A BLANK TILE, SOMETHING IS WRONG!\n");
-                            break;
-                        }
-
-                        if ent_bellow == {
-                        case .CRATE;
-                            print("Crate Hit a Crate: % --> %\n", coord, t_coord);
-                            break;
-                        }
-                        t_coord.y -= 1;
+                    if col_bellow == {
+                    case .TOP_HALF; #through;
+                    case .BOT_HALF; #through;
+                    case .RIGHT_HALF; #through;
+                    case .LEFT_HALF; #through;
+                    case .WALL;
+                        print("Crate Hit Wall: % --> %\n", coord, t_coord);
+                        break;
+                    case .BLANK;
+                        print("CRATE FELL INTO A BLANK TILE, SOMETHING IS WRONG!\n");
+                        break;
                     }
-                    if t_coord != coord {
-                        parsed[coord_to_index(coord, .WORLD)] = true;
-                        set_world_entity_tile_value(.EMPTY, coord);
-                        new_coord := t_coord + .{0, 1};
 
-                        parsed[coord_to_index(new_coord, .WORLD)] = true;
-                        set_world_entity_tile_value(.CRATE, new_coord);
-                        make_entity(new_coord, .CRATE);
+                    if ent_bellow == {
+                    case .CRATE;
+                        print("Crate Hit a Crate: % --> %\n", coord, t_coord);
+                        break;
                     }
-                case .PLAYER_SPAWN;
-                    if !player_is_valid() then make_entity(coord, .PLAYER);
-                case .GEAR;
-                    make_entity(coord, .GEAR);
-                case .EMPTY;
-                    parsed[coord_to_index(coord, .WORLD)] = true;
+                    t_coord.y -= 1;
                 }
+                if t_coord != coord {
+                    parsed[coord_to_index(t_coord, .WORLD)] = true;
+                    set_world_entity_tile_value(.EMPTY, coord);
+                    new_coord := t_coord + .{0, 1};
+
+                    parsed[coord_to_index(new_coord, .WORLD)] = true;
+                    set_world_entity_tile_value(.CRATE, new_coord);
+                    print("Making Crate!\n");
+                    make_entity(new_coord, .CRATE);
+                }
+            case .PLAYER_SPAWN;
+                if !player_is_valid() then make_entity(coord, .PLAYER);
+            case .GEAR;
+                make_entity(coord, .GEAR);
+            case .EMPTY;
+                parsed[coord_to_index(coord, .WORLD)] = true;
             }
         }
     }

@@ -65,6 +65,9 @@ body_collision :: () {
         for *dynamic_ptr: context.entities {
             if !entity_has_props(dynamic_ptr, .SOLID) || !entity_has_props(dynamic_ptr, .DYNAMIC) continue;
             if dynamic_ptr == it || dynamic_ptr.handle == it.parent || it.handle == dynamic_ptr.handle continue;
+
+            if dynamic_collision_has_been_solved_this_frame(it.handle, dynamic_ptr.handle) continue;
+
             dynamic_collision, dynamic_collision_occurred := dynamic_vs_dynamic_collision_test(it, dynamic_ptr);
             if dynamic_collision_occurred {
                 dir_to_dynamic := normalize(dynamic_ptr.position - it.position);
@@ -120,7 +123,6 @@ dynamic_entity_collisions :: (a: *Entity, b: *Entity, collision: Collision) {
     if pairing(.CRATE) {
     }
 
-    // Add pair hash to dynamic collision map
     // Also probably a good time to start tracking chunks to cut down on collision checks
 }
 

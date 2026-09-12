@@ -126,7 +126,7 @@ load_all_rooms :: () {
             if success {
                 room_hash := djb2_hash(room.name);
 
-                table_add(context.room_table, room_hash, room);
+                table_set(context.room_table, room_hash, room);
                 print("Placeable Room: % | % has been added to the table\n", room.name, room_hash);
             }
         }
@@ -140,7 +140,7 @@ load_all_rooms :: () {
             if success {
                 room_hash := djb2_hash(room.name);
 
-                table_add(context.room_table, room_hash, room);
+                table_set(context.room_table, room_hash, room);
                 print("Static Room: % | % has been added to the table\n", room.name, room_hash);
             }
         }

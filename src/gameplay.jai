@@ -20,6 +20,10 @@ gameplay_update :: (delta: float32) {
     // Dynamics
     apply_gravity(delta);
     apply_velocity(delta);
+
+    // Cleanup
+    table_reset(context.dynamic_collision_hashes);
+    print("Reseting hash table\n");
 }
 
 advance_animation_timers :: (delta: float32) {

@@ -19,3 +19,8 @@ draw_dot :: (pos: Vector2, radius: float32, color: Vector4 = .{1, 1, 1, 1}) {
                    .{right, top},
                    color);
 }
+
+default_of :: ($T: Type) -> T #expand {
+    t: T;
+    return t;
+}
