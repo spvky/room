@@ -23,7 +23,6 @@ gameplay_update :: (delta: float32) {
 
     // Cleanup
     table_reset(context.dynamic_collision_hashes);
-    print("Reseting hash table\n");
 }
 
 advance_animation_timers :: (delta: float32) {

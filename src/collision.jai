@@ -36,6 +36,14 @@ Axis_Interval_Pair :: struct {
     interval: Interval;
 }
 
+Static_Collision_Table :: Table(Entity_Handle, [..]Axis_Interval_Pair, given_hash_function = handle_hash, given_compare_function = handle_compare);
+Static_Raycast_Table :: Table(Entity_Handle, [..][2]Vector2, given_hash_function = handle_hash, given_compare_function = handle_compare);
+Dynamic_Collision_Hashes :: Table(u64, void);
+
+#add_context static_collision_table: *Static_Collision_Table;
+#add_context static_raycast_table: *Static_Raycast_Table;
+#add_context dynamic_collision_hashes: *Dynamic_Collision_Hashes;
+
 rigidbody_edges :: (r: *Rigidbody) -> [4][2]Vector2, bool {
     edges: [4][2]Vector2;
 
@@ -58,14 +66,6 @@ rigidbody_edges :: (r: *Rigidbody) -> [4][2]Vector2, bool {
 
     return edges, false;
 }
-
-Static_Collision_Table :: Table(Entity_Handle, [..]Axis_Interval_Pair, given_hash_function = handle_hash, given_compare_function = handle_compare);
-Static_Raycast_Table :: Table(Entity_Handle, [..][2]Vector2, given_hash_function = handle_hash, given_compare_function = handle_compare);
-Dynamic_Collision_Hashes :: Table(u64, void);
-
-#add_context static_collision_table: *Static_Collision_Table;
-#add_context static_raycast_table: *Static_Raycast_Table;
-#add_context dynamic_collision_hashes: *Dynamic_Collision_Hashes;
 
 init_collision_tables :: () {
     if !context.static_collision_table {
@@ -90,7 +90,6 @@ pair_handle_hash :: (a: Entity_Handle, b: Entity_Handle) -> u64 #expand {
     return final_hash;
 }
 
-// Returns whether or not a pair of dynamic entities have had their collision solved this frame
 dynamic_collision_has_been_solved_this_frame :: (a: Entity_Handle, b: Entity_Handle) -> bool {
     hash := pair_handle_hash(a, b);
     if table_contains(context.dynamic_collision_hashes, hash) {
