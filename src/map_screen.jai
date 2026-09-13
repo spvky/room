@@ -59,16 +59,6 @@ Entity_Tile :: enum u16 {
     GEAR;
 }
 
-Extra_Entity_Data :: struct {
-    subjet_idx: int;
-    subject_pos: Coord;
-    path_start: Coord;
-    path_end: Coord;
-    parent_pos: Coord;
-    child_pos: Coord;
-    direction: Map_Direction;
-}
-
 Map_Direction :: enum {
     EAST;
     SOUTH;
@@ -179,12 +169,18 @@ rotate_room :: (r: Room) -> Room {
 
     array_reserve(*out.extra_data, r.extra_data.count);
     for r.extra_data {
-        array_add(*out.extra_data, Extra_Entity_Data.{
-                                                      subject_pos = rotate_coord(it.subject_pos),
-                                                      path_start = rotate_coord(it.path_start),
-                                                      path_end = rotate_coord(it.path_end),
-                                                      parent_pos = rotate_coord(it.parent_pos),
-                                                      child_pos = rotate_coord(it.child_pos)});
+        if it.kind == {
+        case .SWITCH_BLOCK;
+            using it.switch_block_data;
+            array_add(*out.extra_data, Extra_Entity_Data.{
+                                                          kind = .SWITCH_BLOCK,
+                                                          switch_block_data = .{
+                                                                                start = rotate_coord(start),
+                                                                                width = width,
+                                                                                height = height,
+                                                                                active_start = rotate_coord(active_start),
+                                                                                switch_position = rotate_coord(switch_position)}});
+        }
     }
     out.rune = rotate_rune(r.rune, 1);
     out.exits = rotate_room_exits(r.exits, 1);

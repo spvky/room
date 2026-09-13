@@ -25,6 +25,23 @@ Room :: struct {
     texture: Texture;
 }
 
+Extra_Entity_Data :: struct {
+    kind: Extra_Entity_Kind;
+    switch_block_data: Switch_Block_Data;
+}
+
+Extra_Entity_Kind :: enum {
+    SWITCH_BLOCK;
+}
+
+Switch_Block_Data :: struct {
+    start: Coord;
+    width: s16;
+    height: s16;
+    active_start: Coord;
+    switch_position: Coord;
+}
+
 Room_Exits :: enum_flags u16 {
     NORTH_EAST :: 1 << 0;
     NORTH :: 1 << 1;
@@ -66,15 +83,22 @@ Editor_State :: struct {
     map_cursor_position: Coord;
     map_cursor_rotation: u8;
     load_static_rooms: bool;
+    selected_entity_idx: int;
     primary_window: Subwindow_Info = .{
                                        rect = #run get_rect(5, cast(float32)WINDOW_HEIGHT - 880, 350, 870),
                                        draw = draw_primary_window,
                                        title_text = "Editor"};
+
     file_load_window: Subwindow_Info = .{
                                          rect = #run get_rect((cast(float32)WINDOW_WIDTH / 2) - 400, cast(float32)WINDOW_HEIGHT - 800, 800, 600),
                                          open = false,
                                          draw = draw_file_load_window,
                                          title_text = "Load Room"};
+
+    entity_editor_window: Subwindow_Info = .{
+                                             rect = #run get_rect(cast(float32)WINDOW_WIDTH - 355, cast(float32)WINDOW_HEIGHT - 880, 350, 870),
+                                             draw = draw_entity_editor_window,
+                                             title_text = "Entity Editor"};
 }
 
 #add_context editor_state: *Editor_State;
@@ -115,6 +139,9 @@ render_room_designer_ui :: () {
 
     add_subwindow(*editor_state.primary_window, *editor_state.editor_theme.subwindow_theme);
     if editor_state.file_load_window.open add_subwindow(*editor_state.file_load_window, *editor_state.editor_theme.subwindow_theme);
+    if editor_state.editor_type == 1 {
+        add_subwindow(*editor_state.entity_editor_window, *editor_state.editor_theme.subwindow_theme);
+    }
     draw_popups();
 }
 
@@ -282,6 +309,44 @@ draw_primary_window :: (state: *Subwindow_State, r: Rect, data: *void) {
 
     if context.current_editor_room.flags & .STATIC == .STATIC {
         map_position_display(x_pos + 350, x_pos + 650, y_pos + 600, y_pos + 300);
+    }
+}
+
+draw_entity_editor_window :: (state: *Subwindow_State, r: Rect, data: *void) {
+    editor_state := context.editor_state;
+    room_ptr := context.current_editor_room;
+    y_pos := r.y + r.h - 50;
+    x_pos := r.x + 5;
+
+    for room_ptr.extra_data {
+        entity_button_rect := get_rect(x_pos, y_pos, 150, 30);
+        if editor_state.selected_entity_idx == it_index {
+            set_shader_for_color();
+            immediate_quad(
+                           .{x_pos + 155, y_pos + 20},
+                           .{x_pos + 155, y_pos + 10},
+                           .{x_pos + 185, y_pos + 10},
+                           .{x_pos + 185, y_pos + 20},
+                           .{1, 0, 0, 1});
+        }
+        button_text := tprint("%", it.kind);
+        entity_selected := button(entity_button_rect, button_text, identifier = it_index);
+        if entity_selected {
+            editor_state.selected_entity_idx = it_index;
+        }
+        y_pos -= 35;
+    }
+
+    create_entity_button_rect := get_rect(x_pos + 100, y_pos, 150, 30);
+    create_entity_pressed := button(create_entity_button_rect, "Create Entity");
+    if create_entity_pressed {
+        array_add(*room_ptr.extra_data, .{});
+        editor_state.selected_entity_idx = room_ptr.extra_data.count - 1;
+    }
+    y_pos -= 35;
+    // But the actual box for editing here
+    if room_ptr.extra_data.count > 0 {
+        data_ptr := *room_ptr.extra_data[editor_state.selected_entity_idx];
     }
 }
 

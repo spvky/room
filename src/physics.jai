@@ -79,7 +79,6 @@ body_collision :: () {
 
                 x_dot := abs(dot(corrected_normal, Vector2.{1, 0}));
                 y_dot := abs(dot(corrected_normal, Vector2.{0, 1}));
-                // vel_to_dynamic := dot(dir_to_dynamic)
 
                 if x_dot > 0.1 {
                     if it.tag == .PLAYER && dynamic_ptr.tag == .CRATE {
