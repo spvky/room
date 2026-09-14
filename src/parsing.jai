@@ -126,6 +126,22 @@ write_room_cards_to_world :: () {
                 world.entities[world_idx] = entity_tile;
             }
         }
+
+        for r.extra_data {
+            if it.kind == {
+            case .SWITCH_BLOCK;
+                using it.switch_block_data;
+                start_coord := start;
+                for y: 0..height - 1 {
+                    for x: 0..width - 1 {
+                        current_coord := start + Coord.{start_x, start_y} + Coord.{xx x, xx y};
+                        world_idx := coord_to_index(current_coord, .WORLD);
+                        world.entities[world_idx] = .SWITCH_BLOCK;
+                    }
+                }
+                // May actually be the best place to create the block here
+            }
+        }
     }
 }
 
@@ -354,6 +370,8 @@ parse_entities_from_tiles :: () {
     for *parsed {
         it.* = false;
     }
+
+    // Create our extra entities so that they are considered when resolving crates
 
     for y: 0..WORLD_HEIGHT - 1 {
         for x: 0..WORLD_WIDTH - 1 {

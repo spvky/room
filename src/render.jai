@@ -206,6 +206,21 @@ render_boundaries_from_cell :: (c: Coord) -> float32, float32, float32, float32 
     }
 }
 
+render_boundaries_from_rect :: (start: Coord, width: s16, height: s16) -> float32, float32, float32, float32 {
+    if context.game_state == .ROOM_DESIGNER || context.game_state == .MAP_PLACEMENT {
+        grid_display_height := ifx in_game_state(.ROOM_DESIGNER) then ROOM_HEIGHT else MAP_HEIGHT;
+        tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary := get_tile_ui_data(grid_display_height);
+
+        left := left_boundary + (tile_height * xx start.x);
+        right := left_boundary + (tile_height * (xx start.x + width));
+        bot := bot_boundary + (tile_height * xx start.y);
+        top := bot_boundary + (tile_height * (xx start.y + height));
+        return left, right, bot, top;
+    } else {
+        return 0, 0, 0, 0;
+    }
+}
+
 // #ROOM_DESIGNER_RENDERING
 render_room_designer_scene :: () {
     if context.editor_state.editor_type == {
@@ -289,13 +304,13 @@ render_room_collision :: (r: *Room, faded := false) {
 }
 
 render_room_entities :: (r: *Room, faded := false) {
+    alpha: float32 = ifx faded then 0.3 else 1;
     for <y: 0..ROOM_HEIGHT - 1 {
         for x: 0..ROOM_WIDTH - 1 {
             coord := Coord.{xx x, xx y};
             val := check_entity_tile_value(r, coord);
             left, right, bot, top := render_boundaries_from_cell(coord);
             color: Vector4;
-            alpha: float32 = ifx faded then 0.3 else 1;
             if val == {
             case .CRATE;
                 set_shader_for_images(*context.atlas.tile_atlas.texture);
@@ -329,6 +344,83 @@ render_room_entities :: (r: *Room, faded := false) {
                                .{0.03125, 1 - 0.0625},
                                .{0.03125, 1 - 0.0625},
                                .{0, 1 - 0.03125});
+            }
+        }
+    }
+    set_shader_for_color(true);
+    for r.extra_data {
+        if it.kind == {
+        case .SWITCH_BLOCK;
+            using it.switch_block_data;
+            left, right, bot, top := render_boundaries_from_rect(start, width, height);
+            start_center: Vector2;
+            active_center: Vector2;
+            trigger_center: Vector2;
+
+            start_center.x = (left + right) / 2;
+            start_center.y = (top + bot) / 2;
+            immediate_quad(
+                           .{left, top},
+                           .{left, bot},
+                           .{right, bot},
+                           .{right, top},
+                           .{1, 0.64, 0, alpha});
+
+            left, right, bot, top = render_boundaries_from_rect(active_start, width, height);
+            active_center.x = (left + right) / 2;
+            active_center.y = (top + bot) / 2;
+            immediate_quad(
+                           .{left, top},
+                           .{left, bot},
+                           .{right, bot},
+                           .{right, top},
+                           .{1, 0.64, 0, alpha / 2});
+
+            left, right, bot, top = render_boundaries_from_cell(trigger_position);
+            trigger_center.x = (left + right) / 2;
+            trigger_center.y = (top + bot) / 2;
+
+            immediate_quad(
+                           .{left, top},
+                           .{left, bot},
+                           .{right, bot},
+                           .{right, top},
+                           .{0.85, 0, 0, alpha});
+
+            if active_start.x != 100 {
+                if start.y == active_start.y {
+                    immediate_quad(
+                                   start_center + .{0, 5},
+                                   start_center - .{0, 5},
+                                   active_center - .{0, 5},
+                                   active_center + .{0, 5},
+                                   .{1, 1, 1, alpha});
+                } else {
+                    immediate_quad(
+                                   start_center - .{5, 0},
+                                   active_center - .{5, 0},
+                                   active_center + .{5, 0},
+                                   start_center + .{5, 0},
+                                   .{1, 1, 1, alpha});
+                }
+            }
+
+            if trigger_position.x != 100 {
+                if start.y == trigger_position.y {
+                    immediate_quad(
+                                   start_center + .{0, 3},
+                                   start_center - .{0, 3},
+                                   trigger_center - .{0, 3},
+                                   trigger_center + .{0, 3},
+                                   .{0.7, 0.7, 0.7, alpha});
+                } else {
+                    immediate_quad(
+                                   start_center - .{3, 0},
+                                   trigger_center - .{3, 0},
+                                   trigger_center + .{3, 0},
+                                   start_center + .{3, 0},
+                                   .{0.7, 0.7, 0.7, alpha});
+                }
             }
         }
     }

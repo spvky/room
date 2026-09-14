@@ -57,6 +57,7 @@ Entity_Tile :: enum u16 {
     CRATE;
     PLAYER_SPAWN;
     GEAR;
+    SWITCH_BLOCK;
 }
 
 Map_Direction :: enum {
@@ -179,7 +180,7 @@ rotate_room :: (r: Room) -> Room {
                                                                                 width = width,
                                                                                 height = height,
                                                                                 active_start = rotate_coord(active_start),
-                                                                                switch_position = rotate_coord(switch_position)}});
+                                                                                trigger_position = rotate_coord(trigger_position)}});
         }
     }
     out.rune = rotate_rune(r.rune, 1);

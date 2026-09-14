@@ -16,6 +16,7 @@ save_room :: (r: Room) {
     // Version
     version: float32 = ASSET_VERSION;
     success := file_write(*file, *version, size_of(float32));
+    _room_assert("Failed to write room version!");
     // Flags
     success = file_write(*file, *r.flags, size_of(Room_Flags));
     _room_assert("Failed to write room flags!");
@@ -40,10 +41,11 @@ save_room :: (r: Room) {
     success = file_write(*file, r.name.data, r.name.count);
     _room_assert("Failed to write room name!");
     // Extra Entity Data
-    success = file_write(*file, *r.extra_data.count, size_of(int));
-    _room_assert("Failed to write extra entity data count!");
+    extra_entity_bytes := r.extra_data.count * size_of(Extra_Entity_Data);
+    success = file_write(*file, *extra_entity_bytes, size_of(int));
+    _room_assert("Failed to write extra entity data bytes!");
     if r.extra_data.count > 0 {
-        success = file_write(*file, r.extra_data.data, size_of(Extra_Entity_Data) * r.extra_data.count);
+        success = file_write(*file, r.extra_data.data, extra_entity_bytes);
         _room_assert("Failed to write extra entity data!");
     } else {
         print("No entity data in %, skipping writing it!\n", path);
@@ -98,12 +100,12 @@ load_room :: (filename: string, static := false) -> Room, bool {
     success = file_read(file, r.name.data, name_length);
     _room_assert("Failure when reading room name!");
     // Extra Entity Data
-    entity_data_count: int;
-    success = file_read(file, *entity_data_count, size_of(int));
-    _room_assert("Failure when reading entity data count!");
-    if entity_data_count > 0 {
-        array_reserve(*r.extra_data, entity_data_count);
-        success = file_read(file, r.extra_data.data, size_of(Extra_Entity_Data) * r.extra_data.count);
+    entity_data_bytes: int;
+    success = file_read(file, *entity_data_bytes, size_of(int));
+    _room_assert("Failure when reading entity data bytes!");
+    if entity_data_bytes > 0 {
+        array_reserve(*r.extra_data, cast(s64)(cast(float32)entity_data_bytes / cast(float32)size_of(Extra_Entity_Data)));
+        success = file_read(file, r.extra_data.data, entity_data_bytes);
         _room_assert("Failure when reading entity data!");
     } else {
         print("No entity data in %, skipping reading it!\n", path);
