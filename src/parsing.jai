@@ -126,19 +126,22 @@ write_room_cards_to_world :: () {
                 world.entities[world_idx] = entity_tile;
             }
         }
+        print("Finished Writing Collision, and Entity Grids, parsing % Extra entities now\n", r.extra_data.count);
 
-        for r.extra_data {
+        for *r.extra_data {
             if it.kind == {
             case .SWITCH_BLOCK;
                 using it.switch_block_data;
-                start_coord := start;
+                relative_coord := start + Coord.{start_x, start_y};
                 for y: 0..height - 1 {
                     for x: 0..width - 1 {
-                        current_coord := start + Coord.{start_x, start_y} + Coord.{xx x, xx y};
+                        current_coord := relative_coord + Coord.{xx x, xx y};
                         world_idx := coord_to_index(current_coord, .WORLD);
                         world.entities[world_idx] = .SWITCH_BLOCK;
                     }
                 }
+                print("Making Switch Block Entity\n");
+                make_extra_entity(relative_coord, it);
                 // May actually be the best place to create the block here
             }
         }

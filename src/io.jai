@@ -42,9 +42,11 @@ save_room :: (r: Room) {
     _room_assert("Failed to write room name!");
     // Extra Entity Data
     extra_entity_bytes := r.extra_data.count * size_of(Extra_Entity_Data);
+
     success = file_write(*file, *extra_entity_bytes, size_of(int));
     _room_assert("Failed to write extra entity data bytes!");
     if r.extra_data.count > 0 {
+        print("Found % bytes of extra entity data, writing now\n", extra_entity_bytes);
         success = file_write(*file, r.extra_data.data, extra_entity_bytes);
         _room_assert("Failed to write extra entity data!");
     } else {
@@ -104,9 +106,12 @@ load_room :: (filename: string, static := false) -> Room, bool {
     success = file_read(file, *entity_data_bytes, size_of(int));
     _room_assert("Failure when reading entity data bytes!");
     if entity_data_bytes > 0 {
-        array_reserve(*r.extra_data, cast(s64)(cast(float32)entity_data_bytes / cast(float32)size_of(Extra_Entity_Data)));
+        extra_entity_count := cast(s64)(cast(float32)entity_data_bytes / cast(float32)size_of(Extra_Entity_Data));
+        print("Reading % Extra Entities from room\n", extra_entity_count);
+        array_reserve(*r.extra_data, extra_entity_count);
         success = file_read(file, r.extra_data.data, entity_data_bytes);
         _room_assert("Failure when reading entity data!");
+        r.extra_data.count = extra_entity_count;
     } else {
         print("No entity data in %, skipping reading it!\n", path);
     }

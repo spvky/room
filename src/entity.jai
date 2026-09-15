@@ -13,13 +13,22 @@ Entity :: struct {
     tag: Entity_Tag;
     state: Entity_State;
     current_coord: Coord;
+    render_kind: Entity_Render_Kind;
     animation_player: Sprite_Animation_Player;
+    #overlay (animation_player) sprite_sheet: Sprite_Sheet;
+    #overlay (animation_player) sprite: Sprite;
     handle: Entity_Handle;
     parent: Entity_Handle;
     first_child: Entity_Handle;
     last_child: Entity_Handle;
     prev_sibling: Entity_Handle;
     next_sibling: Entity_Handle;
+}
+
+Entity_Render_Kind :: enum u8 {
+    ANIMATION_PLAYER;
+    SPRITE_SHEET;
+    SPRITE;
 }
 
 Entity_Handle :: struct {
@@ -78,6 +87,10 @@ Entity_Tag :: enum u8 {
     GEAR;
     LEFT_SENSOR;
     RIGHT_SENSOR;
+    SWITCH_BLOCK;
+    SWITCH_BLOCK_SWITCH;
+    SWITCH_BLOCK_OFF_TARGET;
+    SWITCH_BLOCK_ON_TARGET;
 }
 
 Entity_Properties :: enum_flags u32 {
@@ -94,6 +107,8 @@ Entity_Properties :: enum_flags u32 {
     ANIMATED :: 1 << 10;
     DEATH_ZONE :: 1 << 11;
     UNSTABLE :: 1 << 12;
+    KINEMATIC :: 1 << 13;
+    INTERACTABLE :: 1 << 14;
 }
 
 Entity_Flags :: enum_flags u32 {
@@ -289,6 +304,67 @@ entity_has_flags :: inline (e: *Entity, flags: Entity_Flags) -> bool {
     }
 }
 
+// Returns the world coord as a Vector2(Bottom_Left_Origin)
+world_coord_to_vector2 :: (c: Coord) -> Vector2 #expand {
+    return c * Vector2.{TILE_SIZE, TILE_SIZE};
+    // v: Vector2;
+    // v.x = cast(float32)c.x * TILE_SIZE;
+    // v.y = cast(float32)c.y * TILE_SIZE;
+    // return v;
+}
+
+make_extra_entity :: (c: Coord, e: *Extra_Entity_Data) {
+    half_tile := Vector2.{TILE_SIZE, TILE_SIZE} / 2;
+    if e.kind == {
+    case .SWITCH_BLOCK;
+        using e.switch_block_data;
+        min := world_coord_to_vector2(c);
+        max := min + (Coord.{width, height} * Vector2.{TILE_SIZE, TILE_SIZE});
+        center := (min + max) / 2;
+        extents := max - min;
+        active_offset := (active_start - start) * Vector2.{TILE_SIZE, TILE_SIZE};
+        switch_offset := (trigger_position - start) * Vector2.{TILE_SIZE, TILE_SIZE};
+
+        // make the switches parents of just the objects they power, which is less magic and I can't think of a reason currently why I would need to set the blocks parent to something else
+        // OR: Could also set switch as middle child, because the parent doesn't care about it, but it will set the parents ON/OFF state, this feels more limited though
+        switch_entity: Entity;
+        switch_entity.position = switch_offset + half_tile;
+        switch_entity.shape_kind = .CIRCLE;
+        switch_entity.radius = TILE_SIZE / 2;
+        switch_entity.tag = .SWITCH_BLOCK_SWITCH;
+        switch_entity.props = .RENDERABLE | .INTERACTABLE;
+        switch_entity.render_kind = .SPRITE_SHEET;
+        switch_entity.sprite_sheet = make_sprite_sheet_from_main_atlas(8, 2);
+        switch_handle := entity_add(switch_entity);
+
+        entity: Entity;
+        entity.position = center;
+        entity.shape_kind = .RECTANGLE;
+        entity.extents = extents;
+        entity.tag = .SWITCH_BLOCK;
+        entity.props = .RENDERABLE | .DYNAMIC | .SOLID | .KINEMATIC | .UNSTABLE;
+        entity.animation_player = make_static_tile_sprite(7);
+        block_handle := entity_add_child(switch_handle, entity);
+
+        off_position_entity: Entity;
+        off_position_entity.position = center;
+        off_position_entity.tag = .SWITCH_BLOCK_OFF_TARGET;
+        entity_add_child(block_handle, off_position_entity);
+
+        on_position_entity: Entity;
+        on_position_entity.position = center + active_offset;
+        on_position_entity.tag = .SWITCH_BLOCK_ON_TARGET;
+        entity_add_child(block_handle, on_position_entity);
+
+        // Other Moving Block types to add here:
+        // Powered and unpowered patrol blocks
+        // For patrol editor store array of points (fixed size)
+        // To handle patrolling, have the block move towards a handle (set to the handle of the first child point)
+        // When we reach a patrol point child, grab their next sibling handle to get to the next one
+        // Need to ensure children still have a ring buffer relationship to their siblings for this to be seamless
+    }
+}
+
 make_entity :: (c: Coord, kind: Entity_Tag) {
     if kind == {
     case .PLAYER;
@@ -299,6 +375,7 @@ make_entity :: (c: Coord, kind: Entity_Tag) {
         entity.radius = TILE_SIZE / 2;
         entity.tag = .PLAYER;
         entity.props = .RENDERABLE | .GRAVITY_AFFECTED | .DYNAMIC | .SELF_PROPELLED;
+        entity.render_kind = .ANIMATION_PLAYER;
         entity.animation_player = make_static_tile_sprite(6);
         entity.movement_delta.x = 0;
         context.player_handle.* = entity_add(entity);
@@ -328,6 +405,7 @@ make_entity :: (c: Coord, kind: Entity_Tag) {
         entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
         entity.tag = .CRATE;
         entity.props = .RENDERABLE | .SOLID | .GRAVITY_AFFECTED | .DYNAMIC;
+        entity.render_kind = .ANIMATION_PLAYER;
         entity.animation_player = make_static_tile_sprite(0);
         crate_handle := entity_add(entity);
 
@@ -365,6 +443,7 @@ make_entity :: (c: Coord, kind: Entity_Tag) {
         entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
         entity.tag = .GEAR;
         entity.props = .RENDERABLE | .ANIMATED | .SOLID | .STATIC | .DEATH_ZONE | .UNSTABLE;
+        entity.render_kind = .ANIMATION_PLAYER;
         entity.animation_player = Sprite_Animation_Player.{
                                                            atlas = *context.atlas.tile_atlas,
                                                            seconds_per_frame = 0.015,
@@ -377,6 +456,7 @@ make_entity :: (c: Coord, kind: Entity_Tag) {
 }
 
 make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
+    // TODO: Implement the other render types (Sprite and Sprite_Sheet)
     if kind == {
     case .WALL;
         entity: Entity;
@@ -390,6 +470,7 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
         entity.props = .RENDERABLE | .STATIC | .SOLID;
+        entity.render_kind = .ANIMATION_PLAYER;
         entity.animation_player = make_static_tile_sprite(1);
         entity_add(entity);
     case .TOP_HALF;
@@ -404,6 +485,7 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
         entity.props = .RENDERABLE | .STATIC | .SOLID;
+        entity.render_kind = .ANIMATION_PLAYER;
         entity.animation_player = make_static_tile_sprite(1);
         entity_add(entity);
     case .BOT_HALF;
@@ -418,6 +500,7 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
         entity.props = .RENDERABLE | .STATIC | .SOLID;
+        entity.render_kind = .ANIMATION_PLAYER;
         entity.animation_player = make_static_tile_sprite(1);
         entity_add(entity);
     case .LEFT_HALF;
@@ -432,6 +515,7 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
         entity.props = .RENDERABLE | .STATIC | .SOLID;
+        entity.render_kind = .ANIMATION_PLAYER;
         entity.animation_player = make_static_tile_sprite(1);
         entity_add(entity);
     case .RIGHT_HALF;
@@ -447,6 +531,7 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
         entity.props = .RENDERABLE | .STATIC | .SOLID;
+        entity.render_kind = .ANIMATION_PLAYER;
         entity.animation_player = make_static_tile_sprite(1);
         entity_add(entity);
     }

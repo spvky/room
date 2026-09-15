@@ -28,6 +28,11 @@ init_textures :: () {
     atlas.player_sprite = make_sprite(*atlas.collision_circle);
 }
 
-make_static_tile_sprite :: inline (idx: int) -> Sprite_Animation_Player {
+make_static_tile_sprite :: (idx: int) -> Sprite_Animation_Player #expand {
     return Sprite_Animation_Player.{atlas = *context.atlas.tile_atlas, start = idx, idx = idx};
+}
+
+make_sprite_sheet_from_main_atlas :: (idx: int, length: int) -> Sprite_Sheet #expand {
+    return Sprite_Sheet.{
+                         atlas = *context.atlas.tile_atlas, start = idx, idx = idx, length = length};
 }

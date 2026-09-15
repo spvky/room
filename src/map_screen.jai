@@ -13,6 +13,10 @@ Coord :: struct {
     y: s16;
 }
 
+operator * :: (c: Coord, v: Vector2) -> Vector2 {
+    return Vector2.{cast(float32)c.x * v.x, cast(float32)c.y * v.y};
+}
+
 Coord_Range :: struct {
     min: Coord;
     max: Coord;
