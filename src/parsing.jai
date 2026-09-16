@@ -420,6 +420,9 @@ parse_entities_from_tiles :: () {
                     }
 
                     if ent_bellow == {
+                    case .SWITCH_BLOCK;
+                        print("Crate Hit a Switch block: % --> %\n", coord, t_coord);
+                        break;
                     case .CRATE;
                         print("Crate Hit a Crate: % --> %\n", coord, t_coord);
                         break;
