@@ -500,15 +500,32 @@ render_entities :: () {
         player_pos.x -= 0.01;
     }
     for *context.entities {
-        if !entity_has_props(it, .RENDERABLE) continue;
+        if !entity_has_props(it, .RENDERABLE) || entity_has_props(it, .FOREGROUND) continue;
         pos := cam_relative_position(it.position);
-        sprite := get_current_animation_frame(*it.animation_player);
-        if it.shape_kind == {
-        case .RECTANGLE;
-            render_sprite(*sprite, pos, it.extents);
-        case .CIRCLE;
-            render_sprite(*sprite, pos, .{it.radius * 2, it.radius * 2});
+        sprite: Sprite;
+        if it.render_kind == {
+        case .SPRITE;
+            sprite = it.sprite;
+        case .SPRITE_SHEET;
+            sprite = get_current_sprite_sheet_frame(*it.sprite_sheet);
+        case .ANIMATION_PLAYER;
+            sprite = get_current_animation_frame(*it.animation_player);
         }
+        render_sprite(*sprite, pos, it.render_extents);
+    }
+    for *context.entities {
+        if !entity_has_props(it, .RENDERABLE) || !entity_has_props(it, .FOREGROUND) continue;
+        pos := cam_relative_position(it.position);
+        sprite: Sprite;
+        if it.render_kind == {
+        case .SPRITE;
+            sprite = it.sprite;
+        case .SPRITE_SHEET;
+            sprite = get_current_sprite_sheet_frame(*it.sprite_sheet);
+        case .ANIMATION_PLAYER;
+            sprite = get_current_animation_frame(*it.animation_player);
+        }
+        render_sprite(*sprite, pos, it.render_extents);
     }
 }
 

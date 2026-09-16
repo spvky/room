@@ -38,6 +38,48 @@ apply_movement_deltas :: () {
     }
 }
 
+handle_power_conductivity :: () {
+    for *context.entities {
+        if !entity_has_props(it, .CONDUIT) continue;
+        if entity_valid(it.first_child) {
+            child := entity_get(it.first_child);
+            if entity_has_flags(it, .POWERED) {
+                child.flags |= .POWERED;
+            } else {
+                child.flags &= ~.POWERED;
+            }
+        }
+
+        if entity_valid(it.last_child) {
+            child := entity_get(it.last_child);
+            if entity_has_flags(it, .POWERED) {
+                child.flags |= .POWERED;
+            } else {
+                child.flags &= ~.POWERED;
+            }
+        }
+        // Maybe link siblings here
+    }
+}
+
+player_interaction :: () {
+    player := player_get();
+    for *context.entities {
+        if !entity_has_props(it, .INTERACTABLE) || it == player continue;
+        if distance(it.position, player.position) <= TILE_SIZE && is_action_buffered(.INTERACT) {
+            if it.tag == {
+            case .SWITCH_BLOCK_SWITCH;
+                consume_action(.INTERACT);
+                if entity_has_flags(it, .POWERED) {
+                    it.flags &= ~.POWERED;
+                } else {
+                    it.flags |= .POWERED;
+                }
+            }
+        }
+    }
+}
+
 body_collision :: () {
     for *context.entities {
         if !(entity_has_props(it, .DYNAMIC)) continue;
@@ -72,10 +114,16 @@ body_collision :: () {
             if dynamic_collision_occurred {
                 dir_to_dynamic := normalize(dynamic_ptr.position - it.position);
                 corrected_normal := ifx dot_product(dir_to_dynamic, dynamic_collision.normal) < 0 then dynamic_collision.normal else -dynamic_collision.normal;
-                push_amount := dynamic_collision.depth / 2;
+                contains_kinematic := entity_has_props(dynamic_ptr, .KINEMATIC) || entity_has_props(it, .KINEMATIC);
+                push_amount := ifx contains_kinematic then dynamic_collision.depth else dynamic_collision.depth / 2;
 
-                it.position += corrected_normal * (push_amount + 0.01);
-                dynamic_ptr.position += -corrected_normal * (push_amount + 0.01);
+                if contains_kinematic {
+                    if !entity_has_props(it, .KINEMATIC) it.position += corrected_normal * (push_amount + 0.01);
+                    if !entity_has_props(dynamic_ptr, .KINEMATIC) dynamic_ptr.position += -corrected_normal * (push_amount + 0.01);
+                } else {
+                    it.position += corrected_normal * (push_amount + 0.01);
+                    dynamic_ptr.position += -corrected_normal * (push_amount + 0.01);
+                }
 
                 x_dot := abs(dot(corrected_normal, Vector2.{1, 0}));
                 y_dot := abs(dot(corrected_normal, Vector2.{0, 1}));
@@ -100,6 +148,33 @@ zero_velo_on_axis :: (entity: *Entity, normal: Vector2) {
     mag_along_axis := dot(entity.velocity, normal);
     if mag_along_axis > 0 {
         entity.velocity += mag_along_axis * -normal;
+    }
+}
+
+moving_block_velocity :: () {
+    for *context.entities {
+        if it.tag != .SWITCH_BLOCK continue;
+        if entity_has_flags(it, .POWERED) {
+            if entity_valid(it.last_child) {
+                child := entity_get(it.last_child);
+                if distance(child.position, it.position) > 1 {
+                    direction := normalize(child.position - it.position);
+                    it.velocity = direction * 100;
+                } else {
+                    it.position = child.position;
+                }
+            }
+        } else {
+            if entity_valid(it.first_child) {
+                child := entity_get(it.first_child);
+                if distance(child.position, it.position) > 1 {
+                    direction := normalize(child.position - it.position);
+                    it.velocity = direction * 100;
+                } else {
+                    it.position = child.position;
+                }
+            }
+        }
     }
 }
 
