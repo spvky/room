@@ -181,8 +181,8 @@ rotate_room :: (r: Room) -> Room {
                                                           kind = .SWITCH_BLOCK,
                                                           switch_block_data = .{
                                                                                 start = rotate_coord(start),
-                                                                                width = width,
-                                                                                height = height,
+                                                                                width = height,
+                                                                                height = width,
                                                                                 active_start = rotate_coord(active_start),
                                                                                 trigger_position = rotate_coord(trigger_position)}});
         }

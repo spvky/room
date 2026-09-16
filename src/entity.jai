@@ -319,6 +319,7 @@ make_extra_entity :: (c: Coord, e: *Extra_Entity_Data) {
     if e.kind == {
     case .SWITCH_BLOCK;
         using e.switch_block_data;
+        print("Making Switch Block: %\n", e.switch_block_data);
         min := world_coord_to_vector2(c);
         max := min + (Coord.{width, height} * Vector2.{TILE_SIZE, TILE_SIZE});
         center := (min + max) / 2;

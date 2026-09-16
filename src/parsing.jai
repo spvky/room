@@ -128,7 +128,7 @@ write_room_cards_to_world :: () {
         }
         print("Finished Writing Collision, and Entity Grids, parsing % Extra entities now\n", r.extra_data.count);
 
-        for *r.extra_data {
+        for *room_copy.extra_data {
             if it.kind == {
             case .SWITCH_BLOCK;
                 using it.switch_block_data;
