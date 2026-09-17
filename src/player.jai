@@ -62,3 +62,56 @@ player_jump :: () {
         player.velocity.y = PLAYER_JUMP_SPEED;
     }
 }
+
+player_interaction :: () {
+    player := player_get();
+    for *context.entities {
+        if !entity_has_props(it, .INTERACTABLE) || it == player continue;
+        if distance(it.position, player.position) <= TILE_SIZE && is_action_buffered(.INTERACT) {
+            if it.tag == {
+            case .SWITCH_BLOCK_SWITCH;
+                consume_action(.INTERACT);
+                if entity_has_flags(it, .POWERED) {
+                    it.flags &= ~.POWERED;
+                } else {
+                    it.flags |= .POWERED;
+                }
+            case .ASSEMBLER;
+                consume_action(.INTERACT);
+                if entity_has_flags(it, .POWERED) {
+                    open_map_placement_screen();
+                }
+            }
+        }
+    }
+}
+
+store_player :: () {
+    assert(player_is_valid(), "Tried to store player and they didn't exist!\n");
+    player := player_get();
+    context.game_data.stored_player = player.*;
+    context.game_data.has_stored_player = true;
+}
+
+restore_player :: () {
+    assert(context.game_data.has_stored_player, "Tried to restore an unstored player!\n");
+    context.player_handle.* = entity_add(context.game_data.stored_player);
+
+    // Ground Sensor Entity
+    gse: Entity;
+    gse.offset = Vector2.{0, -TILE_SIZE / 2};
+    gse.extents = Vector2.{TILE_SIZE * 0.8, TILE_SIZE / 8};
+    gse.shape_kind = .RECTANGLE;
+    gse.tag = .GROUND_SENSOR;
+    gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
+    entity_add_child(context.player_handle.*, gse);
+
+    // Left Ray Entity
+    lre: Entity;
+    lre.offset = Vector2.{(context.game_data.stored_player.radius * 0.9), 0};
+    lre.tag = .WALL_CASTER;
+    lre.ray.direction = .{1, 0};
+    lre.ray.max_toi = 32.0;
+    lre.props = .RAY_CASTER | .RELATIVE_POSITION | .RELATIVE_ROTATION;
+    entity_add_child(context.player_handle.*, lre);
+}

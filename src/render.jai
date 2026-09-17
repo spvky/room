@@ -344,6 +344,18 @@ render_room_entities :: (r: *Room, faded := false) {
                                .{0.03125, 1 - 0.0625},
                                .{0.03125, 1 - 0.0625},
                                .{0, 1 - 0.03125});
+            case .ASSEMBLER;
+                set_shader_for_color();
+                immediate_quad(
+                               .{left, top},
+                               .{left, bot},
+                               .{right, bot},
+                               .{right, top},
+                               .{0.6, 0.9, 0.31, alpha},
+                               .{0, 1 - 0.03125},
+                               .{0.03125, 1 - 0.0625},
+                               .{0.03125, 1 - 0.0625},
+                               .{0, 1 - 0.03125});
             }
         }
     }

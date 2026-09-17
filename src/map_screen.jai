@@ -61,6 +61,7 @@ Entity_Tile :: enum u16 {
     CRATE;
     PLAYER_SPAWN;
     GEAR;
+    ASSEMBLER;
     SWITCH_BLOCK;
 }
 
@@ -415,6 +416,11 @@ map_screen_update :: () {
     if is_action_buffered(.BAKE_MAP) {
         consume_action(.BAKE_MAP);
         bake_world();
+    }
+
+    if is_action_buffered(.INTERACT) {
+        consume_action(.INTERACT);
+        exit_map_placement_screen();
     }
 }
 

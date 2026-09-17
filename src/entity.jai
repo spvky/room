@@ -39,8 +39,6 @@ Entity_Handle :: struct {
     generation: u32;
 }
 
-NULL_HANDLE :: Entity_Handle.{};
-
 operator == :: (a: Entity_Handle, b: Entity_Handle) -> bool {
     return a.index == b.index && a.generation == b.generation;
 }
@@ -94,6 +92,7 @@ Entity_Tag :: enum u8 {
     SWITCH_BLOCK_SWITCH;
     SWITCH_BLOCK_OFF_TARGET;
     SWITCH_BLOCK_ON_TARGET;
+    ASSEMBLER;
 }
 
 Entity_Properties :: enum_flags u32 {
@@ -190,10 +189,10 @@ entity_remove :: (handle: Entity_Handle, e: *Entity_Manager = context.entities, 
         print("Start removal at depth: % with handle %\n", depth, handle);
         entity := entity_get(handle);
         print("Got entity for removal % with handle %\n", entity, handle);
-        if entity.first_child != NULL_HANDLE {
+        if entity_valid(entity.first_child) {
             current_child := entity_get(entity.first_child);
 
-            while current_child.next_sibling != NULL_HANDLE {
+            while entity_valid(current_child.next_sibling) {
                 print("Child % removing sibling %\n", entity.first_child, current_child.next_sibling);
                 entity_remove(current_child.next_sibling, depth = depth + 1);
             }
@@ -201,19 +200,19 @@ entity_remove :: (handle: Entity_Handle, e: *Entity_Manager = context.entities, 
             entity_remove(entity.first_child, depth = depth + 1);
         }
 
-        if entity.next_sibling != NULL_HANDLE {
+        if entity_valid(entity.next_sibling) {
             print("Ammending next sibling! at depth %\n", depth);
             next_sibling := entity_get(entity.next_sibling);
             next_sibling.prev_sibling = entity.prev_sibling;
         }
 
-        if entity.prev_sibling != NULL_HANDLE {
+        if entity_valid(entity.prev_sibling) {
             print("Ammending previous sibling! at depth %\n", depth);
             prev_sibling := entity_get(entity.prev_sibling);
             prev_sibling.next_sibling = entity.next_sibling;
         }
 
-        if entity.prev_sibling == NULL_HANDLE && entity.parent != NULL_HANDLE {
+        if !entity_valid(entity.prev_sibling) && entity_valid(entity.parent) {
             parent := entity_get(entity.parent);
             parent.first_child = entity.next_sibling;
         }
@@ -228,7 +227,7 @@ entity_remove :: (handle: Entity_Handle, e: *Entity_Manager = context.entities, 
 }
 
 entity_valid :: (handle: Entity_Handle, e: *Entity_Manager = context.entities) -> bool {
-    if handle == NULL_HANDLE return false;
+    if handle == .{0, 0} return false;
     return entity_get(handle, e) != null;
 }
 
@@ -237,7 +236,7 @@ entity_add_child :: (parent_handle: Entity_Handle, child_entity: Entity, e: *Ent
     // check if parent is still valid
     if entity_valid(parent_handle) {
         child_handle = entity_add(child_entity);
-        if child_handle == NULL_HANDLE {
+        if !entity_valid(child_handle) {
             print("Tried to add entity child and still have a null handle, something is wrong!\n");
             return child_handle;
         }
@@ -251,7 +250,7 @@ entity_add_child :: (parent_handle: Entity_Handle, child_entity: Entity, e: *Ent
         //        (parent_ptr.first_child != NULL_HANDLE && parent_ptr.last_child != NULL_HANDLE));
 
         child_ptr.prev_sibling = parent_ptr.last_child;
-        if parent_ptr.last_child == NULL_HANDLE {
+        if !entity_valid(parent_ptr.last_child) {
             parent_ptr.first_child = child_handle;
             parent_ptr.last_child = child_handle;
         } else {
@@ -461,13 +460,25 @@ make_entity :: (c: Coord, kind: Entity_Tag) {
                                                            start = 17,
                                                            idx = 17,
                                                            length = 1};
-
         entity_add(entity);
+    case .ASSEMBLER;
+        entity: Entity;
+        half_tile := Vector2.{TILE_SIZE, TILE_SIZE} / 2;
+        entity.position = Vector2.{xx c.x * TILE_SIZE, xx c.y * TILE_SIZE} + half_tile;
+        entity.shape_kind = .RECTANGLE;
+        entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
+        entity.tag = .ASSEMBLER;
+        entity.props = .RENDERABLE | .INTERACTABLE;
+        entity.flags = .POWERED;
+        entity.render_kind = .SPRITE_SHEET;
+        entity.sprite_sheet = sprite_sheet(10, 2);
+        entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
+        assembler_handle := entity_add(entity);
+        context.inspector_state.current_handle = assembler_handle;
     }
 }
 
 make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
-    // TODO: Implement the other render types (Sprite and Sprite_Sheet)
     if kind == {
     case .WALL;
         entity: Entity;

@@ -440,9 +440,13 @@ parse_entities_from_tiles :: () {
                     make_entity(new_coord, .CRATE);
                 }
             case .PLAYER_SPAWN;
-                if !player_is_valid() then make_entity(coord, .PLAYER);
+                if !player_is_valid() && !context.game_data.has_stored_player {
+                    make_entity(coord, .PLAYER);
+                }
             case .GEAR;
                 make_entity(coord, .GEAR);
+            case .ASSEMBLER;
+                make_entity(coord, .ASSEMBLER);
             case .EMPTY;
                 parsed[coord_to_index(coord, .WORLD)] = true;
             }

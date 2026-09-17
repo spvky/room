@@ -50,6 +50,12 @@ handle_entity_sprite_sheets :: () {
             } else {
                 it.sprite_sheet.idx = 8;
             }
+        case .ASSEMBLER;
+            if entity_has_flags(it, .POWERED) {
+                it.sprite_sheet.idx = 11;
+            } else {
+                it.sprite_sheet.idx = 10;
+            }
         }
     }
 }

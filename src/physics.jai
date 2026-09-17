@@ -62,24 +62,6 @@ handle_power_conductivity :: () {
     }
 }
 
-player_interaction :: () {
-    player := player_get();
-    for *context.entities {
-        if !entity_has_props(it, .INTERACTABLE) || it == player continue;
-        if distance(it.position, player.position) <= TILE_SIZE && is_action_buffered(.INTERACT) {
-            if it.tag == {
-            case .SWITCH_BLOCK_SWITCH;
-                consume_action(.INTERACT);
-                if entity_has_flags(it, .POWERED) {
-                    it.flags &= ~.POWERED;
-                } else {
-                    it.flags |= .POWERED;
-                }
-            }
-        }
-    }
-}
-
 body_collision :: () {
     for *context.entities {
         if !(entity_has_props(it, .DYNAMIC)) continue;

@@ -1,8 +1,8 @@
 EDITOR_MODES: [2]string: .["Collision", "Entities"];
 COLLISION_TILE_TYPES: [5]string: .["Wall", "Top Half", "Bot Half", "Left Half", "Right Half"];
 COLLISION_TILE_ICONS: [5]Ui_Icon;
-ENTITY_TILE_TYPES: [3]string: .["Crate", "Player Spawn", "Gear"];
-ENTITY_TILE_ICONS: [3]Ui_Icon;
+ENTITY_TILE_TYPES: [4]string: .["Crate", "Player Spawn", "Gear", "Assembler"];
+ENTITY_TILE_ICONS: [4]Ui_Icon;
 
 Ui_Icon :: struct {
     sprite: Sprite;
@@ -139,6 +139,8 @@ init_ui_icons :: () {
     ENTITY_TILE_ICONS[1] = .{color = .{0.6, 0.5, 0, 1}};
     // Gear
     ENTITY_TILE_ICONS[2] = .{sprite = sprite_from_atlas(*atlas.tile_atlas, 17)};
+    // Assembler
+    ENTITY_TILE_ICONS[3] = .{color = .{0.6, 0.9, 0.31, 1}};
 }
 
 render_room_designer_ui :: () {
@@ -331,6 +333,7 @@ draw_entity_editor_window :: (state: *Subwindow_State, r: Rect, data: *void) {
 
     for room_ptr.extra_data {
         entity_button_rect := get_rect(x_pos, y_pos, 150, 30);
+        delete_entity_button_rect := get_rect(x_pos + 190, y_pos, 150, 30);
         if editor_state.selected_entity_idx == it_index {
             set_shader_for_color();
             immediate_quad(
@@ -342,8 +345,12 @@ draw_entity_editor_window :: (state: *Subwindow_State, r: Rect, data: *void) {
         }
         button_text := tprint("%", it.kind);
         entity_selected := button(entity_button_rect, button_text, identifier = it_index);
+        entity_deleted := button(delete_entity_button_rect, "Delete", identifier = it_index * 50);
         if entity_selected {
             editor_state.selected_entity_idx = it_index;
+        }
+        if entity_deleted {
+            array_ordered_remove_by_index(*room_ptr.extra_data, it_index);
         }
         y_pos -= 35;
     }

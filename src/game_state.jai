@@ -5,10 +5,33 @@ Game_State :: enum u8 {
     ROOM_DESIGNER;
 }
 
+Game_Data :: struct {
+    has_stored_player: bool;
+    stored_player: Entity;
+}
+
 #add_context game_state: Game_State;
+#add_context game_data: *Game_Data;
+
+init_game_data :: () {
+    if !context.game_data {
+        context.game_data = New(Game_Data);
+    }
+}
 
 in_game_state :: (state: Game_State) -> bool #expand {
     return context.game_state == state;
+}
+
+open_map_placement_screen :: () {
+    store_player();
+    context.game_state = .MAP_PLACEMENT;
+}
+
+exit_map_placement_screen :: () {
+    bake_world();
+    restore_player();
+    context.game_state = .GAMEPLAY;
 }
 
 game_state_update :: () {
@@ -22,6 +45,7 @@ game_state_update :: () {
     if is_action_buffered(.GOTO_GAMEPLAY) {
         consume_action(.GOTO_GAMEPLAY);
         bake_world();
+
         context.game_state = .GAMEPLAY;
     }
 }
