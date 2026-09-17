@@ -486,6 +486,7 @@ render_gameplay_scene :: () {
     sv[2] = .{xx WINDOW_WIDTH, xx WINDOW_WIDTH};
     sv[3] = .{0, xx WINDOW_WIDTH};
     immediate_quad(sv[0], sv[1], sv[2], sv[3], .{1, 1, 1, 1});
+    render_floating_text();
     debug_inspector_ui();
     // draw_dot(.{960, 540}, 50, .{1, 0, 0, 1});
 }
@@ -580,4 +581,17 @@ mouse_pointer_to_gameplay_pos :: () -> Vector2, bool {
 
     return context.camera.position + Vector2.{true_x, true_y}, ok;
     // return Vector2.{screen_scaled_x, screen_scaled_y}, ok;
+}
+
+gameplay_pos_to_screen_position :: (v: Vector2) -> int, int, bool {
+    adjusted_pos := v - context.camera.position;
+    display_scaled_x := adjusted_pos.x / (cast(float32)DISPLAY_WIDTH);
+    display_scaled_y := adjusted_pos.y / (cast(float32)DISPLAY_HEIGHT);
+
+    if display_scaled_x < 0 || display_scaled_x > 1 || display_scaled_y < 0 || display_scaled_y > 1 return 0, 0, false;
+
+    screen_float_x := display_scaled_x * WINDOW_WIDTH;
+    screen_float_y := display_scaled_y * WINDOW_HEIGHT;
+
+    return cast(s64)screen_float_x, cast(s64)screen_float_y, true;
 }

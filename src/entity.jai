@@ -13,6 +13,8 @@ Entity :: struct {
     tag: Entity_Tag;
     state: Entity_State;
     current_coord: Coord;
+    text_alpha: float32;
+    text_message: Display_Message;
     render_kind: Entity_Render_Kind;
     render_extents: Vector2;
     animation_player: Sprite_Animation_Player;
@@ -112,6 +114,7 @@ Entity_Properties :: enum_flags u32 {
     INTERACTABLE :: 1 << 14;
     FOREGROUND :: 1 << 15;
     CONDUIT :: 1 << 16;
+    TEXT_DISPLAY :: 1 << 17;
 }
 
 Entity_Flags :: enum_flags u32 {
@@ -121,6 +124,7 @@ Entity_Flags :: enum_flags u32 {
     PHYSICS_REST :: 1 << 3;
     LEFT_BLOCKED :: 1 << 4;
     RIGHT_BLOCKED :: 1 << 5;
+    TEXT_ACTIVE :: 1 << 6;
 }
 
 Entity_Message :: enum_flags u32 {
@@ -332,7 +336,8 @@ make_extra_entity :: (c: Coord, e: *Extra_Entity_Data) {
         switch_entity: Entity;
         switch_entity.position = min + switch_offset + half_tile;
         switch_entity.tag = .SWITCH_BLOCK_SWITCH;
-        switch_entity.props = .RENDERABLE | .INTERACTABLE | .FOREGROUND | .CONDUIT;
+        switch_entity.text_message = .SWITCH;
+        switch_entity.props = .RENDERABLE | .INTERACTABLE | .FOREGROUND | .CONDUIT | .TEXT_DISPLAY;
         switch_entity.render_kind = .SPRITE_SHEET;
         switch_entity.sprite_sheet = sprite_sheet(8, 2);
         switch_entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};

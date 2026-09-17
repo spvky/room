@@ -88,3 +88,4 @@ GL :: #import "GL";
 #load "src/parsing.jai";
 #load "src/water.jai";
 #load "src/inspector.jai";
+#load "src/text.jai";

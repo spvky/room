@@ -1,0 +1,52 @@
+Display_Message :: enum u8 {
+    NONE;
+    ASSEMBLER;
+    SWITCH;
+}
+
+string_from_message :: (msg: Display_Message) -> string {
+    out: string;
+    if msg == {
+    case .ASSEMBLER; out = "E - re-Assemble mAp";
+    case .SWITCH; out = "E - Flip";
+    case .NONE; out = "";
+    }
+    return out;
+}
+
+manage_floating_text :: (delta: float32) {
+    player := player_get();
+    for *context.entities {
+        if !entity_has_props(it, .TEXT_DISPLAY) continue;
+        if distance(player.position, it.position) < TILE_SIZE {
+            it.flags |= .TEXT_ACTIVE;
+        } else {
+            it.flags &= ~.TEXT_ACTIVE;
+        }
+
+        if entity_has_flags(it, .TEXT_ACTIVE) {
+            if it.text_alpha < 0.95 {
+                it.text_alpha = lerp(it.text_alpha, 1, delta * 10);
+            } else {
+                it.text_alpha = 1;
+            }
+        } else {
+            if it.text_alpha > 0.05 {
+                it.text_alpha = lerp(it.text_alpha, 0, delta * 10);
+            } else {
+                it.text_alpha = 0;
+            }
+        }
+    }
+}
+
+render_floating_text :: () {
+    for *context.entities {
+        if !entity_has_props(it, .TEXT_DISPLAY) || it.text_alpha == 0 continue;
+        screen_x, screen_y, ok := gameplay_pos_to_screen_position(it.position);
+        if !ok continue;
+        screen_y += 80;
+        screen_x -= 30;
+        draw_text(context.atlas.font, screen_x, screen_y, string_from_message(it.text_message));
+    }
+}

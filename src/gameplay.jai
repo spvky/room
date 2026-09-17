@@ -14,6 +14,7 @@ gameplay_update :: (delta: float32) {
     set_relative_position_and_rotations();
     apply_movement_deltas();
     moving_block_velocity();
+    manage_floating_text(delta);
 
     // Collision
     sensor_collision();

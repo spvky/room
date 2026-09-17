@@ -4,6 +4,7 @@ Asset_Atlas :: struct {
     room_frame_texture: Texture;
     collision_circle: Texture;
     player_sprite: Sprite;
+    font: *Dynamic_Font;
 }
 
 frame_bytes :: #run read_entire_file("assets/room_frame.png");
@@ -26,7 +27,20 @@ init_textures :: () {
     ok = texture_load_from_memory(*atlas.collision_circle, cast([]u8)collision_circle_bytes);
     if !ok print("Failed to load collision circle texture from memory!\n");
     atlas.player_sprite = make_sprite(*atlas.collision_circle);
+    pixel_height := WINDOW_HEIGHT / 24;
+    atlas.font = get_font_at_size("assets", "OpenSans-BoldItalic.ttf", pixel_height);
 }
+
+// my_init_fonts :: () {
+//     // So that we can load our font, set to path of running executable.
+//     // @Incomplete: Pack a default font into Simp.
+// 
+//     pixel_height := window_height / 24;
+// 
+//     // @Cleanup: Don't have path + name be separate.
+//     my_font = Simp.get_font_at_size(base_dir, "OpenSans-BoldItalic.ttf", pixel_height);
+//     assert(my_font != null);
+// }
 
 sprite :: (idx: int) -> Sprite #expand {
     atlas := *context.atlas.tile_atlas;
