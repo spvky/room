@@ -486,6 +486,7 @@ render_gameplay_scene :: () {
     sv[2] = .{xx WINDOW_WIDTH, xx WINDOW_WIDTH};
     sv[3] = .{0, xx WINDOW_WIDTH};
     immediate_quad(sv[0], sv[1], sv[2], sv[3], .{1, 1, 1, 1});
+    debug_inspector_ui();
     // draw_dot(.{960, 540}, 50, .{1, 0, 0, 1});
 }
 
@@ -561,4 +562,22 @@ debug_render_colliders :: () {
         if entity_has_props(it, .SENSOR) color = .{0.98, 0.95, 0.21, 0.3};
         draw_entity_collider(it, color);
     }
+}
+
+mouse_pointer_to_gameplay_pos :: () -> Vector2, bool {
+    raw_x, raw_y, ok := get_mouse_pointer_position();
+    raw_y = WINDOW_HEIGHT - raw_y;
+
+    if raw_x == 0 || raw_y == 0 {
+        return Vector2.{}, false;
+    }
+
+    screen_scaled_x := (cast(float32)raw_x) / WINDOW_WIDTH;
+    screen_scaled_y := (cast(float32)raw_y) / WINDOW_HEIGHT;
+
+    true_x := screen_scaled_x * cast(float32)DISPLAY_WIDTH;
+    true_y := screen_scaled_y * cast(float32)DISPLAY_HEIGHT;
+
+    return context.camera.position + Vector2.{true_x, true_y}, ok;
+    // return Vector2.{screen_scaled_x, screen_scaled_y}, ok;
 }

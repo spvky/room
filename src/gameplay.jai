@@ -26,6 +26,7 @@ gameplay_update :: (delta: float32) {
 
     // Interaction
     player_interaction();
+    inspector_entity_picking();
 
     // Cleanup
     table_reset(context.dynamic_collision_hashes);

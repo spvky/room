@@ -121,6 +121,7 @@ init_editor :: () {
     proc := default_theme_procs[0];
     context.editor_state.editor_theme = proc();
     set_default_theme(context.editor_state.editor_theme);
+    context.editor_state.editor_theme.label_theme.alignment = .Left;
     init_ui_icons();
 }
 

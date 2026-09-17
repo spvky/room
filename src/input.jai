@@ -24,6 +24,7 @@ Action :: enum {
     GOTO_ROOM_DESIGNER;
     GOTO_MAP_PLACEMENT;
     GOTO_GAMEPLAY;
+    TOGGLE_INSPECTOR;
     BAKE_MAP;
 }
 
@@ -51,6 +52,7 @@ init_input :: () {
     register_input(.GOTO_MAP_PLACEMENT, #char "9");
     register_input(.GOTO_GAMEPLAY, #char "0");
     register_input(.BAKE_MAP, #char "J");
+    register_input(.TOGGLE_INSPECTOR, #char "1");
 }
 
 process_input :: (delta: float32) {

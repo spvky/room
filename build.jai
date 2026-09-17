@@ -51,6 +51,7 @@ init :: () {
     init_input();
     init_world();
     init_collision_tables();
+    init_inspector();
 }
 
 #import "Basic";
@@ -86,3 +87,4 @@ GL :: #import "GL";
 #load "src/dev_util.jai";
 #load "src/parsing.jai";
 #load "src/water.jai";
+#load "src/inspector.jai";

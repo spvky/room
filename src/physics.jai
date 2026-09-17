@@ -112,21 +112,23 @@ body_collision :: () {
 
             dynamic_collision, dynamic_collision_occurred := dynamic_vs_dynamic_collision_test(it, dynamic_ptr);
             if dynamic_collision_occurred {
-                dir_to_dynamic := normalize(dynamic_ptr.position - it.position);
-                corrected_normal := ifx dot_product(dir_to_dynamic, dynamic_collision.normal) < 0 then dynamic_collision.normal else -dynamic_collision.normal;
                 contains_kinematic := entity_has_props(dynamic_ptr, .KINEMATIC) || entity_has_props(it, .KINEMATIC);
                 push_amount := ifx contains_kinematic then dynamic_collision.depth else dynamic_collision.depth / 2;
 
                 if contains_kinematic {
-                    if !entity_has_props(it, .KINEMATIC) it.position += corrected_normal * (push_amount + 0.01);
-                    if !entity_has_props(dynamic_ptr, .KINEMATIC) dynamic_ptr.position += -corrected_normal * (push_amount + 0.01);
+                    kinematic_ptr: *Entity = ifx entity_has_props(it, .KINEMATIC) then it else dynamic_ptr;
+                    non_kinematic_ptr: *Entity = ifx entity_has_props(it, .KINEMATIC) then dynamic_ptr else it;
+                    push_normal := ifx dot_product(non_kinematic_ptr.position - kinematic_ptr.position, dynamic_collision.normal) > 0 then dynamic_collision.normal else -dynamic_collision.normal;
+                    non_kinematic_ptr.position += push_normal * (push_amount + 0.01);
                 } else {
-                    it.position += corrected_normal * (push_amount + 0.01);
-                    dynamic_ptr.position += -corrected_normal * (push_amount + 0.01);
+                    it_to_dynamic := normalize(dynamic_ptr.position - it.position);
+                    push_normal := ifx dot_product(it_to_dynamic, dynamic_collision.normal) > 0 then -dynamic_collision.normal else dynamic_collision.normal;
+                    it.position += push_normal * (push_amount + 0.01);
+                    dynamic_ptr.position += -push_normal * (push_amount + 0.01);
                 }
 
-                x_dot := abs(dot(corrected_normal, Vector2.{1, 0}));
-                y_dot := abs(dot(corrected_normal, Vector2.{0, 1}));
+                x_dot := abs(dot(dynamic_collision.normal, Vector2.{1, 0}));
+                y_dot := abs(dot(dynamic_collision.normal, Vector2.{0, 1}));
 
                 if x_dot > 0.1 {
                     if it.tag == .PLAYER && dynamic_ptr.tag == .CRATE {
