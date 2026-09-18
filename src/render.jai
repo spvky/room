@@ -548,6 +548,9 @@ render_entities :: () {
         case .ANIMATION_PLAYER;
             sprite = get_current_animation_frame(*it.animation_player);
         }
+        if it.tag == .ROOM_PICKUP {
+            pos.y += 4.0 * cast(float32)sin(last_time * 4);
+        }
         render_sprite(*sprite, pos, it.render_extents);
     }
     for *context.entities {

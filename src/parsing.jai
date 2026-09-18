@@ -142,7 +142,16 @@ write_room_cards_to_world :: () {
                 }
                 print("Making Switch Block Entity\n");
                 make_extra_entity(relative_coord, it);
-                // May actually be the best place to create the block here
+            case .ROOM_PICKUP;
+                using it.room_pickup_data;
+
+                room_ptr := table_find_pointer(context.room_table, hash);
+                if room_ptr {
+                    should_create := room_ptr.flags & .PICKED_UP == 0;
+
+                    relative_coord := position + Coord.{start_x, start_y};
+                    if should_create make_extra_entity(relative_coord, it);
+                }
             }
         }
     }

@@ -2,6 +2,7 @@ Display_Message :: enum u8 {
     NONE;
     ASSEMBLER;
     SWITCH;
+    ROOM_PICKUP;
 }
 
 string_from_message :: (msg: Display_Message) -> string {
@@ -9,6 +10,7 @@ string_from_message :: (msg: Display_Message) -> string {
     if msg == {
     case .ASSEMBLER; out = "E - re-Assemble mAp";
     case .SWITCH; out = "E - Flip";
+    case .ROOM_PICKUP; out = "E - tAke room";
     case .NONE; out = "";
     }
     return out;

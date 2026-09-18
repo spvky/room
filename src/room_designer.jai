@@ -76,6 +76,7 @@ Room_Flags :: enum_flags u16 {
     NO_MOVE_Y :: 1 << 8;
     NO_PICKUP :: 1 << 9;
     MUST_BE_PLACED :: 1 << 10;
+    PICKED_UP :: 1 << 11;
 }
 
 Editor_State :: struct {

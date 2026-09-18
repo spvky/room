@@ -152,7 +152,7 @@ map_refresh :: () {
 
     for context.room_table {
         if it.flags & .STATIC == 0 {
-            array_add(*context.map_screen_state.available_rooms, it_index);
+            // array_add(*context.map_screen_state.available_rooms, it_index);
         } else {
             room_card: Room_Card;
             room_card.room_hash = it_index;

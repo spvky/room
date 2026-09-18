@@ -116,6 +116,7 @@ Entity_Properties :: enum_flags u32 {
     FOREGROUND :: 1 << 15;
     CONDUIT :: 1 << 16;
     TEXT_DISPLAY :: 1 << 17;
+    PICKUP :: 1 << 18;
 }
 
 Entity_Flags :: enum_flags u32 {
@@ -365,15 +366,26 @@ make_extra_entity :: (c: Coord, e: *Extra_Entity_Data) {
         on_position_entity.tag = .SWITCH_BLOCK_ON_TARGET;
         entity_add_child(block_handle, on_position_entity);
 
+    case .ROOM_PICKUP;
+        using e.room_pickup_data;
+        entity: Entity;
+        half_tile := Vector2.{TILE_SIZE, TILE_SIZE} / 2;
+        entity.position = Vector2.{xx c.x * TILE_SIZE, xx c.y * TILE_SIZE} + half_tile;
+        entity.tag = .ROOM_PICKUP;
+        entity.text_message = .ROOM_PICKUP;
+        entity.props = .RENDERABLE | .PICKUP | .TEXT_DISPLAY | .INTERACTABLE;
+        entity.room_pickup_hash = hash;
+        entity.render_kind = .SPRITE;
+        entity.sprite = sprite(19);
+        entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
+        entity_add(entity);
+
         // Other Moving Block types to add here:
         // Powered and unpowered patrol blocks
         // For patrol editor store array of points (fixed size)
         // To handle patrolling, have the block move towards a handle (set to the handle of the first child point)
         // When we reach a patrol point child, grab their next sibling handle to get to the next one
         // Need to ensure children still have a ring buffer relationship to their siblings for this to be seamless
-    case .ROOM_PICKUP;
-        using e.room_pickup_data;
-        // TODO: Actually make the entity
     }
 }
 
