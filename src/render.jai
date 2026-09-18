@@ -434,6 +434,16 @@ render_room_entities :: (r: *Room, faded := false) {
                                    .{0.7, 0.7, 0.7, alpha});
                 }
             }
+        case .ROOM_PICKUP;
+            using it.room_pickup_data;
+            left, right, bot, top := render_boundaries_from_cell(position);
+
+            immediate_quad(
+                           .{left, top},
+                           .{left, bot},
+                           .{right, bot},
+                           .{right, top},
+                           .{0.85, 0.45, 0, alpha});
         }
     }
 }

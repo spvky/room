@@ -17,6 +17,7 @@ Entity :: struct {
     text_message: Display_Message;
     render_kind: Entity_Render_Kind;
     render_extents: Vector2;
+    room_pickup_hash: u32;
     animation_player: Sprite_Animation_Player;
     #overlay (animation_player) sprite_sheet: Sprite_Sheet;
     #overlay (animation_player) sprite: Sprite;
@@ -93,6 +94,7 @@ Entity_Tag :: enum u8 {
     SWITCH_BLOCK_OFF_TARGET;
     SWITCH_BLOCK_ON_TARGET;
     ASSEMBLER;
+    ROOM_PICKUP;
 }
 
 Entity_Properties :: enum_flags u32 {
@@ -369,6 +371,9 @@ make_extra_entity :: (c: Coord, e: *Extra_Entity_Data) {
         // To handle patrolling, have the block move towards a handle (set to the handle of the first child point)
         // When we reach a patrol point child, grab their next sibling handle to get to the next one
         // Need to ensure children still have a ring buffer relationship to their siblings for this to be seamless
+    case .ROOM_PICKUP;
+        using e.room_pickup_data;
+        // TODO: Actually make the entity
     }
 }
 

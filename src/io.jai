@@ -154,6 +154,11 @@ load_all_rooms :: () {
     }
 }
 
+is_room_available :: (hash: u32) -> bool {
+    for context.map_screen_state.available_rooms if it == hash return true;
+    return false;
+}
+
 generate_room_png :: (r: *Room, path: string) {
     Pixel :: struct {
         r: u8;

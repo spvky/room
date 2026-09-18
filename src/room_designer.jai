@@ -28,10 +28,12 @@ Room :: struct {
 Extra_Entity_Data :: struct {
     kind: Extra_Entity_Kind;
     switch_block_data: Switch_Block_Data;
+    #overlay (switch_block_data) room_pickup_data: Room_Pickup_Data;
 }
 
 Extra_Entity_Kind :: enum {
     SWITCH_BLOCK;
+    ROOM_PICKUP;
 }
 
 Switch_Block_Data :: struct {
@@ -40,6 +42,11 @@ Switch_Block_Data :: struct {
     height: s16;
     active_start: Coord = .{100, 0};
     trigger_position: Coord = .{100, 0};
+}
+
+Room_Pickup_Data :: struct {
+    position: Coord = .{2, 16};
+    hash: u32;
 }
 
 Room_Exits :: enum_flags u16 {
@@ -82,6 +89,7 @@ Editor_State :: struct {
     mouse_captured: bool;
     load_static_rooms: bool;
     selected_entity_idx: int;
+    current_hash_idx: s32;
     editor_click_mode: Editor_Click_Mode;
     primary_window: Subwindow_Info = .{
                                        rect = #run get_rect(5, cast(float32)WINDOW_HEIGHT - 880, 350, 870),
@@ -107,6 +115,7 @@ Editor_Click_Mode :: enum {
     SET_ENTITY_WIDTH;
     SET_ENTITY_ACTIVE_START;
     SET_ENTITY_TRIGGER;
+    SET_ROOM_PICKUP_START;
 }
 
 #add_context editor_state: *Editor_State;
@@ -353,81 +362,147 @@ draw_entity_editor_window :: (state: *Subwindow_State, r: Rect, data: *void) {
         y_pos -= 35;
     }
 
-    create_entity_button_rect := get_rect(x_pos + 100, y_pos, 150, 30);
-    create_entity_pressed := button(create_entity_button_rect, "Create Entity");
-    if create_entity_pressed {
-        array_add(*room_ptr.extra_data, .{});
+    create_block_button_rect := get_rect(x_pos + 100, y_pos, 100, 30);
+    create_pickup_button_rect := get_rect(x_pos + 205, y_pos, 100, 30);
+    create_block_pressed := button(create_block_button_rect, "Block");
+    create_pickup_pressed := button(create_pickup_button_rect, "Pickup");
+    if create_block_pressed {
+        array_add(*room_ptr.extra_data, .{kind = .SWITCH_BLOCK});
+        editor_state.selected_entity_idx = room_ptr.extra_data.count - 1;
+    }
+    if create_pickup_pressed {
+        array_add(*room_ptr.extra_data, .{kind = .ROOM_PICKUP});
         editor_state.selected_entity_idx = room_ptr.extra_data.count - 1;
     }
     y_pos -= 35;
     // But the actual box for editing here
     if room_ptr.extra_data.count > 0 {
         data_ptr := *room_ptr.extra_data[editor_state.selected_entity_idx];
-        using data_ptr.switch_block_data;
-        start_label_rect := get_rect(x_pos - 110, y_pos, 300, 30);
-        label(start_label_rect, "Start", *editor_state.editor_theme.label_theme);
-        y_pos -= 32;
-        start_rect := get_rect(x_pos - 50, y_pos, 200, 30);
-        start_string := tprint("%,%", start.x, start.y);
-        label(start_rect, start_string, *editor_state.editor_theme.label_theme);
 
-        set_both_rect := get_rect(x_pos + 70, y_pos, 70, 30);
-        set_both_pressed := button(set_both_rect, "Both");
-        if set_both_pressed {
-            editor_state.editor_click_mode = .SET_ENTITY_START_THEN_WIDTH;
+        if data_ptr.kind == {
+        case .SWITCH_BLOCK;
+            using data_ptr.switch_block_data;
+            start_label_rect := get_rect(x_pos, y_pos, 300, 30);
+            label(start_label_rect, "Start", *editor_state.editor_theme.label_theme);
+            y_pos -= 32;
+            start_rect := get_rect(x_pos + 10, y_pos, 70, 30);
+            start_string := tprint("%,%", start.x, start.y);
+            label(start_rect, start_string, *editor_state.editor_theme.label_theme);
+
+            set_both_rect := get_rect(x_pos + 95, y_pos, 60, 30);
+            set_both_pressed := button(set_both_rect, "Both");
+            if set_both_pressed {
+                editor_state.editor_click_mode = .SET_ENTITY_START_THEN_WIDTH;
+            }
+
+            set_start_rect := get_rect(x_pos + 160, y_pos, 60, 30);
+            set_start_pressed := button(set_start_rect, "Start");
+            if set_start_pressed {
+                editor_state.editor_click_mode = .SET_ENTITY_START;
+            }
+
+            set_width_rect := get_rect(x_pos + 225, y_pos, 60, 30);
+            set_width_pressed := button(set_width_rect, "Width");
+            if set_width_pressed {
+                editor_state.editor_click_mode = .SET_ENTITY_WIDTH;
+            }
+            y_pos -= 32;
+
+            width_height_label_rect := get_rect(x_pos, y_pos, 300, 30);
+            label(width_height_label_rect, "Width, Height", *editor_state.editor_theme.label_theme);
+            y_pos -= 32;
+            width_height_rect := get_rect(x_pos + 10, y_pos, 200, 30);
+            width_height_string := tprint("%,%", width, height);
+            label(width_height_rect, width_height_string, *editor_state.editor_theme.label_theme);
+            y_pos -= 32;
+
+            active_start_label_rect := get_rect(x_pos, y_pos, 300, 30);
+            label(active_start_label_rect, "Active Start", *editor_state.editor_theme.label_theme);
+            y_pos -= 32;
+            active_start_rect := get_rect(x_pos + 10, y_pos, 70, 30);
+            active_start_string := tprint("%,%", active_start.x, active_start.y);
+            label(active_start_rect, active_start_string, *editor_state.editor_theme.label_theme);
+
+            set_active_rect := get_rect(x_pos + 95, y_pos, 70, 30);
+            set_active_pressed := button(set_active_rect, "Set");
+            if set_active_pressed {
+                editor_state.editor_click_mode = .SET_ENTITY_ACTIVE_START;
+            }
+            y_pos -= 32;
+
+            trigger_label_rect := get_rect(x_pos, y_pos, 300, 30);
+            label(trigger_label_rect, "Trigger Position", *editor_state.editor_theme.label_theme);
+            y_pos -= 32;
+            trigger_rect := get_rect(x_pos + 10, y_pos, 70, 30);
+            trigger_string := tprint("%,%", trigger_position.x, trigger_position.y);
+            label(trigger_rect, trigger_string, *editor_state.editor_theme.label_theme);
+
+            set_trigger_rect := get_rect(x_pos + 95, y_pos, 70, 30);
+            set_trigger_pressed := button(set_trigger_rect, "Set");
+            if set_trigger_pressed {
+                editor_state.editor_click_mode = .SET_ENTITY_TRIGGER;
+            }
+            y_pos -= 32;
+        case .ROOM_PICKUP;
+            using data_ptr.room_pickup_data;
+            position_label_rect := get_rect(x_pos, y_pos, 300, 30);
+            label(position_label_rect, "Position", *editor_state.editor_theme.label_theme);
+            y_pos -= 32;
+            position_rect := get_rect(x_pos + 10, y_pos, 70, 30);
+            position_string := tprint("%,%", position.x, position.y);
+            label(position_rect, position_string, *editor_state.editor_theme.label_theme);
+
+            set_position_rect := get_rect(x_pos + 90, y_pos, 90, 30);
+            set_position_pressed := button(set_position_rect, "Position");
+            if set_position_pressed {
+                editor_state.editor_click_mode = .SET_ENTITY_START;
+            }
+            y_pos -= 32;
+
+            room_label_rect := get_rect(x_pos, y_pos, 300, 30);
+            label(room_label_rect, "Room", *editor_state.editor_theme.label_theme);
+            y_pos -= 32;
+
+            room_name_string: string;
+
+            pickup_room_ptr := table_find_pointer(context.room_table, hash);
+            if pickup_room_ptr {
+                room_name_string = sprint("%", pickup_room_ptr.name);
+            } else {
+                room_name_string = "NULL";
+            }
+
+            room_name_rect := get_rect(x_pos + 10, y_pos, 70, 30);
+            label(room_name_rect, room_name_string, *editor_state.editor_theme.label_theme);
+
+            room_dropdown_rect := get_rect(x_pos + 85, y_pos, 200, 30);
+            hash_idx: s32;
+            rooms := build_rooms_array();
+            y_pos -= 32;
+
+            for rooms {
+                rect := get_rect(x_pos + 10, y_pos, 300, 30);
+                pressed := button(rect, it.name, identifier = it_index);
+                if pressed {
+                    data_ptr.room_pickup_data.hash = djb2_hash(it.name);
+                }
+
+                y_pos -= 32;
+            }
         }
-
-        set_start_rect := get_rect(x_pos + 145, y_pos, 70, 30);
-        set_start_pressed := button(set_start_rect, "Start");
-        if set_start_pressed {
-            editor_state.editor_click_mode = .SET_ENTITY_START;
-        }
-
-        set_width_rect := get_rect(x_pos + 220, y_pos, 70, 30);
-        set_width_pressed := button(set_width_rect, "Width");
-        if set_width_pressed {
-            editor_state.editor_click_mode = .SET_ENTITY_WIDTH;
-        }
-        y_pos -= 32;
-
-        width_height_label_rect := get_rect(x_pos - 80, y_pos, 300, 30);
-        label(width_height_label_rect, "Width, Height", *editor_state.editor_theme.label_theme);
-        y_pos -= 32;
-        width_height_rect := get_rect(x_pos - 50, y_pos, 200, 30);
-        width_height_string := tprint("%,%", width, height);
-        label(width_height_rect, width_height_string, *editor_state.editor_theme.label_theme);
-        y_pos -= 32;
-
-        active_start_label_rect := get_rect(x_pos - 80, y_pos, 300, 30);
-        label(active_start_label_rect, "Active Start", *editor_state.editor_theme.label_theme);
-        y_pos -= 32;
-        active_start_rect := get_rect(x_pos - 50, y_pos, 200, 30);
-        active_start_string := tprint("%,%", active_start.x, active_start.y);
-        label(active_start_rect, active_start_string, *editor_state.editor_theme.label_theme);
-        y_pos -= 32;
-
-        set_active_rect := get_rect(x_pos + 70, y_pos, 70, 30);
-        set_active_pressed := button(set_active_rect, "Set");
-        if set_active_pressed {
-            editor_state.editor_click_mode = .SET_ENTITY_ACTIVE_START;
-        }
-        y_pos -= 32;
-
-        trigger_label_rect := get_rect(x_pos - 80, y_pos, 300, 30);
-        label(trigger_label_rect, "Trigger Position", *editor_state.editor_theme.label_theme);
-        y_pos -= 32;
-        trigger_rect := get_rect(x_pos - 50, y_pos, 200, 30);
-        trigger_string := tprint("%,%", trigger_position.x, trigger_position.y);
-        label(trigger_rect, trigger_string, *editor_state.editor_theme.label_theme);
-        y_pos -= 32;
-
-        set_trigger_rect := get_rect(x_pos + 70, y_pos, 70, 30);
-        set_trigger_pressed := button(set_trigger_rect, "Set");
-        if set_trigger_pressed {
-            editor_state.editor_click_mode = .SET_ENTITY_TRIGGER;
-        }
-        y_pos -= 32;
     }
+}
+
+build_rooms_array :: () -> [..]*Room {
+    rooms: [..]*Room;
+    rooms.allocator = temp;
+
+    for *context.room_table {
+        if it.flags & .STATIC != .STATIC {
+            array_add(*rooms, it);
+        }
+    }
+    return rooms;
 }
 
 paint_tile_values :: () {
@@ -495,6 +570,14 @@ paint_tile_values :: () {
             case .SET_ENTITY_TRIGGER;
                 if ok {
                     room_ptr.extra_data[context.editor_state.selected_entity_idx].switch_block_data.trigger_position = cell;
+                    if is_action_buffered(.EDITOR_LEFT_CLICK) {
+                        consume_action(.EDITOR_LEFT_CLICK);
+                        context.editor_state.editor_click_mode = .NORMAL;
+                    }
+                }
+            case .SET_ROOM_PICKUP_START;
+                if ok {
+                    room_ptr.extra_data[context.editor_state.selected_entity_idx].room_pickup_data.position = cell;
                     if is_action_buffered(.EDITOR_LEFT_CLICK) {
                         consume_action(.EDITOR_LEFT_CLICK);
                         context.editor_state.editor_click_mode = .NORMAL;
