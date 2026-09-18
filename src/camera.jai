@@ -24,25 +24,29 @@ camera_smoothing :: (delta: float32) {
 
 camera_follow :: () {
     player := player_get();
-    raw_pos := player.position - context.camera.BASE_PLAYER_OFFSET;
-    min, max := camera_bounds_from_room(context.camera.target_room);
-    true_pos: Vector2;
-    true_pos.x = clamp(raw_pos.x, min.x, max.x);
-    true_pos.y = clamp(raw_pos.y, min.y, max.y);
+    if player {
+        raw_pos := player.position - context.camera.BASE_PLAYER_OFFSET;
+        min, max := camera_bounds_from_room(context.camera.target_room);
+        true_pos: Vector2;
+        true_pos.x = clamp(raw_pos.x, min.x, max.x);
+        true_pos.y = clamp(raw_pos.y, min.y, max.y);
 
-    context.camera.target_position = true_pos;
+        context.camera.target_position = true_pos;
+    }
 }
 
 snap_camera_pos :: () {
     player := player_get();
-    raw_pos := player.position - context.camera.BASE_PLAYER_OFFSET;
-    min, max := camera_bounds_from_room(context.camera.target_room);
-    true_pos: Vector2;
-    true_pos.x = clamp(raw_pos.x, min.x, max.x);
-    true_pos.y = clamp(raw_pos.y, min.y, max.y);
+    if player {
+        raw_pos := player.position - context.camera.BASE_PLAYER_OFFSET;
+        min, max := camera_bounds_from_room(context.camera.target_room);
+        true_pos: Vector2;
+        true_pos.x = clamp(raw_pos.x, min.x, max.x);
+        true_pos.y = clamp(raw_pos.y, min.y, max.y);
 
-    context.camera.target_position = true_pos;
-    context.camera.position = true_pos;
+        context.camera.target_position = true_pos;
+        context.camera.position = true_pos;
+    }
 }
 
 camera_bounds_from_room :: (c: Coord) -> Vector2, Vector2 {

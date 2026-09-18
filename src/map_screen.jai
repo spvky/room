@@ -143,10 +143,10 @@ init_map :: () {
 
 map_refresh :: () {
     if context.map_screen_state.available_rooms.count > 0 {
-        array_reset(*context.map_screen_state.available_rooms);
+        array_reset_keeping_memory(*context.map_screen_state.available_rooms);
     }
     if context.map.placed_room_cards.count > 0 {
-        array_reset(*context.map.placed_room_cards);
+        array_reset_keeping_memory(*context.map.placed_room_cards);
     }
     memset(*context.map.occupied, 0, MAP_WIDTH * MAP_HEIGHT);
 

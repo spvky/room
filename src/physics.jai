@@ -119,8 +119,10 @@ body_collision :: () {
                         it.velocity.x = 0;
                     }
                 }
+                // Really need to start using a specialized proc to handle each pairing here
                 if y_dot > 0.1 {
                     it.velocity.y = 0;
+                    if !entity_has_props(dynamic_ptr, .KINEMATIC) dynamic_ptr.velocity.y = 0;
                 }
             }
         }
@@ -146,6 +148,7 @@ moving_block_velocity :: () {
                     it.velocity = direction * 100;
                 } else {
                     it.position = child.position;
+                    it.velocity = .{};
                 }
             }
         } else {
@@ -156,6 +159,7 @@ moving_block_velocity :: () {
                     it.velocity = direction * 100;
                 } else {
                     it.position = child.position;
+                    it.velocity = .{};
                 }
             }
         }
@@ -319,6 +323,20 @@ sensor_collision :: () {
                 parent_entity.flags |= .LEFT_BLOCKED;
             } else {
                 parent_entity.flags &= ~.LEFT_BLOCKED;
+            }
+        case .BUTTON;
+            being_pressed: bool;
+            for *other_entity: context.entities {
+                if other_entity == it || other_entity.handle == it.parent || !entity_has_props(other_entity, .PRESSES_BUTTONS) continue;
+                _, did_collide := dynamic_vs_dynamic_collision_test(it, other_entity);
+                if did_collide {
+                    being_pressed = true;
+                }
+            }
+            if being_pressed {
+                it.flags |= .POWERED;
+            } else {
+                it.flags &= ~.POWERED;
             }
         }
     }

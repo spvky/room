@@ -42,6 +42,12 @@ draw_inspector_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     inspector_relation_handle_display("Last Child", *entity.last_child);
     inspector_relation_handle_display("Prev Sib", *entity.prev_sibling);
     inspector_relation_handle_display("Next Sib", *entity.next_sibling);
+
+    y_pos -= 20;
+    flag_label_rect := get_rect(label_margin, y_pos, 300, 30);
+    y_pos -= 32;
+    label(flag_label_rect, "Flags", *base_theme.label_theme);
+    enum_flag_display(*entity.flags, label_margin + 10, y_pos);
 }
 
 debug_inspector_ui :: () {
@@ -106,5 +112,19 @@ inspector_entity_picking :: () {
                 return;
             }
         }
+    }
+}
+
+#scope_file
+enum_flag_display :: (ptr_to_enum: *$T, left_margin: float32, top_margin: float32, loc := #caller_location) #expand {
+    enum_type_info := cast(*Type_Info_Enum)T;
+    y_pos := top_margin;
+    for 0..enum_type_info.names.count - 1 {
+        m_rect := get_rect(left_margin, y_pos, 140, 22);
+        y_pos -= 30;
+        name := enum_type_info.names[it];
+        value := cast(T)enum_type_info.values[it];
+        has_flag := ptr_to_enum.* & value == value;
+        base_checkbox(m_rect, name, has_flag, *`base_theme.checkbox_theme, identifier = it, loc = loc);
     }
 }

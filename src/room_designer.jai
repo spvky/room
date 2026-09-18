@@ -3,6 +3,7 @@ COLLISION_TILE_TYPES: [5]string: .["Wall", "Top Half", "Bot Half", "Left Half", 
 COLLISION_TILE_ICONS: [5]Ui_Icon;
 ENTITY_TILE_TYPES: [4]string: .["Crate", "Player Spawn", "Gear", "Assembler"];
 ENTITY_TILE_ICONS: [4]Ui_Icon;
+TRIGGER_TYPES: [2]string: .["LEVER", "BUTTON"];
 
 Ui_Icon :: struct {
     sprite: Sprite;
@@ -36,12 +37,18 @@ Extra_Entity_Kind :: enum {
     ROOM_PICKUP;
 }
 
+Trigger_Type :: enum {
+    LEVER;
+    BUTTON;
+}
+
 Switch_Block_Data :: struct {
     start: Coord = .{2, 16};
     width: s16;
     height: s16;
     active_start: Coord = .{100, 0};
     trigger_position: Coord = .{100, 0};
+    trigger_type: Trigger_Type;
 }
 
 Room_Pickup_Data :: struct {
@@ -429,6 +436,12 @@ draw_entity_editor_window :: (state: *Subwindow_State, r: Rect, data: *void) {
             if set_active_pressed {
                 editor_state.editor_click_mode = .SET_ENTITY_ACTIVE_START;
             }
+            y_pos -= 32;
+
+            trigger_type_label_rect := get_rect(x_pos, y_pos, 150, 30);
+            label(trigger_type_label_rect, "Trigger Type", *editor_state.editor_theme.label_theme);
+            trigger_type_dropdown_rect := get_rect(x_pos + 160, y_pos, 150, 30);
+            dropdown(trigger_type_dropdown_rect, TRIGGER_TYPES, cast(*s32)*data_ptr.switch_block_data.trigger_type);
             y_pos -= 32;
 
             trigger_label_rect := get_rect(x_pos, y_pos, 300, 30);

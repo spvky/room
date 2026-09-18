@@ -90,7 +90,8 @@ Entity_Tag :: enum u8 {
     LEFT_SENSOR;
     RIGHT_SENSOR;
     SWITCH_BLOCK;
-    SWITCH_BLOCK_SWITCH;
+    LEVER;
+    BUTTON;
     SWITCH_BLOCK_OFF_TARGET;
     SWITCH_BLOCK_ON_TARGET;
     ASSEMBLER;
@@ -117,6 +118,7 @@ Entity_Properties :: enum_flags u32 {
     CONDUIT :: 1 << 16;
     TEXT_DISPLAY :: 1 << 17;
     PICKUP :: 1 << 18;
+    PRESSES_BUTTONS :: 1 << 19;
 }
 
 Entity_Flags :: enum_flags u32 {
@@ -337,21 +339,30 @@ make_extra_entity :: (c: Coord, e: *Extra_Entity_Data) {
         // OR: Could also set switch as middle child, because the parent doesn't care about it, but it will set the parents ON/OFF state, this feels more limited though
         switch_entity: Entity;
         switch_entity.position = min + switch_offset + half_tile;
-        switch_entity.tag = .SWITCH_BLOCK_SWITCH;
         switch_entity.text_message = .SWITCH;
-        switch_entity.props = .RENDERABLE | .INTERACTABLE | .FOREGROUND | .CONDUIT | .TEXT_DISPLAY;
         switch_entity.render_kind = .SPRITE_SHEET;
-        switch_entity.sprite_sheet = sprite_sheet(8, 2);
         switch_entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
+        switch_entity.extents = Vector2.{TILE_SIZE * 0.7, TILE_SIZE};
+
+        if trigger_type == {
+        case .LEVER;
+            switch_entity.tag = .LEVER;
+            switch_entity.sprite_sheet = sprite_sheet(8, 2);
+            switch_entity.props = .RENDERABLE | .INTERACTABLE | .FOREGROUND | .CONDUIT | .TEXT_DISPLAY;
+        case .BUTTON;
+            switch_entity.tag = .BUTTON;
+            switch_entity.sprite_sheet = sprite_sheet(12, 2);
+            switch_entity.props = .RENDERABLE | .CONDUIT | .SENSOR;
+        }
         switch_handle := entity_add(switch_entity);
 
         entity: Entity;
         entity.position = center;
         entity.shape_kind = .RECTANGLE;
-        entity.extents = extents;
         entity.tag = .SWITCH_BLOCK;
-        entity.props = .RENDERABLE | .DYNAMIC | .SOLID | .KINEMATIC | .UNSTABLE;
+        entity.props = .RENDERABLE | .DYNAMIC | .SOLID | .KINEMATIC | .UNSTABLE | .PRESSES_BUTTONS;
         entity.render_kind = .SPRITE;
+        entity.extents = extents;
         entity.sprite = sprite(7);
         entity.render_extents = extents;
         block_handle := entity_add_child(switch_handle, entity);
@@ -398,7 +409,7 @@ make_entity :: (c: Coord, kind: Entity_Tag) {
         entity.shape_kind = .CIRCLE;
         entity.radius = TILE_SIZE / 2;
         entity.tag = .PLAYER;
-        entity.props = .RENDERABLE | .GRAVITY_AFFECTED | .DYNAMIC | .SELF_PROPELLED;
+        entity.props = .RENDERABLE | .GRAVITY_AFFECTED | .DYNAMIC | .SELF_PROPELLED | .PRESSES_BUTTONS;
         entity.render_kind = .SPRITE;
         entity.sprite = sprite(6);
         entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
@@ -429,7 +440,7 @@ make_entity :: (c: Coord, kind: Entity_Tag) {
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
         entity.tag = .CRATE;
-        entity.props = .RENDERABLE | .SOLID | .GRAVITY_AFFECTED | .DYNAMIC;
+        entity.props = .RENDERABLE | .SOLID | .GRAVITY_AFFECTED | .DYNAMIC | .PRESSES_BUTTONS;
         entity.render_kind = .SPRITE;
         entity.sprite = sprite(0);
         entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};

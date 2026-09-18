@@ -44,11 +44,17 @@ handle_entity_sprite_sheets :: () {
     for *context.entities {
         if it.render_kind != .SPRITE_SHEET continue;
         if it.tag == {
-        case .SWITCH_BLOCK_SWITCH;
+        case .LEVER;
             if entity_has_flags(it, .POWERED) {
                 it.sprite_sheet.idx = 9;
             } else {
                 it.sprite_sheet.idx = 8;
+            }
+        case .BUTTON;
+            if entity_has_flags(it, .POWERED) {
+                it.sprite_sheet.idx = 13;
+            } else {
+                it.sprite_sheet.idx = 12;
             }
         case .ASSEMBLER;
             if entity_has_flags(it, .POWERED) {

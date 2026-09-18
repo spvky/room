@@ -45,6 +45,9 @@ game_state_update :: () {
     }
     if is_action_buffered(.GOTO_GAMEPLAY) {
         consume_action(.GOTO_GAMEPLAY);
+        context.game_data.has_stored_player = false;
+        rooms_refresh();
+        map_refresh();
         bake_world();
         snap_camera_pos();
 

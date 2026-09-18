@@ -33,25 +33,27 @@ reset_player :: () {
 
 set_player_move_delta :: () {
     player := player_get();
-    c, in_bounds := calculate_map_coord_from_position(player.position);
-    if in_bounds then context.camera.target_room = c;
-    if player.state == {
-    case .MOVING;
-        #through;
-    case .STAND;
-        #through;
-    case .RISING;
-        #through;
-    case .FALLING;
-        x: float32;
-        if is_action_held(.MOVE_LEFT) {
-            x -= 1;
-        }
-        if is_action_held(.MOVE_RIGHT) {
-            x += 1;
-        }
+    if player {
+        c, in_bounds := calculate_map_coord_from_position(player.position);
+        if in_bounds then context.camera.target_room = c;
+        if player.state == {
+        case .MOVING;
+            #through;
+        case .STAND;
+            #through;
+        case .RISING;
+            #through;
+        case .FALLING;
+            x: float32;
+            if is_action_held(.MOVE_LEFT) {
+                x -= 1;
+            }
+            if is_action_held(.MOVE_RIGHT) {
+                x += 1;
+            }
 
-        player.movement_delta.x = x;
+            player.movement_delta.x = x;
+        }
     }
 }
 
@@ -71,7 +73,7 @@ player_interaction :: () {
         if !entity_has_props(it, .INTERACTABLE) || it == player continue;
         if distance(it.position, player.position) <= TILE_SIZE && is_action_buffered(.INTERACT) {
             if it.tag == {
-            case .SWITCH_BLOCK_SWITCH;
+            case .LEVER;
                 consume_action(.INTERACT);
                 if entity_has_flags(it, .POWERED) {
                     it.flags &= ~.POWERED;
