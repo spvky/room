@@ -8,6 +8,8 @@ main :: () {
     window = create_window(WINDOW_WIDTH, WINDOW_HEIGHT, "Room");
     set_render_target(window);
     init();
+
+    start_game();
     while !should_close {
         update_window_events();
         now := seconds_since_init();
@@ -37,6 +39,13 @@ main :: () {
         game_state_update();
         reset_temporary_storage();
     }
+}
+
+start_game :: () {
+    bake_world();
+    snap_camera_pos();
+
+    context.game_state = .GAMEPLAY;
 }
 
 init :: () {
