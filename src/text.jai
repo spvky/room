@@ -47,6 +47,7 @@ render_floating_text :: () {
         if !ok continue;
         screen_y += 80;
         screen_x -= 30;
+        if screen_x > 1750 screen_x = 1750;
         draw_text(context.atlas.font, screen_x, screen_y, string_from_message(it.text_message));
     }
 }

@@ -468,7 +468,8 @@ make_entity :: (c: Coord, kind: Entity_Tag) {
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
         entity.tag = .ASSEMBLER;
-        entity.props = .RENDERABLE | .INTERACTABLE;
+        entity.text_message = .ASSEMBLER;
+        entity.props = .RENDERABLE | .INTERACTABLE | .TEXT_DISPLAY;
         entity.flags = .POWERED;
         entity.render_kind = .SPRITE_SHEET;
         entity.sprite_sheet = sprite_sheet(10, 2);

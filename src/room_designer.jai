@@ -80,8 +80,6 @@ Editor_State :: struct {
     load_window_scroll_value: float32;
     kb_captured: bool;
     mouse_captured: bool;
-    map_cursor_position: Coord;
-    map_cursor_rotation: u8;
     load_static_rooms: bool;
     selected_entity_idx: int;
     editor_click_mode: Editor_Click_Mode;

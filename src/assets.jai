@@ -3,12 +3,14 @@ Asset_Atlas :: struct {
     tile_atlas: Sprite_Atlas;
     room_frame_texture: Texture;
     collision_circle: Texture;
+    map_cursor: Texture;
     player_sprite: Sprite;
     font: *Dynamic_Font;
 }
 
 frame_bytes :: #run read_entire_file("assets/room_frame.png");
 collision_circle_bytes :: #run read_entire_file("assets/collision_circle.png");
+map_cursor_bytes :: #run read_entire_file("assets/map_cursor.png");
 
 #add_context atlas: *Asset_Atlas;
 
@@ -26,6 +28,7 @@ init_textures :: () {
     if !ok print("Failed to load room frame texture from memory!\n");
     ok = texture_load_from_memory(*atlas.collision_circle, cast([]u8)collision_circle_bytes);
     if !ok print("Failed to load collision circle texture from memory!\n");
+    ok = texture_load_from_memory(*atlas.map_cursor, cast([]u8)map_cursor_bytes);
     atlas.player_sprite = make_sprite(*atlas.collision_circle);
     pixel_height := WINDOW_HEIGHT / 24;
     atlas.font = get_font_at_size("assets", "OpenSans-BoldItalic.ttf", pixel_height);

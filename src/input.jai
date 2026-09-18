@@ -40,6 +40,7 @@ init_input :: () {
     register_input(.MENU_RIGHT, .ARROW_RIGHT);
     register_input(.MAP_SCREEN_ROTATE, #char "R");
     register_input(.CONFIRM, .ENTER);
+    register_input(.CANCEL, .BACKSPACE);
     // Gameplay
     register_input(.MOVE_LEFT, #char "A");
     register_input(.MOVE_RIGHT, #char "D");

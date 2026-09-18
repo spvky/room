@@ -8,11 +8,11 @@ render_map_placement_ui :: () {
     y: float32 = 950;
     element: int;
     size := Vector2.{300, 300};
-    if context.map.available_rooms.count > 0 {
-        for context.map.selected_idx..context.map.selected_idx + 6 {
+    if context.map_screen_state.available_rooms.count > 0 {
+        for context.map_screen_state.selected_idx..context.map_screen_state.selected_idx + 6 {
             room := get_room_at_wrapping_index(it);
             if room {
-                if it == context.map.selected_idx {
+                if it == context.map_screen_state.selected_idx {
                     render_room_and_frame(room, .{x, y}, size);
                 } else {
                     sprite := make_sprite(*room.texture);

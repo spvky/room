@@ -441,22 +441,35 @@ render_room_entities :: (r: *Room, faded := false) {
 // #MAP_PLACEMENT_RENDERING
 render_map_placement_scene :: () {
     render_grid();
-    render_map_placement_selected_room();
     render_map_placed_room_cards();
+    render_map_placement_cursor();
     render_map_placement_ui();
+    render_map_screen_controls();
 }
 
-render_map_placement_selected_room :: () {
-    if context.map.available_rooms.count > 0 {
-        room := get_room_at_wrapping_index(context.map.selected_idx);
-        room_sprite := make_sprite(*room.texture);
-
-        left, right, bot, top := render_boundaries_from_cell(context.editor_state.map_cursor_position);
-        rot := cast(float32)context.editor_state.map_cursor_rotation * (PI / 2);
-        pos := Vector2.{(left + right) / 2, (top + bot) / 2};
-        size := Vector2.{right - left, top - bot};
-        render_sprite(*room_sprite, pos, size, rotation = rot, color = .{1, 1, 1, 0.3});
+render_map_placement_cursor :: () {
+    sprite_to_render: Sprite;
+    color: Vector4;
+    if context.map_screen_state.cursor_state == {
+    case .PLACE;
+        coord_idx := coord_to_index(context.map_screen_state.cursor_position, .MAP);
+        if context.map.occupied[coord_idx] {
+            color = .{1, 0, 0, 0.5};
+        } else {
+            color = .{1, 1, 1, 0.5};
+        }
+        room := get_room_at_wrapping_index(context.map_screen_state.selected_idx);
+        sprite_to_render = make_sprite(*room.texture);
+    case .SELECT;
+        sprite_to_render = make_sprite(*context.atlas.map_cursor);
+        color = .{1, 1, 1, 1};
     }
+
+    left, right, bot, top := render_boundaries_from_cell(context.map_screen_state.cursor_position);
+    rot := cast(float32)context.map_screen_state.cursor_rotation * (PI / 2);
+    pos := Vector2.{(left + right) / 2, (top + bot) / 2};
+    size := Vector2.{right - left, top - bot};
+    render_sprite(*sprite_to_render, pos, size, rotation = rot, color = color);
 }
 
 render_map_placed_room_cards :: () {

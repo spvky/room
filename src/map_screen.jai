@@ -22,14 +22,24 @@ Coord_Range :: struct {
     max: Coord;
 }
 
+Map_Screen_State :: struct {
+    selected_idx: int;
+    cursor_position: Coord;
+    cursor_rotation: u8;
+    available_rooms: [..]u32;
+    cursor_state: Map_Cursor_State;
+}
+
+Map_Cursor_State :: enum {
+    SELECT;
+    PLACE;
+}
+
 Map :: struct {
     // Rooms currently placed in the map
     placed_room_cards: [..]Room_Card;
     // Grid to indicate which cells have a room placed in them
     occupied: [MAP_WIDTH * MAP_HEIGHT]bool;
-    // Array of rooms available to place
-    available_rooms: [..]u32;
-    selected_idx: int;
 }
 
 Room_Card :: struct {
@@ -99,6 +109,7 @@ Coord_Kind :: enum u8 {
 #add_context current_editor_room: *Room;
 #add_context room_table: *Table(u32, Room);
 #add_context map: *Map;
+#add_context map_screen_state: *Map_Screen_State;
 #add_context world: *World;
 
 init_rooms :: () {
@@ -120,6 +131,10 @@ rooms_refresh :: () {
 }
 
 init_map :: () {
+    if !context.map_screen_state {
+        context.map_screen_state = New(Map_Screen_State);
+    }
+
     if !context.map {
         context.map = New(Map);
     }
@@ -127,8 +142,8 @@ init_map :: () {
 }
 
 map_refresh :: () {
-    if context.map.available_rooms.count > 0 {
-        array_reset(*context.map.available_rooms);
+    if context.map_screen_state.available_rooms.count > 0 {
+        array_reset(*context.map_screen_state.available_rooms);
     }
     if context.map.placed_room_cards.count > 0 {
         array_reset(*context.map.placed_room_cards);
@@ -137,7 +152,7 @@ map_refresh :: () {
 
     for context.room_table {
         if it.flags & .STATIC == 0 {
-            array_add(*context.map.available_rooms, it_index);
+            array_add(*context.map_screen_state.available_rooms, it_index);
         } else {
             room_card: Room_Card;
             room_card.room_hash = it_index;
@@ -302,8 +317,8 @@ set_world_entity_tile_value :: (value: Entity_Tile, c: Coord) {
 
 // Map Placement and editing
 get_room_at_wrapping_index :: (req_idx: int) -> *Room {
-    idx := ifx req_idx == 0 then 0 else req_idx % context.map.available_rooms.count;
-    return table_find_pointer(context.room_table, context.map.available_rooms[idx]);
+    idx := ifx req_idx == 0 then 0 else req_idx % context.map_screen_state.available_rooms.count;
+    return table_find_pointer(context.room_table, context.map_screen_state.available_rooms[idx]);
 }
 
 get_room_from_hash :: (hash: u32) -> *Room {
@@ -311,32 +326,32 @@ get_room_from_hash :: (hash: u32) -> *Room {
 }
 
 next_map_selected_idx :: () {
-    new_idx := context.map.selected_idx + 1;
-    if new_idx >= context.map.available_rooms.count then new_idx = 0;
-    context.map.selected_idx = new_idx;
+    new_idx := context.map_screen_state.selected_idx + 1;
+    if new_idx >= context.map_screen_state.available_rooms.count then new_idx = 0;
+    context.map_screen_state.selected_idx = new_idx;
 }
 
 prev_map_selected_idx :: () {
-    new_idx := context.map.selected_idx - 1;
-    if new_idx < 0 then new_idx = context.map.available_rooms.count - 1;
-    context.map.selected_idx = new_idx;
+    new_idx := context.map_screen_state.selected_idx - 1;
+    if new_idx < 0 then new_idx = context.map_screen_state.available_rooms.count - 1;
+    context.map_screen_state.selected_idx = new_idx;
 }
 
 rotate_map_selected_room :: () {
-    new_rot := context.editor_state.map_cursor_rotation + 1;
+    new_rot := context.map_screen_state.cursor_rotation + 1;
     if new_rot > 3 then new_rot = 0;
-    context.editor_state.map_cursor_rotation = new_rot;
+    context.map_screen_state.cursor_rotation = new_rot;
 }
 
 map_tile_occupied :: inline (c: Coord) -> bool {
     return context.map.occupied[coord_to_index(c, .MAP)];
 }
 
-place_room_at_position :: () {
-    if is_action_buffered(.CONFIRM) {
-        consume_action(.CONFIRM);
-        avail_idx := context.map.selected_idx;
-        coord_idx := coord_to_index(context.editor_state.map_cursor_position, .MAP);
+place_or_select_room_at_position :: () {
+    coord_idx := coord_to_index(context.map_screen_state.cursor_position, .MAP);
+    if context.map_screen_state.cursor_state == {
+    case .PLACE;
+        avail_idx := context.map_screen_state.selected_idx;
 
         if context.map.occupied[coord_idx] {
             print("TRIED TO PLACE MAP IN OCCUPIED SPACE BECAUSE IM INCONSIDERATE\n");
@@ -344,14 +359,54 @@ place_room_at_position :: () {
         } else {
             context.map.occupied[coord_idx] = true;
             room_card: Room_Card;
-            room_card.room_hash = context.map.available_rooms[avail_idx];
-            room_card.coord = context.editor_state.map_cursor_position;
-            room_card.rotation = context.editor_state.map_cursor_rotation;
+            room_card.room_hash = context.map_screen_state.available_rooms[avail_idx];
+            room_card.coord = context.map_screen_state.cursor_position;
+            room_card.rotation = context.map_screen_state.cursor_rotation;
 
             array_add(*context.map.placed_room_cards, room_card);
-            array_ordered_remove_by_index(*context.map.available_rooms, avail_idx);
+            array_ordered_remove_by_index(*context.map_screen_state.available_rooms, avail_idx);
 
-            next_map_selected_idx();
+            if context.map_screen_state.available_rooms.count > 0 {
+                next_map_selected_idx();
+            } else {
+                context.map_screen_state.cursor_state = .SELECT;
+            }
+        }
+    case .SELECT;
+        if context.map.occupied[coord_idx] {
+            pos := context.map_screen_state.cursor_position;
+            idx_of_room: int;
+            for context.map.placed_room_cards {
+                if it.coord == pos {
+                    idx_of_room = it_index;
+                    break;
+                }
+            }
+
+            hash := context.map.placed_room_cards[idx_of_room].room_hash;
+            room_to_grab := table_find_pointer(context.room_table, hash);
+            if !room_to_grab {
+                print("Tried to grab a room with an invalid ptr\n");
+            }
+
+            if room_to_grab.flags & .STATIC == .STATIC {
+                // Add screen shake and play a sound
+            } else {
+                context.map_screen_state.cursor_rotation = context.map.placed_room_cards[idx_of_room].rotation;
+                context.map.occupied[coord_idx] = false;
+                array_unordered_remove_by_index(*context.map.placed_room_cards, idx_of_room);
+                array_add(*context.map_screen_state.available_rooms, hash);
+
+                returned_room_idx: int;
+                for context.map_screen_state.available_rooms {
+                    if it == hash {
+                        returned_room_idx = it_index;
+                        break;
+                    }
+                }
+                context.map_screen_state.selected_idx = returned_room_idx;
+                context.map_screen_state.cursor_state = .PLACE;
+            }
         }
     }
 }
@@ -359,38 +414,38 @@ place_room_at_position :: () {
 move_map_cursor :: () {
     if is_action_buffered(.MOVE_LEFT) {
         consume_action(.MOVE_LEFT);
-        new_x := context.editor_state.map_cursor_position.x - 1;
+        new_x := context.map_screen_state.cursor_position.x - 1;
         if new_x < 0 {
             new_x = 0;
         }
-        context.editor_state.map_cursor_position.x = new_x;
+        context.map_screen_state.cursor_position.x = new_x;
     }
 
     if is_action_buffered(.MOVE_RIGHT) {
         consume_action(.MOVE_RIGHT);
-        new_x := context.editor_state.map_cursor_position.x + 1;
+        new_x := context.map_screen_state.cursor_position.x + 1;
         if new_x > MAP_WIDTH - 1 {
             new_x = MAP_WIDTH - 1;
         }
-        context.editor_state.map_cursor_position.x = new_x;
+        context.map_screen_state.cursor_position.x = new_x;
     }
 
     if is_action_buffered(.MOVE_UP) {
         consume_action(.MOVE_UP);
-        new_y := context.editor_state.map_cursor_position.y + 1;
+        new_y := context.map_screen_state.cursor_position.y + 1;
         if new_y > MAP_HEIGHT - 1 {
             new_y = MAP_HEIGHT - 1;
         }
-        context.editor_state.map_cursor_position.y = new_y;
+        context.map_screen_state.cursor_position.y = new_y;
     }
 
     if is_action_buffered(.MOVE_DOWN) {
         consume_action(.MOVE_DOWN);
-        new_y := context.editor_state.map_cursor_position.y - 1;
+        new_y := context.map_screen_state.cursor_position.y - 1;
         if new_y < 0 {
             new_y = 0;
         }
-        context.editor_state.map_cursor_position.y = new_y;
+        context.map_screen_state.cursor_position.y = new_y;
     }
 }
 
@@ -411,7 +466,20 @@ map_screen_update :: () {
         rotate_map_selected_room();
     }
 
-    place_room_at_position();
+    if is_action_buffered(.CONFIRM) {
+        consume_action(.CONFIRM);
+        place_or_select_room_at_position();
+    }
+
+    if is_action_buffered(.CANCEL) {
+        consume_action(.CANCEL);
+
+        if context.map_screen_state.cursor_state == .PLACE {
+            context.map_screen_state.cursor_state = .SELECT;
+        } else if context.map_screen_state.cursor_state == .SELECT && context.map_screen_state.available_rooms.count > 0 {
+            context.map_screen_state.cursor_state = .PLACE;
+        }
+    }
 
     if is_action_buffered(.BAKE_MAP) {
         consume_action(.BAKE_MAP);
@@ -421,6 +489,27 @@ map_screen_update :: () {
     if is_action_buffered(.INTERACT) {
         consume_action(.INTERACT);
         exit_map_placement_screen();
+    }
+}
+
+render_map_screen_controls :: () {
+    screen_x := 15;
+    screen_y := (cast(int)WINDOW_HEIGHT) - 50;
+    draw_text(context.atlas.font, screen_x, screen_y, "WASD - MOVE");
+    screen_y -= 100;
+    if context.map_screen_state.cursor_state == {
+    case .SELECT;
+        draw_text(context.atlas.font, screen_x, screen_y, "RTRN - PICK_UP");
+    case .PLACE;
+        draw_text(context.atlas.font, screen_x, screen_y, "RTRN - PLACE");
+    }
+    screen_y -= 100;
+    draw_text(context.atlas.font, screen_x, screen_y, "BCK_SPCE - MODE");
+    screen_y -= 100;
+    draw_text(context.atlas.font, screen_x, screen_y, "R - ROTATE");
+    screen_y -= 100;
+    if context.map_screen_state.cursor_state == .PLACE && context.map_screen_state.available_rooms.count > 1 {
+        draw_text(context.atlas.font, screen_x, screen_y, "UP/DOWN - SELECT");
     }
 }
 

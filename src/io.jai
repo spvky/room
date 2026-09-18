@@ -172,7 +172,11 @@ generate_room_png :: (r: *Room, path: string) {
         case .COLOR_WALL;
             `pixel_data[idx] = .{255, 255, 255, 255};
         case .COLOR_EMPTY;
-            `pixel_data[idx] = .{80, 115, 240, 255};
+            if r.flags & .STATIC == .STATIC {
+                `pixel_data[idx] = .{55, 148, 110, 255};
+            } else {
+                `pixel_data[idx] = .{80, 115, 240, 255};
+            }
         case .COLOR_BLANK;
             `pixel_data[idx] = .{0, 0, 0, 255};
         case .COLOR_RED;

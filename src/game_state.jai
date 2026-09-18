@@ -31,6 +31,7 @@ open_map_placement_screen :: () {
 exit_map_placement_screen :: () {
     bake_world();
     restore_player();
+    snap_camera_pos();
     context.game_state = .GAMEPLAY;
 }
 
@@ -45,6 +46,7 @@ game_state_update :: () {
     if is_action_buffered(.GOTO_GAMEPLAY) {
         consume_action(.GOTO_GAMEPLAY);
         bake_world();
+        snap_camera_pos();
 
         context.game_state = .GAMEPLAY;
     }
