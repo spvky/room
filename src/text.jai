@@ -25,26 +25,12 @@ manage_floating_text :: (delta: float32) {
         } else {
             it.flags &= ~.TEXT_ACTIVE;
         }
-
-        if entity_has_flags(it, .TEXT_ACTIVE) {
-            if it.text_alpha < 0.95 {
-                it.text_alpha = lerp(it.text_alpha, 1, delta * 10);
-            } else {
-                it.text_alpha = 1;
-            }
-        } else {
-            if it.text_alpha > 0.05 {
-                it.text_alpha = lerp(it.text_alpha, 0, delta * 10);
-            } else {
-                it.text_alpha = 0;
-            }
-        }
     }
 }
 
 render_floating_text :: () {
     for *context.entities {
-        if !entity_has_props(it, .TEXT_DISPLAY) || it.text_alpha == 0 continue;
+        if !entity_has_props(it, .TEXT_DISPLAY) || !entity_has_flags(it, .TEXT_ACTIVE) continue;
         screen_x, screen_y, ok := gameplay_pos_to_screen_position(it.position);
         if !ok continue;
         screen_y += 80;

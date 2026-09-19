@@ -200,6 +200,7 @@ rotate_room :: (r: Room) -> Room {
                                                                                 width = height,
                                                                                 height = width,
                                                                                 active_start = rotate_coord(active_start),
+                                                                                trigger_type = trigger_type,
                                                                                 trigger_position = rotate_coord(trigger_position)}});
         }
     }

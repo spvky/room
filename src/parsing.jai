@@ -141,7 +141,6 @@ write_room_cards_to_world :: () {
                         world.entities[world_idx] = .SWITCH_BLOCK;
                     }
                 }
-                print("Making Switch Block Entity\n");
                 make_extra_entity(relative_coord, it);
             case .ROOM_PICKUP;
                 using it.room_pickup_data;

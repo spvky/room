@@ -481,7 +481,7 @@ draw_entity_editor_window :: (state: *Subwindow_State, r: Rect, data: *void) {
 
             pickup_room_ptr := table_find_pointer(context.room_table, hash);
             if pickup_room_ptr {
-                room_name_string = sprint("%", pickup_room_ptr.name);
+                room_name_string = tprint("%", pickup_room_ptr.name);
             } else {
                 room_name_string = "NULL";
             }

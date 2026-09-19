@@ -13,7 +13,6 @@ Entity :: struct {
     tag: Entity_Tag;
     state: Entity_State;
     current_coord: Coord;
-    text_alpha: float32;
     text_message: Display_Message;
     render_kind: Entity_Render_Kind;
     render_extents: Vector2;
@@ -191,14 +190,11 @@ entity_get :: (handle: Entity_Handle, e: *Entity_Manager = context.entities) -> 
 
 entity_remove :: (handle: Entity_Handle, e: *Entity_Manager = context.entities, depth := 0) {
     if handle.index > 0 && cast(int)handle.index < e.items.count && e.items[handle.index].handle == handle {
-        print("Start removal at depth: % with handle %\n", depth, handle);
         entity := entity_get(handle);
-        print("Got entity for removal % with handle %\n", entity, handle);
         if entity_valid(entity.first_child) {
             current_child := entity_get(entity.first_child);
 
             while entity_valid(current_child.next_sibling) {
-                print("Child % removing sibling %\n", entity.first_child, current_child.next_sibling);
                 entity_remove(current_child.next_sibling, depth = depth + 1);
             }
 
@@ -206,13 +202,11 @@ entity_remove :: (handle: Entity_Handle, e: *Entity_Manager = context.entities, 
         }
 
         if entity_valid(entity.next_sibling) {
-            print("Ammending next sibling! at depth %\n", depth);
             next_sibling := entity_get(entity.next_sibling);
             next_sibling.prev_sibling = entity.prev_sibling;
         }
 
         if entity_valid(entity.prev_sibling) {
-            print("Ammending previous sibling! at depth %\n", depth);
             prev_sibling := entity_get(entity.prev_sibling);
             prev_sibling.next_sibling = entity.next_sibling;
         }
@@ -222,11 +216,8 @@ entity_remove :: (handle: Entity_Handle, e: *Entity_Manager = context.entities, 
             parent.first_child = entity.next_sibling;
         }
 
-        print("Add Item to freelist at handle: %\n", handle);
         array_add(*e.freelist, handle);
-        print("Clearing Item at handle: %\n", handle);
         e.items[handle.index] = .{};
-        print("Decrementing at depth %!\n", depth);
         e.count -= 1;
     }
 }

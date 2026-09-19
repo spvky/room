@@ -5,6 +5,7 @@ gameplay_update :: (delta: float32) {
     // Camera
     camera_smoothing(delta);
     camera_follow();
+    camera_look();
     // Animation
     advance_animation_timers(delta);
     handle_entity_sprite_sheets();

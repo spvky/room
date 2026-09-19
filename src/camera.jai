@@ -5,6 +5,7 @@ Camera :: struct {
     smoothing: float32 = 10;
     target_room: Coord;
     room_offset := Vector2.{0, 12};
+    camera_look: Vector2;
     BASE_PLAYER_OFFSET := Vector2.{320, 75};
 }
 
@@ -22,10 +23,18 @@ camera_smoothing :: (delta: float32) {
     }
 }
 
+camera_look :: () {
+    look_delta: float32;
+    if is_action_held(.MOVE_UP) look_delta += 160;
+    if is_action_held(.MOVE_DOWN) look_delta -= 160;
+
+    context.camera.camera_look.y = look_delta;
+}
+
 camera_follow :: () {
     player := player_get();
     if player {
-        raw_pos := player.position - context.camera.BASE_PLAYER_OFFSET;
+        raw_pos := (player.position + context.camera.camera_look) - context.camera.BASE_PLAYER_OFFSET;
         min, max := camera_bounds_from_room(context.camera.target_room);
         true_pos: Vector2;
         true_pos.x = clamp(raw_pos.x, min.x, max.x);

@@ -99,3 +99,4 @@ GL :: #import "GL";
 #load "src/water.jai";
 #load "src/inspector.jai";
 #load "src/text.jai";
+#load "src/map_view.jai";

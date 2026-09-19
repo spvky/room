@@ -25,12 +25,12 @@ draw_inspector_window :: (state: *Subwindow_State, r: Rect, data: *void) {
         return;
     }
     handle := *context.inspector_state.current_handle;
-    handle_text := sprint("[% | %]", handle.index, handle.generation);
+    handle_text := tprint("[% | %]", handle.index, handle.generation);
     label(handle_label_rect, handle_text, *base_theme.label_theme);
 
     entity := entity_get(handle.*);
     tag_label_rect := get_rect(label_margin + 150, y_pos, 700, 50);
-    tag_text := sprint("Tag: %", entity.tag);
+    tag_text := tprint("Tag: %", entity.tag);
     label(tag_label_rect, tag_text, *base_theme.label_theme);
     y_pos -= 30;
 
@@ -75,7 +75,7 @@ inspector_vec2_display :: (field_name: string, ptr: *Vector2) #expand {
     label_rect := get_rect(`label_margin, `y_pos, 700, 25);
     label(label_rect, field_name, *`base_theme.label_theme);
     `y_pos -= 27;
-    text := sprint("{% , %}", formatFloat(ptr.x, width = 1, trailing_width = 2, zero_removal = .NO), formatFloat(ptr.y, width = 1, trailing_width = 2, zero_removal = .NO));
+    text := tprint("{% , %}", formatFloat(ptr.x, width = 1, trailing_width = 2, zero_removal = .NO), formatFloat(ptr.y, width = 1, trailing_width = 2, zero_removal = .NO));
     text_rect := get_rect(`label_margin + 20, `y_pos, 700, 25);
     label(text_rect, text, *`base_theme.label_theme);
     `y_pos -= 27;
@@ -88,13 +88,13 @@ inspector_relation_handle_display :: (handle_name: string, ptr: *Entity_Handle, 
     handle_display_rect: Rect;
     if entity_valid(ptr.*) {
         handle_display_rect := get_rect(`label_margin + 110, `y_pos, 60, 25);
-        handle_button_text := sprint("[%|%]", ptr.*.index, ptr.*.generation);
+        handle_button_text := tprint("[%|%]", ptr.*.index, ptr.*.generation);
         handle_pressed := button(handle_display_rect, handle_button_text, loc = loc);
         if handle_pressed {
             context.inspector_state.current_handle = ptr.*;
         }
     } else {
-        handle_label_text := sprint("[NULL]");
+        handle_label_text := tprint("[NULL]");
         handle_display_rect := get_rect(`label_margin + 100, `y_pos, 60, 25);
         label(handle_display_rect, handle_label_text, *`base_theme.label_theme);
     }
