@@ -525,8 +525,7 @@ paint_tile_values :: () {
         cell, ok := get_mouse_cell();
         if context.editor_state.editor_type == {
         case 0;
-            if is_action_buffered(.EDITOR_LEFT_CLICK) {
-                consume_action(.EDITOR_LEFT_CLICK);
+            if is_action_held(.EDITOR_LEFT_CLICK) {
                 value_to_paint: Collision_Tile = xx (context.editor_state.collision_tile_type + 1);
                 if ok {
                     set_collision_tile_value(room_ptr, value_to_paint, cell);
