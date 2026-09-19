@@ -276,12 +276,10 @@ project_rigidbody_along_axis :: (rb: *Rigidbody, a: Vector2) -> Interval {
 
 store_rigidbody_axes :: (rb: *Rigidbody, axes: *[..]Vector2) {
     if rb.shape_kind == .CIRCLE || rb.shape_kind == .CAPSULE return;
-    if rb.rotation == 0 {
-        if axes.count == 0 {
-            array_add(axes, Vector2.{1, 0});
-            array_add(axes, Vector2.{0, 1});
-        }
-    } else {
+    // Not storing any real axes right now, just adding X/Y
+    if axes.count == 0 {
+        array_add(axes, Vector2.{1, 0});
+        array_add(axes, Vector2.{0, 1});
     }
 }
 // AABB

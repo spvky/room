@@ -3,7 +3,7 @@ COLLISION_TILE_TYPES: [5]string: .["Wall", "Top Half", "Bot Half", "Left Half", 
 COLLISION_TILE_ICONS: [5]Ui_Icon;
 ENTITY_TILE_TYPES: [4]string: .["Crate", "Player Spawn", "Gear", "Assembler"];
 ENTITY_TILE_ICONS: [4]Ui_Icon;
-TRIGGER_TYPES: [2]string: .["LEVER", "BUTTON"];
+TRIGGER_TYPES: [8]string: .["LEVER_0", "LEVER_1", "LEVER_3", "LEVER_3", "BUTTON_0", "BUTTON_1", "BUTTON_2", "BUTTON_3"];
 
 Ui_Icon :: struct {
     sprite: Sprite;
@@ -38,8 +38,37 @@ Extra_Entity_Kind :: enum {
 }
 
 Trigger_Type :: enum {
-    LEVER;
-    BUTTON;
+    LEVER_0;
+    LEVER_1;
+    LEVER_2;
+    LEVER_3;
+    BUTTON_0;
+    BUTTON_1;
+    BUTTON_2;
+    BUTTON_3;
+}
+
+rotate_trigger_type :: (a: Trigger_Type) -> Trigger_Type {
+    out: Trigger_Type;
+    if a == {
+    case .LEVER_0;
+        out = .LEVER_1;
+    case .LEVER_1;
+        out = .LEVER_2;
+    case .LEVER_2;
+        out = .LEVER_3;
+    case .LEVER_3;
+        out = .LEVER_0;
+    case .BUTTON_0;
+        out = .BUTTON_1;
+    case .BUTTON_1;
+        out = .BUTTON_2;
+    case .BUTTON_2;
+        out = .BUTTON_3;
+    case .BUTTON_3;
+        out = .BUTTON_0;
+    }
+    return out;
 }
 
 Switch_Block_Data :: struct {

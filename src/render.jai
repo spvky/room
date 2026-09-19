@@ -551,7 +551,7 @@ render_entities :: () {
         if it.tag == .ROOM_PICKUP {
             pos.y += 4.0 * cast(float32)sin(last_time * 4);
         }
-        render_sprite(*sprite, pos, it.render_extents);
+        render_sprite(*sprite, pos, it.render_extents, rotation = it.rotation);
     }
     for *context.entities {
         if !entity_has_props(it, .RENDERABLE) || !entity_has_props(it, .FOREGROUND) continue;

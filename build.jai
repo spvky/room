@@ -100,3 +100,4 @@ GL :: #import "GL";
 #load "src/inspector.jai";
 #load "src/text.jai";
 #load "src/map_view.jai";
+#load "src/power.jai";

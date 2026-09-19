@@ -193,6 +193,7 @@ rotate_room :: (r: Room) -> Room {
         if it.kind == {
         case .SWITCH_BLOCK;
             using it.switch_block_data;
+            print("Rotating block start from % to %\n", active_start, rotate_coord(active_start));
             array_add(*out.extra_data, Extra_Entity_Data.{
                                                           kind = .SWITCH_BLOCK,
                                                           switch_block_data = .{
@@ -200,7 +201,7 @@ rotate_room :: (r: Room) -> Room {
                                                                                 width = height,
                                                                                 height = width,
                                                                                 active_start = rotate_coord(active_start),
-                                                                                trigger_type = trigger_type,
+                                                                                trigger_type = rotate_trigger_type(trigger_type),
                                                                                 trigger_position = rotate_coord(trigger_position)}});
         }
     }
