@@ -8,6 +8,8 @@ Game_State :: enum u8 {
 Game_Data :: struct {
     has_stored_player: bool;
     stored_player: Entity;
+    player_current_room: Coord;
+    player_current_position: Vector2;
 }
 
 #add_context game_state: Game_State;

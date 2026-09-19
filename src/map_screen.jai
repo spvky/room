@@ -384,13 +384,16 @@ place_or_select_room_at_position :: () {
                 }
             }
 
-            hash := context.map.placed_room_cards[idx_of_room].room_hash;
+            placed_card := context.map.placed_room_cards[idx_of_room];
+            hash := placed_card.room_hash;
             room_to_grab := table_find_pointer(context.room_table, hash);
+            room_is_occupied := placed_card.coord == context.game_data.player_current_room;
             if !room_to_grab {
                 print("Tried to grab a room with an invalid ptr\n");
             }
 
-            if room_to_grab.flags & .STATIC == .STATIC {
+            if room_to_grab.flags & .STATIC == .STATIC || room_is_occupied {
+                if room_is_occupied print("Can't move the room you are currently in\n");
                 // Add screen shake and play a sound
             } else {
                 context.map_screen_state.cursor_rotation = context.map.placed_room_cards[idx_of_room].rotation;

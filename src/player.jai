@@ -106,6 +106,8 @@ player_interaction :: () {
 store_player :: () {
     assert(player_is_valid(), "Tried to store player and they didn't exist!\n");
     player := player_get();
+    context.game_data.player_current_room = context.camera.target_room;
+    context.game_data.player_current_position = player.position;
     context.game_data.stored_player = player.*;
     context.game_data.has_stored_player = true;
 }
