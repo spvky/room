@@ -10,19 +10,48 @@ Room_V2 :: struct {
 }
 
 Mouse_Capture :: struct {
+    building_wall: bool;
+    wall_start: Coord;
 }
+
+New_Editor_State :: struct {
+    editor_click_mode: New_Editor_Click_Mode;
+    setting_ptr: *Vector2;
+    current_entity: Entity_Handle;
+    entity_window: Subwindow_Info = .{
+                                      rect = #run get_rect(cast(float)WINDOW_WIDTH - 355, cast(float)WINDOW_HEIGHT - 880, 350, 870),
+                                      draw = draw_entity_window,
+                                      title_text = "Entity"};
+}
+
+New_Editor_Click_Mode :: enum u8 {
+    VECTOR_SET;
+}
+
+#add_context new_editor_state: New_Editor_State;
 
 label_and_field :: (field_name: string, field_ptr: *$T, set_button := false) #expand {
     label_rect := get_rect(`x, `y, 150, 30);
     label(label_rect, field_name);
 
     if T == Vector2 {
-        field_rect := get_rect(`x + 155, `y, 50, 30);
+        field_rect := get_rect(`x + 155, `y, 80, 30);
         field_string := tprint("{% , %}",
                                formatFloat(field_ptr.x, width = 1, trailing_width = 1, zero_removal = .NO),
                                formatFloat(field_ptr.x, width = 1, trailing_width = 1, zero_removal = .NO));
         label(field_rect, field_string);
         if set_button {
+            button_rect := get_rect(`x + 240, `y, 80, 30);
+            button_text := tprint("Set %", field_name);
+            should_set_field := button(button_rect, button_text);
+            if should_set_field {
+                context.new_editor_state.editor_click_mode = .VECTOR_SET;
+                context.new_editor_state.setting_ptr = field_ptr;
+            }
         }
+        `y -= 35;
     }
+}
+
+draw_entity_window :: () {
 }

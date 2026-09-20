@@ -9,6 +9,7 @@ main :: () {
     set_render_target(window);
     init();
 
+    print("Camera Zoom: %\n", context.camera.zoom);
     start_game();
     while !should_close {
         update_window_events();

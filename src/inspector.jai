@@ -103,7 +103,6 @@ inspector_relation_handle_display :: (handle_name: string, ptr: *Entity_Handle, 
 
 inspector_entity_picking :: () {
     mouse_pos, ok := mouse_pointer_to_gameplay_pos();
-    // print("Mouse Pos: {% , %}\n", mouse_pos.x, mouse_pos.y);
     if is_action_buffered(.EDITOR_LEFT_CLICK) {
         consume_action(.EDITOR_LEFT_CLICK);
         for *context.entities {

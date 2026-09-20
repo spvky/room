@@ -523,22 +523,13 @@ render_gameplay_scene :: () {
     immediate_quad(sv[0], sv[1], sv[2], sv[3], .{1, 1, 1, 1});
     render_floating_text();
     debug_inspector_ui();
-    // draw_dot(.{960, 540}, 50, .{1, 0, 0, 1});
+    // draw_dot(.{960, 540}, 10, .{0, 0, 0, 1});
 }
 
-player_pos := Vector2.{64, 32};
-player_colliding: bool;
-
 render_entities :: () {
-    if is_action_held(.MOVE_RIGHT) {
-        player_pos.x += 0.01;
-    }
-    if is_action_held(.MOVE_LEFT) {
-        player_pos.x -= 0.01;
-    }
     for *context.entities {
         if !entity_has_props(it, .RENDERABLE) || entity_has_props(it, .FOREGROUND) continue;
-        pos := cam_relative_position(it.position);
+        pos, extents := cam_relative_pos_extents(it.position, it.render_extents);
         sprite: Sprite;
         if it.render_kind == {
         case .SPRITE;
@@ -549,42 +540,20 @@ render_entities :: () {
             sprite = get_current_animation_frame(*it.animation_player);
         }
         if it.tag == .ROOM_PICKUP {
-            pos.y += 4.0 * cast(float32)sin(last_time * 4);
+            pos.y += context.camera.zoom * 4.0 * cast(float32)sin(last_time * 4);
         }
-        render_sprite(*sprite, pos, it.render_extents, rotation = it.rotation);
-    }
-    for *context.entities {
-        if !entity_has_props(it, .RENDERABLE) || !entity_has_props(it, .FOREGROUND) continue;
-        pos := cam_relative_position(it.position);
-        sprite: Sprite;
-        if it.render_kind == {
-        case .SPRITE;
-            sprite = it.sprite;
-        case .SPRITE_SHEET;
-            sprite = get_current_sprite_sheet_frame(*it.sprite_sheet);
-        case .ANIMATION_PLAYER;
-            sprite = get_current_animation_frame(*it.animation_player);
-        }
-        render_sprite(*sprite, pos, it.render_extents);
+        render_sprite(*sprite, pos, extents, rotation = it.rotation);
     }
 }
 
 draw_entity_collider :: inline (e: *Entity, color: Vector4) {
     p: [4]Vector2;
-    half := e.extents / 2;
-    pos := cam_relative_position(e.position);
-    if e.shape_kind == {
-    case .RECTANGLE;
-        p[0] = pos + .{-half.x, half.y};
-        p[1] = pos + .{-half.x, -half.y};
-        p[2] = pos + .{half.x, -half.y};
-        p[3] = pos + .{half.x, half.y};
-    case .CIRCLE;
-        p[0] = pos + .{e.radius, e.radius};
-        p[1] = pos + .{-e.radius, -e.radius};
-        p[2] = pos + .{e.radius, -e.radius};
-        p[3] = pos + .{e.radius, e.radius};
-    }
+    pos, extents := cam_relative_pos_extents(e.position, e.render_extents);
+    half := extents / 2;
+    p[0] = pos + .{-half.x, half.y};
+    p[1] = pos + .{-half.x, -half.y};
+    p[2] = pos + .{half.x, -half.y};
+    p[3] = pos + .{half.x, half.y};
     immediate_quad(p[0], p[1], p[2], p[3], color);
 }
 
@@ -607,7 +576,7 @@ mouse_pointer_to_gameplay_pos :: () -> Vector2, bool {
     raw_x, raw_y, ok := get_mouse_pointer_position();
     raw_y = WINDOW_HEIGHT - raw_y;
 
-    if raw_x == 0 || raw_y == 0 {
+    if raw_x < 0 || raw_y < 0 || raw_x > WINDOW_WIDTH || raw_y > WINDOW_HEIGHT {
         return Vector2.{}, false;
     }
 
@@ -617,12 +586,14 @@ mouse_pointer_to_gameplay_pos :: () -> Vector2, bool {
     true_x := screen_scaled_x * cast(float32)DISPLAY_WIDTH;
     true_y := screen_scaled_y * cast(float32)DISPLAY_HEIGHT;
 
-    return context.camera.position + Vector2.{true_x, true_y}, ok;
-    // return Vector2.{screen_scaled_x, screen_scaled_y}, ok;
+    display_offset := Vector2.{(cast(float32)DISPLAY_WIDTH) / 2, (cast(float32)DISPLAY_HEIGHT) / 2};
+
+    return context.camera.position + Vector2.{true_x, true_y} - display_offset, ok;
 }
 
 gameplay_pos_to_screen_position :: (v: Vector2) -> int, int, bool {
-    adjusted_pos := v - context.camera.position;
+    display_offset := Vector2.{(cast(float32)DISPLAY_WIDTH) / 2, (cast(float32)DISPLAY_HEIGHT) / 2};
+    adjusted_pos := v - context.camera.position + display_offset;
     display_scaled_x := adjusted_pos.x / (cast(float32)DISPLAY_WIDTH);
     display_scaled_y := adjusted_pos.y / (cast(float32)DISPLAY_HEIGHT);
 

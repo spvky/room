@@ -26,6 +26,8 @@ Action :: enum {
     GOTO_GAMEPLAY;
     TOGGLE_INSPECTOR;
     BAKE_MAP;
+    CAMERA_ZOOM_IN;
+    CAMERA_ZOOM_OUT;
 }
 
 init_input :: () {
@@ -54,6 +56,8 @@ init_input :: () {
     register_input(.GOTO_GAMEPLAY, #char "0");
     register_input(.BAKE_MAP, #char "J");
     register_input(.TOGGLE_INSPECTOR, #char "1");
+    register_input(.CAMERA_ZOOM_IN, .PAGE_UP);
+    register_input(.CAMERA_ZOOM_OUT, .PAGE_DOWN);
 }
 
 process_input :: (delta: float32) {
