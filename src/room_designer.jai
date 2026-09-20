@@ -749,3 +749,23 @@ modify_string :: (ps: *string, new_value: string) {
     free(ps.*);
     ps.* = copy_string(new_value);
 }
+
+/* What would a perfect room designer look like?
+
+ 1. Use tilemap for walls
+ 2. Vector2 for everything else
+ 3. Use per room handle collections, and then dump everything into the main collection on hydrate
+
+
+*/
+
+Room_V2 :: struct {
+    name: string;
+    flags: Room_Flags;
+    exits: Room_Exits;
+    int_grid: [ROOM_WIDTH * ROOM_HEIGHT]Collision_Tile;
+    rune: Rune;
+    texture: Texture;
+    entities: Entity_Manager;
+    static_position: Coord;
+}
