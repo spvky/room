@@ -358,22 +358,22 @@ make_extra_entity :: (c: Coord, e: *Extra_Entity_Data) {
         case .BUTTON_0;
             switch_entity.tag = .BUTTON;
             switch_entity.sprite_sheet = sprite_sheet(12, 2);
-            switch_entity.props = .RENDERABLE | .CONDUIT | .SENSOR;
+            switch_entity.props = .RENDERABLE | .CONDUIT | .SENSOR | .FOREGROUND;
         case .BUTTON_1;
             switch_entity.tag = .BUTTON;
             switch_entity.sprite_sheet = sprite_sheet(12, 2);
             switch_entity.rotation = PI / 2;
-            switch_entity.props = .RENDERABLE | .CONDUIT | .SENSOR;
+            switch_entity.props = .RENDERABLE | .CONDUIT | .SENSOR | .FOREGROUND;
         case .BUTTON_2;
             switch_entity.tag = .BUTTON;
             switch_entity.sprite_sheet = sprite_sheet(12, 2);
             switch_entity.rotation = PI;
-            switch_entity.props = .RENDERABLE | .CONDUIT | .SENSOR;
+            switch_entity.props = .RENDERABLE | .CONDUIT | .SENSOR | .FOREGROUND;
         case .BUTTON_3;
             switch_entity.tag = .BUTTON;
             switch_entity.sprite_sheet = sprite_sheet(12, 2);
             switch_entity.rotation = PI + (PI / 2);
-            switch_entity.props = .RENDERABLE | .CONDUIT | .SENSOR;
+            switch_entity.props = .RENDERABLE | .CONDUIT | .SENSOR | .FOREGROUND;
         }
         switch_handle := entity_add(switch_entity);
 
@@ -411,13 +411,6 @@ make_extra_entity :: (c: Coord, e: *Extra_Entity_Data) {
         entity.sprite = sprite(19);
         entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
         entity_add(entity);
-
-        // Other Moving Block types to add here:
-        // Powered and unpowered patrol blocks
-        // For patrol editor store array of points (fixed size)
-        // To handle patrolling, have the block move towards a handle (set to the handle of the first child point)
-        // When we reach a patrol point child, grab their next sibling handle to get to the next one
-        // Need to ensure children still have a ring buffer relationship to their siblings for this to be seamless
     }
 }
 

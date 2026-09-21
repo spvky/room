@@ -48,9 +48,9 @@ handle_entity_sprite_sheets :: () {
         if it.tag == {
         case .LEVER;
             if entity_has_flags(it, .POWERED) {
-                it.sprite_sheet.idx = 9;
-            } else {
                 it.sprite_sheet.idx = 8;
+            } else {
+                it.sprite_sheet.idx = 9;
             }
         case .BUTTON;
             if entity_has_flags(it, .POWERED) {

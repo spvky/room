@@ -544,6 +544,20 @@ render_entities :: () {
         }
         render_sprite(*sprite, pos, extents, rotation = it.rotation);
     }
+    for *context.entities {
+        if !entity_has_props(it, .RENDERABLE) || !entity_has_props(it, .FOREGROUND) continue;
+        pos, extents := cam_relative_pos_extents(it.position, it.render_extents);
+        sprite: Sprite;
+        if it.render_kind == {
+        case .SPRITE;
+            sprite = it.sprite;
+        case .SPRITE_SHEET;
+            sprite = get_current_sprite_sheet_frame(*it.sprite_sheet);
+        case .ANIMATION_PLAYER;
+            sprite = get_current_animation_frame(*it.animation_player);
+        }
+        render_sprite(*sprite, pos, extents, rotation = it.rotation);
+    }
 }
 
 draw_entity_collider :: inline (e: *Entity, color: Vector4) {

@@ -37,6 +37,7 @@ draw_inspector_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     inspector_vec2_display("Pos", *entity.position);
     inspector_vec2_display("Velo", *entity.velocity);
     inspector_vec2_display("Inh Velocity", *entity.inherited_velocity);
+    inspector_vec2_display("Render_Extents", *entity.render_extents);
     inspector_relation_handle_display("Parent", *entity.parent);
     inspector_relation_handle_display("First Child", *entity.first_child);
     inspector_relation_handle_display("Last Child", *entity.last_child);
