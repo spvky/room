@@ -1,3 +1,16 @@
+// Rewriting the room designer for several reasons
+/*
+1. Remove inconsistencies that come from storing entities in a grid (most notably moving blocks atm)
+2. Generally make the room designer easier to work with, it's a little hacky and painful to design rooms with currently
+3. Remove the friction of translating entities between 2 different types
+4. Design around the ability to play a room and test it while building it
+5. Genrally make serialization simpler
+6. Once different rune effects are implemented I imagine it will be more
+
+Things to consider:
+1. Size of data will most likely be slightly larger, but seeing as how the current build is with assets is 1MB compressed, that's probably fine
+*/
+
 Room_V2 :: struct {
     name: string;
     flags: Room_Flags;
