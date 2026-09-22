@@ -123,6 +123,7 @@ mouse_movement :: () {
         context.room_editor_state.current_mouse_coord = cell;
     }
 }
+
 click_actions :: () {
     editor_state := context.room_editor_state;
     entities := *editor_state.current_room.entities;
@@ -146,6 +147,7 @@ click_actions :: () {
                         it.prev_sibling = first_child.handle;
                     } else {
                         entity.first_child = it.handle;
+                        entity.last_child = it.handle;
                     }
                     it.parent = handle;
                     entity.last_child = it.handle;
@@ -154,12 +156,30 @@ click_actions :: () {
                 }
             }
         case .HANDLE_SET_PARENT;
-            // TODO: Copy/Change above
+            for entities {
+                if c == it.relative_room_coord && entity_valid(handle, e = entities) {
+                    entity := entity_get(handle, e = entities);
+                    if entity_valid(it.last_child, e = entities) {
+                        last_child := entity_get(it.last_child, e = entities);
+                        last_child.next_sibling = handle;
+                        entity.prev_sibling = last_child.handle;
+                    } else if entity_valid(it.first_child, e = entities) {
+                        first_child := entity_get(it.first_child, e = entities);
+                        first_child.next_sibling = handle;
+                        entity.prev_sibling = first_child.handle;
+                    } else {
+                        it.first_child = handle;
+                        it.last_child = handle;
+                    }
+                    entity.parent = it.handle;
+
+                    editor_state.editor_click_mode = .SELECT;
+                }
+            }
 
             editor_state.editor_click_mode = .SELECT;
         case .HANDLE_SET_SIB;
-            // TODO: Copy/Change above
-
+            // Don't think this is ever necessary
             editor_state.editor_click_mode = .SELECT;
         case .VECTOR_SET;
             if entity_valid(handle, e = entities) {
@@ -167,7 +187,6 @@ click_actions :: () {
                 entity.relative_room_coord = c;
                 entity.position = true_vec_from_coord(c);
             }
-
             editor_state.editor_click_mode = .SELECT;
         case .MAKE_ENTITY;
             tag := editor_state.entity_to_make;
@@ -365,6 +384,8 @@ draw_entity_window :: (state: *Subwindow_State, r: Rect, data: *void) {
         y -= 45;
         vec_field("Position", *entity.position);
         rotation_field(*entity.rotation);
+        extents_display("Extents", *entity.extents);
+        extents_display("Render Extents", *entity.render_extents);
         handle_field("Handle", *entity.handle, .NONE, false, false);
         handle_field("Parent", *entity.parent, .PARENT);
         handle_field("F Child", *entity.first_child, .CHILD);
@@ -575,6 +596,34 @@ rotation_field :: (field_ptr: *float, loc := #caller_location) #expand {
 
     if left_pressed field_ptr.* += PI / 2;
     if right_pressed field_ptr.* -= PI / 2;
+    `y -= 35;
+}
+
+extents_display :: (field_name: string, field_ptr: *Vector2) {
+    `y -= 20;
+    label_rect := get_rect(`x, `y, 100, 30);
+    label(label_rect, field_name, *`editor_state.theme.label_theme);
+
+    field_rect := get_rect(`x + 105, `y, 160, 24);
+    left_button_rect := get_rect(`x + 70, `y, 30, 30);
+    right_button_rect := get_rect(`x + 270, `y, 30, 30);
+    up_button_rect := get_rect(`x + 170, `y + 35, 30, 30);
+    down_button_rect := get_rect(`x + 170, `y - 35, 30, 30);
+    field_string := tprint("{% , %}",
+                           formatFloat(field_ptr.x / TILE_SIZE, width = 1, trailing_width = 2, zero_removal = .NO),
+                           formatFloat(field_ptr.x / TILE_SIZE, width = 1, trailing_width = 2, zero_removal = .NO));
+    label(field_rect, field_string, *`editor_state.theme.label_theme);
+
+    left_pressed := button(left_button_rect, "<");
+    right_pressed := button(left_button_rect, ">");
+    up_pressed := button(left_button_rect, "^");
+    down_pressed := button(left_button_rect, "v");
+
+    if left_pressed field_ptr.x -= TILE_SIZE * 2;
+    if right_pressed field_ptr.x += TILE_SIZE * 2;
+    if up_pressed field_ptr.y += TILE_SIZE * 2;
+    if down_pressed field_ptr.y -= TILE_SIZE * 2;
+
     `y -= 35;
 }
 

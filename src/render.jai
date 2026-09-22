@@ -353,7 +353,7 @@ render_room_editor_scene :: () {
     // render_room_editor_entities(); -- Gotta write this
     render_room_editor_ui();
 
-    render_room_editor_mouse_selection();
+    #if OS == .WINDOWS render_room_editor_mouse_selection();
 }
 
 render_room_designer_scene :: () {
@@ -470,6 +470,20 @@ render_room_entities_v2 :: (r: *Room_V2) {
         selected_entity := it.handle == context.room_editor_state.current_entity_handle;
         coord := it.relative_room_coord;
         left, right, bot, top := render_boundaries_from_cell(coord);
+        if it.render_extents.x / TILE_SIZE > 1.001 {
+            room_editor_tile_size := right - left;
+            converted_x := (it.render_extents.x / TILE_SIZE) * room_editor_tile_size;
+            left -= (converted_x) / 2;
+            right += (converted_x) / 2;
+        }
+
+        if it.render_extents.y / TILE_SIZE > 1.001 {
+            room_editor_tile_size := top - bot;
+            converted_y := (it.render_extents.x / TILE_SIZE) * room_editor_tile_size;
+            top += (converted_y) / 2;
+            bot -= (converted_y) / 2;
+        }
+
         radius := (right - left) / 4;
         center := Vector2.{right + left, top + bot} / 2;
         vertices: [4]Vector2;
