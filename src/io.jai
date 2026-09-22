@@ -137,6 +137,24 @@ write_entity_manager_to_file :: (e: *Entity_Manager, file: *File) {
 }
 
 read_entity_manager_from_file :: (e: *Entity_Manager, file: *File) {
+    items_bytes: int;
+    freelist_bytes: int;
+    success := file_read(file, *items_bytes, size_of(int));
+    if !success print("Failed to read items bytes from %!\n", file.*);
+    e.items.count = items_bytes / size_of(Entity);
+    sucess = file_read(file, *freelist_bytes, size_of(int));
+    if !success print("Failed to read freelist bytes from %!\n", file.*);
+    e.freelist.count = freelist_bytes / size_of(Entity_Handle);
+    success = file_read(file, *e.count, size_of(u32));
+    if !success print("Failed to read entity manager count from %!\n", file.*);
+    if items_bytes > 0 {
+        success = file_read(file, e.items.data, items_bytes);
+        if !success print("Failed to read entity data from %!\n", file.*);
+    }
+    if freelist_bytes > 0 {
+        success = file_read(file, e.freelist.data, freelist_bytes);
+        if !success print("Failed to read freelist data from %!\n", file.*);
+    }
 }
 
 save_room :: (r: Room) {
