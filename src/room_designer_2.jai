@@ -384,8 +384,7 @@ draw_entity_window :: (state: *Subwindow_State, r: Rect, data: *void) {
         y -= 45;
         vec_field("Position", *entity.position);
         rotation_field(*entity.rotation);
-        extents_display("Extents", *entity.extents);
-        extents_display("Render Extents", *entity.render_extents);
+        extents_display("Extents", entity);
         handle_field("Handle", *entity.handle, .NONE, false, false);
         handle_field("Parent", *entity.parent, .PARENT);
         handle_field("F Child", *entity.first_child, .CHILD);
@@ -599,7 +598,7 @@ rotation_field :: (field_ptr: *float, loc := #caller_location) #expand {
     `y -= 35;
 }
 
-extents_display :: (field_name: string, field_ptr: *Vector2) {
+extents_display :: (field_name: string, entity_ptr: *Entity, loc := #caller_location) #expand {
     `y -= 20;
     label_rect := get_rect(`x, `y, 100, 30);
     label(label_rect, field_name, *`editor_state.theme.label_theme);
@@ -607,24 +606,36 @@ extents_display :: (field_name: string, field_ptr: *Vector2) {
     field_rect := get_rect(`x + 105, `y, 160, 24);
     left_button_rect := get_rect(`x + 70, `y, 30, 30);
     right_button_rect := get_rect(`x + 270, `y, 30, 30);
-    up_button_rect := get_rect(`x + 170, `y + 35, 30, 30);
-    down_button_rect := get_rect(`x + 170, `y - 35, 30, 30);
+    up_button_rect := get_rect(`x + 170, `y + 27, 30, 30);
+    down_button_rect := get_rect(`x + 170, `y - 27, 30, 30);
     field_string := tprint("{% , %}",
-                           formatFloat(field_ptr.x / TILE_SIZE, width = 1, trailing_width = 2, zero_removal = .NO),
-                           formatFloat(field_ptr.x / TILE_SIZE, width = 1, trailing_width = 2, zero_removal = .NO));
+                           formatFloat(entity_ptr.render_extents.x / TILE_SIZE, width = 1, trailing_width = 2, zero_removal = .NO),
+                           formatFloat(entity_ptr.render_extents.y / TILE_SIZE, width = 1, trailing_width = 2, zero_removal = .NO));
     label(field_rect, field_string, *`editor_state.theme.label_theme);
 
-    left_pressed := button(left_button_rect, "<");
-    right_pressed := button(left_button_rect, ">");
-    up_pressed := button(left_button_rect, "^");
-    down_pressed := button(left_button_rect, "v");
+    left_pressed := button(left_button_rect, "<", loc = loc, identifier = 0);
+    right_pressed := button(right_button_rect, ">", loc = loc, identifier = 1);
+    up_pressed := button(up_button_rect, "^", loc = loc, identifier = 2);
+    down_pressed := button(down_button_rect, "v", loc = loc, identifier = 3);
 
-    if left_pressed field_ptr.x -= TILE_SIZE * 2;
-    if right_pressed field_ptr.x += TILE_SIZE * 2;
-    if up_pressed field_ptr.y += TILE_SIZE * 2;
-    if down_pressed field_ptr.y -= TILE_SIZE * 2;
+    if left_pressed {
+        entity_ptr.extents.x -= TILE_SIZE * 1;
+        entity_ptr.render_extents.x -= TILE_SIZE * 1;
+    }
+    if right_pressed {
+        entity_ptr.extents.x += TILE_SIZE * 2;
+        entity_ptr.render_extents.x += TILE_SIZE * 1;
+    }
+    if up_pressed {
+        entity_ptr.extents.y += TILE_SIZE * 2;
+        entity_ptr.render_extents.y += TILE_SIZE * 1;
+    }
+    if down_pressed {
+        entity_ptr.extents.y -= TILE_SIZE * 2;
+        entity_ptr.render_extents.y -= TILE_SIZE * 1;
+    }
 
-    `y -= 35;
+    `y -= 60;
 }
 
 create_entity_action_button :: (tag: Entity_Tag, x_position: float = -1, shift_y := true, loc := #caller_location) #expand {
