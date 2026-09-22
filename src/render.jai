@@ -510,6 +510,48 @@ render_room_entities_v2 :: (r: *Room_V2) {
         render_sprite_to_quad(*sprite, vertices);
         if selected_entity draw_dot(center, radius, .{1, 0, 0, 1});
     }
+
+    for *r.entities {
+        if it.tag != .SWITCH_BLOCK_ON_TARGET continue;
+        if !entity_valid(it.parent, e = *r.entities) continue;
+
+        selected_entity := it.handle == context.room_editor_state.current_entity_handle;
+        parent := entity_get(it.parent, e = *r.entities);
+
+        coord := it.relative_room_coord;
+        left, right, bot, top := render_boundaries_from_cell(coord);
+        center := Vector2.{right + left, top + bot} / 2;
+        radius := (right - left) / 4;
+
+        if parent.render_extents.x / TILE_SIZE > 1.001 {
+            room_editor_tile_size := right - left;
+            converted_x := (parent.render_extents.x / TILE_SIZE) * room_editor_tile_size;
+            left -= (converted_x) / 2;
+            right += (converted_x) / 2;
+        }
+
+        if parent.render_extents.y / TILE_SIZE > 1.001 {
+            room_editor_tile_size := top - bot;
+            converted_y := (parent.render_extents.y / TILE_SIZE) * room_editor_tile_size;
+            top += (converted_y) / 2;
+            bot -= (converted_y) / 2;
+        }
+
+        vertices: [4]Vector2;
+        vertices[0] = .{left, bot};
+        vertices[1] = .{right, bot};
+        vertices[2] = .{right, top};
+        vertices[3] = .{left, top};
+        for *v: vertices {
+            offset := v.* - center;
+            v.* = rotate(offset, it.rotation);
+            v.* += center;
+        }
+
+        set_shader_for_color(true);
+        immediate_quad(vertices[0], vertices[1], vertices[2], vertices[3], .{0.26, 0.13, 0.31, 0.6});
+        if selected_entity draw_dot(center, radius, .{1, 0, 0, 1});
+    }
 }
 
 render_room_entities :: (r: *Room, faded := false) {

@@ -278,6 +278,18 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
         entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
         entity.props = .RENDERABLE | .CONDUIT | .SENSOR | .FOREGROUND;
         entity_add(entity, e = entities);
+    case .SWITCH_BLOCK;
+        entity.shape_kind = .RECTANGLE;
+        entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
+        entity.render_kind = .SPRITE;
+        entity.sprite = sprite(7);
+        entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
+        entity.props = .RENDERABLE | .DYNAMIC | .SOLID | .KINEMATIC | .UNSTABLE | .PRESSES_BUTTONS;
+        block_handle := entity_add(entity, e = entities);
+        on_position_entity: Entity;
+        on_position_entity.position = entity.position;
+        on_position_entity.tag = .SWITCH_BLOCK_ON_TARGET;
+        entity_add_child(block_handle, on_position_entity, e = entities);
     }
 }
 
@@ -427,6 +439,7 @@ draw_actions_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     create_entity_action_button(.GEAR, x + 160);
     create_entity_action_button(.LEVER, shift_y = false);
     create_entity_action_button(.BUTTON, x + 160);
+    create_entity_action_button(.SWITCH_BLOCK, shift_y = false);
 }
 
 draw_collection_entity_entry :: (entity: *Entity, identifier: int, loc := #caller_location) #expand {
