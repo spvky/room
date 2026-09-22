@@ -1,5 +1,5 @@
 ROOMS_PATH :: "assets/rooms";
-ASSET_VERSION: float32: 0.5;
+ASSET_VERSION: float32: 0.6;
 PIXELS_PER_TILE :: 2;
 
 save_room :: (r: Room) {

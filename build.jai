@@ -35,6 +35,8 @@ main :: () {
             #if OS == .WINDOWS paint_tile_values();
         case .MAP_PLACEMENT;
             map_screen_update();
+        case .ROOM_EDITOR;
+            room_editor_update();
         }
         render();
         game_state_update();
@@ -46,7 +48,7 @@ start_game :: () {
     bake_world();
     snap_camera_pos();
 
-    context.game_state = .GAMEPLAY;
+    context.game_state = .ROOM_EDITOR;
 }
 
 init :: () {
@@ -63,6 +65,7 @@ init :: () {
     init_collision_tables();
     init_inspector();
     init_game_data();
+    init_room_editor();
 }
 
 #import "Basic";
@@ -102,3 +105,4 @@ GL :: #import "GL";
 #load "src/text.jai";
 #load "src/map_view.jai";
 #load "src/power.jai";
+#load "src/room_designer_2.jai";

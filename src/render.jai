@@ -30,6 +30,8 @@ render :: () {
         render_room_designer_scene();
     case .GAMEPLAY;
         render_gameplay_scene();
+    case .ROOM_EDITOR;
+        render_room_editor_scene();
     }
 
     swap_buffers(window);
@@ -39,7 +41,8 @@ render_grid :: () {
     grid_lines :: (height: int) #expand {
         tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary := get_tile_ui_data(height);
         line_color: Vector4;
-        if `it == height / 2 {
+        // if `it == height / 2 {
+        if `it == 22 || `it == 23 {
             line_color = .{1, 0, 0, 0.3};
         } else {
             line_color = .{0, 0, 0, 1};
@@ -68,6 +71,11 @@ render_grid :: () {
             grid_lines(ROOM_HEIGHT);
             draw_current_room_exits(ROOM_HEIGHT);
         }
+    case .ROOM_EDITOR;
+        for 0..ROOM_HEIGHT {
+            grid_lines(ROOM_HEIGHT);
+            draw_current_room_exits_v2(ROOM_HEIGHT);
+        }
     case .MAP_PLACEMENT;
         for 0..MAP_HEIGHT {
             grid_lines(MAP_HEIGHT);
@@ -75,6 +83,121 @@ render_grid :: () {
     }
 }
 
+draw_current_room_exits_v2 :: (height: int) {
+    _has_exit :: (exit: Room_Exits) -> bool #expand {
+        return `room.exits & exit == exit;
+    }
+    room := context.room_editor_state.current_room;
+
+    h_west_start: float32 = 445;
+    h_west_end: float32 = 538.636;
+    h_east_start: float32 = 1381.363;
+    h_east_end: float32 = 1475;
+    h_center_start: float32 = 913.181;
+    h_center_end: float32 = 1006.818;
+
+    v_north_start: float32 = 1055;
+    v_north_end: float32 = 961.363;
+    v_south_start: float32 = 118.636;
+    v_south_end: float32 = 25;
+    v_center_start: float32 = 586.818;
+    v_center_end: float32 = 493.181;
+
+    tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary := get_tile_ui_data(height);
+
+    color := Vector4.{0.7, 0.7, 0, 1};
+
+    if _has_exit(.NORTH_EAST) {
+        immediate_quad(
+                       .{h_east_start, top_boundary + 2.5},
+                       .{h_east_start, top_boundary - 2.5},
+                       .{h_east_end, top_boundary - 2.5},
+                       .{h_east_end, top_boundary + 2.5}, color);
+    }
+    if _has_exit(.NORTH) {
+        immediate_quad(
+                       .{h_center_start, top_boundary + 2.5},
+                       .{h_center_start, top_boundary - 2.5},
+                       .{h_center_end, top_boundary - 2.5},
+                       .{h_center_end, top_boundary + 2.5}, color);
+    }
+    if _has_exit(.NORTH_WEST) {
+        immediate_quad(
+                       .{h_west_start, top_boundary + 2.5},
+                       .{h_west_start, top_boundary - 2.5},
+                       .{h_west_end, top_boundary - 2.5},
+                       .{h_west_end, top_boundary + 2.5}, color);
+    }
+    if _has_exit(.SOUTH_EAST) {
+        immediate_quad(
+                       .{h_east_start, bot_boundary + 2.5},
+                       .{h_east_start, bot_boundary - 2.5},
+                       .{h_east_end, bot_boundary - 2.5},
+                       .{h_east_end, bot_boundary + 2.5}, color);
+    }
+    if _has_exit(.SOUTH) {
+        immediate_quad(
+                       .{h_center_start, bot_boundary + 2.5},
+                       .{h_center_start, bot_boundary - 2.5},
+                       .{h_center_end, bot_boundary - 2.5},
+                       .{h_center_end, bot_boundary + 2.5}, color);
+    }
+    if _has_exit(.SOUTH_WEST) {
+        immediate_quad(
+                       .{h_west_start, bot_boundary + 2.5},
+                       .{h_west_start, bot_boundary - 2.5},
+                       .{h_west_end, bot_boundary - 2.5},
+                       .{h_west_end, bot_boundary + 2.5}, color);
+    }
+    if _has_exit(.EAST_SOUTH) {
+        immediate_quad(
+                       .{right_boundary - 2.5, v_south_start},
+                       .{right_boundary - 2.5, v_south_end},
+                       .{right_boundary + 2.5, v_south_end},
+                       .{right_boundary + 2.5, v_south_start},
+                       color);
+    }
+    if _has_exit(.EAST) {
+        immediate_quad(
+                       .{right_boundary - 2.5, v_center_start},
+                       .{right_boundary - 2.5, v_center_end},
+                       .{right_boundary + 2.5, v_center_end},
+                       .{right_boundary + 2.5, v_center_start},
+                       color);
+    }
+    if _has_exit(.EAST_NORTH) {
+        immediate_quad(
+                       .{right_boundary - 2.5, v_north_start},
+                       .{right_boundary - 2.5, v_north_end},
+                       .{right_boundary + 2.5, v_north_end},
+                       .{right_boundary + 2.5, v_north_start},
+                       color);
+    }
+    if _has_exit(.WEST_SOUTH) {
+        immediate_quad(
+                       .{left_boundary - 2.5, v_south_start},
+                       .{left_boundary - 2.5, v_south_end},
+                       .{left_boundary + 2.5, v_south_end},
+                       .{left_boundary + 2.5, v_south_start},
+                       color);
+    }
+    if _has_exit(.WEST) {
+        immediate_quad(
+                       .{left_boundary - 2.5, v_center_start},
+                       .{left_boundary - 2.5, v_center_end},
+                       .{left_boundary + 2.5, v_center_end},
+                       .{left_boundary + 2.5, v_center_start},
+                       color);
+    }
+    if _has_exit(.WEST_NORTH) {
+        immediate_quad(
+                       .{left_boundary - 2.5, v_north_start},
+                       .{left_boundary - 2.5, v_north_end},
+                       .{left_boundary + 2.5, v_north_end},
+                       .{left_boundary + 2.5, v_north_start},
+                       color);
+    }
+}
 draw_current_room_exits :: (height: int) {
     _has_exit :: (exit: Room_Exits) -> bool #expand {
         return `room.exits & exit == exit;
@@ -192,8 +315,8 @@ draw_current_room_exits :: (height: int) {
 }
 
 render_boundaries_from_cell :: (c: Coord) -> float32, float32, float32, float32 {
-    if context.game_state == .ROOM_DESIGNER || context.game_state == .MAP_PLACEMENT {
-        height := ifx in_game_state(.ROOM_DESIGNER) then ROOM_HEIGHT else MAP_HEIGHT;
+    if context.game_state == .ROOM_DESIGNER || context.game_state == .MAP_PLACEMENT || context.game_state == .ROOM_EDITOR {
+        height := ifx in_game_state(.ROOM_DESIGNER) || in_game_state(.ROOM_EDITOR) then ROOM_HEIGHT else MAP_HEIGHT;
         tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary := get_tile_ui_data(height);
 
         left := left_boundary + (tile_height * xx c.x);
@@ -222,6 +345,17 @@ render_boundaries_from_rect :: (start: Coord, width: s16, height: s16) -> float3
 }
 
 // #ROOM_DESIGNER_RENDERING
+render_room_editor_scene :: () {
+    // render_room_entities(context.current_editor_room, true);
+    render_grid();
+    render_room_entities_v2(context.room_editor_state.current_room);
+    // render_room_collision(context.current_editor_room);
+    // render_room_editor_entities(); -- Gotta write this
+    render_room_editor_ui();
+
+    render_room_editor_mouse_selection();
+}
+
 render_room_designer_scene :: () {
     if context.editor_state.editor_type == {
     case 0;
@@ -249,6 +383,33 @@ render_room_designer_mouse_selection :: () {
                        .{right, top},
                        .{left, top},
                        .{1, 1, 1, 0.3});
+    }
+}
+
+render_room_editor_mouse_selection :: () {
+    set_shader_for_color(true);
+    cell, ok := get_mouse_editor_cell();
+    color := Vector4.{1, 1, 1, 0.3};
+    if context.room_editor_state.editor_click_mode == {
+    case .VECTOR_SET;
+        color = .{0, 1, 0, 0.3};
+    case .HANDLE_SET_CHILD;
+        #through;
+    case .HANDLE_SET_PARENT;
+        #through;
+    case .HANDLE_SET_SIB;
+        color = .{0.5, 0.5, 0, 0.3};
+    case .MAKE_ENTITY;
+        color = .{1, 0.55, 0.63, 0.3};
+    }
+    if ok {
+        left, right, bot, top := render_boundaries_from_cell(cell);
+        immediate_quad(
+                       .{left, bot},
+                       .{right, bot},
+                       .{right, top},
+                       .{left, top},
+                       color);
     }
 }
 
@@ -300,6 +461,39 @@ render_room_collision :: (r: *Room, faded := false) {
                                .{1, 1, 1, alpha});
             }
         }
+    }
+}
+
+render_room_entities_v2 :: (r: *Room_V2) {
+    for *r.entities {
+        if !entity_has_props(it, .RENDERABLE) continue;
+        selected_entity := it.handle == context.room_editor_state.current_entity_handle;
+        coord := it.relative_room_coord;
+        left, right, bot, top := render_boundaries_from_cell(coord);
+        radius := (right - left) / 4;
+        center := Vector2.{right + left, top + bot} / 2;
+        vertices: [4]Vector2;
+        vertices[0] = .{left, bot};
+        vertices[1] = .{right, bot};
+        vertices[2] = .{right, top};
+        vertices[3] = .{left, top};
+        for *v: vertices {
+            offset := v.* - center;
+            v.* = rotate(offset, it.rotation);
+            v.* += center;
+        }
+
+        sprite: Sprite;
+        if it.render_kind == {
+        case .SPRITE;
+            sprite = it.sprite;
+        case .SPRITE_SHEET;
+            sprite = get_current_sprite_sheet_frame(*it.sprite_sheet);
+        case .ANIMATION_PLAYER;
+            sprite = get_current_animation_frame(*it.animation_player);
+        }
+        render_sprite_to_quad(*sprite, vertices);
+        if selected_entity draw_dot(center, radius, .{1, 0, 0, 1});
     }
 }
 

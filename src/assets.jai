@@ -45,7 +45,7 @@ init_textures :: () {
 //     assert(my_font != null);
 // }
 
-sprite :: (idx: int) -> Sprite #expand {
+sprite :: (idx: int, null_ptr := false) -> Sprite #expand {
     atlas := *context.atlas.tile_atlas;
     return sprite_from_atlas(atlas, idx);
 }

@@ -12,6 +12,7 @@ Entity :: struct {
     flags: Entity_Flags;
     tag: Entity_Tag;
     state: Entity_State;
+    relative_room_coord: Coord;
     current_coord: Coord;
     text_message: Display_Message;
     render_kind: Entity_Render_Kind;
@@ -188,31 +189,31 @@ entity_get :: (handle: Entity_Handle, e: *Entity_Manager = context.entities) -> 
     return null;
 }
 
-entity_remove :: (handle: Entity_Handle, e: *Entity_Manager = context.entities, depth := 0) {
+entity_remove :: (handle: Entity_Handle, e: *Entity_Manager = context.entities) {
     if handle.index > 0 && cast(int)handle.index < e.items.count && e.items[handle.index].handle == handle {
-        entity := entity_get(handle);
-        if entity_valid(entity.first_child) {
-            current_child := entity_get(entity.first_child);
+        entity := entity_get(handle, e = e);
+        if entity_valid(entity.first_child, e = e) {
+            current_child := entity_get(entity.first_child, e = e);
 
-            while entity_valid(current_child.next_sibling) {
-                entity_remove(current_child.next_sibling, depth = depth + 1);
+            while entity_valid(current_child.next_sibling, e = e) {
+                entity_remove(current_child.next_sibling, e = e);
             }
 
-            entity_remove(entity.first_child, depth = depth + 1);
+            entity_remove(entity.first_child, e = e);
         }
 
         if entity_valid(entity.next_sibling) {
-            next_sibling := entity_get(entity.next_sibling);
+            next_sibling := entity_get(entity.next_sibling, e = e);
             next_sibling.prev_sibling = entity.prev_sibling;
         }
 
-        if entity_valid(entity.prev_sibling) {
-            prev_sibling := entity_get(entity.prev_sibling);
+        if entity_valid(entity.prev_sibling, e = e) {
+            prev_sibling := entity_get(entity.prev_sibling, e = e);
             prev_sibling.next_sibling = entity.next_sibling;
         }
 
-        if !entity_valid(entity.prev_sibling) && entity_valid(entity.parent) {
-            parent := entity_get(entity.parent);
+        if !entity_valid(entity.prev_sibling, e = e) && entity_valid(entity.parent, e = e) {
+            parent := entity_get(entity.parent, e = e);
             parent.first_child = entity.next_sibling;
         }
 
@@ -224,21 +225,25 @@ entity_remove :: (handle: Entity_Handle, e: *Entity_Manager = context.entities, 
 
 entity_valid :: (handle: Entity_Handle, e: *Entity_Manager = context.entities) -> bool {
     if handle == .{0, 0} return false;
-    return entity_get(handle, e) != null;
+    return entity_get(handle, e = e) != null;
 }
 
 entity_add_child :: (parent_handle: Entity_Handle, child_entity: Entity, e: *Entity_Manager = context.entities) -> Entity_Handle {
+    is_extra_manager := e != context.entities;
+    if is_extra_manager print("Adding Special Child!\n");
     child_handle: Entity_Handle;
     // check if parent is still valid
-    if entity_valid(parent_handle) {
-        child_handle = entity_add(child_entity);
-        if !entity_valid(child_handle) {
+    if entity_valid(parent_handle, e = e) {
+        if is_extra_manager print("Pre-add count: %\n", e.count);
+        child_handle = entity_add(child_entity, e = e);
+        if is_extra_manager print("Post-add count: %\n", e.count);
+        if !entity_valid(child_handle, e) {
             print("Tried to add entity child and still have a null handle, something is wrong!\n");
             return child_handle;
         }
 
-        parent_ptr := entity_get(parent_handle);
-        child_ptr := entity_get(child_handle);
+        parent_ptr := entity_get(parent_handle, e = e);
+        child_ptr := entity_get(child_handle, e = e);
         child_ptr.parent = parent_handle;
 
         // you can also keep a handle to the last child to avoid iterating the list when inserting
@@ -246,11 +251,11 @@ entity_add_child :: (parent_handle: Entity_Handle, child_entity: Entity, e: *Ent
         //        (parent_ptr.first_child != NULL_HANDLE && parent_ptr.last_child != NULL_HANDLE));
 
         child_ptr.prev_sibling = parent_ptr.last_child;
-        if !entity_valid(parent_ptr.last_child) {
+        if !entity_valid(parent_ptr.last_child, e = e) {
             parent_ptr.first_child = child_handle;
             parent_ptr.last_child = child_handle;
         } else {
-            prev_sibling := entity_get(parent_ptr.last_child);
+            prev_sibling := entity_get(parent_ptr.last_child, e = e);
             prev_sibling.next_sibling = child_handle;
             child_ptr.next_sibling = parent_ptr.first_child;
             parent_ptr.last_child = child_handle;
