@@ -27,6 +27,7 @@ Entity :: struct {
     last_child: Entity_Handle;
     prev_sibling: Entity_Handle;
     next_sibling: Entity_Handle;
+    tail: [16]u8;
 }
 
 Entity_Render_Kind :: enum u8 {
