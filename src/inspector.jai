@@ -19,7 +19,7 @@ draw_inspector_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     label_margin := r.x;
     y_pos := r.y + r.h - 50;
     handle_label_rect := get_rect(label_margin, y_pos, 200, 40);
-    base_theme := context.editor_state.editor_theme;
+    base_theme := context.room_editor_state.theme;
     if !entity_valid(context.inspector_state.current_handle) {
         label(handle_label_rect, "NONE", *base_theme.label_theme);
         return;
@@ -66,7 +66,7 @@ debug_inspector_ui :: () {
     ui_per_frame_update(window, w, h, current_time);
 
     if context.inspector_state.inspector_window.open {
-        add_subwindow(*context.inspector_state.inspector_window, *context.editor_state.editor_theme.subwindow_theme);
+        add_subwindow(*context.inspector_state.inspector_window, *context.room_editor_state.theme.subwindow_theme);
     }
 
     draw_popups();

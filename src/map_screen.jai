@@ -112,10 +112,6 @@ Coord_Kind :: enum u8 {
 #add_context world: *World;
 
 init_rooms :: () {
-    // if !context.current_editor_room {
-    //     context.current_editor_room = New(Room);
-    //     context.current_editor_room.* = make_editor_room("New Room");
-    // }
     if !context.room_table {
         context.room_table = New(Table(u32, Room_V2));
     }
@@ -168,45 +164,6 @@ init_world :: () {
         context.world = New(World);
     }
     reset_world_tilemap();
-}
-
-make_editor_room :: (name: string) -> Room {
-    room: Room;
-    room.name = copy_string(name);
-    return room;
-}
-
-rotate_room :: (r: Room) -> Room {
-    out: Room;
-    for x: 0..ROOM_WIDTH - 1 {
-        for y: 0..ROOM_HEIGHT - 1 {
-            new_index := coord_to_index(.{xx (ROOM_WIDTH - y - 1), xx x});
-            old_index := coord_to_index(.{xx x, xx y});
-            out.int_grid[new_index] = rotate_collision_tile(r.int_grid[old_index]);
-            out.entity_grid[new_index] = r.entity_grid[old_index];
-        }
-    }
-
-    array_reserve(*out.extra_data, r.extra_data.count);
-    for r.extra_data {
-        if it.kind == {
-        case .SWITCH_BLOCK;
-            using it.switch_block_data;
-            print("Rotating block start from % to %\n", active_start, rotate_coord(active_start));
-            array_add(*out.extra_data, Extra_Entity_Data.{
-                                                          kind = .SWITCH_BLOCK,
-                                                          switch_block_data = .{
-                                                                                start = rotate_coord(start),
-                                                                                width = height,
-                                                                                height = width,
-                                                                                active_start = rotate_coord(active_start),
-                                                                                trigger_type = rotate_trigger_type(trigger_type),
-                                                                                trigger_position = rotate_coord(trigger_position)}});
-        }
-    }
-    out.rune = rotate_rune(r.rune, 1);
-    out.exits = rotate_room_exits(r.exits, 1);
-    return out;
 }
 
 rotate_room_v2 :: (r: Room_V2) -> Room_V2 {
@@ -283,13 +240,6 @@ coord_to_index :: (c: Coord, kind: Coord_Kind = .ROOM) -> int {
     return (c.y * width) + c.x;
 }
 
-check_collision_tile_value :: (r: *Room, c: Coord) -> Collision_Tile {
-    return r.int_grid[coord_to_index(c)];
-}
-check_entity_tile_value :: (r: *Room, c: Coord) -> Entity_Tile {
-    return r.entity_grid[coord_to_index(c)];
-}
-
 check_world_collision_tile_value :: (c: Coord) -> Collision_Tile {
     return context.world.collision[coord_to_index(c, .WORLD)];
 }
@@ -309,16 +259,6 @@ rotate_coord :: (c: Coord, kind: Coord_Kind = .ROOM) -> Coord #expand {
         width = WORLD_WIDTH;
     }
     return .{xx width - c.y - 1, c.x};
-}
-
-set_collision_tile_value :: (r: *Room, value: Collision_Tile, c: Coord) {
-    idx := coord_to_index(c);
-    r.int_grid[idx] = value;
-}
-
-set_entity_tile_value :: (r: *Room, value: Entity_Tile, c: Coord) {
-    idx := coord_to_index(c);
-    r.entity_grid[idx] = value;
 }
 
 set_world_collision_tile_value :: (value: Collision_Tile, c: Coord) {

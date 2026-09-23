@@ -39,10 +39,9 @@ save_room_v2 :: (r: Room_V2) {
     _room_assert("Failed to write room name!");
     write_entity_manager_to_file(*r.entities, *file);
 
-    // TODO:
-    // img_path := tprint("%/%/%.png", ROOMS_PATH, subdir, r.name);
-    // replace_chars(img_path, " ", #char "_");
-    // generate_room_png(*r, img_path);
+    img_path := tprint("%/%/%.png", ROOMS_PATH, subdir, r.name);
+    replace_chars(img_path, " ", #char "_");
+    generate_room_png_v2(*r, img_path);
 }
 
 load_room_v2 :: (filename: string, static := false) -> Room_V2, bool {
@@ -87,11 +86,10 @@ load_room_v2 :: (filename: string, static := false) -> Room_V2, bool {
     _room_assert("Failure when reading room name!");
     read_entity_manager_from_file(*r.entities, *file);
 
-    // TODO:
-    // img_path := tprint("%/%/%.png", ROOMS_PATH, subdir, r.name);
-    // replace_chars(img_path, " ", #char "_");
-    // texture_ok := texture_load_from_file(*r.texture, img_path);
-    // _room_assert("Failure to load room texture!");
+    img_path := tprint("%/%/%.png", ROOMS_PATH, subdir, r.name);
+    replace_chars(img_path, " ", #char "_");
+    texture_ok := texture_load_from_file(*r.texture, img_path);
+    _room_assert("Failure to load room texture!");
 
     return r, true;
 }
@@ -146,128 +144,6 @@ read_entity_manager_from_file :: (e: *Entity_Manager, file: *File) {
     }
 }
 
-save_room :: (r: Room) {
-    is_static := r.flags & .STATIC == .STATIC;
-    subdir: string = ifx is_static "static" else "placeable";
-    path := tprint("%/%/%.room", ROOMS_PATH, subdir, r.name);
-    replace_chars(path, " ", #char "_");
-    file, ok := file_open(path, true);
-    assert(ok, "Failed to open % for writing!\n", path);
-    defer {
-        file_close(*file);
-        print("Finished writing room to %\n", path);
-    }
-    // Version
-    version: float32 = ASSET_VERSION;
-    success := file_write(*file, *version, size_of(float32));
-    _room_assert("Failed to write room version!");
-    // Flags
-    success = file_write(*file, *r.flags, size_of(Room_Flags));
-    _room_assert("Failed to write room flags!");
-    // Exits
-    success = file_write(*file, *r.exits, size_of(Room_Exits));
-    _room_assert("Failed to write room exits!");
-    // Int Grid
-    success = file_write(*file, *r.int_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Collision_Tile));
-    _room_assert("Failed to write int_grid!");
-    // Entity Grid
-    success = file_write(*file, *r.entity_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Entity_Tile));
-    _room_assert("Failed to write entity_grid!");
-    // Rune
-    success = file_write(*file, *r.rune, size_of(Rune));
-    _room_assert("Failed to write room rune!");
-    // Map Position
-    success = file_write(*file, *r.map_position, size_of(Coord));
-    _room_assert("Failed to write map position!");
-    // Name
-    success = file_write(*file, *r.name.count, size_of(int));
-    _room_assert("Failed to write name string length for room!");
-    success = file_write(*file, r.name.data, r.name.count);
-    _room_assert("Failed to write room name!");
-    // Extra Entity Data
-    extra_entity_bytes := r.extra_data.count * size_of(Extra_Entity_Data);
-
-    success = file_write(*file, *extra_entity_bytes, size_of(int));
-    _room_assert("Failed to write extra entity data bytes!");
-    if r.extra_data.count > 0 {
-        print("Found % bytes of extra entity data, writing now\n", extra_entity_bytes);
-        success = file_write(*file, r.extra_data.data, extra_entity_bytes);
-        _room_assert("Failed to write extra entity data!");
-    } else {
-        print("No entity data in %, skipping writing it!\n", path);
-    }
-
-    img_path := tprint("%/%/%.png", ROOMS_PATH, subdir, r.name);
-    replace_chars(img_path, " ", #char "_");
-    generate_room_png(*r, img_path);
-}
-
-load_room :: (filename: string, static := false) -> Room, bool {
-    // Helper for logging loading errors
-    subdir: string = ifx static "static" else "placeable";
-    path := tprint("%/%/%", ROOMS_PATH, subdir, filename);
-    file, ok := file_open(path);
-    assert(ok, "Failed to open % for reading!\n", path);
-    defer {
-        file_close(*file);
-        print("Finished reading room from %\n", path);
-    }
-    r: Room;
-    // Version
-    version: float32;
-    success := file_read(file, *version, size_of(float32));
-    if version != ASSET_VERSION {
-        print("Room at % had a version number of %, when it should be %, skipping...\n", path, version, ASSET_VERSION);
-        return r, false;
-    }
-    // Flags
-    success = file_read(file, *r.flags, size_of(Room_Flags));
-    _room_assert("Failed to read room flags!");
-    // Exits
-    success = file_read(file, *r.exits, size_of(Room_Exits));
-    _room_assert("Failed to read room exits!");
-    // Int Grid
-    success = file_read(file, *r.int_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Collision_Tile));
-    _room_assert("Failure when reading room int_grid!");
-    // Entity Grid
-    success = file_read(file, *r.entity_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Entity_Tile));
-    _room_assert("Failure when reading room entity_grid!");
-    // Rune
-    success = file_read(file, *r.rune, size_of(Rune));
-    _room_assert("Failed to read room rune!");
-    // Map Position
-    success = file_read(file, *r.map_position, size_of(Coord));
-    _room_assert("Failed to read map position!");
-    // Name
-    name_length: int;
-    success = file_read(file, *name_length, size_of(int));
-    _room_assert("Failed to read room name length!");
-    r.name = alloc_string(name_length);
-    success = file_read(file, r.name.data, name_length);
-    _room_assert("Failure when reading room name!");
-    // Extra Entity Data
-    entity_data_bytes: int;
-    success = file_read(file, *entity_data_bytes, size_of(int));
-    _room_assert("Failure when reading entity data bytes!");
-    if entity_data_bytes > 0 {
-        extra_entity_count := cast(s64)(cast(float32)entity_data_bytes / cast(float32)size_of(Extra_Entity_Data));
-        print("Reading % Extra Entities from room\n", extra_entity_count);
-        array_reserve(*r.extra_data, extra_entity_count);
-        success = file_read(file, r.extra_data.data, entity_data_bytes);
-        _room_assert("Failure when reading entity data!");
-        r.extra_data.count = extra_entity_count;
-    } else {
-        print("No entity data in %, skipping reading it!\n", path);
-    }
-
-    img_path := tprint("%/%/%.png", ROOMS_PATH, subdir, r.name);
-    replace_chars(img_path, " ", #char "_");
-    texture_ok := texture_load_from_file(*r.texture, img_path);
-    _room_assert("Failure to load room texture!");
-
-    return r, true;
-}
-
 load_all_rooms_v2 :: () {
     // Load placable rooms
     for file_list("assets/rooms/placeable",, temp) {
@@ -298,42 +174,12 @@ load_all_rooms_v2 :: () {
     }
 }
 
-load_all_rooms :: () {
-    // // Load placable rooms
-    // for file_list("assets/rooms/placeable",, temp) {
-    //     _, _, extension, filename := path_decomp(it);
-    //     if equal(extension, "room") {
-    //         room, success := load_room(filename); // Put the room into the map from here
-    //         if success {
-    //             room_hash := djb2_hash(room.name);
-    // 
-    //             table_set(context.room_table, room_hash, room);
-    //             print("Placeable Room: % | % has been added to the table\n", room.name, room_hash);
-    //         }
-    //     }
-    // }
-    // 
-    // // Load static rooms
-    // for file_list("assets/rooms/static",, temp) {
-    //     _, _, extension, filename := path_decomp(it);
-    //     if equal(extension, "room") {
-    //         room, success := load_room(filename, true); // Put the room into the map from here
-    //         if success {
-    //             room_hash := djb2_hash(room.name);
-    // 
-    //             table_set(context.room_table, room_hash, room);
-    //             print("Static Room: % | % has been added to the table\n", room.name, room_hash);
-    //         }
-    //     }
-    // }
-}
-
 is_room_available :: (hash: u32) -> bool {
     for context.map_screen_state.available_rooms if it == hash return true;
     return false;
 }
 
-generate_room_png :: (r: *Room, path: string) {
+generate_room_png_v2 :: (r: *Room_V2, path: string) {
     Pixel :: struct {
         r: u8;
         g: u8;
@@ -440,7 +286,7 @@ generate_room_png :: (r: *Room, path: string) {
                     _set_tile(.EMPTY);
                 }
             } else {
-                tile := check_collision_tile_value(r, .{xx (x - 1), xx (y - 1)});
+                tile := check_collision_tile_value_v2(r, .{xx (x - 1), xx (y - 1)});
                 _set_tile(tile);
             }
         }

@@ -26,13 +26,10 @@ main :: () {
         for event: events_this_frame {
             getrect_handle_event(event);
         }
-        #if OS == .WINDOWS get_mouse_cell();
         process_input(delta);
         if context.game_state == {
         case .GAMEPLAY;
             gameplay_update(delta);
-        case .ROOM_DESIGNER;
-            #if OS == .WINDOWS paint_tile_values();
         case .MAP_PLACEMENT;
             map_screen_update();
         case .ROOM_EDITOR;
@@ -56,7 +53,6 @@ init :: () {
     init_player();
     init_rendering();
     init_textures();
-    init_editor();
     init_entities();
     init_rooms();
     init_map();
@@ -88,7 +84,6 @@ GL :: #import "GL";
 #load "src/input.jai";
 #load "src/runes.jai";
 #load "src/player.jai";
-#load "src/room_designer.jai";
 #load "src/entity.jai";
 #load "src/collision.jai";
 #load "src/io.jai";
@@ -105,4 +100,4 @@ GL :: #import "GL";
 #load "src/text.jai";
 #load "src/map_view.jai";
 #load "src/power.jai";
-#load "src/room_designer_2.jai";
+#load "src/room_editor.jai";

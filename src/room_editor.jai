@@ -22,6 +22,37 @@ Things to consider:
 
 	. Playing Room
 */
+
+Room_Exits :: enum_flags u16 {
+    NORTH_EAST :: 1 << 0;
+    NORTH :: 1 << 1;
+    NORTH_WEST :: 1 << 2;
+    WEST_NORTH :: 1 << 3;
+    WEST :: 1 << 4;
+    WEST_SOUTH :: 1 << 5;
+    SOUTH_WEST :: 1 << 6;
+    SOUTH :: 1 << 7;
+    SOUTH_EAST :: 1 << 8;
+    EAST_SOUTH :: 1 << 9;
+    EAST :: 1 << 10;
+    EAST_NORTH :: 1 << 11;
+}
+
+Room_Flags :: enum_flags u16 {
+    DISCOVERED :: 1 << 0;
+    STATIC :: 1 << 1;
+    ENTERED_NORTH :: 1 << 2;
+    ENTERED_SOUTH :: 1 << 3;
+    ENTERED_EAST :: 1 << 4;
+    ENTERED_WEST :: 1 << 5;
+    NO_ROTATE :: 1 << 6;
+    NO_MOVE_X :: 1 << 7;
+    NO_MOVE_Y :: 1 << 8;
+    NO_PICKUP :: 1 << 9;
+    MUST_BE_PLACED :: 1 << 10;
+    PICKED_UP :: 1 << 11;
+}
+
 Room_V2 :: struct {
     name: string;
     flags: Room_Flags;
@@ -33,36 +64,42 @@ Room_V2 :: struct {
     static_position: Coord;
 }
 
-Mouse_Capture :: struct {
-    building_wall: bool;
-    wall_start: Coord;
-}
-
 // Use local tile size for the editor to make translating positions easier on hydration
 Room_Editor_State :: struct {
     theme: Overall_Theme;
-    current_room: *Room_V2;
     editor_click_mode: Room_Editor_Click_Mode;
+
+    current_room: *Room_V2;
+    current_entity_handle: Entity_Handle;
+
     entity_to_make: Entity_Tag;
     wall_to_make: Collision_Tile;
-    current_entity_handle: Entity_Handle;
+
     current_mouse_coord: Coord;
     wall_start_coord: Coord;
+
     collection_window_scroll_value: float32;
+    load_window_scroll_value: float32;
+
+    load_static_rooms: bool;
     mouse_captured: bool;
     kb_captured: bool;
+
     core_window: Subwindow_Info = .{
                                     rect = #run get_rect(5, cast(float32)WINDOW_HEIGHT - 750, 350, 740),
                                     draw = draw_core_room_window,
+                                    open = true,
                                     title_text = "Room"};
     entity_window: Subwindow_Info = .{
                                       rect = #run get_rect(cast(float)WINDOW_WIDTH - 355, cast(float32)WINDOW_HEIGHT - 750, 350, 740),
                                       draw = draw_entity_window,
+                                      open = true,
                                       title_text = "Entity"};
 
     actions_window: Subwindow_Info = .{
                                        rect = #run get_rect(5, 20, 350, 300),
                                        draw = draw_actions_window,
+                                       open = true,
                                        title_text = "Actions"};
 
     collection_window: Subwindow_Info = .{
@@ -98,6 +135,7 @@ init_room_editor :: () {
         context.room_editor_state.current_room.* = load_room_v2("a.room");
         set_atlas_for_entity_manager(*context.room_editor_state.current_room.entities);
 
+        ui_init();
         proc := default_theme_procs[0];
         context.room_editor_state.theme = proc();
         set_default_theme(context.room_editor_state.theme);
@@ -508,20 +546,20 @@ draw_collection_entity_entry :: (entity: *Entity, identifier: int, loc := #calle
 }
 
 draw_load_window :: (state: *Subwindow_State, r: Rect, data: *void) {
-    editor_state := context.editor_state;
+    editor_state := context.room_editor_state;
     toggle_rect := get_rect(r.x + 20, r.y + r.h - 60, 200, 50);
-    toggle_pressed := base_checkbox(toggle_rect, "Static", editor_state.load_static_rooms, *editor_state.editor_theme.checkbox_theme);
+    toggle_pressed := base_checkbox(toggle_rect, "Static", editor_state.load_static_rooms, *editor_state.theme.checkbox_theme);
     if toggle_pressed {
         if editor_state.load_static_rooms {
-            context.editor_state.load_static_rooms = false;
+            editor_state.load_static_rooms = false;
         } else {
-            context.editor_state.load_static_rooms = true;
+            editor_state.load_static_rooms = true;
         }
     }
 
     button_extents := Vector2.{200, 60};
     room_files_rect := get_rect(r.x + 20, r.y + 20, r.w - 40, r.h - 80);
-    scroll_region, inside := begin_scrollable_region(room_files_rect, *editor_state.editor_theme.scrollable_region_theme);
+    scroll_region, inside := begin_scrollable_region(room_files_rect, *editor_state.theme.scrollable_region_theme);
     s := inside;
     s.y = s.y + s.h - button_extents.y;
     s.h = button_extents.y;
@@ -535,8 +573,8 @@ draw_load_window :: (state: *Subwindow_State, r: Rect, data: *void) {
             pressed := button(s, filename, identifier = it_index);
             s.y -= 60;
             if pressed {
-                context.room_editor_state.current_room.* = load_room_v2(filename, context.editor_state.load_static_rooms);
-                editor_state.file_load_window.open = false;
+                context.room_editor_state.current_room.* = load_room_v2(filename, editor_state.load_static_rooms);
+                editor_state.load_window.open = false;
             }
         }
     }
@@ -548,8 +586,6 @@ get_mouse_editor_cell :: () -> Coord, bool {
     height := ROOM_HEIGHT;
     tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary := get_tile_ui_data(height);
     mouse_x, mouse_y, ok := get_mouse_pointer_position();
-
-    // print("Tile Height True: %\n", tile_height);
 
     mouse_y = WINDOW_HEIGHT - mouse_y; // Flip mouse y to match grid row ordering
     in_bounds: bool;
@@ -786,7 +822,7 @@ map_position_display_v2 :: (left: float32, right: float32, top: float32, bot: fl
                 mouse_y := cast(float32)raw_y;
 
                 if mouse_x > min.x && mouse_x < max.x && mouse_y > min.y && mouse_y < max.y {
-                    if is_action_buffered(.EDITOR_LEFT_CLICK) && context.editor_state.mouse_captured {
+                    if is_action_buffered(.EDITOR_LEFT_CLICK) && context.room_editor_state.mouse_captured {
                         consume_action(.EDITOR_LEFT_CLICK);
                         context.room_editor_state.current_room.static_position = c;
                     }
