@@ -106,19 +106,18 @@ Coord_Kind :: enum u8 {
     WORLD;
 }
 
-#add_context current_editor_room: *Room;
-#add_context room_table: *Table(u32, Room);
+#add_context room_table: *Table(u32, Room_V2);
 #add_context map: *Map;
 #add_context map_screen_state: *Map_Screen_State;
 #add_context world: *World;
 
 init_rooms :: () {
-    if !context.current_editor_room {
-        context.current_editor_room = New(Room);
-        context.current_editor_room.* = make_editor_room("New Room");
-    }
+    // if !context.current_editor_room {
+    //     context.current_editor_room = New(Room);
+    //     context.current_editor_room.* = make_editor_room("New Room");
+    // }
     if !context.room_table {
-        context.room_table = New(Table(u32, Room));
+        context.room_table = New(Table(u32, Room_V2));
     }
     rooms_refresh();
 }
@@ -205,6 +204,21 @@ rotate_room :: (r: Room) -> Room {
                                                                                 trigger_position = rotate_coord(trigger_position)}});
         }
     }
+    out.rune = rotate_rune(r.rune, 1);
+    out.exits = rotate_room_exits(r.exits, 1);
+    return out;
+}
+
+rotate_room_v2 :: (r: Room_V2) -> Room_V2 {
+    out: Room_V2;
+    for x: 0..ROOM_WIDTH - 1 {
+        for y: 0..ROOM_HEIGHT - 1 {
+            new_index := coord_to_index(.{xx (ROOM_WIDTH - y - 1), xx x});
+            old_index := coord_to_index(.{xx x, xx y});
+            out.int_grid[new_index] = rotate_collision_tile(r.int_grid[old_index]);
+        }
+    }
+    // Need to rotate_entities here
     out.rune = rotate_rune(r.rune, 1);
     out.exits = rotate_room_exits(r.exits, 1);
     return out;
@@ -323,7 +337,7 @@ get_room_at_wrapping_index :: (req_idx: int) -> *Room {
     return table_find_pointer(context.room_table, context.map_screen_state.available_rooms[idx]);
 }
 
-get_room_from_hash :: (hash: u32) -> *Room {
+get_room_from_hash :: (hash: u32) -> *Room_V2 {
     return table_find_pointer(context.room_table, hash);
 }
 

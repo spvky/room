@@ -26,8 +26,6 @@ render :: () {
     if context.game_state == {
     case .MAP_PLACEMENT;
         render_map_placement_scene();
-    case .ROOM_DESIGNER;
-        render_room_designer_scene();
     case .GAMEPLAY;
         render_gameplay_scene();
     case .ROOM_EDITOR;
@@ -198,121 +196,121 @@ draw_current_room_exits_v2 :: (height: int) {
                        color);
     }
 }
-draw_current_room_exits :: (height: int) {
-    _has_exit :: (exit: Room_Exits) -> bool #expand {
-        return `room.exits & exit == exit;
-    }
-    room := context.current_editor_room;
-
-    h_west_start: float32 = 445;
-    h_west_end: float32 = 538.636;
-    h_east_start: float32 = 1381.363;
-    h_east_end: float32 = 1475;
-    h_center_start: float32 = 913.181;
-    h_center_end: float32 = 1006.818;
-
-    v_north_start: float32 = 1055;
-    v_north_end: float32 = 961.363;
-    v_south_start: float32 = 118.636;
-    v_south_end: float32 = 25;
-    v_center_start: float32 = 586.818;
-    v_center_end: float32 = 493.181;
-
-    tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary := get_tile_ui_data(height);
-
-    color := Vector4.{0.7, 0.7, 0, 1};
-
-    if _has_exit(.NORTH_EAST) {
-        immediate_quad(
-                       .{h_east_start, top_boundary + 2.5},
-                       .{h_east_start, top_boundary - 2.5},
-                       .{h_east_end, top_boundary - 2.5},
-                       .{h_east_end, top_boundary + 2.5}, color);
-    }
-    if _has_exit(.NORTH) {
-        immediate_quad(
-                       .{h_center_start, top_boundary + 2.5},
-                       .{h_center_start, top_boundary - 2.5},
-                       .{h_center_end, top_boundary - 2.5},
-                       .{h_center_end, top_boundary + 2.5}, color);
-    }
-    if _has_exit(.NORTH_WEST) {
-        immediate_quad(
-                       .{h_west_start, top_boundary + 2.5},
-                       .{h_west_start, top_boundary - 2.5},
-                       .{h_west_end, top_boundary - 2.5},
-                       .{h_west_end, top_boundary + 2.5}, color);
-    }
-    if _has_exit(.SOUTH_EAST) {
-        immediate_quad(
-                       .{h_east_start, bot_boundary + 2.5},
-                       .{h_east_start, bot_boundary - 2.5},
-                       .{h_east_end, bot_boundary - 2.5},
-                       .{h_east_end, bot_boundary + 2.5}, color);
-    }
-    if _has_exit(.SOUTH) {
-        immediate_quad(
-                       .{h_center_start, bot_boundary + 2.5},
-                       .{h_center_start, bot_boundary - 2.5},
-                       .{h_center_end, bot_boundary - 2.5},
-                       .{h_center_end, bot_boundary + 2.5}, color);
-    }
-    if _has_exit(.SOUTH_WEST) {
-        immediate_quad(
-                       .{h_west_start, bot_boundary + 2.5},
-                       .{h_west_start, bot_boundary - 2.5},
-                       .{h_west_end, bot_boundary - 2.5},
-                       .{h_west_end, bot_boundary + 2.5}, color);
-    }
-    if _has_exit(.EAST_SOUTH) {
-        immediate_quad(
-                       .{right_boundary - 2.5, v_south_start},
-                       .{right_boundary - 2.5, v_south_end},
-                       .{right_boundary + 2.5, v_south_end},
-                       .{right_boundary + 2.5, v_south_start},
-                       color);
-    }
-    if _has_exit(.EAST) {
-        immediate_quad(
-                       .{right_boundary - 2.5, v_center_start},
-                       .{right_boundary - 2.5, v_center_end},
-                       .{right_boundary + 2.5, v_center_end},
-                       .{right_boundary + 2.5, v_center_start},
-                       color);
-    }
-    if _has_exit(.EAST_NORTH) {
-        immediate_quad(
-                       .{right_boundary - 2.5, v_north_start},
-                       .{right_boundary - 2.5, v_north_end},
-                       .{right_boundary + 2.5, v_north_end},
-                       .{right_boundary + 2.5, v_north_start},
-                       color);
-    }
-    if _has_exit(.WEST_SOUTH) {
-        immediate_quad(
-                       .{left_boundary - 2.5, v_south_start},
-                       .{left_boundary - 2.5, v_south_end},
-                       .{left_boundary + 2.5, v_south_end},
-                       .{left_boundary + 2.5, v_south_start},
-                       color);
-    }
-    if _has_exit(.WEST) {
-        immediate_quad(
-                       .{left_boundary - 2.5, v_center_start},
-                       .{left_boundary - 2.5, v_center_end},
-                       .{left_boundary + 2.5, v_center_end},
-                       .{left_boundary + 2.5, v_center_start},
-                       color);
-    }
-    if _has_exit(.WEST_NORTH) {
-        immediate_quad(
-                       .{left_boundary - 2.5, v_north_start},
-                       .{left_boundary - 2.5, v_north_end},
-                       .{left_boundary + 2.5, v_north_end},
-                       .{left_boundary + 2.5, v_north_start},
-                       color);
-    }
-}
+// draw_current_room_exits :: (height: int) {
+//     _has_exit :: (exit: Room_Exits) -> bool #expand {
+//         return `room.exits & exit == exit;
+//     }
+//     room := context.current_editor_room;
+// 
+//     h_west_start: float32 = 445;
+//     h_west_end: float32 = 538.636;
+//     h_east_start: float32 = 1381.363;
+//     h_east_end: float32 = 1475;
+//     h_center_start: float32 = 913.181;
+//     h_center_end: float32 = 1006.818;
+// 
+//     v_north_start: float32 = 1055;
+//     v_north_end: float32 = 961.363;
+//     v_south_start: float32 = 118.636;
+//     v_south_end: float32 = 25;
+//     v_center_start: float32 = 586.818;
+//     v_center_end: float32 = 493.181;
+// 
+//     tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary := get_tile_ui_data(height);
+// 
+//     color := Vector4.{0.7, 0.7, 0, 1};
+// 
+//     if _has_exit(.NORTH_EAST) {
+//         immediate_quad(
+//                        .{h_east_start, top_boundary + 2.5},
+//                        .{h_east_start, top_boundary - 2.5},
+//                        .{h_east_end, top_boundary - 2.5},
+//                        .{h_east_end, top_boundary + 2.5}, color);
+//     }
+//     if _has_exit(.NORTH) {
+//         immediate_quad(
+//                        .{h_center_start, top_boundary + 2.5},
+//                        .{h_center_start, top_boundary - 2.5},
+//                        .{h_center_end, top_boundary - 2.5},
+//                        .{h_center_end, top_boundary + 2.5}, color);
+//     }
+//     if _has_exit(.NORTH_WEST) {
+//         immediate_quad(
+//                        .{h_west_start, top_boundary + 2.5},
+//                        .{h_west_start, top_boundary - 2.5},
+//                        .{h_west_end, top_boundary - 2.5},
+//                        .{h_west_end, top_boundary + 2.5}, color);
+//     }
+//     if _has_exit(.SOUTH_EAST) {
+//         immediate_quad(
+//                        .{h_east_start, bot_boundary + 2.5},
+//                        .{h_east_start, bot_boundary - 2.5},
+//                        .{h_east_end, bot_boundary - 2.5},
+//                        .{h_east_end, bot_boundary + 2.5}, color);
+//     }
+//     if _has_exit(.SOUTH) {
+//         immediate_quad(
+//                        .{h_center_start, bot_boundary + 2.5},
+//                        .{h_center_start, bot_boundary - 2.5},
+//                        .{h_center_end, bot_boundary - 2.5},
+//                        .{h_center_end, bot_boundary + 2.5}, color);
+//     }
+//     if _has_exit(.SOUTH_WEST) {
+//         immediate_quad(
+//                        .{h_west_start, bot_boundary + 2.5},
+//                        .{h_west_start, bot_boundary - 2.5},
+//                        .{h_west_end, bot_boundary - 2.5},
+//                        .{h_west_end, bot_boundary + 2.5}, color);
+//     }
+//     if _has_exit(.EAST_SOUTH) {
+//         immediate_quad(
+//                        .{right_boundary - 2.5, v_south_start},
+//                        .{right_boundary - 2.5, v_south_end},
+//                        .{right_boundary + 2.5, v_south_end},
+//                        .{right_boundary + 2.5, v_south_start},
+//                        color);
+//     }
+//     if _has_exit(.EAST) {
+//         immediate_quad(
+//                        .{right_boundary - 2.5, v_center_start},
+//                        .{right_boundary - 2.5, v_center_end},
+//                        .{right_boundary + 2.5, v_center_end},
+//                        .{right_boundary + 2.5, v_center_start},
+//                        color);
+//     }
+//     if _has_exit(.EAST_NORTH) {
+//         immediate_quad(
+//                        .{right_boundary - 2.5, v_north_start},
+//                        .{right_boundary - 2.5, v_north_end},
+//                        .{right_boundary + 2.5, v_north_end},
+//                        .{right_boundary + 2.5, v_north_start},
+//                        color);
+//     }
+//     if _has_exit(.WEST_SOUTH) {
+//         immediate_quad(
+//                        .{left_boundary - 2.5, v_south_start},
+//                        .{left_boundary - 2.5, v_south_end},
+//                        .{left_boundary + 2.5, v_south_end},
+//                        .{left_boundary + 2.5, v_south_start},
+//                        color);
+//     }
+//     if _has_exit(.WEST) {
+//         immediate_quad(
+//                        .{left_boundary - 2.5, v_center_start},
+//                        .{left_boundary - 2.5, v_center_end},
+//                        .{left_boundary + 2.5, v_center_end},
+//                        .{left_boundary + 2.5, v_center_start},
+//                        color);
+//     }
+//     if _has_exit(.WEST_NORTH) {
+//         immediate_quad(
+//                        .{left_boundary - 2.5, v_north_start},
+//                        .{left_boundary - 2.5, v_north_end},
+//                        .{left_boundary + 2.5, v_north_end},
+//                        .{left_boundary + 2.5, v_north_start},
+//                        color);
+//     }
+// }
 
 render_boundaries_from_cell :: (c: Coord) -> float32, float32, float32, float32 {
     if context.game_state == .ROOM_DESIGNER || context.game_state == .MAP_PLACEMENT || context.game_state == .ROOM_EDITOR {
@@ -356,21 +354,21 @@ render_room_editor_scene :: () {
     #if OS == .WINDOWS render_room_editor_mouse_selection();
 }
 
-render_room_designer_scene :: () {
-    if context.editor_state.editor_type == {
-    case 0;
-        render_room_entities(context.current_editor_room, true);
-        render_grid();
-        #if OS == .WINDOWS render_room_designer_mouse_selection();
-        render_room_collision(context.current_editor_room);
-    case 1;
-        render_room_collision(context.current_editor_room, true);
-        render_grid();
-        #if OS == .WINDOWS render_room_designer_mouse_selection();
-        render_room_entities(context.current_editor_room);
-    }
-    render_room_designer_ui();
-}
+// render_room_designer_scene :: () {
+//     if context.editor_state.editor_type == {
+//     case 0;
+//         render_room_entities(context.current_editor_room, true);
+//         render_grid();
+//         #if OS == .WINDOWS render_room_designer_mouse_selection();
+//         render_room_collision(context.current_editor_room);
+//     case 1;
+//         render_room_collision(context.current_editor_room, true);
+//         render_grid();
+//         #if OS == .WINDOWS render_room_designer_mouse_selection();
+//         render_room_entities(context.current_editor_room);
+//     }
+//     render_room_designer_ui();
+// }
 
 render_room_designer_mouse_selection :: () {
     set_shader_for_color(true);

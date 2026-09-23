@@ -537,7 +537,7 @@ draw_load_window :: (state: *Subwindow_State, r: Rect, data: *void) {
             pressed := button(s, filename, identifier = it_index);
             s.y -= 60;
             if pressed {
-                context.current_editor_room.* = load_room(filename, context.editor_state.load_static_rooms);
+                context.room_editor_state.current_room.* = load_room_v2(filename, context.editor_state.load_static_rooms);
                 editor_state.file_load_window.open = false;
             }
         }

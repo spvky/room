@@ -268,12 +268,12 @@ load_room :: (filename: string, static := false) -> Room, bool {
     return r, true;
 }
 
-load_all_rooms :: () {
+load_all_rooms_v2 :: () {
     // Load placable rooms
     for file_list("assets/rooms/placeable",, temp) {
         _, _, extension, filename := path_decomp(it);
         if equal(extension, "room") {
-            room, success := load_room(filename); // Put the room into the map from here
+            room, success := load_room_v2(filename); // Put the room into the map from here
             if success {
                 room_hash := djb2_hash(room.name);
 
@@ -287,7 +287,7 @@ load_all_rooms :: () {
     for file_list("assets/rooms/static",, temp) {
         _, _, extension, filename := path_decomp(it);
         if equal(extension, "room") {
-            room, success := load_room(filename, true); // Put the room into the map from here
+            room, success := load_room_v2(filename, true); // Put the room into the map from here
             if success {
                 room_hash := djb2_hash(room.name);
 
@@ -296,6 +296,36 @@ load_all_rooms :: () {
             }
         }
     }
+}
+
+load_all_rooms :: () {
+    // // Load placable rooms
+    // for file_list("assets/rooms/placeable",, temp) {
+    //     _, _, extension, filename := path_decomp(it);
+    //     if equal(extension, "room") {
+    //         room, success := load_room(filename); // Put the room into the map from here
+    //         if success {
+    //             room_hash := djb2_hash(room.name);
+    // 
+    //             table_set(context.room_table, room_hash, room);
+    //             print("Placeable Room: % | % has been added to the table\n", room.name, room_hash);
+    //         }
+    //     }
+    // }
+    // 
+    // // Load static rooms
+    // for file_list("assets/rooms/static",, temp) {
+    //     _, _, extension, filename := path_decomp(it);
+    //     if equal(extension, "room") {
+    //         room, success := load_room(filename, true); // Put the room into the map from here
+    //         if success {
+    //             room_hash := djb2_hash(room.name);
+    // 
+    //             table_set(context.room_table, room_hash, room);
+    //             print("Static Room: % | % has been added to the table\n", room.name, room_hash);
+    //         }
+    //     }
+    // }
 }
 
 is_room_available :: (hash: u32) -> bool {
