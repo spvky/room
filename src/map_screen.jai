@@ -1,27 +1,3 @@
-COLUMN_WIDTH :: 1;
-ROOM_WIDTH :: 45;
-ROOM_HEIGHT :: 45;
-HALF_ROOM_SIZE :: ROOM_WIDTH / 2;
-MAP_WIDTH :: 10;
-MAP_HEIGHT :: 10;
-WORLD_WIDTH :: #run ROOM_WIDTH * MAP_WIDTH + (MAP_WIDTH + COLUMN_WIDTH);
-WORLD_HEIGHT :: #run ROOM_HEIGHT * MAP_HEIGHT + (MAP_HEIGHT + COLUMN_WIDTH);
-TILE_SIZE: float32: 16;
-
-Coord :: struct {
-    x: s16;
-    y: s16;
-}
-
-operator * :: (c: Coord, v: Vector2) -> Vector2 {
-    return Vector2.{cast(float32)c.x * v.x, cast(float32)c.y * v.y};
-}
-
-Coord_Range :: struct {
-    min: Coord;
-    max: Coord;
-}
-
 Map_Screen_State :: struct {
     selected_idx: int;
     cursor_position: Coord;
@@ -35,46 +11,6 @@ Map_Cursor_State :: enum {
     PLACE;
 }
 
-Map :: struct {
-    // Rooms currently placed in the map
-    placed_room_cards: [..]Room_Card;
-    // Grid to indicate which cells have a room placed in them
-    occupied: [MAP_WIDTH * MAP_HEIGHT]bool;
-}
-
-Room_Card :: struct {
-    room_hash: u32;
-    coord: Coord;
-    rotation: u8;
-}
-
-Map_Room :: struct {
-    rune: Rune;
-    exits: Room_Exits;
-    exists: bool;
-    rune_parsed_x: bool;
-    rune_parsed_y: bool;
-}
-
-Collision_Tile :: enum u8 {
-    EMPTY;
-    WALL;
-    TOP_HALF;
-    BOT_HALF;
-    LEFT_HALF;
-    RIGHT_HALF;
-    BLANK;
-}
-
-Entity_Tile :: enum u16 {
-    EMPTY;
-    CRATE;
-    PLAYER_SPAWN;
-    GEAR;
-    ASSEMBLER;
-    SWITCH_BLOCK;
-}
-
 Map_Direction :: enum {
     EAST;
     SOUTH;
@@ -82,38 +18,14 @@ Map_Direction :: enum {
     NORTH;
 }
 
-operator == :: (a: Coord, b: Coord) -> bool {
-    return a.x == b.x && a.y == b.y;
-}
-
-operator + :: (a: Coord, b: Coord) -> Coord {
-    c: Coord;
-    c.x = a.x + b.x;
-    c.y = a.y + b.y;
-    return c;
-}
-
-operator - :: (a: Coord, b: Coord) -> Coord {
-    c: Coord;
-    c.x = a.x - b.x;
-    c.y = a.y - b.y;
-    return c;
-}
-
-Coord_Kind :: enum u8 {
-    ROOM;
-    MAP;
-    WORLD;
-}
-
-#add_context room_table: *Table(u32, Room_V2);
+#add_context room_table: *Table(u32, Room);
 #add_context map: *Map;
 #add_context map_screen_state: *Map_Screen_State;
 #add_context world: *World;
 
 init_rooms :: () {
     if !context.room_table {
-        context.room_table = New(Table(u32, Room_V2));
+        context.room_table = New(Table(u32, Room));
     }
     rooms_refresh();
 }
@@ -166,8 +78,8 @@ init_world :: () {
     reset_world_tilemap();
 }
 
-rotate_room_v2 :: (r: Room_V2) -> Room_V2 {
-    out: Room_V2;
+rotate_room :: (r: Room) -> Room {
+    out: Room;
     for x: 0..ROOM_WIDTH - 1 {
         for y: 0..ROOM_HEIGHT - 1 {
             new_index := coord_to_index(.{xx (ROOM_WIDTH - y - 1), xx x});
@@ -244,10 +156,6 @@ check_world_collision_tile_value :: (c: Coord) -> Collision_Tile {
     return context.world.collision[coord_to_index(c, .WORLD)];
 }
 
-check_world_entity_tile_value :: (c: Coord) -> Entity_Tile {
-    return context.world.entities[coord_to_index(c, .WORLD)];
-}
-
 rotate_coord :: (c: Coord, kind: Coord_Kind = .ROOM) -> Coord #expand {
     width: int;
     if kind == {
@@ -266,18 +174,13 @@ set_world_collision_tile_value :: (value: Collision_Tile, c: Coord) {
     context.world.collision[idx] = value;
 }
 
-set_world_entity_tile_value :: (value: Entity_Tile, c: Coord) {
-    idx := coord_to_index(c, .WORLD);
-    context.world.entities[idx] = value;
-}
-
 // Map Placement and editing
-get_room_at_wrapping_index :: (req_idx: int) -> *Room_V2 {
+get_room_at_wrapping_index :: (req_idx: int) -> *Room {
     idx := ifx req_idx == 0 then 0 else req_idx % context.map_screen_state.available_rooms.count;
     return table_find_pointer(context.room_table, context.map_screen_state.available_rooms[idx]);
 }
 
-get_room_from_hash :: (hash: u32) -> *Room_V2 {
+get_room_from_hash :: (hash: u32) -> *Room {
     return table_find_pointer(context.room_table, hash);
 }
 

@@ -23,53 +23,12 @@ Things to consider:
 	. Playing Room
 */
 
-Room_Exits :: enum_flags u16 {
-    NORTH_EAST :: 1 << 0;
-    NORTH :: 1 << 1;
-    NORTH_WEST :: 1 << 2;
-    WEST_NORTH :: 1 << 3;
-    WEST :: 1 << 4;
-    WEST_SOUTH :: 1 << 5;
-    SOUTH_WEST :: 1 << 6;
-    SOUTH :: 1 << 7;
-    SOUTH_EAST :: 1 << 8;
-    EAST_SOUTH :: 1 << 9;
-    EAST :: 1 << 10;
-    EAST_NORTH :: 1 << 11;
-}
-
-Room_Flags :: enum_flags u16 {
-    DISCOVERED :: 1 << 0;
-    STATIC :: 1 << 1;
-    ENTERED_NORTH :: 1 << 2;
-    ENTERED_SOUTH :: 1 << 3;
-    ENTERED_EAST :: 1 << 4;
-    ENTERED_WEST :: 1 << 5;
-    NO_ROTATE :: 1 << 6;
-    NO_MOVE_X :: 1 << 7;
-    NO_MOVE_Y :: 1 << 8;
-    NO_PICKUP :: 1 << 9;
-    MUST_BE_PLACED :: 1 << 10;
-    PICKED_UP :: 1 << 11;
-}
-
-Room_V2 :: struct {
-    name: string;
-    flags: Room_Flags;
-    exits: Room_Exits;
-    int_grid: [ROOM_WIDTH * ROOM_HEIGHT]Collision_Tile;
-    rune: Rune;
-    texture: Texture;
-    entities: Entity_Manager;
-    static_position: Coord;
-}
-
 // Use local tile size for the editor to make translating positions easier on hydration
 Room_Editor_State :: struct {
     theme: Overall_Theme;
     editor_click_mode: Room_Editor_Click_Mode;
 
-    current_room: *Room_V2;
+    current_room: *Room;
     current_entity_handle: Entity_Handle;
 
     entity_to_make: Entity_Tag;
@@ -130,9 +89,9 @@ Room_Editor_Click_Mode :: enum u8 {
 init_room_editor :: () {
     if !context.room_editor_state {
         context.room_editor_state = New(Room_Editor_State);
-        context.room_editor_state.current_room = New(Room_V2);
+        context.room_editor_state.current_room = New(Room);
 
-        context.room_editor_state.current_room.* = load_room_v2("a.room");
+        context.room_editor_state.current_room.* = load_room("a.room");
         set_atlas_for_entity_manager(*context.room_editor_state.current_room.entities);
 
         ui_init();
@@ -444,7 +403,7 @@ draw_core_room_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     y -= 40;
 
     if room_ptr.flags & .STATIC == .STATIC {
-        map_position_display_v2(x + 350, x + 650, y + 600, y + 300);
+        map_position_display(x + 350, x + 650, y + 600, y + 300);
     }
 }
 
@@ -516,7 +475,7 @@ draw_actions_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     save_button_rect := get_rect(r.x + (r.w / 2) - 100, r.y + 2, 200, 40);
     save_pressed := button(save_button_rect, "Save Room");
     if save_pressed {
-        save_room_v2(editor_state.current_room.*);
+        save_room(editor_state.current_room.*);
     }
 }
 
@@ -573,7 +532,7 @@ draw_load_window :: (state: *Subwindow_State, r: Rect, data: *void) {
             pressed := button(s, filename, identifier = it_index);
             s.y -= 60;
             if pressed {
-                context.room_editor_state.current_room.* = load_room_v2(filename, editor_state.load_static_rooms);
+                context.room_editor_state.current_room.* = load_room(filename, editor_state.load_static_rooms);
                 editor_state.load_window.open = false;
             }
         }
@@ -787,7 +746,7 @@ enum_flag_display :: (ptr_to_enum: *$T, left_margin: float32, top_margin: float3
     return y;
 }
 
-map_position_display_v2 :: (left: float32, right: float32, top: float32, bot: float32) #expand {
+map_position_display :: (left: float32, right: float32, top: float32, bot: float32) #expand {
     display_width: float32 = right - left;
     total_margin_width := display_width * 0.1;
     total_tile_width := display_width * 0.9;

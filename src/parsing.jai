@@ -1,22 +1,6 @@
-World :: struct {
-    collision: [WORLD_WIDTH * WORLD_HEIGHT]Collision_Tile;
-    entities: [WORLD_WIDTH * WORLD_HEIGHT]Entity_Tile;
-    rooms: [MAP_WIDTH * MAP_HEIGHT]Map_Room;
-    room_effects: [..]Room_Effect;
-}
-
-Room_Effect :: struct {
-    effect: Effect_Rune;
-    rooms: [..]Coord;
-}
-
-Room_Modifier :: enum {
-    RAIN;
-}
-
 bake_world :: () {
     entities_clear();
-    write_room_cards_to_world_v2();
+    write_room_cards_to_world();
     open_map_exits();
     generate_world_map_png("assets/world.png");
     parse_walls_from_tilemap();
@@ -31,7 +15,6 @@ reset_world_tilemap :: () {
         for y: 0..WORLD_HEIGHT - 1 {
             idx := coord_to_index(.{xx x, xx y}, .WORLD);
             world.collision[idx] = .BLANK;
-            world.entities[idx] = .EMPTY;
         }
     }
 }
@@ -84,7 +67,7 @@ parse_runes :: () {
     }
 }
 
-write_room_cards_to_world_v2 :: () {
+write_room_cards_to_world :: () {
     world := context.world;
     map := context.map;
 
@@ -100,7 +83,7 @@ write_room_cards_to_world_v2 :: () {
 
         if it.rotation > 0 {
             for 1..it.rotation {
-                room_copy = rotate_room_v2(room_copy);
+                room_copy = rotate_room(room_copy);
             }
         }
 
@@ -113,7 +96,7 @@ write_room_cards_to_world_v2 :: () {
             for x: 0..ROOM_WIDTH - 1 {
                 room_coord := Coord.{xx x, xx y};
                 world_coord := room_coord + Coord.{start_x, start_y};
-                collision_tile := check_collision_tile_value_v2(*room_copy, room_coord);
+                collision_tile := check_collision_tile_value(*room_copy, room_coord);
                 world_idx := coord_to_index(world_coord, .WORLD);
                 world.collision[world_idx] = collision_tile;
             }

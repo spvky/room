@@ -99,5 +99,6 @@ GL :: #import "GL";
 #load "src/inspector.jai";
 #load "src/text.jai";
 #load "src/map_view.jai";
+#load "src/map_types.jai";
 #load "src/power.jai";
 #load "src/room_editor.jai";

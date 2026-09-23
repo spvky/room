@@ -72,7 +72,7 @@ render_grid :: () {
     case .ROOM_EDITOR;
         for 0..ROOM_HEIGHT {
             grid_lines(ROOM_HEIGHT);
-            draw_current_room_exits_v2(ROOM_HEIGHT);
+            draw_current_room_exits(ROOM_HEIGHT);
         }
     case .MAP_PLACEMENT;
         for 0..MAP_HEIGHT {
@@ -81,7 +81,7 @@ render_grid :: () {
     }
 }
 
-draw_current_room_exits_v2 :: (height: int) {
+draw_current_room_exits :: (height: int) {
     _has_exit :: (exit: Room_Exits) -> bool #expand {
         return `room.exits & exit == exit;
     }
@@ -230,8 +230,8 @@ render_boundaries_from_rect :: (start: Coord, width: s16, height: s16) -> float3
 // #ROOM_DESIGNER_RENDERING
 render_room_editor_scene :: () {
     render_grid();
-    render_room_entities_v2(context.room_editor_state.current_room);
-    render_room_collision_v2(context.room_editor_state.current_room);
+    render_room_entities(context.room_editor_state.current_room);
+    render_room_collision(context.room_editor_state.current_room);
     render_room_editor_ui();
 
     #if OS == .WINDOWS render_room_editor_mouse_selection();
@@ -264,12 +264,12 @@ render_room_editor_mouse_selection :: () {
     }
 }
 
-render_room_collision_v2 :: (r: *Room_V2, faded := false) {
+render_room_collision :: (r: *Room, faded := false) {
     set_shader_for_color();
     for <y: 0..ROOM_HEIGHT - 1 {
         for x: 0..ROOM_WIDTH - 1 {
             coord := Coord.{xx x, xx y};
-            val := check_collision_tile_value_v2(r, coord);
+            val := check_collision_tile_value(r, coord);
             left, right, bot, top := render_boundaries_from_cell(coord);
             v_mid := (top + bot) / 2;
             h_mid := (right + left) / 2;
@@ -316,11 +316,11 @@ render_room_collision_v2 :: (r: *Room_V2, faded := false) {
     }
 }
 
-check_collision_tile_value_v2 :: (r: *Room_V2, c: Coord) -> Collision_Tile #expand {
+check_collision_tile_value :: (r: *Room, c: Coord) -> Collision_Tile #expand {
     return r.int_grid[coord_to_index(c)];
 }
 
-render_room_entities_v2 :: (r: *Room_V2) {
+render_room_entities :: (r: *Room) {
     for *r.entities {
         if !entity_has_props(it, .RENDERABLE) continue;
         selected_entity := it.handle == context.room_editor_state.current_entity_handle;
@@ -457,7 +457,7 @@ render_map_placed_room_cards :: () {
     }
 }
 
-render_room_and_frame :: (room: *Room_V2, position: Vector2, size: Vector2) {
+render_room_and_frame :: (room: *Room, position: Vector2, size: Vector2) {
     frame_sprite := make_sprite(*context.atlas.room_frame_texture);
     render_sprite(*frame_sprite, position, size);
     room_sprite := make_sprite(*room.texture);

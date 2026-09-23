@@ -2,7 +2,7 @@ ROOMS_PATH :: "assets/rooms";
 ASSET_VERSION: float32: 0.6;
 PIXELS_PER_TILE :: 2;
 
-save_room_v2 :: (r: Room_V2) {
+save_room :: (r: Room) {
     is_static := r.flags & .STATIC == .STATIC;
     subdir: string = ifx is_static "static" else "placeable";
     path := tprint("%/%/%.room", ROOMS_PATH, subdir, r.name);
@@ -41,10 +41,10 @@ save_room_v2 :: (r: Room_V2) {
 
     img_path := tprint("%/%/%.png", ROOMS_PATH, subdir, r.name);
     replace_chars(img_path, " ", #char "_");
-    generate_room_png_v2(*r, img_path);
+    generate_room_png(*r, img_path);
 }
 
-load_room_v2 :: (filename: string, static := false) -> Room_V2, bool {
+load_room :: (filename: string, static := false) -> Room, bool {
     // Helper for logging loading errors
     subdir: string = ifx static "static" else "placeable";
     path := tprint("%/%/%", ROOMS_PATH, subdir, filename);
@@ -54,7 +54,7 @@ load_room_v2 :: (filename: string, static := false) -> Room_V2, bool {
         file_close(*file);
         print("Finished reading room from %\n", path);
     }
-    r: Room_V2;
+    r: Room;
     // Version
     version: float32;
     success := file_read(file, *version, size_of(float32));
@@ -144,12 +144,12 @@ read_entity_manager_from_file :: (e: *Entity_Manager, file: *File) {
     }
 }
 
-load_all_rooms_v2 :: () {
+load_all_rooms :: () {
     // Load placable rooms
     for file_list("assets/rooms/placeable",, temp) {
         _, _, extension, filename := path_decomp(it);
         if equal(extension, "room") {
-            room, success := load_room_v2(filename); // Put the room into the map from here
+            room, success := load_room(filename); // Put the room into the map from here
             if success {
                 room_hash := djb2_hash(room.name);
 
@@ -163,7 +163,7 @@ load_all_rooms_v2 :: () {
     for file_list("assets/rooms/static",, temp) {
         _, _, extension, filename := path_decomp(it);
         if equal(extension, "room") {
-            room, success := load_room_v2(filename, true); // Put the room into the map from here
+            room, success := load_room(filename, true); // Put the room into the map from here
             if success {
                 room_hash := djb2_hash(room.name);
 
@@ -179,7 +179,7 @@ is_room_available :: (hash: u32) -> bool {
     return false;
 }
 
-generate_room_png_v2 :: (r: *Room_V2, path: string) {
+generate_room_png :: (r: *Room, path: string) {
     Pixel :: struct {
         r: u8;
         g: u8;
@@ -286,7 +286,7 @@ generate_room_png_v2 :: (r: *Room_V2, path: string) {
                     _set_tile(.EMPTY);
                 }
             } else {
-                tile := check_collision_tile_value_v2(r, .{xx (x - 1), xx (y - 1)});
+                tile := check_collision_tile_value(r, .{xx (x - 1), xx (y - 1)});
                 _set_tile(tile);
             }
         }
