@@ -88,78 +88,8 @@ write_room_cards_to_world_v2 :: () {
     world := context.world;
     map := context.map;
 
-    pre_post_handle_map: Table(Entity_Handle, Entity_Handle);
+    pre_post_handle_map: Table(Entity_Handle, Entity_Handle, given_hash_function = handle_hash, given_compare_function = handle_compare);
     pre_post_handle_map.allocator = temp;
-    for map.placed_room_cards {
-        r := get_room_from_hash(it.room_hash);
-        assert(r != null, "Hit null room pointer while adding room tiles to tilemap.\nSkipping placed room %!\n", it.room_hash);
-        start_x: s16 = it.coord.x * xx ROOM_WIDTH + (1 + it.coord.x); // Wall offset
-        start_y: s16 = it.coord.y * xx ROOM_HEIGHT + (1 + it.coord.y); // Wall offset
-
-        room_copy := r.*;
-
-        if it.rotation > 0 {
-            for 1..it.rotation {
-                room_copy = rotate_room(room_copy);
-            }
-        }
-
-        // Write Room exits and rune to the world map
-        room_to_place := Map_Room.{rune = room_copy.rune, exits = room_copy.exits, exists = true};
-        placed_idx := coord_to_index(it.coord, .MAP);
-        world.rooms[placed_idx] = room_to_place;
-
-        for y: 0..ROOM_HEIGHT - 1 {
-            for x: 0..ROOM_WIDTH - 1 {
-                room_coord := Coord.{xx x, xx y};
-                world_coord := room_coord + Coord.{start_x, start_y};
-                collision_tile := check_collision_tile_value_v2(*room_copy, room_coord);
-                world_idx := coord_to_index(world_coord, .WORLD);
-                world.collision[world_idx] = collision_tile;
-            }
-        }
-        print("Finished Writing intGrid for room %, parsing % entities now\n", it_room_hash, r.extra_data.count);
-        // Calculate room_center_here
-        room_center: Vector2;
-
-        write_room_entities_to_world(*r.entities, room_center, it.rotation);
-    }
-
-    for *context.entities {
-        refresh_handle(*it.parent);
-        refresh_handle(*it.first_child);
-        refresh_handle(*it.last_child);
-        refresh_handle(*it.prev_sibling);
-        refresh_handle(*it.next_sibling);
-    }
-}
-
-write_room_entities_to_world :: (e: *Entity_Manager, room_center: Vector2, rotation: u8) #expand {
-    float_rotation := (PI / 2) * cast(float)rotation;
-
-    for *e {
-        new_entity := e.*;
-        new_entity.rotation += float_rotation;
-        new_entity.position = room_center + rotate(new_entity.position, float_rotation);
-        new_handle := entity_add(*new_entity);
-        table_set(*`pre_post_handle_map, handle, new_handle);
-    }
-}
-
-refresh_handle :: (handle_ptr: *Entity_Handle) #expand {
-    handle_ptr.index != 0; {
-        new_handle_ptr := table_find_ptr(*`pre_post_handle_map, handle_ptr.*);
-        if entity_valid(new_handle_ptr.*) {
-            handle_ptr.* = new_handle_ptr.*;
-        } else {
-            print("Failed to find valid handle during refresh while writing entities to world\n");
-        }
-    }
-}
-
-write_room_cards_to_world :: () {
-    world := context.world;
-    map := context.map;
     for map.placed_room_cards {
         r := get_room_from_hash(it.room_hash);
         assert(r != null, "Hit null room pointer while adding room tiles to tilemap.\nSkipping placed room %!\n", it.room_hash);
@@ -183,41 +113,111 @@ write_room_cards_to_world :: () {
             for x: 0..ROOM_WIDTH - 1 {
                 room_coord := Coord.{xx x, xx y};
                 world_coord := room_coord + Coord.{start_x, start_y};
-                collision_tile := check_collision_tile_value(*room_copy, room_coord);
-                entity_tile := check_entity_tile_value(*room_copy, room_coord);
+                collision_tile := check_collision_tile_value_v2(*room_copy, room_coord);
                 world_idx := coord_to_index(world_coord, .WORLD);
                 world.collision[world_idx] = collision_tile;
-                world.entities[world_idx] = entity_tile;
             }
         }
-        print("Finished Writing Collision, and Entity Grids, parsing % Extra entities now\n", r.extra_data.count);
+        print("Finished Writing intGrid for room %, parsing % entities now\n", it.room_hash, r.entities.count);
+        // Calculate room_center_here
+        room_center: Vector2;
 
-        for *room_copy.extra_data {
-            if it.kind == {
-            case .SWITCH_BLOCK;
-                using it.switch_block_data;
-                relative_coord := start + Coord.{start_x, start_y};
-                for y: 0..height - 1 {
-                    for x: 0..width - 1 {
-                        current_coord := relative_coord + Coord.{xx x, xx y};
-                        world_idx := coord_to_index(current_coord, .WORLD);
-                        world.entities[world_idx] = .SWITCH_BLOCK;
-                    }
-                }
-                make_extra_entity(relative_coord, it);
-            case .ROOM_PICKUP;
-                using it.room_pickup_data;
+        write_room_entities_to_world(*r.entities, room_center, it.rotation);
+    }
 
-                room_ptr := table_find_pointer(context.room_table, hash);
-                if room_ptr {
-                    should_create := room_ptr.flags & .PICKED_UP == 0;
+    for *context.entities {
+        refresh_handle(*it.parent);
+        refresh_handle(*it.first_child);
+        refresh_handle(*it.last_child);
+        refresh_handle(*it.prev_sibling);
+        refresh_handle(*it.next_sibling);
+    }
+}
 
-                    relative_coord := position + Coord.{start_x, start_y};
-                    if should_create make_extra_entity(relative_coord, it);
-                }
-            }
+write_room_entities_to_world :: (e: *Entity_Manager, room_center: Vector2, rotation: u8) #expand {
+    float_rotation := (PI / 2) * cast(float)rotation;
+
+    for *e {
+        new_entity := it.*;
+        new_entity.rotation += float_rotation;
+        new_entity.position = room_center + rotate(new_entity.position, float_rotation);
+        new_handle := entity_add(new_entity);
+        table_set(*`pre_post_handle_map, it.handle, new_handle);
+    }
+}
+
+refresh_handle :: (handle_ptr: *Entity_Handle) #expand {
+    handle_ptr.index != 0; {
+        new_handle_ptr := table_find_pointer(*`pre_post_handle_map, handle_ptr.*);
+        if entity_valid(new_handle_ptr.*) {
+            handle_ptr.* = new_handle_ptr.*;
+        } else {
+            print("Failed to find valid handle during refresh while writing entities to world\n");
         }
     }
+}
+
+write_room_cards_to_world :: () {
+    // world := context.world;
+    // map := context.map;
+    // for map.placed_room_cards {
+    //     r := get_room_from_hash(it.room_hash);
+    //     assert(r != null, "Hit null room pointer while adding room tiles to tilemap.\nSkipping placed room %!\n", it.room_hash);
+    //     start_x: s16 = it.coord.x * xx ROOM_WIDTH + (1 + it.coord.x); // Wall offset
+    //     start_y: s16 = it.coord.y * xx ROOM_HEIGHT + (1 + it.coord.y); // Wall offset
+    // 
+    //     room_copy := r.*;
+    // 
+    //     if it.rotation > 0 {
+    //         for 1..it.rotation {
+    //             room_copy = rotate_room_v2(room_copy);
+    //         }
+    //     }
+    // 
+    //     // Write Room exits and rune to the world map
+    //     room_to_place := Map_Room.{rune = room_copy.rune, exits = room_copy.exits, exists = true};
+    //     placed_idx := coord_to_index(it.coord, .MAP);
+    //     world.rooms[placed_idx] = room_to_place;
+    // 
+    //     for y: 0..ROOM_HEIGHT - 1 {
+    //         for x: 0..ROOM_WIDTH - 1 {
+    //             room_coord := Coord.{xx x, xx y};
+    //             world_coord := room_coord + Coord.{start_x, start_y};
+    //             collision_tile := check_collision_tile_value(*room_copy, room_coord);
+    //             entity_tile := check_entity_tile_value(*room_copy, room_coord);
+    //             world_idx := coord_to_index(world_coord, .WORLD);
+    //             world.collision[world_idx] = collision_tile;
+    //             world.entities[world_idx] = entity_tile;
+    //         }
+    //     }
+    //     print("Finished Writing Collision, and Entity Grids, parsing % Extra entities now\n", r.extra_data.count);
+    // 
+    //     for *room_copy.extra_data {
+    //         if it.kind == {
+    //         case .SWITCH_BLOCK;
+    //             using it.switch_block_data;
+    //             relative_coord := start + Coord.{start_x, start_y};
+    //             for y: 0..height - 1 {
+    //                 for x: 0..width - 1 {
+    //                     current_coord := relative_coord + Coord.{xx x, xx y};
+    //                     world_idx := coord_to_index(current_coord, .WORLD);
+    //                     world.entities[world_idx] = .SWITCH_BLOCK;
+    //                 }
+    //             }
+    //             make_extra_entity(relative_coord, it);
+    //         case .ROOM_PICKUP;
+    //             using it.room_pickup_data;
+    // 
+    //             room_ptr := table_find_pointer(context.room_table, hash);
+    //             if room_ptr {
+    //                 should_create := room_ptr.flags & .PICKED_UP == 0;
+    // 
+    //                 relative_coord := position + Coord.{start_x, start_y};
+    //                 if should_create make_extra_entity(relative_coord, it);
+    //             }
+    //         }
+    //     }
+    // }
 }
 
 open_map_exits :: () {

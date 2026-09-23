@@ -14,13 +14,11 @@ Things to consider:
 /*
 	9/22/2026 6:09:38 PM
 	Left Todo
-	1. Wall creation
-	2. Room Pickups
-	3. Add Gear arrows and rotation
-	3b. Test room IO
-	4. Adding Rooms to world
-	5. Fix Room PNG's
-	6. Different Map Screens
+	1. Room Pickups
+	2. Add Gear arrows and rotation
+	3. Adding Rooms to world
+	4. Fix Room PNG's
+	5. Different Map Screens
 
 	. Playing Room
 */
@@ -408,7 +406,7 @@ draw_core_room_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     y -= 40;
 
     if room_ptr.flags & .STATIC == .STATIC {
-        map_position_display(x + 350, x + 650, y + 600, y + 300);
+        map_position_display_v2(x + 350, x + 650, y + 600, y + 300);
     }
 }
 
@@ -753,7 +751,7 @@ enum_flag_display :: (ptr_to_enum: *$T, left_margin: float32, top_margin: float3
     return y;
 }
 
-map_position_display :: (left: float32, right: float32, top: float32, bot: float32) #expand {
+map_position_display_v2 :: (left: float32, right: float32, top: float32, bot: float32) #expand {
     display_width: float32 = right - left;
     total_margin_width := display_width * 0.1;
     total_tile_width := display_width * 0.9;
@@ -776,7 +774,7 @@ map_position_display :: (left: float32, right: float32, top: float32, bot: float
 
             max := min + .{tile_width, tile_height};
 
-            color := ifx context.current_editor_room.map_position == c then Vector4.{0, 0.4, 0.15, 1} else Vector4.{1, 1, 1, 1};
+            color := ifx context.room_editor_state.current_room.static_position == c then Vector4.{0, 0.4, 0.15, 1} else Vector4.{1, 1, 1, 1};
 
             immediate_quad(min, Vector2.{max.x, min.y}, max, Vector2.{min.x, max.y}, color);
 
@@ -790,7 +788,7 @@ map_position_display :: (left: float32, right: float32, top: float32, bot: float
                 if mouse_x > min.x && mouse_x < max.x && mouse_y > min.y && mouse_y < max.y {
                     if is_action_buffered(.EDITOR_LEFT_CLICK) && context.editor_state.mouse_captured {
                         consume_action(.EDITOR_LEFT_CLICK);
-                        context.current_editor_room.map_position = c;
+                        context.room_editor_state.current_room.static_position = c;
                     }
                 }
             }

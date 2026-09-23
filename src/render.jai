@@ -65,10 +65,10 @@ render_grid :: () {
     set_shader_for_color(true);
     if context.game_state == {
     case .ROOM_DESIGNER;
-        for 0..ROOM_HEIGHT {
-            grid_lines(ROOM_HEIGHT);
-            draw_current_room_exits(ROOM_HEIGHT);
-        }
+        // for 0..ROOM_HEIGHT {
+        //     grid_lines(ROOM_HEIGHT);
+        //     draw_current_room_exits(ROOM_HEIGHT);
+        // }
     case .ROOM_EDITOR;
         for 0..ROOM_HEIGHT {
             grid_lines(ROOM_HEIGHT);
@@ -800,7 +800,7 @@ render_map_placed_room_cards :: () {
     }
 }
 
-render_room_and_frame :: (room: *Room, position: Vector2, size: Vector2) {
+render_room_and_frame :: (room: *Room_V2, position: Vector2, size: Vector2) {
     frame_sprite := make_sprite(*context.atlas.room_frame_texture);
     render_sprite(*frame_sprite, position, size);
     room_sprite := make_sprite(*room.texture);

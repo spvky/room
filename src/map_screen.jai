@@ -155,7 +155,7 @@ map_refresh :: () {
         } else {
             room_card: Room_Card;
             room_card.room_hash = it_index;
-            room_card.coord = it.map_position;
+            room_card.coord = it.static_position;
             room_card.rotation = 0;
             array_add(*context.map.placed_room_cards, room_card);
             context.map.occupied[coord_to_index(room_card.coord, .MAP)] = true;
@@ -332,7 +332,7 @@ set_world_entity_tile_value :: (value: Entity_Tile, c: Coord) {
 }
 
 // Map Placement and editing
-get_room_at_wrapping_index :: (req_idx: int) -> *Room {
+get_room_at_wrapping_index :: (req_idx: int) -> *Room_V2 {
     idx := ifx req_idx == 0 then 0 else req_idx % context.map_screen_state.available_rooms.count;
     return table_find_pointer(context.room_table, context.map_screen_state.available_rooms[idx]);
 }

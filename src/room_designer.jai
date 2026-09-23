@@ -536,17 +536,17 @@ draw_entity_editor_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     // }
 }
 
-build_rooms_array :: () -> [..]*Room {
-    rooms: [..]*Room;
-    rooms.allocator = temp;
-
-    for *context.room_table {
-        if it.flags & .STATIC != .STATIC {
-            array_add(*rooms, it);
-        }
-    }
-    return rooms;
-}
+// build_rooms_array :: () -> [..]*Room {
+//     rooms: [..]*Room;
+//     rooms.allocator = temp;
+// 
+//     for *context.room_table {
+//         if it.flags & .STATIC != .STATIC {
+//             array_add(*rooms, it);
+//         }
+//     }
+//     return rooms;
+// }
 
 paint_tile_values :: () {
     // room_ptr := context.current_editor_room;
