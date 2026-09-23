@@ -16,7 +16,6 @@ Room_Modifier :: enum {
 
 bake_world :: () {
     entities_clear();
-    print("Entities Count after clearing: %\n", context.entities.count);
     write_room_cards_to_world();
     open_map_exits();
     generate_world_map_png("assets/world.png");

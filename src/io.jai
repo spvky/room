@@ -98,6 +98,7 @@ load_room_v2 :: (filename: string, static := false) -> Room_V2, bool {
 
 write_entity_manager_to_file :: (e: *Entity_Manager, file: *File) {
     items_bytes := e.items.count * size_of(Entity);
+    print("Items bytes ins %\n", items_bytes);
     freelist_bytes := e.freelist.count * size_of(Entity_Handle);
     success := file_write(file, *items_bytes, size_of(int));
     if !success print("Failed to write entity items bytes to %!\n", file.*);
@@ -105,9 +106,11 @@ write_entity_manager_to_file :: (e: *Entity_Manager, file: *File) {
     if !success print("Failed to write entity freelist bytes to %!\n", file.*);
     success = file_write(file, *e.count, size_of(u32));
     if !success print("Failed to write entity manager count %!\n", file.*);
+    print("Successfully wrote the count of the entity manager as %\n", e.count);
     if items_bytes > 0 {
         success = file_write(file, e.items.data, items_bytes);
         if !success print("Failed to write entity data to %!\n", file.*);
+        print("Successfully wrote % bytes of entity data\n", items_bytes);
     }
     if freelist_bytes > 0 {
         success = file_write(file, e.freelist.data, freelist_bytes);
@@ -120,18 +123,25 @@ read_entity_manager_from_file :: (e: *Entity_Manager, file: *File) {
     freelist_bytes: int;
     success := file_read(file, *items_bytes, size_of(int));
     if !success print("Failed to read items bytes from %!\n", file.*);
-    e.items.count = items_bytes / size_of(Entity);
+    items_count := items_bytes / size_of(Entity);
+    print("Items Bytes: %\n Items Count: %\n", items_bytes, items_count);
     success = file_read(file, *freelist_bytes, size_of(int));
     if !success print("Failed to read freelist bytes from %!\n", file.*);
-    e.freelist.count = freelist_bytes / size_of(Entity_Handle);
+    freelist_count := freelist_bytes / size_of(Entity_Handle);
     success = file_read(file, *e.count, size_of(u32));
     if !success print("Failed to read entity manager count from %!\n", file.*);
     if items_bytes > 0 {
+        array_reserve(*e.items, items_count);
         success = file_read(file, e.items.data, items_bytes);
+        e.items.count = items_count;
+        print("Set a count of % for items!\n", items_count);
         if !success print("Failed to read entity data from %!\n", file.*);
     }
+    for e.items print("Read Entity: %\n", it.handle);
     if freelist_bytes > 0 {
+        array_reserve(*e.freelist, freelist_count);
         success = file_read(file, e.freelist.data, freelist_bytes);
+        e.freelist.count = freelist_count;
         if !success print("Failed to read freelist data from %!\n", file.*);
     }
 }

@@ -127,7 +127,7 @@ rooms_refresh :: () {
     if context.room_table.count > 0 {
         table_reset(context.room_table);
     }
-    load_all_rooms();
+    // load_all_rooms();
 }
 
 init_map :: () {

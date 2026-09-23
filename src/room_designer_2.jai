@@ -11,6 +11,19 @@ Things to consider:
 1. Size of data will most likely be slightly larger, but seeing as how the current build is with assets is 1MB compressed, that's probably fine
 */
 
+/*
+	9/22/2026 6:09:38 PM
+	Left Todo
+	1. Wall creation
+	2. Room Pickups
+	3. Add Gear arrows and rotation
+	3b. Test room IO
+	4. Adding Rooms to world
+	5. Fix Room PNG's
+	6. Different Map Screens
+
+	. Playing Room
+*/
 Room_V2 :: struct {
     name: string;
     flags: Room_Flags;
@@ -33,8 +46,10 @@ Room_Editor_State :: struct {
     current_room: *Room_V2;
     editor_click_mode: Room_Editor_Click_Mode;
     entity_to_make: Entity_Tag;
+    wall_to_make: Collision_Tile;
     current_entity_handle: Entity_Handle;
     current_mouse_coord: Coord;
+    wall_start_coord: Coord;
     collection_window_scroll_value: float32;
     mouse_captured: bool;
     kb_captured: bool;
@@ -68,14 +83,6 @@ Room_Editor_Click_Mode :: enum u8 {
     SELECT;
     SET_WALL_START;
     SET_WALL_END;
-    SET_TOP_WALL_START;
-    SET_TOP_WALL_END;
-    SET_BOT_WALL_START;
-    SET_BOT_WALL_END;
-    SET_RIGHT_WALL_START;
-    SET_RIGHT_WALL_END;
-    SET_LEFT_WALL_START;
-    SET_LEFT_WALL_END;
     VECTOR_SET;
     HANDLE_SET_CHILD;
     HANDLE_SET_SIB;
@@ -89,6 +96,9 @@ init_room_editor :: () {
     if !context.room_editor_state {
         context.room_editor_state = New(Room_Editor_State);
         context.room_editor_state.current_room = New(Room_V2);
+
+        context.room_editor_state.current_room.* = load_room_v2("a.room");
+        set_atlas_for_entity_manager(*context.room_editor_state.current_room.entities);
 
         proc := default_theme_procs[0];
         context.room_editor_state.theme = proc();
@@ -120,7 +130,14 @@ room_editor_update :: () {
 mouse_movement :: () {
     cell, ok := get_mouse_editor_cell();
     if ok {
-        context.room_editor_state.current_mouse_coord = cell;
+        state := context.room_editor_state;
+        state.current_mouse_coord = cell;
+        if state.editor_click_mode == .SET_WALL_END {
+            c := state.current_mouse_coord;
+            if state.wall_to_make == .TOP_HALF || state.wall_to_make == .BOT_HALF c.y = state.wall_start_coord.y;
+            if state.wall_to_make == .LEFT_HALF || state.wall_to_make == .RIGHT_HALF c.x = state.wall_start_coord.x;
+            state.current_room.int_grid[coord_to_index(c)] = state.wall_to_make;
+        }
     }
 }
 
@@ -133,6 +150,12 @@ click_actions :: () {
         consume_action(.EDITOR_LEFT_CLICK);
         if editor_state.editor_click_mode == {
         case .SELECT;
+        case .SET_WALL_START;
+            editor_state.current_room.int_grid[coord_to_index(c)] = editor_state.wall_to_make;
+            editor_state.wall_start_coord = c;
+            editor_state.editor_click_mode = .SET_WALL_END;
+        case .SET_WALL_END;
+            editor_state.editor_click_mode = .SELECT;
         case .HANDLE_SET_CHILD;
             for entities {
                 if c == it.relative_room_coord && entity_valid(handle, e = entities) {
@@ -194,6 +217,13 @@ click_actions :: () {
             editor_state.editor_click_mode = .SELECT;
         }
     }
+
+    if is_action_held(.EDITOR_RIGHT_CLICK) {
+        cell, ok := get_mouse_editor_cell();
+        if ok {
+            context.room_editor_state.current_room.int_grid[(coord_to_index(c))] = .EMPTY;
+        }
+    }
 }
 
 // NOTE: When hydrating entities, all of their sprite/atlas pointers will need to be refetched as they will be invalid
@@ -247,7 +277,6 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
                                                            start = 17,
                                                            idx = 17,
                                                            length = 1};
-
         entity_add(entity, e = entities);
     case .ASSEMBLER;
         entity.shape_kind = .RECTANGLE;
@@ -304,7 +333,7 @@ draw_core_room_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     // // Name
     name_rect := get_rect(x + 20, y, 300, 37);
     name_action, new_name := text_input(name_rect, context.room_editor_state.current_room.name, *theme.text_input_theme);
-    if name_action & .ENTERED || name_action & .TEXT_MODIFIED modify_string(*context.current_editor_room.name, new_name);
+    if name_action & .ENTERED || name_action & .TEXT_MODIFIED modify_string(*context.room_editor_state.current_room.name, new_name);
     y -= 40;
 
     // Runes
@@ -434,12 +463,25 @@ draw_actions_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     editor_state := context.room_editor_state;
     room_ptr := editor_state.current_room;
     x := r.x;
-    y := r.y + r.h - 60;
+    y := r.y + r.h - 40;
     create_entity_action_button(.CRATE, shift_y = false);
-    create_entity_action_button(.GEAR, x + 160);
+    create_entity_action_button(.GEAR, x + 170);
     create_entity_action_button(.LEVER, shift_y = false);
-    create_entity_action_button(.BUTTON, x + 160);
+    create_entity_action_button(.BUTTON, x + 170);
     create_entity_action_button(.SWITCH_BLOCK, shift_y = false);
+    y -= 32;
+    create_wall_action_button(.WALL, x + 170);
+    create_wall_action_button(.TOP_HALF, shift_y = false);
+    create_wall_action_button(.BOT_HALF, x + 170);
+    create_wall_action_button(.RIGHT_HALF, shift_y = false);
+    create_wall_action_button(.LEFT_HALF, x + 170);
+
+    // Pin save button to the bottom of the window
+    save_button_rect := get_rect(r.x + (r.w / 2) - 100, r.y + 2, 200, 40);
+    save_pressed := button(save_button_rect, "Save Room");
+    if save_pressed {
+        save_room_v2(editor_state.current_room.*);
+    }
 }
 
 draw_collection_entity_entry :: (entity: *Entity, identifier: int, loc := #caller_location) #expand {
@@ -653,13 +695,26 @@ extents_display :: (field_name: string, entity_ptr: *Entity, loc := #caller_loca
 
 create_entity_action_button :: (tag: Entity_Tag, x_position: float = -1, shift_y := true, loc := #caller_location) #expand {
     x: float;
-    if x_position == -1 then x = `x + 10; else x = x_position;
-    button_rect := get_rect(x, `y, 140, 30);
-    button_text := tprint("Make %", tag);
+    if x_position == -1 then x = `x + 5; else x = x_position;
+    button_rect := get_rect(x, `y, 165, 30);
+    button_text := tprint("%", tag);
     should_make_entity := button(button_rect, button_text, loc = loc);
     if should_make_entity {
         `editor_state.entity_to_make = tag;
         `editor_state.editor_click_mode = .MAKE_ENTITY;
+    }
+    if shift_y `y -= 32;
+}
+
+create_wall_action_button :: (type: Collision_Tile, x_position: float = -1, shift_y := true, loc := #caller_location) #expand {
+    x: float;
+    if x_position == -1 then x = `x + 5; else x = x_position;
+    button_rect := get_rect(x, `y, 165, 30);
+    button_text := tprint("%", type);
+    should_make_wall := button(button_rect, button_text, loc = loc);
+    if should_make_wall {
+        `editor_state.wall_to_make = type;
+        `editor_state.editor_click_mode = .SET_WALL_START;
     }
     if shift_y `y -= 32;
 }

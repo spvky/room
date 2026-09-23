@@ -266,7 +266,9 @@ entity_add_child :: (parent_handle: Entity_Handle, child_entity: Entity, e: *Ent
 }
 
 for_expansion :: (e: *Entity_Manager, body: Code, flags: For_Flags) #expand {
+    // print("Looping over entity manager count is %\n", e.count);
     for index: 0..e.items.count - 1 {
+        // print("ENTGUY IDX: %\n", e.items[index].handle.index);
         if index == 0 continue;
         if e.items[index].handle.index == 0 continue;
 
@@ -394,6 +396,7 @@ make_extra_entity :: (c: Coord, e: *Extra_Entity_Data) {
         entity.render_extents = extents;
         block_handle := entity_add_child(switch_handle, entity);
 
+        // create this on instantiation
         off_position_entity: Entity;
         off_position_entity.position = center;
         off_position_entity.tag = .SWITCH_BLOCK_OFF_TARGET;

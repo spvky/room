@@ -349,7 +349,7 @@ render_room_editor_scene :: () {
     // render_room_entities(context.current_editor_room, true);
     render_grid();
     render_room_entities_v2(context.room_editor_state.current_room);
-    // render_room_collision(context.current_editor_room);
+    render_room_collision_v2(context.room_editor_state.current_room);
     // render_room_editor_entities(); -- Gotta write this
     render_room_editor_ui();
 
@@ -462,6 +462,62 @@ render_room_collision :: (r: *Room, faded := false) {
             }
         }
     }
+}
+
+render_room_collision_v2 :: (r: *Room_V2, faded := false) {
+    set_shader_for_color();
+    for <y: 0..ROOM_HEIGHT - 1 {
+        for x: 0..ROOM_WIDTH - 1 {
+            coord := Coord.{xx x, xx y};
+            val := check_collision_tile_value_v2(r, coord);
+            left, right, bot, top := render_boundaries_from_cell(coord);
+            v_mid := (top + bot) / 2;
+            h_mid := (right + left) / 2;
+            color: Vector4;
+            alpha: float32 = ifx faded then 0.3 else 1;
+            if val == {
+            case .WALL;
+                immediate_quad(
+                               .{left, top},
+                               .{left, bot},
+                               .{right, bot},
+                               .{right, top},
+                               .{1, 1, 1, alpha});
+            case .TOP_HALF;
+                immediate_quad(
+                               .{left, top},
+                               .{left, v_mid},
+                               .{right, v_mid},
+                               .{right, top},
+                               .{1, 1, 1, alpha});
+            case .BOT_HALF;
+                immediate_quad(
+                               .{left, v_mid},
+                               .{left, bot},
+                               .{right, bot},
+                               .{right, v_mid},
+                               .{1, 1, 1, alpha});
+            case .LEFT_HALF;
+                immediate_quad(
+                               .{left, top},
+                               .{left, bot},
+                               .{h_mid, bot},
+                               .{h_mid, top},
+                               .{1, 1, 1, alpha});
+            case .RIGHT_HALF;
+                immediate_quad(
+                               .{h_mid, top},
+                               .{h_mid, bot},
+                               .{right, bot},
+                               .{right, top},
+                               .{1, 1, 1, alpha});
+            }
+        }
+    }
+}
+
+check_collision_tile_value_v2 :: (r: *Room_V2, c: Coord) -> Collision_Tile #expand {
+    return r.int_grid[coord_to_index(c)];
 }
 
 render_room_entities_v2 :: (r: *Room_V2) {
