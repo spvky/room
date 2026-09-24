@@ -102,3 +102,4 @@ GL :: #import "GL";
 #load "src/map_types.jai";
 #load "src/power.jai";
 #load "src/room_editor.jai";
+#load "src/util.jai";

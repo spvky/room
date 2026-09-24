@@ -16,9 +16,7 @@ Things to consider:
 	Left Todo
 	1. Room Pickups
 	2. Add Gear arrows and rotation
-	3. Adding Rooms to world
-	4. Fix Room PNG's
-	5. Different Map Screens
+	3. Different Map Screens
 
 	. Playing Room
 */
@@ -91,7 +89,7 @@ init_room_editor :: () {
         context.room_editor_state = New(Room_Editor_State);
         context.room_editor_state.current_room = New(Room);
 
-        context.room_editor_state.current_room.* = load_room("a.room");
+        context.room_editor_state.current_room.* = load_room("a.room", true);
         set_atlas_for_entity_manager(*context.room_editor_state.current_room.entities);
 
         ui_init();
@@ -99,6 +97,184 @@ init_room_editor :: () {
         context.room_editor_state.theme = proc();
         set_default_theme(context.room_editor_state.theme);
         context.room_editor_state.theme.label_theme.alignment = .Left;
+    }
+}
+
+render_room_editor_scene :: () {
+    render_grid();
+    render_room_entities(context.room_editor_state.current_room);
+    render_room_collision(context.room_editor_state.current_room);
+    render_room_editor_ui();
+
+    #if OS == .WINDOWS render_room_editor_mouse_selection();
+}
+
+render_room_editor_mouse_selection :: () {
+    set_shader_for_color(true);
+    cell, ok := get_mouse_editor_cell();
+    color := Vector4.{1, 1, 1, 0.3};
+    if context.room_editor_state.editor_click_mode == {
+    case .VECTOR_SET;
+        color = .{0, 1, 0, 0.3};
+    case .HANDLE_SET_CHILD;
+        #through;
+    case .HANDLE_SET_PARENT;
+        #through;
+    case .HANDLE_SET_SIB;
+        color = .{0.5, 0.5, 0, 0.3};
+    case .MAKE_ENTITY;
+        color = .{1, 0.55, 0.63, 0.3};
+    }
+    if ok {
+        left, right, bot, top := render_boundaries_from_cell(cell);
+        immediate_quad(
+                       .{left, bot},
+                       .{right, bot},
+                       .{right, top},
+                       .{left, top},
+                       color);
+    }
+}
+
+render_room_collision :: (r: *Room, faded := false) {
+    set_shader_for_color();
+    for <y: 0..ROOM_HEIGHT - 1 {
+        for x: 0..ROOM_WIDTH - 1 {
+            coord := Coord.{xx x, xx y};
+            val := check_collision_tile_value(r, coord);
+            left, right, bot, top := render_boundaries_from_cell(coord);
+            v_mid := (top + bot) / 2;
+            h_mid := (right + left) / 2;
+            color: Vector4;
+            alpha: float32 = ifx faded then 0.3 else 1;
+            if val == {
+            case .WALL;
+                immediate_quad(
+                               .{left, top},
+                               .{left, bot},
+                               .{right, bot},
+                               .{right, top},
+                               .{1, 1, 1, alpha});
+            case .TOP_HALF;
+                immediate_quad(
+                               .{left, top},
+                               .{left, v_mid},
+                               .{right, v_mid},
+                               .{right, top},
+                               .{1, 1, 1, alpha});
+            case .BOT_HALF;
+                immediate_quad(
+                               .{left, v_mid},
+                               .{left, bot},
+                               .{right, bot},
+                               .{right, v_mid},
+                               .{1, 1, 1, alpha});
+            case .LEFT_HALF;
+                immediate_quad(
+                               .{left, top},
+                               .{left, bot},
+                               .{h_mid, bot},
+                               .{h_mid, top},
+                               .{1, 1, 1, alpha});
+            case .RIGHT_HALF;
+                immediate_quad(
+                               .{h_mid, top},
+                               .{h_mid, bot},
+                               .{right, bot},
+                               .{right, top},
+                               .{1, 1, 1, alpha});
+            }
+        }
+    }
+}
+
+render_room_entities :: (r: *Room) {
+    for *r.entities {
+        if !entity_has_props(it, .RENDERABLE) continue;
+        selected_entity := it.handle == context.room_editor_state.current_entity_handle;
+        coord := it.relative_room_coord;
+        left, right, bot, top := render_boundaries_from_cell(coord);
+        center := Vector2.{right + left, top + bot} / 2;
+        radius := (right - left) / 4;
+
+        if it.render_extents.x / TILE_SIZE > 1.001 {
+            room_editor_tile_size := right - left;
+            converted_x := (it.render_extents.x / TILE_SIZE) * room_editor_tile_size;
+            left -= (converted_x) / 2;
+            right += (converted_x) / 2;
+        }
+
+        if it.render_extents.y / TILE_SIZE > 1.001 {
+            room_editor_tile_size := top - bot;
+            converted_y := (it.render_extents.y / TILE_SIZE) * room_editor_tile_size;
+            top += (converted_y) / 2;
+            bot -= (converted_y) / 2;
+        }
+
+        vertices: [4]Vector2;
+        vertices[0] = .{left, bot};
+        vertices[1] = .{right, bot};
+        vertices[2] = .{right, top};
+        vertices[3] = .{left, top};
+        for *v: vertices {
+            offset := v.* - center;
+            v.* = rotate(offset, it.rotation);
+            v.* += center;
+        }
+
+        sprite: Sprite;
+        if it.render_kind == {
+        case .SPRITE;
+            sprite = it.sprite;
+        case .SPRITE_SHEET;
+            sprite = get_current_sprite_sheet_frame(*it.sprite_sheet);
+        case .ANIMATION_PLAYER;
+            sprite = get_current_animation_frame(*it.animation_player);
+        }
+        render_sprite_to_quad(*sprite, vertices);
+        if selected_entity draw_dot(center, radius, .{1, 0, 0, 1});
+    }
+
+    for *r.entities {
+        if it.tag != .SWITCH_BLOCK_ON_TARGET continue;
+        if !entity_valid(it.parent, e = *r.entities) continue;
+
+        selected_entity := it.handle == context.room_editor_state.current_entity_handle;
+        parent := entity_get(it.parent, e = *r.entities);
+
+        coord := it.relative_room_coord;
+        left, right, bot, top := render_boundaries_from_cell(coord);
+        center := Vector2.{right + left, top + bot} / 2;
+        radius := (right - left) / 4;
+
+        if parent.render_extents.x / TILE_SIZE > 1.001 {
+            room_editor_tile_size := right - left;
+            converted_x := (parent.render_extents.x / TILE_SIZE) * room_editor_tile_size;
+            left -= (converted_x) / 2;
+            right += (converted_x) / 2;
+        }
+
+        if parent.render_extents.y / TILE_SIZE > 1.001 {
+            room_editor_tile_size := top - bot;
+            converted_y := (parent.render_extents.y / TILE_SIZE) * room_editor_tile_size;
+            top += (converted_y) / 2;
+            bot -= (converted_y) / 2;
+        }
+
+        vertices: [4]Vector2;
+        vertices[0] = .{left, bot};
+        vertices[1] = .{right, bot};
+        vertices[2] = .{right, top};
+        vertices[3] = .{left, top};
+        for *v: vertices {
+            offset := v.* - center;
+            v.* = rotate(offset, it.rotation);
+            v.* += center;
+        }
+
+        set_shader_for_color(true);
+        immediate_quad(vertices[0], vertices[1], vertices[2], vertices[3], .{0.26, 0.13, 0.31, 0.6});
+        if selected_entity draw_dot(center, radius, .{1, 0, 0, 1});
     }
 }
 
@@ -314,6 +490,20 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
         on_position_entity.position = entity.position;
         on_position_entity.tag = .SWITCH_BLOCK_ON_TARGET;
         entity_add_child(block_handle, on_position_entity, e = entities);
+    case .ROOM_PICKUP;
+        entity.text_message = .ROOM_PICKUP;
+        entity.props = .RENDERABLE | .PICKUP | .TEXT_DISPLAY | .INTERACTABLE;
+        entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
+        entity.render_kind = .SPRITE;
+        entity.sprite = sprite(19);
+        entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
+        entity_add(entity, e = entities);
+    case .PLAYER_SPAWN;
+        entity.render_kind = .SPRITE;
+        entity.props = .RENDERABLE;
+        entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
+        entity.sprite = sprite(20);
+        entity_add(entity, e = entities);
     }
 }
 
@@ -393,7 +583,7 @@ draw_core_room_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     save_button_rect := get_rect(x + 10, y, 110, 30);
     save_pressed := button(save_button_rect, "Save Room");
     if save_pressed {
-        // then save_room(room_ptr.*) // Need a new save room function
+        save_room(editor_state.current_room.*);
     }
 
     load_button_rect := get_rect(x + 130, y, 110, 30);
@@ -416,7 +606,13 @@ draw_entity_window :: (state: *Subwindow_State, r: Rect, data: *void) {
         y := r.y + r.h - 40;
         tag_rect := get_rect(x, y, 350, 40);
         tag_string := tprint("%", entity.tag);
-        label(tag_rect, tag_string, *context.room_editor_state.theme.label_theme);
+        label(tag_rect, tag_string, *editor_state.theme.label_theme);
+        delete_button_rect := get_rect(x + 250, y, 90, 30);
+        should_delete := button(delete_button_rect, "Delete");
+        if should_delete {
+            entity_remove(editor_state.current_entity_handle, e = *editor_state.current_room.entities);
+            editor_state.current_entity_handle = .{};
+        }
         y -= 45;
         vec_field("Position", *entity.position);
         rotation_field(*entity.rotation);
@@ -461,22 +657,18 @@ draw_actions_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     y := r.y + r.h - 40;
     create_entity_action_button(.CRATE, shift_y = false);
     create_entity_action_button(.GEAR, x + 170);
+    create_entity_action_button(.PLAYER_SPAWN, shift_y = false);
+    create_entity_action_button(.ROOM_PICKUP, x + 170);
     create_entity_action_button(.LEVER, shift_y = false);
     create_entity_action_button(.BUTTON, x + 170);
     create_entity_action_button(.SWITCH_BLOCK, shift_y = false);
+    create_entity_action_button(.ASSEMBLER, x + 170);
     y -= 32;
     create_wall_action_button(.WALL, x + 170);
     create_wall_action_button(.TOP_HALF, shift_y = false);
     create_wall_action_button(.BOT_HALF, x + 170);
     create_wall_action_button(.RIGHT_HALF, shift_y = false);
     create_wall_action_button(.LEFT_HALF, x + 170);
-
-    // Pin save button to the bottom of the window
-    save_button_rect := get_rect(r.x + (r.w / 2) - 100, r.y + 2, 200, 40);
-    save_pressed := button(save_button_rect, "Save Room");
-    if save_pressed {
-        save_room(editor_state.current_room.*);
-    }
 }
 
 draw_collection_entity_entry :: (entity: *Entity, identifier: int, loc := #caller_location) #expand {

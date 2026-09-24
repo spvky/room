@@ -117,8 +117,8 @@ moving_block_velocity :: () {
     for *context.entities {
         if it.tag != .SWITCH_BLOCK continue;
         if entity_has_flags(it, .POWERED) {
-            if entity_valid(it.last_child) {
-                child := entity_get(it.last_child);
+            if entity_valid(it.first_child) {
+                child := entity_get(it.first_child);
                 if distance(child.position, it.position) > 1 {
                     direction := normalize(child.position - it.position);
                     it.velocity = direction * 100;
@@ -128,8 +128,8 @@ moving_block_velocity :: () {
                 }
             }
         } else {
-            if entity_valid(it.first_child) {
-                child := entity_get(it.first_child);
+            if entity_valid(it.last_child) {
+                child := entity_get(it.last_child);
                 if distance(child.position, it.position) > 1 {
                     direction := normalize(child.position - it.position);
                     it.velocity = direction * 100;

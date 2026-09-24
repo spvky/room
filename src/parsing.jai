@@ -31,7 +31,7 @@ parse_runes :: () {
             x_rune: Rune;
             x_coords: [..]Coord;
             y_coords: [..]Coord;
-            // If the moving
+
             while x_coord.x < MAP_WIDTH - 1 && world.rooms[coord_to_index(x_coord, .MAP)].exists && !world.rooms[coord_to_index(x_coord, .MAP)].rune_parsed_x {
                 array_add(*x_coords, x_coord);
                 x_rune += world.rooms[coord_to_index(x_coord, .MAP)].rune;
@@ -102,8 +102,8 @@ write_room_cards_to_world :: () {
             }
         }
         print("Finished Writing intGrid for room %, parsing % entities now\n", it.room_hash, r.entities.count);
-        // Calculate room_center_here
-        room_center: Vector2;
+        half_room := Vector2.{22.5 * TILE_SIZE, 22.5 * TILE_SIZE};
+        room_center := Vector2.{cast(float)start_x * TILE_SIZE, cast(float)start_y * TILE_SIZE} + half_room;
 
         write_room_entities_to_world(*r.entities, room_center, it.rotation);
     }
@@ -121,21 +121,39 @@ write_room_entities_to_world :: (e: *Entity_Manager, room_center: Vector2, rotat
     float_rotation := (PI / 2) * cast(float)rotation;
 
     for *e {
-        new_entity := it.*;
-        new_entity.rotation += float_rotation;
-        new_entity.position = room_center + rotate(new_entity.position, float_rotation);
-        new_handle := entity_add(new_entity);
-        table_set(*`pre_post_handle_map, it.handle, new_handle);
+        if it.tag == .PLAYER_SPAWN {
+            if !player_is_valid() && !context.game_data.has_stored_player {
+                position := room_center + rotate(it.position, float_rotation);
+                player_handle := make_player(position);
+                context.player_handle.* = player_handle;
+                context.inspector_state.current_handle = player_handle;
+            }
+        } else {
+            new_entity := it.*;
+            new_entity.rotation += float_rotation;
+            new_entity.position = room_center + rotate(new_entity.position, float_rotation);
+            new_handle := entity_add(new_entity);
+            table_set(*`pre_post_handle_map, it.handle, new_handle);
+
+            if it.tag == .SWITCH_BLOCK {
+                off_position_entity: Entity;
+                off_position_entity.position = new_entity.position;
+                off_position_entity.tag = .SWITCH_BLOCK_OFF_TARGET;
+                entity_add_child(new_handle, off_position_entity);
+            }
+        }
     }
 }
 
 refresh_handle :: (handle_ptr: *Entity_Handle) #expand {
-    handle_ptr.index != 0; {
+    if handle_ptr.index != 0 {
         new_handle_ptr := table_find_pointer(*`pre_post_handle_map, handle_ptr.*);
-        if entity_valid(new_handle_ptr.*) {
-            handle_ptr.* = new_handle_ptr.*;
-        } else {
-            print("Failed to find valid handle during refresh while writing entities to world\n");
+        if new_handle_ptr {
+            if entity_valid(new_handle_ptr.*) {
+                handle_ptr.* = new_handle_ptr.*;
+            } else {
+                print("Failed to find valid handle during refresh while writing entities to world\n");
+            }
         }
     }
 }

@@ -30,11 +30,57 @@ init_rooms :: () {
     rooms_refresh();
 }
 
+render_map_placement_scene :: () {
+    render_grid();
+    render_map_placed_room_cards();
+    render_map_placement_cursor();
+    render_map_placement_ui();
+    render_map_screen_controls();
+}
+
+render_map_placement_cursor :: () {
+    sprite_to_render: Sprite;
+    color: Vector4;
+    if context.map_screen_state.cursor_state == {
+    case .PLACE;
+        coord_idx := coord_to_index(context.map_screen_state.cursor_position, .MAP);
+        if context.map.occupied[coord_idx] {
+            color = .{1, 0, 0, 0.5};
+        } else {
+            color = .{1, 1, 1, 0.5};
+        }
+        room := get_room_at_wrapping_index(context.map_screen_state.selected_idx);
+        sprite_to_render = make_sprite(*room.texture);
+    case .SELECT;
+        sprite_to_render = make_sprite(*context.atlas.map_cursor);
+        color = .{1, 1, 1, 1};
+    }
+
+    left, right, bot, top := render_boundaries_from_cell(context.map_screen_state.cursor_position);
+    rot := cast(float32)context.map_screen_state.cursor_rotation * (PI / 2);
+    pos := Vector2.{(left + right) / 2, (top + bot) / 2};
+    size := Vector2.{right - left, top - bot};
+    render_sprite(*sprite_to_render, pos, size, rotation = rot, color = color);
+}
+
+render_map_placed_room_cards :: () {
+    for context.map.placed_room_cards {
+        room := get_room_from_hash(it.room_hash);
+        room_sprite := make_sprite(*room.texture);
+
+        left, right, bot, top := render_boundaries_from_cell(it.coord);
+        rot := cast(float32)it.rotation * (PI / 2);
+        pos := Vector2.{(left + right) / 2, (top + bot) / 2};
+        size := Vector2.{right - left, top - bot};
+        render_sprite(*room_sprite, pos, size, rotation = rot, color = .{1, 1, 1, 1});
+    }
+}
+
 rooms_refresh :: () {
     if context.room_table.count > 0 {
         table_reset(context.room_table);
     }
-    // load_all_rooms();
+    load_all_rooms();
 }
 
 init_map :: () {
@@ -139,23 +185,6 @@ rotate_room_exits :: (exits: Room_Exits, rot: int = 0) -> Room_Exits {
     return n;
 }
 
-coord_to_index :: (c: Coord, kind: Coord_Kind = .ROOM) -> int {
-    width: int;
-    if kind == {
-    case .ROOM;
-        width = ROOM_WIDTH;
-    case .MAP;
-        width = MAP_WIDTH;
-    case .WORLD;
-        width = WORLD_WIDTH;
-    }
-    return (c.y * width) + c.x;
-}
-
-check_world_collision_tile_value :: (c: Coord) -> Collision_Tile {
-    return context.world.collision[coord_to_index(c, .WORLD)];
-}
-
 rotate_coord :: (c: Coord, kind: Coord_Kind = .ROOM) -> Coord #expand {
     width: int;
     if kind == {
@@ -169,19 +198,10 @@ rotate_coord :: (c: Coord, kind: Coord_Kind = .ROOM) -> Coord #expand {
     return .{xx width - c.y - 1, c.x};
 }
 
-set_world_collision_tile_value :: (value: Collision_Tile, c: Coord) {
-    idx := coord_to_index(c, .WORLD);
-    context.world.collision[idx] = value;
-}
-
 // Map Placement and editing
 get_room_at_wrapping_index :: (req_idx: int) -> *Room {
     idx := ifx req_idx == 0 then 0 else req_idx % context.map_screen_state.available_rooms.count;
     return table_find_pointer(context.room_table, context.map_screen_state.available_rooms[idx]);
-}
-
-get_room_from_hash :: (hash: u32) -> *Room {
-    return table_find_pointer(context.room_table, hash);
 }
 
 next_map_selected_idx :: () {

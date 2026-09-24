@@ -96,7 +96,6 @@ load_room :: (filename: string, static := false) -> Room, bool {
 
 write_entity_manager_to_file :: (e: *Entity_Manager, file: *File) {
     items_bytes := e.items.count * size_of(Entity);
-    print("Items bytes ins %\n", items_bytes);
     freelist_bytes := e.freelist.count * size_of(Entity_Handle);
     success := file_write(file, *items_bytes, size_of(int));
     if !success print("Failed to write entity items bytes to %!\n", file.*);
@@ -150,6 +149,7 @@ load_all_rooms :: () {
         _, _, extension, filename := path_decomp(it);
         if equal(extension, "room") {
             room, success := load_room(filename); // Put the room into the map from here
+            set_atlas_for_entity_manager(*room.entities);
             if success {
                 room_hash := djb2_hash(room.name);
 
@@ -164,6 +164,7 @@ load_all_rooms :: () {
         _, _, extension, filename := path_decomp(it);
         if equal(extension, "room") {
             room, success := load_room(filename, true); // Put the room into the map from here
+            set_atlas_for_entity_manager(*room.entities);
             if success {
                 room_hash := djb2_hash(room.name);
 

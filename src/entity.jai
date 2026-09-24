@@ -97,6 +97,7 @@ Entity_Tag :: enum u8 {
     SWITCH_BLOCK_ON_TARGET;
     ASSEMBLER;
     ROOM_PICKUP;
+    PLAYER_SPAWN;
 }
 
 Entity_Properties :: enum_flags u32 {
@@ -200,10 +201,10 @@ entity_remove :: (handle: Entity_Handle, e: *Entity_Manager = context.entities) 
                 entity_remove(current_child.next_sibling, e = e);
             }
 
-            entity_remove(entity.first_child, e = e);
+            entity_remove(current_child.handle, e = e);
         }
 
-        if entity_valid(entity.next_sibling) {
+        if entity_valid(entity.next_sibling, e = e) {
             next_sibling := entity_get(entity.next_sibling, e = e);
             next_sibling.prev_sibling = entity.prev_sibling;
         }
@@ -314,11 +315,6 @@ entity_has_flags :: inline (e: *Entity, flags: Entity_Flags) -> bool {
     } else {
         return e.flags & flags == flags;
     }
-}
-
-// Returns the world coord as a Vector2(Bottom_Left_Origin)
-world_coord_to_vector2 :: (c: Coord) -> Vector2 #expand {
-    return c * Vector2.{TILE_SIZE, TILE_SIZE};
 }
 
 make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
