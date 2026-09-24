@@ -17,7 +17,6 @@ Things to consider:
 	1. Room Pickups
 	Next todo:
 
-	1. Add Gear arrows and rotation
 	2. Different Map Screens
 
 	. Playing Room
@@ -635,7 +634,46 @@ draw_entity_window :: (state: *Subwindow_State, r: Rect, data: *void) {
 
         label(exits_rect, "Flags", *context.room_editor_state.theme.label_theme);
         flags_y_offset := enum_flag_display(*entity.flags, x + 185, y);
+
+        room_name_string: string;
+
+        pickup_room_ptr := table_find_pointer(context.room_table, hash);
+        if pickup_room_ptr {
+            room_name_string = tprint("%", pickup_room_ptr.name);
+        } else {
+            room_name_string = "NULL";
+        }
+
+        room_name_rect := get_rect(x_pos + 10, y_pos, 70, 30);
+        label(room_name_rect, room_name_string, *editor_state.editor_theme.label_theme);
+
+        room_dropdown_rect := get_rect(x_pos + 85, y_pos, 200, 30);
+        hash_idx: s32;
+        rooms := build_rooms_array();
+        y_pos -= 32;
+
+        for rooms {
+            rect := get_rect(x_pos + 10, y_pos, 300, 30);
+            pressed := button(rect, it.name, identifier = it_index);
+            if pressed {
+                entity.room_pickup_data.hash = djb2_hash(it.name);
+            }
+
+            y_pos -= 32;
+        }
     }
+}
+
+build_rooms_array :: () -> [..]*Room {
+    rooms: [..]*Room;
+    rooms.allocator = temp;
+
+    for *context.room_table {
+        if it.flags & .STATIC != .STATIC {
+            array_add(*rooms, it);
+        }
+    }
+    return rooms;
 }
 
 draw_collection_window :: (state: *Subwindow_State, r: Rect, data: *void) {
