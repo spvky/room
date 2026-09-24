@@ -200,15 +200,15 @@ render_room_entities :: (r: *Room) {
         if it.render_extents.x / TILE_SIZE > 1.001 {
             room_editor_tile_size := right - left;
             converted_x := (it.render_extents.x / TILE_SIZE) * room_editor_tile_size;
-            left -= (converted_x) / 2;
-            right += (converted_x) / 2;
+            left = center.x - (converted_x) / 2;
+            right = center.x + (converted_x) / 2;
         }
 
         if it.render_extents.y / TILE_SIZE > 1.001 {
             room_editor_tile_size := top - bot;
             converted_y := (it.render_extents.y / TILE_SIZE) * room_editor_tile_size;
-            top += (converted_y) / 2;
-            bot -= (converted_y) / 2;
+            top = center.y + (converted_y) / 2;
+            bot = center.y - (converted_y) / 2;
         }
 
         vertices: [4]Vector2;
@@ -250,15 +250,15 @@ render_room_entities :: (r: *Room) {
         if parent.render_extents.x / TILE_SIZE > 1.001 {
             room_editor_tile_size := right - left;
             converted_x := (parent.render_extents.x / TILE_SIZE) * room_editor_tile_size;
-            left -= (converted_x) / 2;
-            right += (converted_x) / 2;
+            left = center.x - (converted_x) / 2;
+            right = center.x + (converted_x) / 2;
         }
 
         if parent.render_extents.y / TILE_SIZE > 1.001 {
             room_editor_tile_size := top - bot;
             converted_y := (parent.render_extents.y / TILE_SIZE) * room_editor_tile_size;
-            top += (converted_y) / 2;
-            bot -= (converted_y) / 2;
+            top = center.y + (converted_y) / 2;
+            bot = center.y - (converted_y) / 2;
         }
 
         vertices: [4]Vector2;
@@ -863,15 +863,15 @@ extents_display :: (field_name: string, entity_ptr: *Entity, loc := #caller_loca
         entity_ptr.render_extents.x -= TILE_SIZE * 1;
     }
     if right_pressed {
-        entity_ptr.extents.x += TILE_SIZE * 2;
+        entity_ptr.extents.x += TILE_SIZE * 1;
         entity_ptr.render_extents.x += TILE_SIZE * 1;
     }
     if up_pressed {
-        entity_ptr.extents.y += TILE_SIZE * 2;
+        entity_ptr.extents.y += TILE_SIZE * 1;
         entity_ptr.render_extents.y += TILE_SIZE * 1;
     }
     if down_pressed {
-        entity_ptr.extents.y -= TILE_SIZE * 2;
+        entity_ptr.extents.y -= TILE_SIZE * 1;
         entity_ptr.render_extents.y -= TILE_SIZE * 1;
     }
 

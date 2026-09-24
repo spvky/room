@@ -109,11 +109,21 @@ write_room_cards_to_world :: () {
     }
 
     for *context.entities {
+        if entity_has_props(it, .NO_HANDLE_REFRESH) continue;
         refresh_handle(*it.parent);
         refresh_handle(*it.first_child);
         refresh_handle(*it.last_child);
         refresh_handle(*it.prev_sibling);
         refresh_handle(*it.next_sibling);
+
+        // Should find a better place to do this maybe
+        if it.tag == .SWITCH_BLOCK {
+            print("Parsing a switch block: % | %", it.first_child, it.last_child);
+            off_position_entity: Entity;
+            off_position_entity.position = it.position;
+            off_position_entity.tag = .SWITCH_BLOCK_OFF_TARGET;
+            entity_add_child(it.handle, off_position_entity);
+        }
     }
 }
 
@@ -134,13 +144,6 @@ write_room_entities_to_world :: (e: *Entity_Manager, room_center: Vector2, rotat
             new_entity.position = room_center + rotate(new_entity.position, float_rotation);
             new_handle := entity_add(new_entity);
             table_set(*`pre_post_handle_map, it.handle, new_handle);
-
-            if it.tag == .SWITCH_BLOCK {
-                off_position_entity: Entity;
-                off_position_entity.position = new_entity.position;
-                off_position_entity.tag = .SWITCH_BLOCK_OFF_TARGET;
-                entity_add_child(new_handle, off_position_entity);
-            }
         }
     }
 }

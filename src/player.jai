@@ -110,7 +110,7 @@ make_player :: (position: Vector2, e := context.entities) -> Entity_Handle {
     entity.shape_kind = .CIRCLE;
     entity.radius = TILE_SIZE / 2;
     entity.tag = .PLAYER;
-    entity.props = .RENDERABLE | .GRAVITY_AFFECTED | .DYNAMIC | .SELF_PROPELLED | .PRESSES_BUTTONS;
+    entity.props = .RENDERABLE | .GRAVITY_AFFECTED | .DYNAMIC | .SELF_PROPELLED | .PRESSES_BUTTONS | .NO_HANDLE_REFRESH;
     entity.render_kind = .SPRITE;
     entity.sprite = sprite(6);
     entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
@@ -123,7 +123,7 @@ make_player :: (position: Vector2, e := context.entities) -> Entity_Handle {
     gse.extents = Vector2.{TILE_SIZE * 0.8, TILE_SIZE / 8};
     gse.shape_kind = .RECTANGLE;
     gse.tag = .GROUND_SENSOR;
-    gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
+    gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_HANDLE_REFRESH;
     entity_add_child(player_handle, gse, e = e);
 
     // Left Ray Entity
@@ -132,7 +132,7 @@ make_player :: (position: Vector2, e := context.entities) -> Entity_Handle {
     lre.tag = .WALL_CASTER;
     lre.ray.direction = .{1, 0};
     lre.ray.max_toi = 32.0;
-    lre.props = .RAY_CASTER | .RELATIVE_POSITION | .RELATIVE_ROTATION;
+    lre.props = .RAY_CASTER | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_HANDLE_REFRESH;
     entity_add_child(player_handle, lre, e = e);
     return player_handle;
 }

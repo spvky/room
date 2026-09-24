@@ -121,6 +121,7 @@ Entity_Properties :: enum_flags u32 {
     TEXT_DISPLAY :: 1 << 17;
     PICKUP :: 1 << 18;
     PRESSES_BUTTONS :: 1 << 19;
+    NO_HANDLE_REFRESH :: 1 << 20;
 }
 
 Entity_Flags :: enum_flags u32 {
