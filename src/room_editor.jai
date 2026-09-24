@@ -423,7 +423,7 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
         // Ground Sensor Entity
         gse: Entity;
         gse.offset = Vector2.{0, -TILE_SIZE / 2};
-        gse.extents = Vector2.{TILE_SIZE * 0.98, TILE_SIZE / 8};
+        gse.extents = Vector2.{TILE_SIZE, TILE_SIZE / 8};
         gse.shape_kind = .RECTANGLE;
         gse.tag = .GROUND_SENSOR;
         gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;

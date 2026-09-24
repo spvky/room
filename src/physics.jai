@@ -222,7 +222,7 @@ sensor_collision :: () {
 
                     parent_entity := entity_get(it.parent);
                     if static_body.tag == .GEAR && parent_entity.tag == .CRATE {
-                        parent_entity.velocity.x = PLAYER_MOVE_SPEED / 3;
+                        parent_entity.inherited_velocity = rotate(Vector2.{1, 0}, static_body.rotation) * PLAYER_MOVE_SPEED / 3;
                     }
                 }
             }
