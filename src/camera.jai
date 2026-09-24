@@ -25,7 +25,7 @@ camera_smoothing :: (delta: float32) {
 
 camera_look :: () {
     look_delta: float32;
-    if is_action_held(.MOVE_UP) look_delta += 160;
+    if is_action_held(.MOVE_UP) look_delta += 196;
     if is_action_held(.MOVE_DOWN) look_delta -= 160;
 
     context.camera.camera_look.y = look_delta + 24;
@@ -53,7 +53,7 @@ camera_bounds_from_room :: (c: Coord) -> Vector2, Vector2 {
     room_bottom_left := Vector2.{x, y};
     // print("Camera: %\nRoom_Bottom_Left: %\n", context.camera.position, room_bottom_left);
     min := Vector2.{x + (TILE_SIZE * 20.5), y + (TILE_SIZE * 11.75 * context.camera.zoom)};
-    max := Vector2.{x + (TILE_SIZE * 25.5), y + (TILE_SIZE * 34.25 * context.camera.zoom)};
+    max := Vector2.{x + (TILE_SIZE * 26.5), y + (TILE_SIZE * 35.25 * context.camera.zoom)};
     return min, max;
 }
 
