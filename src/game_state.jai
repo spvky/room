@@ -3,6 +3,7 @@ Game_State :: enum u8 {
     GAMEPLAY;
     PAUSE_SCREEN;
     ROOM_DESIGNER;
+    ROOM_EDITOR;
 }
 
 Game_Data :: struct {
@@ -44,6 +45,10 @@ game_state_update :: () {
         rooms_refresh();
         map_refresh();
         context.game_state = .MAP_PLACEMENT;
+    }
+    if is_action_buffered(.GOTO_ROOM_EDITOR) {
+        consume_action(.GOTO_ROOM_EDITOR);
+        context.game_state = .ROOM_EDITOR;
     }
     if is_action_buffered(.GOTO_GAMEPLAY) {
         consume_action(.GOTO_GAMEPLAY);

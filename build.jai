@@ -26,15 +26,14 @@ main :: () {
         for event: events_this_frame {
             getrect_handle_event(event);
         }
-        #if OS == .WINDOWS get_mouse_cell();
         process_input(delta);
         if context.game_state == {
         case .GAMEPLAY;
             gameplay_update(delta);
-        case .ROOM_DESIGNER;
-            #if OS == .WINDOWS paint_tile_values();
         case .MAP_PLACEMENT;
             map_screen_update();
+        case .ROOM_EDITOR;
+            room_editor_update();
         }
         render();
         game_state_update();
@@ -46,7 +45,7 @@ start_game :: () {
     bake_world();
     snap_camera_pos();
 
-    context.game_state = .GAMEPLAY;
+    context.game_state = .ROOM_EDITOR;
 }
 
 init :: () {
@@ -54,7 +53,6 @@ init :: () {
     init_player();
     init_rendering();
     init_textures();
-    init_editor();
     init_entities();
     init_rooms();
     init_map();
@@ -63,6 +61,7 @@ init :: () {
     init_collision_tables();
     init_inspector();
     init_game_data();
+    init_room_editor();
 }
 
 #import "Basic";
@@ -76,6 +75,8 @@ init :: () {
 #import "String";
 #import "Hash_Table";
 #import "Hash";
+#import "GetRect";
+#import "File_Utilities";
 #import "stb_image_write";
 GL :: #import "GL";
 #load "src/assets.jai";
@@ -83,7 +84,6 @@ GL :: #import "GL";
 #load "src/input.jai";
 #load "src/runes.jai";
 #load "src/player.jai";
-#load "src/room_designer.jai";
 #load "src/entity.jai";
 #load "src/collision.jai";
 #load "src/io.jai";
@@ -92,13 +92,14 @@ GL :: #import "GL";
 #load "src/game_ui.jai";
 #load "src/game_state.jai";
 #load "src/gameplay.jai";
-#load "src/rope.jai";
 #load "src/events.jai";
 #load "src/physics.jai";
 #load "src/dev_util.jai";
 #load "src/parsing.jai";
-#load "src/water.jai";
 #load "src/inspector.jai";
 #load "src/text.jai";
 #load "src/map_view.jai";
+#load "src/map_types.jai";
 #load "src/power.jai";
+#load "src/room_editor.jai";
+#load "src/util.jai";

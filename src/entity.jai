@@ -12,6 +12,7 @@ Entity :: struct {
     flags: Entity_Flags;
     tag: Entity_Tag;
     state: Entity_State;
+    relative_room_coord: Coord;
     current_coord: Coord;
     text_message: Display_Message;
     render_kind: Entity_Render_Kind;
@@ -26,6 +27,7 @@ Entity :: struct {
     last_child: Entity_Handle;
     prev_sibling: Entity_Handle;
     next_sibling: Entity_Handle;
+    tail: [16]u8;
 }
 
 Entity_Render_Kind :: enum u8 {
@@ -95,6 +97,7 @@ Entity_Tag :: enum u8 {
     SWITCH_BLOCK_ON_TARGET;
     ASSEMBLER;
     ROOM_PICKUP;
+    PLAYER_SPAWN;
 }
 
 Entity_Properties :: enum_flags u32 {
@@ -118,6 +121,7 @@ Entity_Properties :: enum_flags u32 {
     TEXT_DISPLAY :: 1 << 17;
     PICKUP :: 1 << 18;
     PRESSES_BUTTONS :: 1 << 19;
+    NO_HANDLE_REFRESH :: 1 << 20;
 }
 
 Entity_Flags :: enum_flags u32 {
@@ -188,31 +192,31 @@ entity_get :: (handle: Entity_Handle, e: *Entity_Manager = context.entities) -> 
     return null;
 }
 
-entity_remove :: (handle: Entity_Handle, e: *Entity_Manager = context.entities, depth := 0) {
+entity_remove :: (handle: Entity_Handle, e: *Entity_Manager = context.entities) {
     if handle.index > 0 && cast(int)handle.index < e.items.count && e.items[handle.index].handle == handle {
-        entity := entity_get(handle);
-        if entity_valid(entity.first_child) {
-            current_child := entity_get(entity.first_child);
+        entity := entity_get(handle, e = e);
+        if entity_valid(entity.first_child, e = e) {
+            current_child := entity_get(entity.first_child, e = e);
 
-            while entity_valid(current_child.next_sibling) {
-                entity_remove(current_child.next_sibling, depth = depth + 1);
+            while entity_valid(current_child.next_sibling, e = e) {
+                entity_remove(current_child.next_sibling, e = e);
             }
 
-            entity_remove(entity.first_child, depth = depth + 1);
+            entity_remove(current_child.handle, e = e);
         }
 
-        if entity_valid(entity.next_sibling) {
-            next_sibling := entity_get(entity.next_sibling);
+        if entity_valid(entity.next_sibling, e = e) {
+            next_sibling := entity_get(entity.next_sibling, e = e);
             next_sibling.prev_sibling = entity.prev_sibling;
         }
 
-        if entity_valid(entity.prev_sibling) {
-            prev_sibling := entity_get(entity.prev_sibling);
+        if entity_valid(entity.prev_sibling, e = e) {
+            prev_sibling := entity_get(entity.prev_sibling, e = e);
             prev_sibling.next_sibling = entity.next_sibling;
         }
 
-        if !entity_valid(entity.prev_sibling) && entity_valid(entity.parent) {
-            parent := entity_get(entity.parent);
+        if !entity_valid(entity.prev_sibling, e = e) && entity_valid(entity.parent, e = e) {
+            parent := entity_get(entity.parent, e = e);
             parent.first_child = entity.next_sibling;
         }
 
@@ -224,21 +228,25 @@ entity_remove :: (handle: Entity_Handle, e: *Entity_Manager = context.entities, 
 
 entity_valid :: (handle: Entity_Handle, e: *Entity_Manager = context.entities) -> bool {
     if handle == .{0, 0} return false;
-    return entity_get(handle, e) != null;
+    return entity_get(handle, e = e) != null;
 }
 
 entity_add_child :: (parent_handle: Entity_Handle, child_entity: Entity, e: *Entity_Manager = context.entities) -> Entity_Handle {
+    is_extra_manager := e != context.entities;
+    if is_extra_manager print("Adding Special Child!\n");
     child_handle: Entity_Handle;
     // check if parent is still valid
-    if entity_valid(parent_handle) {
-        child_handle = entity_add(child_entity);
-        if !entity_valid(child_handle) {
+    if entity_valid(parent_handle, e = e) {
+        if is_extra_manager print("Pre-add count: %\n", e.count);
+        child_handle = entity_add(child_entity, e = e);
+        if is_extra_manager print("Post-add count: %\n", e.count);
+        if !entity_valid(child_handle, e) {
             print("Tried to add entity child and still have a null handle, something is wrong!\n");
             return child_handle;
         }
 
-        parent_ptr := entity_get(parent_handle);
-        child_ptr := entity_get(child_handle);
+        parent_ptr := entity_get(parent_handle, e = e);
+        child_ptr := entity_get(child_handle, e = e);
         child_ptr.parent = parent_handle;
 
         // you can also keep a handle to the last child to avoid iterating the list when inserting
@@ -246,11 +254,11 @@ entity_add_child :: (parent_handle: Entity_Handle, child_entity: Entity, e: *Ent
         //        (parent_ptr.first_child != NULL_HANDLE && parent_ptr.last_child != NULL_HANDLE));
 
         child_ptr.prev_sibling = parent_ptr.last_child;
-        if !entity_valid(parent_ptr.last_child) {
+        if !entity_valid(parent_ptr.last_child, e = e) {
             parent_ptr.first_child = child_handle;
             parent_ptr.last_child = child_handle;
         } else {
-            prev_sibling := entity_get(parent_ptr.last_child);
+            prev_sibling := entity_get(parent_ptr.last_child, e = e);
             prev_sibling.next_sibling = child_handle;
             child_ptr.next_sibling = parent_ptr.first_child;
             parent_ptr.last_child = child_handle;
@@ -260,7 +268,9 @@ entity_add_child :: (parent_handle: Entity_Handle, child_entity: Entity, e: *Ent
 }
 
 for_expansion :: (e: *Entity_Manager, body: Code, flags: For_Flags) #expand {
+    // print("Looping over entity manager count is %\n", e.count);
     for index: 0..e.items.count - 1 {
+        // print("ENTGUY IDX: %\n", e.items[index].handle.index);
         if index == 0 continue;
         if e.items[index].handle.index == 0 continue;
 
@@ -305,219 +315,6 @@ entity_has_flags :: inline (e: *Entity, flags: Entity_Flags) -> bool {
         return false;
     } else {
         return e.flags & flags == flags;
-    }
-}
-
-// Returns the world coord as a Vector2(Bottom_Left_Origin)
-world_coord_to_vector2 :: (c: Coord) -> Vector2 #expand {
-    return c * Vector2.{TILE_SIZE, TILE_SIZE};
-}
-
-make_extra_entity :: (c: Coord, e: *Extra_Entity_Data) {
-    half_tile := Vector2.{TILE_SIZE, TILE_SIZE} / 2;
-    if e.kind == {
-    case .SWITCH_BLOCK;
-        using e.switch_block_data;
-        print("Making Switch Block: %\n", e.switch_block_data);
-        min := world_coord_to_vector2(c);
-        max := min + (Coord.{width, height} * Vector2.{TILE_SIZE, TILE_SIZE});
-        center := (min + max) / 2;
-        extents := max - min;
-        active_offset := (active_start - start) * Vector2.{TILE_SIZE, TILE_SIZE};
-        switch_offset := (trigger_position - start) * Vector2.{TILE_SIZE, TILE_SIZE};
-
-        // make the switches parents of just the objects they power, which is less magic and I can't think of a reason currently why I would need to set the blocks parent to something else
-        // OR: Could also set switch as middle child, because the parent doesn't care about it, but it will set the parents ON/OFF state, this feels more limited though
-        switch_entity: Entity;
-        switch_entity.position = min + switch_offset + half_tile;
-        switch_entity.text_message = .SWITCH;
-        switch_entity.render_kind = .SPRITE_SHEET;
-        switch_entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
-        switch_entity.extents = Vector2.{TILE_SIZE * 0.75, TILE_SIZE * 0.75};
-
-        if trigger_type == {
-        case .LEVER_0;
-            switch_entity.tag = .LEVER;
-            switch_entity.sprite_sheet = sprite_sheet(8, 2);
-            switch_entity.props = .RENDERABLE | .INTERACTABLE | .FOREGROUND | .CONDUIT | .TEXT_DISPLAY;
-        case .LEVER_1;
-            switch_entity.tag = .LEVER;
-            switch_entity.sprite_sheet = sprite_sheet(8, 2);
-            switch_entity.rotation = PI / 2;
-            switch_entity.props = .RENDERABLE | .INTERACTABLE | .FOREGROUND | .CONDUIT | .TEXT_DISPLAY;
-        case .LEVER_2;
-            switch_entity.tag = .LEVER;
-            switch_entity.sprite_sheet = sprite_sheet(8, 2);
-            switch_entity.rotation = PI;
-            switch_entity.props = .RENDERABLE | .INTERACTABLE | .FOREGROUND | .CONDUIT | .TEXT_DISPLAY;
-        case .LEVER_3;
-            switch_entity.tag = .LEVER;
-            switch_entity.sprite_sheet = sprite_sheet(8, 2);
-            switch_entity.rotation = PI + (PI / 2);
-            switch_entity.props = .RENDERABLE | .INTERACTABLE | .FOREGROUND | .CONDUIT | .TEXT_DISPLAY;
-        case .BUTTON_0;
-            switch_entity.tag = .BUTTON;
-            switch_entity.sprite_sheet = sprite_sheet(12, 2);
-            switch_entity.props = .RENDERABLE | .CONDUIT | .SENSOR | .FOREGROUND;
-        case .BUTTON_1;
-            switch_entity.tag = .BUTTON;
-            switch_entity.sprite_sheet = sprite_sheet(12, 2);
-            switch_entity.rotation = PI / 2;
-            switch_entity.props = .RENDERABLE | .CONDUIT | .SENSOR | .FOREGROUND;
-        case .BUTTON_2;
-            switch_entity.tag = .BUTTON;
-            switch_entity.sprite_sheet = sprite_sheet(12, 2);
-            switch_entity.rotation = PI;
-            switch_entity.props = .RENDERABLE | .CONDUIT | .SENSOR | .FOREGROUND;
-        case .BUTTON_3;
-            switch_entity.tag = .BUTTON;
-            switch_entity.sprite_sheet = sprite_sheet(12, 2);
-            switch_entity.rotation = PI + (PI / 2);
-            switch_entity.props = .RENDERABLE | .CONDUIT | .SENSOR | .FOREGROUND;
-        }
-        switch_handle := entity_add(switch_entity);
-
-        entity: Entity;
-        entity.position = center;
-        entity.shape_kind = .RECTANGLE;
-        entity.tag = .SWITCH_BLOCK;
-        entity.props = .RENDERABLE | .DYNAMIC | .SOLID | .KINEMATIC | .UNSTABLE | .PRESSES_BUTTONS;
-        entity.render_kind = .SPRITE;
-        entity.extents = extents;
-        entity.sprite = sprite(7);
-        entity.render_extents = extents;
-        block_handle := entity_add_child(switch_handle, entity);
-
-        off_position_entity: Entity;
-        off_position_entity.position = center;
-        off_position_entity.tag = .SWITCH_BLOCK_OFF_TARGET;
-        entity_add_child(block_handle, off_position_entity);
-
-        on_position_entity: Entity;
-        on_position_entity.position = center + active_offset;
-        on_position_entity.tag = .SWITCH_BLOCK_ON_TARGET;
-        entity_add_child(block_handle, on_position_entity);
-
-    case .ROOM_PICKUP;
-        using e.room_pickup_data;
-        entity: Entity;
-        half_tile := Vector2.{TILE_SIZE, TILE_SIZE} / 2;
-        entity.position = Vector2.{xx c.x * TILE_SIZE, xx c.y * TILE_SIZE} + half_tile;
-        entity.tag = .ROOM_PICKUP;
-        entity.text_message = .ROOM_PICKUP;
-        entity.props = .RENDERABLE | .PICKUP | .TEXT_DISPLAY | .INTERACTABLE;
-        entity.room_pickup_hash = hash;
-        entity.render_kind = .SPRITE;
-        entity.sprite = sprite(19);
-        entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
-        entity_add(entity);
-    }
-}
-
-make_entity :: (c: Coord, kind: Entity_Tag) {
-    if kind == {
-    case .PLAYER;
-        entity: Entity;
-        half_tile := Vector2.{TILE_SIZE, TILE_SIZE} / 2;
-        entity.position = Vector2.{xx c.x * TILE_SIZE, xx c.y * TILE_SIZE} + half_tile;
-        entity.shape_kind = .CIRCLE;
-        entity.radius = TILE_SIZE / 2;
-        entity.tag = .PLAYER;
-        entity.props = .RENDERABLE | .GRAVITY_AFFECTED | .DYNAMIC | .SELF_PROPELLED | .PRESSES_BUTTONS;
-        entity.render_kind = .SPRITE;
-        entity.sprite = sprite(6);
-        entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
-        entity.movement_delta.x = 0;
-        context.player_handle.* = entity_add(entity);
-
-        // Ground Sensor Entity
-        gse: Entity;
-        gse.offset = Vector2.{0, -TILE_SIZE / 2};
-        gse.extents = Vector2.{TILE_SIZE * 0.8, TILE_SIZE / 8};
-        gse.shape_kind = .RECTANGLE;
-        gse.tag = .GROUND_SENSOR;
-        gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
-        entity_add_child(context.player_handle.*, gse);
-
-        // Left Ray Entity
-        lre: Entity;
-        lre.offset = Vector2.{(entity.radius * 0.9), 0};
-        lre.tag = .WALL_CASTER;
-        lre.ray.direction = .{1, 0};
-        lre.ray.max_toi = 32.0;
-        lre.props = .RAY_CASTER | .RELATIVE_POSITION | .RELATIVE_ROTATION;
-        entity_add_child(context.player_handle.*, lre);
-    case .CRATE;
-        entity: Entity;
-        half_tile := Vector2.{TILE_SIZE, TILE_SIZE} / 2;
-        entity.position = Vector2.{xx c.x * TILE_SIZE, xx c.y * TILE_SIZE} + half_tile;
-        entity.shape_kind = .RECTANGLE;
-        entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
-        entity.tag = .CRATE;
-        entity.props = .RENDERABLE | .SOLID | .GRAVITY_AFFECTED | .DYNAMIC | .PRESSES_BUTTONS;
-        entity.render_kind = .SPRITE;
-        entity.sprite = sprite(0);
-        entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
-        crate_handle := entity_add(entity);
-
-        // Ground Sensor Entity
-        gse: Entity;
-        gse.offset = Vector2.{0, -TILE_SIZE / 2};
-        gse.extents = Vector2.{TILE_SIZE * 0.98, TILE_SIZE / 8};
-        gse.shape_kind = .RECTANGLE;
-        gse.tag = .GROUND_SENSOR;
-        gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
-        entity_add_child(crate_handle, gse);
-
-        // Right Sensor
-        rse: Entity;
-        rse.offset = Vector2.{TILE_SIZE / 2, 0};
-        rse.extents = Vector2.{TILE_SIZE / 7.5, TILE_SIZE * 0.95};
-        rse.shape_kind = .RECTANGLE;
-        rse.tag = .RIGHT_SENSOR;
-        rse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
-        entity_add_child(crate_handle, rse);
-
-        // Left Sensor
-        lse: Entity;
-        lse.offset = Vector2.{-TILE_SIZE / 2, 0};
-        lse.extents = Vector2.{TILE_SIZE / 7.5, TILE_SIZE * 0.95};
-        lse.shape_kind = .RECTANGLE;
-        lse.tag = .LEFT_SENSOR;
-        lse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
-        entity_add_child(crate_handle, lse);
-    case .GEAR;
-        entity: Entity;
-        half_tile := Vector2.{TILE_SIZE, TILE_SIZE} / 2;
-        entity.position = Vector2.{xx c.x * TILE_SIZE, xx c.y * TILE_SIZE} + half_tile;
-        entity.shape_kind = .RECTANGLE;
-        entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
-        entity.tag = .GEAR;
-        entity.props = .RENDERABLE | .ANIMATED | .SOLID | .STATIC | .DEATH_ZONE | .UNSTABLE;
-        entity.render_kind = .ANIMATION_PLAYER;
-        entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
-        entity.animation_player = Sprite_Animation_Player.{
-                                                           atlas = *context.atlas.tile_atlas,
-                                                           seconds_per_frame = 0.015,
-                                                           start = 17,
-                                                           idx = 17,
-                                                           length = 1};
-        entity_add(entity);
-    case .ASSEMBLER;
-        entity: Entity;
-        half_tile := Vector2.{TILE_SIZE, TILE_SIZE} / 2;
-        entity.position = Vector2.{xx c.x * TILE_SIZE, xx c.y * TILE_SIZE} + half_tile;
-        entity.shape_kind = .RECTANGLE;
-        entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
-        entity.tag = .ASSEMBLER;
-        entity.text_message = .ASSEMBLER;
-        entity.props = .RENDERABLE | .INTERACTABLE | .TEXT_DISPLAY;
-        entity.flags = .POWERED;
-        entity.render_kind = .SPRITE_SHEET;
-        entity.sprite_sheet = sprite_sheet(10, 2);
-        entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
-        assembler_handle := entity_add(entity);
-        context.inspector_state.current_handle = assembler_handle;
     }
 }
 

@@ -103,6 +103,40 @@ player_interaction :: () {
     }
 }
 
+make_player :: (position: Vector2, e := context.entities) -> Entity_Handle {
+    entity: Entity;
+    half_tile := Vector2.{TILE_SIZE, TILE_SIZE} / 2;
+    entity.position = position;
+    entity.shape_kind = .CIRCLE;
+    entity.radius = TILE_SIZE / 2;
+    entity.tag = .PLAYER;
+    entity.props = .RENDERABLE | .GRAVITY_AFFECTED | .DYNAMIC | .SELF_PROPELLED | .PRESSES_BUTTONS | .NO_HANDLE_REFRESH;
+    entity.render_kind = .SPRITE;
+    entity.sprite = sprite(6);
+    entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
+    entity.movement_delta.x = 0;
+    player_handle := entity_add(entity, e = e);
+
+    // Ground Sensor Entity
+    gse: Entity;
+    gse.offset = Vector2.{0, -TILE_SIZE / 2};
+    gse.extents = Vector2.{TILE_SIZE * 0.8, TILE_SIZE / 8};
+    gse.shape_kind = .RECTANGLE;
+    gse.tag = .GROUND_SENSOR;
+    gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_HANDLE_REFRESH;
+    entity_add_child(player_handle, gse, e = e);
+
+    // Left Ray Entity
+    lre: Entity;
+    lre.offset = Vector2.{(entity.radius * 0.9), 0};
+    lre.tag = .WALL_CASTER;
+    lre.ray.direction = .{1, 0};
+    lre.ray.max_toi = 32.0;
+    lre.props = .RAY_CASTER | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_HANDLE_REFRESH;
+    entity_add_child(player_handle, lre, e = e);
+    return player_handle;
+}
+
 store_player :: () {
     assert(player_is_valid(), "Tried to store player and they didn't exist!\n");
     player := player_get();

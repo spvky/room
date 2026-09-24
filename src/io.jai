@@ -1,5 +1,5 @@
 ROOMS_PATH :: "assets/rooms";
-ASSET_VERSION: float32: 0.5;
+ASSET_VERSION: float32: 0.6;
 PIXELS_PER_TILE :: 2;
 
 save_room :: (r: Room) {
@@ -26,32 +26,18 @@ save_room :: (r: Room) {
     // Int Grid
     success = file_write(*file, *r.int_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Collision_Tile));
     _room_assert("Failed to write int_grid!");
-    // Entity Grid
-    success = file_write(*file, *r.entity_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Entity_Tile));
-    _room_assert("Failed to write entity_grid!");
     // Rune
     success = file_write(*file, *r.rune, size_of(Rune));
     _room_assert("Failed to write room rune!");
     // Map Position
-    success = file_write(*file, *r.map_position, size_of(Coord));
+    success = file_write(*file, *r.static_position, size_of(Coord));
     _room_assert("Failed to write map position!");
     // Name
     success = file_write(*file, *r.name.count, size_of(int));
     _room_assert("Failed to write name string length for room!");
     success = file_write(*file, r.name.data, r.name.count);
     _room_assert("Failed to write room name!");
-    // Extra Entity Data
-    extra_entity_bytes := r.extra_data.count * size_of(Extra_Entity_Data);
-
-    success = file_write(*file, *extra_entity_bytes, size_of(int));
-    _room_assert("Failed to write extra entity data bytes!");
-    if r.extra_data.count > 0 {
-        print("Found % bytes of extra entity data, writing now\n", extra_entity_bytes);
-        success = file_write(*file, r.extra_data.data, extra_entity_bytes);
-        _room_assert("Failed to write extra entity data!");
-    } else {
-        print("No entity data in %, skipping writing it!\n", path);
-    }
+    write_entity_manager_to_file(*r.entities, *file);
 
     img_path := tprint("%/%/%.png", ROOMS_PATH, subdir, r.name);
     replace_chars(img_path, " ", #char "_");
@@ -85,14 +71,11 @@ load_room :: (filename: string, static := false) -> Room, bool {
     // Int Grid
     success = file_read(file, *r.int_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Collision_Tile));
     _room_assert("Failure when reading room int_grid!");
-    // Entity Grid
-    success = file_read(file, *r.entity_grid, size_of([ROOM_WIDTH * ROOM_HEIGHT]Entity_Tile));
-    _room_assert("Failure when reading room entity_grid!");
     // Rune
     success = file_read(file, *r.rune, size_of(Rune));
     _room_assert("Failed to read room rune!");
     // Map Position
-    success = file_read(file, *r.map_position, size_of(Coord));
+    success = file_read(file, *r.static_position, size_of(Coord));
     _room_assert("Failed to read map position!");
     // Name
     name_length: int;
@@ -101,20 +84,7 @@ load_room :: (filename: string, static := false) -> Room, bool {
     r.name = alloc_string(name_length);
     success = file_read(file, r.name.data, name_length);
     _room_assert("Failure when reading room name!");
-    // Extra Entity Data
-    entity_data_bytes: int;
-    success = file_read(file, *entity_data_bytes, size_of(int));
-    _room_assert("Failure when reading entity data bytes!");
-    if entity_data_bytes > 0 {
-        extra_entity_count := cast(s64)(cast(float32)entity_data_bytes / cast(float32)size_of(Extra_Entity_Data));
-        print("Reading % Extra Entities from room\n", extra_entity_count);
-        array_reserve(*r.extra_data, extra_entity_count);
-        success = file_read(file, r.extra_data.data, entity_data_bytes);
-        _room_assert("Failure when reading entity data!");
-        r.extra_data.count = extra_entity_count;
-    } else {
-        print("No entity data in %, skipping reading it!\n", path);
-    }
+    read_entity_manager_from_file(*r.entities, *file);
 
     img_path := tprint("%/%/%.png", ROOMS_PATH, subdir, r.name);
     replace_chars(img_path, " ", #char "_");
@@ -124,12 +94,62 @@ load_room :: (filename: string, static := false) -> Room, bool {
     return r, true;
 }
 
+write_entity_manager_to_file :: (e: *Entity_Manager, file: *File) {
+    items_bytes := e.items.count * size_of(Entity);
+    freelist_bytes := e.freelist.count * size_of(Entity_Handle);
+    success := file_write(file, *items_bytes, size_of(int));
+    if !success print("Failed to write entity items bytes to %!\n", file.*);
+    success = file_write(file, *freelist_bytes, size_of(int));
+    if !success print("Failed to write entity freelist bytes to %!\n", file.*);
+    success = file_write(file, *e.count, size_of(u32));
+    if !success print("Failed to write entity manager count %!\n", file.*);
+    print("Successfully wrote the count of the entity manager as %\n", e.count);
+    if items_bytes > 0 {
+        success = file_write(file, e.items.data, items_bytes);
+        if !success print("Failed to write entity data to %!\n", file.*);
+        print("Successfully wrote % bytes of entity data\n", items_bytes);
+    }
+    if freelist_bytes > 0 {
+        success = file_write(file, e.freelist.data, freelist_bytes);
+        if !success print("Failed to write entity freelist to %!\n", file.*);
+    }
+}
+
+read_entity_manager_from_file :: (e: *Entity_Manager, file: *File) {
+    items_bytes: int;
+    freelist_bytes: int;
+    success := file_read(file, *items_bytes, size_of(int));
+    if !success print("Failed to read items bytes from %!\n", file.*);
+    items_count := items_bytes / size_of(Entity);
+    print("Items Bytes: %\n Items Count: %\n", items_bytes, items_count);
+    success = file_read(file, *freelist_bytes, size_of(int));
+    if !success print("Failed to read freelist bytes from %!\n", file.*);
+    freelist_count := freelist_bytes / size_of(Entity_Handle);
+    success = file_read(file, *e.count, size_of(u32));
+    if !success print("Failed to read entity manager count from %!\n", file.*);
+    if items_bytes > 0 {
+        array_reserve(*e.items, items_count);
+        success = file_read(file, e.items.data, items_bytes);
+        e.items.count = items_count;
+        print("Set a count of % for items!\n", items_count);
+        if !success print("Failed to read entity data from %!\n", file.*);
+    }
+    for e.items print("Read Entity: %\n", it.handle);
+    if freelist_bytes > 0 {
+        array_reserve(*e.freelist, freelist_count);
+        success = file_read(file, e.freelist.data, freelist_bytes);
+        e.freelist.count = freelist_count;
+        if !success print("Failed to read freelist data from %!\n", file.*);
+    }
+}
+
 load_all_rooms :: () {
     // Load placable rooms
     for file_list("assets/rooms/placeable",, temp) {
         _, _, extension, filename := path_decomp(it);
         if equal(extension, "room") {
             room, success := load_room(filename); // Put the room into the map from here
+            set_atlas_for_entity_manager(*room.entities);
             if success {
                 room_hash := djb2_hash(room.name);
 
@@ -144,6 +164,7 @@ load_all_rooms :: () {
         _, _, extension, filename := path_decomp(it);
         if equal(extension, "room") {
             room, success := load_room(filename, true); // Put the room into the map from here
+            set_atlas_for_entity_manager(*room.entities);
             if success {
                 room_hash := djb2_hash(room.name);
 

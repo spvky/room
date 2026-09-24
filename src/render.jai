@@ -26,10 +26,10 @@ render :: () {
     if context.game_state == {
     case .MAP_PLACEMENT;
         render_map_placement_scene();
-    case .ROOM_DESIGNER;
-        render_room_designer_scene();
     case .GAMEPLAY;
         render_gameplay_scene();
+    case .ROOM_EDITOR;
+        render_room_editor_scene();
     }
 
     swap_buffers(window);
@@ -39,7 +39,8 @@ render_grid :: () {
     grid_lines :: (height: int) #expand {
         tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary := get_tile_ui_data(height);
         line_color: Vector4;
-        if `it == height / 2 {
+        // if `it == height / 2 {
+        if `it == 22 || `it == 23 {
             line_color = .{1, 0, 0, 0.3};
         } else {
             line_color = .{0, 0, 0, 1};
@@ -63,7 +64,7 @@ render_grid :: () {
 
     set_shader_for_color(true);
     if context.game_state == {
-    case .ROOM_DESIGNER;
+    case .ROOM_EDITOR;
         for 0..ROOM_HEIGHT {
             grid_lines(ROOM_HEIGHT);
             draw_current_room_exits(ROOM_HEIGHT);
@@ -79,7 +80,7 @@ draw_current_room_exits :: (height: int) {
     _has_exit :: (exit: Room_Exits) -> bool #expand {
         return `room.exits & exit == exit;
     }
-    room := context.current_editor_room;
+    room := context.room_editor_state.current_room;
 
     h_west_start: float32 = 445;
     h_west_end: float32 = 538.636;
@@ -192,8 +193,8 @@ draw_current_room_exits :: (height: int) {
 }
 
 render_boundaries_from_cell :: (c: Coord) -> float32, float32, float32, float32 {
-    if context.game_state == .ROOM_DESIGNER || context.game_state == .MAP_PLACEMENT {
-        height := ifx in_game_state(.ROOM_DESIGNER) then ROOM_HEIGHT else MAP_HEIGHT;
+    if context.game_state == .ROOM_DESIGNER || context.game_state == .MAP_PLACEMENT || context.game_state == .ROOM_EDITOR {
+        height := ifx in_game_state(.ROOM_DESIGNER) || in_game_state(.ROOM_EDITOR) then ROOM_HEIGHT else MAP_HEIGHT;
         tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary := get_tile_ui_data(height);
 
         left := left_boundary + (tile_height * xx c.x);
@@ -221,279 +222,7 @@ render_boundaries_from_rect :: (start: Coord, width: s16, height: s16) -> float3
     }
 }
 
-// #ROOM_DESIGNER_RENDERING
-render_room_designer_scene :: () {
-    if context.editor_state.editor_type == {
-    case 0;
-        render_room_entities(context.current_editor_room, true);
-        render_grid();
-        #if OS == .WINDOWS render_room_designer_mouse_selection();
-        render_room_collision(context.current_editor_room);
-    case 1;
-        render_room_collision(context.current_editor_room, true);
-        render_grid();
-        #if OS == .WINDOWS render_room_designer_mouse_selection();
-        render_room_entities(context.current_editor_room);
-    }
-    render_room_designer_ui();
-}
-
-render_room_designer_mouse_selection :: () {
-    set_shader_for_color(true);
-    cell, ok := get_mouse_cell();
-    if ok {
-        left, right, bot, top := render_boundaries_from_cell(cell);
-        immediate_quad(
-                       .{left, bot},
-                       .{right, bot},
-                       .{right, top},
-                       .{left, top},
-                       .{1, 1, 1, 0.3});
-    }
-}
-
-render_room_collision :: (r: *Room, faded := false) {
-    for <y: 0..ROOM_HEIGHT - 1 {
-        for x: 0..ROOM_WIDTH - 1 {
-            coord := Coord.{xx x, xx y};
-            val := check_collision_tile_value(r, coord);
-            left, right, bot, top := render_boundaries_from_cell(coord);
-            v_mid := (top + bot) / 2;
-            h_mid := (right + left) / 2;
-            color: Vector4;
-            alpha: float32 = ifx faded then 0.3 else 1;
-            if val == {
-            case .WALL;
-                immediate_quad(
-                               .{left, top},
-                               .{left, bot},
-                               .{right, bot},
-                               .{right, top},
-                               .{1, 1, 1, alpha});
-            case .TOP_HALF;
-                immediate_quad(
-                               .{left, top},
-                               .{left, v_mid},
-                               .{right, v_mid},
-                               .{right, top},
-                               .{1, 1, 1, alpha});
-            case .BOT_HALF;
-                immediate_quad(
-                               .{left, v_mid},
-                               .{left, bot},
-                               .{right, bot},
-                               .{right, v_mid},
-                               .{1, 1, 1, alpha});
-            case .LEFT_HALF;
-                immediate_quad(
-                               .{left, top},
-                               .{left, bot},
-                               .{h_mid, bot},
-                               .{h_mid, top},
-                               .{1, 1, 1, alpha});
-            case .RIGHT_HALF;
-                immediate_quad(
-                               .{h_mid, top},
-                               .{h_mid, bot},
-                               .{right, bot},
-                               .{right, top},
-                               .{1, 1, 1, alpha});
-            }
-        }
-    }
-}
-
-render_room_entities :: (r: *Room, faded := false) {
-    alpha: float32 = ifx faded then 0.3 else 1;
-    for <y: 0..ROOM_HEIGHT - 1 {
-        for x: 0..ROOM_WIDTH - 1 {
-            coord := Coord.{xx x, xx y};
-            val := check_entity_tile_value(r, coord);
-            left, right, bot, top := render_boundaries_from_cell(coord);
-            color: Vector4;
-            if val == {
-            case .CRATE;
-                set_shader_for_images(*context.atlas.tile_atlas.texture);
-                immediate_quad(
-                               .{left, top},
-                               .{left, bot},
-                               .{right, bot},
-                               .{right, top},
-                               .{1, 1, 1, alpha},
-                               .{0, 1 - 0.03125},
-                               .{0.03125, 1 - 0.03125},
-                               .{0.03125, 1},
-                               .{0, 1});
-            case .PLAYER_SPAWN;
-                set_shader_for_color(true);
-                immediate_quad(
-                               .{left, top},
-                               .{left, bot},
-                               .{right, bot},
-                               .{right, top},
-                               .{0.6, 0.5, 0, alpha});
-            case .GEAR;
-                set_shader_for_images(*context.atlas.tile_atlas.texture);
-                immediate_quad(
-                               .{left, top},
-                               .{left, bot},
-                               .{right, bot},
-                               .{right, top},
-                               .{1, 1, 1, alpha},
-                               .{0, 1 - 0.03125},
-                               .{0.03125, 1 - 0.0625},
-                               .{0.03125, 1 - 0.0625},
-                               .{0, 1 - 0.03125});
-            case .ASSEMBLER;
-                set_shader_for_color();
-                immediate_quad(
-                               .{left, top},
-                               .{left, bot},
-                               .{right, bot},
-                               .{right, top},
-                               .{0.6, 0.9, 0.31, alpha},
-                               .{0, 1 - 0.03125},
-                               .{0.03125, 1 - 0.0625},
-                               .{0.03125, 1 - 0.0625},
-                               .{0, 1 - 0.03125});
-            }
-        }
-    }
-    set_shader_for_color(true);
-    for r.extra_data {
-        if it.kind == {
-        case .SWITCH_BLOCK;
-            using it.switch_block_data;
-            left, right, bot, top := render_boundaries_from_rect(start, width, height);
-            start_center: Vector2;
-            active_center: Vector2;
-            trigger_center: Vector2;
-
-            start_center.x = (left + right) / 2;
-            start_center.y = (top + bot) / 2;
-            immediate_quad(
-                           .{left, top},
-                           .{left, bot},
-                           .{right, bot},
-                           .{right, top},
-                           .{1, 0.64, 0, alpha});
-
-            left, right, bot, top = render_boundaries_from_rect(active_start, width, height);
-            active_center.x = (left + right) / 2;
-            active_center.y = (top + bot) / 2;
-            immediate_quad(
-                           .{left, top},
-                           .{left, bot},
-                           .{right, bot},
-                           .{right, top},
-                           .{1, 0.64, 0, alpha / 2});
-
-            left, right, bot, top = render_boundaries_from_cell(trigger_position);
-            trigger_center.x = (left + right) / 2;
-            trigger_center.y = (top + bot) / 2;
-
-            immediate_quad(
-                           .{left, top},
-                           .{left, bot},
-                           .{right, bot},
-                           .{right, top},
-                           .{0.85, 0, 0, alpha});
-
-            if active_start.x != 100 {
-                if start.y == active_start.y {
-                    immediate_quad(
-                                   start_center + .{0, 5},
-                                   start_center - .{0, 5},
-                                   active_center - .{0, 5},
-                                   active_center + .{0, 5},
-                                   .{1, 1, 1, alpha});
-                } else {
-                    immediate_quad(
-                                   start_center - .{5, 0},
-                                   active_center - .{5, 0},
-                                   active_center + .{5, 0},
-                                   start_center + .{5, 0},
-                                   .{1, 1, 1, alpha});
-                }
-            }
-
-            if trigger_position.x != 100 {
-                if start.y == trigger_position.y {
-                    immediate_quad(
-                                   start_center + .{0, 3},
-                                   start_center - .{0, 3},
-                                   trigger_center - .{0, 3},
-                                   trigger_center + .{0, 3},
-                                   .{0.7, 0.7, 0.7, alpha});
-                } else {
-                    immediate_quad(
-                                   start_center - .{3, 0},
-                                   trigger_center - .{3, 0},
-                                   trigger_center + .{3, 0},
-                                   start_center + .{3, 0},
-                                   .{0.7, 0.7, 0.7, alpha});
-                }
-            }
-        case .ROOM_PICKUP;
-            using it.room_pickup_data;
-            left, right, bot, top := render_boundaries_from_cell(position);
-
-            immediate_quad(
-                           .{left, top},
-                           .{left, bot},
-                           .{right, bot},
-                           .{right, top},
-                           .{0.85, 0.45, 0, alpha});
-        }
-    }
-}
-
 // #MAP_PLACEMENT_RENDERING
-render_map_placement_scene :: () {
-    render_grid();
-    render_map_placed_room_cards();
-    render_map_placement_cursor();
-    render_map_placement_ui();
-    render_map_screen_controls();
-}
-
-render_map_placement_cursor :: () {
-    sprite_to_render: Sprite;
-    color: Vector4;
-    if context.map_screen_state.cursor_state == {
-    case .PLACE;
-        coord_idx := coord_to_index(context.map_screen_state.cursor_position, .MAP);
-        if context.map.occupied[coord_idx] {
-            color = .{1, 0, 0, 0.5};
-        } else {
-            color = .{1, 1, 1, 0.5};
-        }
-        room := get_room_at_wrapping_index(context.map_screen_state.selected_idx);
-        sprite_to_render = make_sprite(*room.texture);
-    case .SELECT;
-        sprite_to_render = make_sprite(*context.atlas.map_cursor);
-        color = .{1, 1, 1, 1};
-    }
-
-    left, right, bot, top := render_boundaries_from_cell(context.map_screen_state.cursor_position);
-    rot := cast(float32)context.map_screen_state.cursor_rotation * (PI / 2);
-    pos := Vector2.{(left + right) / 2, (top + bot) / 2};
-    size := Vector2.{right - left, top - bot};
-    render_sprite(*sprite_to_render, pos, size, rotation = rot, color = color);
-}
-
-render_map_placed_room_cards :: () {
-    for context.map.placed_room_cards {
-        room := get_room_from_hash(it.room_hash);
-        room_sprite := make_sprite(*room.texture);
-
-        left, right, bot, top := render_boundaries_from_cell(it.coord);
-        rot := cast(float32)it.rotation * (PI / 2);
-        pos := Vector2.{(left + right) / 2, (top + bot) / 2};
-        size := Vector2.{right - left, top - bot};
-        render_sprite(*room_sprite, pos, size, rotation = rot, color = .{1, 1, 1, 1});
-    }
-}
 
 render_room_and_frame :: (room: *Room, position: Vector2, size: Vector2) {
     frame_sprite := make_sprite(*context.atlas.room_frame_texture);
@@ -584,37 +313,4 @@ debug_render_colliders :: () {
         if entity_has_props(it, .SENSOR) color = .{0.98, 0.95, 0.21, 0.3};
         draw_entity_collider(it, color);
     }
-}
-
-mouse_pointer_to_gameplay_pos :: () -> Vector2, bool {
-    raw_x, raw_y, ok := get_mouse_pointer_position();
-    raw_y = WINDOW_HEIGHT - raw_y;
-
-    if raw_x < 0 || raw_y < 0 || raw_x > WINDOW_WIDTH || raw_y > WINDOW_HEIGHT {
-        return Vector2.{}, false;
-    }
-
-    screen_scaled_x := (cast(float32)raw_x) / WINDOW_WIDTH;
-    screen_scaled_y := (cast(float32)raw_y) / WINDOW_HEIGHT;
-
-    true_x := screen_scaled_x * cast(float32)DISPLAY_WIDTH;
-    true_y := screen_scaled_y * cast(float32)DISPLAY_HEIGHT;
-
-    display_offset := Vector2.{(cast(float32)DISPLAY_WIDTH) / 2, (cast(float32)DISPLAY_HEIGHT) / 2};
-
-    return context.camera.position + Vector2.{true_x, true_y} - display_offset, ok;
-}
-
-gameplay_pos_to_screen_position :: (v: Vector2) -> int, int, bool {
-    display_offset := Vector2.{(cast(float32)DISPLAY_WIDTH) / 2, (cast(float32)DISPLAY_HEIGHT) / 2};
-    adjusted_pos := v - context.camera.position + display_offset;
-    display_scaled_x := adjusted_pos.x / (cast(float32)DISPLAY_WIDTH);
-    display_scaled_y := adjusted_pos.y / (cast(float32)DISPLAY_HEIGHT);
-
-    if display_scaled_x < 0 || display_scaled_x > 1 || display_scaled_y < 0 || display_scaled_y > 1 return 0, 0, false;
-
-    screen_float_x := display_scaled_x * WINDOW_WIDTH;
-    screen_float_y := display_scaled_y * WINDOW_HEIGHT;
-
-    return cast(s64)screen_float_x, cast(s64)screen_float_y, true;
 }

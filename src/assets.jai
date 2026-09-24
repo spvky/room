@@ -45,7 +45,21 @@ init_textures :: () {
 //     assert(my_font != null);
 // }
 
-sprite :: (idx: int) -> Sprite #expand {
+set_atlas_for_entity_manager :: (e: *Entity_Manager) {
+    for *e {
+        if !entity_has_props(it, .RENDERABLE) continue;
+        if it.render_kind == {
+        case .ANIMATION_PLAYER;
+            it.animation_player.atlas = *context.atlas.tile_atlas;
+        case .SPRITE_SHEET;
+            it.sprite_sheet.atlas = *context.atlas.tile_atlas;
+        case .SPRITE;
+            it.sprite.texture = *context.atlas.tile_atlas.texture;
+        }
+    }
+}
+
+sprite :: (idx: int, null_ptr := false) -> Sprite #expand {
     atlas := *context.atlas.tile_atlas;
     return sprite_from_atlas(atlas, idx);
 }
