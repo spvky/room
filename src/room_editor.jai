@@ -15,8 +15,10 @@ Things to consider:
 	9/22/2026 6:09:38 PM
 	Left Todo
 	1. Room Pickups
-	2. Add Gear arrows and rotation
-	3. Different Map Screens
+	Next todo:
+
+	1. Add Gear arrows and rotation
+	2. Different Map Screens
 
 	. Playing Room
 */

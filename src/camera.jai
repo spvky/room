@@ -51,7 +51,6 @@ camera_bounds_from_room :: (c: Coord) -> Vector2, Vector2 {
     x := cast(float32)c.x * TILE_SIZE * x_units;
     y := cast(float32)c.y * TILE_SIZE * y_units;
     room_bottom_left := Vector2.{x, y};
-    // print("Camera: %\nRoom_Bottom_Left: %\n", context.camera.position, room_bottom_left);
     min := Vector2.{x + (TILE_SIZE * 20.5), y + (TILE_SIZE * 11.75 * context.camera.zoom)};
     max := Vector2.{x + (TILE_SIZE * 26.5), y + (TILE_SIZE * 35.25 * context.camera.zoom)};
     return min, max;
