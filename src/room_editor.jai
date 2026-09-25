@@ -808,6 +808,7 @@ draw_load_window :: (state: *Subwindow_State, r: Rect, data: *void) {
             s.y -= 60;
             if pressed {
                 context.room_editor_state.current_room.* = load_room(filename, editor_state.load_static_rooms);
+                set_atlas_for_entity_manager(*context.room_editor_state.current_room.entities);
                 editor_state.load_window.open = false;
             }
         }
