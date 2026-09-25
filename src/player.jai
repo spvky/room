@@ -1,5 +1,13 @@
 Player_Data :: struct {
     last_stable_ground: Vector2;
+    state: Player_State;
+}
+
+Player_State :: enum {
+    IDLE;
+    RUNNING;
+    RISING;
+    FALLING;
 }
 
 #add_context player_handle: *Entity_Handle;

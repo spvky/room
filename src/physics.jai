@@ -142,15 +142,14 @@ moving_block_velocity :: () {
     }
 }
 
+// TODO: It's time to move to using this to make the dynamic collision code easier to read and change
 dynamic_entity_collisions :: (a: *Entity, b: *Entity, collision: Collision) {
-    // ////////////////////////////
-    pairing :: (t: Entity_Tag) -> bool #expand {
+    duo :: (t: Entity_Tag) -> bool #expand {
         return `a.tag == t && `b.tag == t;
     }
     pairing :: (t1: Entity_Tag, t2: Entity_Tag) -> bool #expand {
         return (`a.tag == t1 && `b.tag == t2) || (`a.tag == t2 && `b.tag == t1);
     }
-    // //////////////////////////
 
     if pairing(.PLAYER, .CRATE) {
         player := ifx a.tag == .PLAYER then a else b;
@@ -158,7 +157,10 @@ dynamic_entity_collisions :: (a: *Entity, b: *Entity, collision: Collision) {
         player_crate_pushing(player, crate);
     }
 
-    if pairing(.CRATE) {
+    if duo(.CRATE) {
+    }
+
+    if pairing(.GEAR, .SWITCH_BLOCK) {
     }
 
     // Also probably a good time to start tracking chunks to cut down on collision checks
