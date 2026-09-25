@@ -196,7 +196,7 @@ render_room_entities :: (r: *Room) {
         coord := it.relative_room_coord;
         left, right, bot, top := render_boundaries_from_cell(coord);
         center := Vector2.{right + left, top + bot} / 2;
-        radius := (right - left) / 4;
+        radius := (right - left) / 8;
 
         if it.render_extents.x / TILE_SIZE > 1.001 {
             room_editor_tile_size := right - left;
@@ -246,7 +246,7 @@ render_room_entities :: (r: *Room) {
         coord := it.relative_room_coord;
         left, right, bot, top := render_boundaries_from_cell(coord);
         center := Vector2.{right + left, top + bot} / 2;
-        radius := (right - left) / 4;
+        radius := (right - left) / 8;
 
         if parent.render_extents.x / TILE_SIZE > 1.001 {
             room_editor_tile_size := right - left;
@@ -297,6 +297,7 @@ render_room_editor_ui :: () {
 room_editor_update :: () {
     mouse_movement();
     click_actions();
+    hotkey_actions();
 }
 
 mouse_movement :: () {
@@ -313,6 +314,28 @@ mouse_movement :: () {
     }
 }
 
+hotkey_actions :: () {
+    editor_state := context.room_editor_state;
+    entities := *editor_state.current_room.entities;
+    handle := editor_state.current_entity_handle;
+
+    if is_action_buffered(.EDITOR_DELETE) {
+        consume_action(.EDITOR_DELETE);
+        if entity_valid(handle, e = entities) {
+            entity_remove(editor_state.current_entity_handle, e = *editor_state.current_room.entities);
+            editor_state.current_entity_handle = .{};
+        }
+    }
+
+    if is_action_buffered(.EDITOR_ROTATE) {
+        consume_action(.EDITOR_ROTATE);
+        if entity_valid(handle, e = entities) {
+            entity := entity_get(handle, entities);
+            entity.rotation += PI / 2;
+        }
+    }
+}
+
 click_actions :: () {
     editor_state := context.room_editor_state;
     entities := *editor_state.current_room.entities;
@@ -322,6 +345,7 @@ click_actions :: () {
         consume_action(.EDITOR_LEFT_CLICK);
         if editor_state.editor_click_mode == {
         case .SELECT;
+            room_editor_entity_picking();
         case .SET_WALL_START;
             editor_state.current_room.int_grid[coord_to_index(c)] = editor_state.wall_to_make;
             editor_state.wall_start_coord = c;
@@ -386,7 +410,7 @@ click_actions :: () {
         case .MAKE_ENTITY;
             tag := editor_state.entity_to_make;
             make_entity_in_room_editor(entities, c, tag);
-            editor_state.editor_click_mode = .SELECT;
+            if !is_action_held(.HOLD_ACTION) editor_state.editor_click_mode = .SELECT;
         }
     }
 
@@ -394,6 +418,17 @@ click_actions :: () {
         cell, ok := get_mouse_editor_cell();
         if ok {
             context.room_editor_state.current_room.int_grid[(coord_to_index(c))] = .EMPTY;
+        }
+    }
+}
+
+room_editor_entity_picking :: () #expand {
+    for `entities {
+        if `c == it.relative_room_coord {
+            if entity_valid(it.handle, `entities) {
+                `editor_state.current_entity_handle = it.handle;
+                break;
+            }
         }
     }
 }
@@ -445,7 +480,7 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
         entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
         entity.animation_player = Sprite_Animation_Player.{
                                                            atlas = *context.atlas.tile_atlas,
-                                                           seconds_per_frame = 0.015,
+                                                           seconds_per_frame = 0.25,
                                                            start = 17,
                                                            idx = 17,
                                                            length = 1};
@@ -581,15 +616,21 @@ draw_core_room_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     enum_flag_display(*room_ptr.exits, x + 180, y);
 
     y -= 370;
-    save_button_rect := get_rect(x + 10, y, 110, 30);
+    save_button_rect := get_rect(x + 10, y, 100, 30);
     save_pressed := button(save_button_rect, "Save Room");
     if save_pressed {
         save_room(editor_state.current_room.*);
     }
-
-    load_button_rect := get_rect(x + 130, y, 110, 30);
+    load_button_rect := get_rect(x + 115, y, 100, 30);
     load_pressed := button(load_button_rect, "Load Room");
     if load_pressed editor_state.load_window.open = true;
+
+    new_button_rect := get_rect(x + 225, y, 100, 30);
+    new_pressed := button(new_button_rect, "New Room");
+    if new_pressed {
+        free(editor_state.current_room);
+        editor_state.current_room = New(Room);
+    }
 
     y -= 40;
 
@@ -616,50 +657,52 @@ draw_entity_window :: (state: *Subwindow_State, r: Rect, data: *void) {
         }
         y -= 45;
         vec_field("Position", *entity.position);
-        rotation_field(*entity.rotation);
-        extents_display("Extents", entity);
-        handle_field("Handle", *entity.handle, .NONE, false, false);
-        handle_field("Parent", *entity.parent, .PARENT);
-        handle_field("F Child", *entity.first_child, .CHILD);
-        handle_field("L Child", *entity.last_child, .CHILD);
-        handle_field("P Sib", *entity.prev_sibling, .SIB);
-        handle_field("N Sib", *entity.next_sibling, .SIB);
+        if entity.tag == .ROOM_PICKUP {
+            room_name_string: string;
 
-        props_rect := get_rect(x, y, 100, 30);
-        exits_rect := get_rect(x + 170, y, 100, 30);
-        y -= 32;
-
-        label(props_rect, "Props", *context.room_editor_state.theme.label_theme);
-        enum_flag_display(*entity.props, x + 15, y);
-
-        label(exits_rect, "Flags", *context.room_editor_state.theme.label_theme);
-        flags_y_offset := enum_flag_display(*entity.flags, x + 185, y);
-
-        room_name_string: string;
-
-        pickup_room_ptr := table_find_pointer(context.room_table, hash);
-        if pickup_room_ptr {
-            room_name_string = tprint("%", pickup_room_ptr.name);
-        } else {
-            room_name_string = "NULL";
-        }
-
-        room_name_rect := get_rect(x_pos + 10, y_pos, 70, 30);
-        label(room_name_rect, room_name_string, *editor_state.editor_theme.label_theme);
-
-        room_dropdown_rect := get_rect(x_pos + 85, y_pos, 200, 30);
-        hash_idx: s32;
-        rooms := build_rooms_array();
-        y_pos -= 32;
-
-        for rooms {
-            rect := get_rect(x_pos + 10, y_pos, 300, 30);
-            pressed := button(rect, it.name, identifier = it_index);
-            if pressed {
-                entity.room_pickup_data.hash = djb2_hash(it.name);
+            pickup_room_ptr := table_find_pointer(context.room_table, entity.room_pickup_hash);
+            if pickup_room_ptr {
+                room_name_string = tprint("%", pickup_room_ptr.name);
+            } else {
+                room_name_string = "NULL";
             }
 
-            y_pos -= 32;
+            room_name_rect := get_rect(x + 10, y, 70, 30);
+            label(room_name_rect, room_name_string, *editor_state.theme.label_theme);
+
+            room_dropdown_rect := get_rect(x + 85, y, 200, 30);
+            hash_idx: s32;
+            rooms := build_rooms_array();
+            y -= 32;
+
+            for rooms {
+                rect := get_rect(x + 10, y, 300, 30);
+                pressed := button(rect, it.name, identifier = it_index);
+                if pressed {
+                    entity.room_pickup_hash = djb2_hash(it.name);
+                }
+
+                y -= 32;
+            }
+        } else {
+            rotation_field(*entity.rotation);
+            extents_display("Extents", entity);
+            handle_field("Handle", *entity.handle, .NONE, false, false);
+            handle_field("Parent", *entity.parent, .PARENT);
+            handle_field("F Child", *entity.first_child, .CHILD);
+            handle_field("L Child", *entity.last_child, .CHILD);
+            handle_field("P Sib", *entity.prev_sibling, .SIB);
+            handle_field("N Sib", *entity.next_sibling, .SIB);
+
+            props_rect := get_rect(x, y, 100, 30);
+            exits_rect := get_rect(x + 170, y, 100, 30);
+            y -= 32;
+
+            label(props_rect, "Props", *context.room_editor_state.theme.label_theme);
+            enum_flag_display(*entity.props, x + 15, y);
+
+            label(exits_rect, "Flags", *context.room_editor_state.theme.label_theme);
+            flags_y_offset := enum_flag_display(*entity.flags, x + 185, y);
         }
     }
 }

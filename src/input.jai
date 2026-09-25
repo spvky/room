@@ -5,6 +5,9 @@ Action :: enum {
     // Editor
     EDITOR_LEFT_CLICK;
     EDITOR_RIGHT_CLICK;
+    HOLD_ACTION;
+    EDITOR_DELETE;
+    EDITOR_ROTATE;
     // Menus
     CONFIRM;
     CANCEL;
@@ -21,11 +24,12 @@ Action :: enum {
     JUMP;
     INTERACT;
     // Debug
-    GOTO_ROOM_DESIGNER;
+    TOGGLE_DEBUG_MODE;
     GOTO_MAP_PLACEMENT;
     GOTO_GAMEPLAY;
     GOTO_ROOM_EDITOR;
     TOGGLE_INSPECTOR;
+
     BAKE_MAP;
     CAMERA_ZOOM_IN;
     CAMERA_ZOOM_OUT;
@@ -36,6 +40,9 @@ init_input :: () {
     // Editor
     register_input(.EDITOR_LEFT_CLICK, .MOUSE_BUTTON_LEFT);
     register_input(.EDITOR_RIGHT_CLICK, .MOUSE_BUTTON_RIGHT);
+    register_input(.HOLD_ACTION, .SHIFT);
+    register_input(.EDITOR_DELETE, #char "D");
+    register_input(.EDITOR_ROTATE, #char "R");
     // Menu
     register_input(.MENU_UP, .ARROW_UP);
     register_input(.MENU_DOWN, .ARROW_DOWN);
@@ -52,7 +59,7 @@ init_input :: () {
     register_input(.INTERACT, #char "E");
     register_input(.JUMP, .SPACEBAR);
     // Debug
-    register_input(.GOTO_ROOM_DESIGNER, #char "`");
+    register_input(.TOGGLE_DEBUG_MODE, #char "`");
     register_input(.GOTO_MAP_PLACEMENT, #char "9");
     register_input(.GOTO_GAMEPLAY, #char "0");
     register_input(.GOTO_ROOM_EDITOR, #char "2");

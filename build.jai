@@ -62,6 +62,7 @@ init :: () {
     init_inspector();
     init_game_data();
     init_room_editor();
+    init_debug_mode();
 }
 
 #import "Basic";
@@ -103,3 +104,4 @@ GL :: #import "GL";
 #load "src/power.jai";
 #load "src/room_editor.jai";
 #load "src/util.jai";
+#load "src/debug_mode.jai";

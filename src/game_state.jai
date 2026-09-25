@@ -39,7 +39,6 @@ exit_map_placement_screen :: () {
 }
 
 game_state_update :: () {
-    if is_action_buffered(.GOTO_ROOM_DESIGNER) context.game_state = .ROOM_DESIGNER;
     if is_action_buffered(.GOTO_MAP_PLACEMENT) {
         consume_action(.GOTO_MAP_PLACEMENT);
         rooms_refresh();
@@ -59,5 +58,10 @@ game_state_update :: () {
         snap_camera_pos();
 
         context.game_state = .GAMEPLAY;
+    }
+
+    if is_action_buffered(.TOGGLE_DEBUG_MODE) {
+        consume_action(.TOGGLE_DEBUG_MODE);
+        context.debug_mode.on = !context.debug_mode.on;
     }
 }
