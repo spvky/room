@@ -67,8 +67,6 @@ player_jump :: () {
 
 player_interaction :: () {
     player := player_get();
-    entities_to_remove: [..]Entity_Handle;
-    entities_to_remove.allocator = temp;
     for *context.entities {
         if !entity_has_props(it, .INTERACTABLE) || it == player continue;
         if distance(it.position, player.position) <= TILE_SIZE && is_action_buffered(.INTERACT) {
@@ -86,19 +84,17 @@ player_interaction :: () {
                     open_map_placement_screen();
                 }
             case .ROOM_PICKUP;
-                consume_action(.INTERACT);
-                array_add(*context.map_screen_state.available_rooms, it.room_pickup_hash);
-                array_add(*entities_to_remove, it.handle);
                 room_ptr := table_find_pointer(context.room_table, it.room_pickup_hash);
-                if room_ptr {
-                    room_ptr.flags |= .PICKED_UP;
+                has_been_picked_up := room_ptr.flags & .PICKED_UP == .PICKED_UP;
+                if !has_been_picked_up {
+                    consume_action(.INTERACT);
+                    array_add(*context.map_screen_state.available_rooms, it.room_pickup_hash);
+                    room_ptr := table_find_pointer(context.room_table, it.room_pickup_hash);
+                    if room_ptr {
+                        room_ptr.flags |= .PICKED_UP;
+                    }
                 }
             }
-        }
-    }
-    if entities_to_remove.count > 0 {
-        for entities_to_remove {
-            entity_remove(it);
         }
     }
 }

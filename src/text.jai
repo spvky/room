@@ -36,6 +36,14 @@ render_floating_text :: () {
         screen_y += 80;
         screen_x -= 30;
         if screen_x > 1750 screen_x = 1750;
-        draw_text(context.atlas.font, screen_x, screen_y, string_from_message(it.text_message));
+        if it.tag == .ROOM_PICKUP {
+            room_ptr := table_find_pointer(context.room_table, it.room_pickup_hash);
+            has_been_picked_up := room_ptr.flags & .PICKED_UP == .PICKED_UP;
+            if !has_been_picked_up {
+                draw_text(context.atlas.font, screen_x, screen_y, string_from_message(it.text_message));
+            }
+        } else {
+            draw_text(context.atlas.font, screen_x, screen_y, string_from_message(it.text_message));
+        }
     }
 }

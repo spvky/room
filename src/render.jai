@@ -275,7 +275,17 @@ render_entities :: () {
         if it.tag == .ROOM_PICKUP {
             pos.y += context.camera.zoom * 4.0 * cast(float32)sin(last_time * 4);
         }
-        render_sprite(*sprite, pos, extents, rotation = it.rotation);
+        if it.tag == .ROOM_PICKUP {
+            room_ptr := table_find_pointer(context.room_table, it.room_pickup_hash);
+            has_been_picked_up := room_ptr.flags & .PICKED_UP == .PICKED_UP;
+            if has_been_picked_up {
+                render_sprite(*sprite, pos, extents, rotation = it.rotation, color = .{1, 1, 1, 0.2});
+            } else {
+                render_sprite(*sprite, pos, extents, rotation = it.rotation);
+            }
+        } else {
+            render_sprite(*sprite, pos, extents, rotation = it.rotation);
+        }
     }
     for *context.entities {
         if !entity_has_props(it, .RENDERABLE) || !entity_has_props(it, .FOREGROUND) continue;
