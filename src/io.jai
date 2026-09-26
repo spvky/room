@@ -134,7 +134,6 @@ read_entity_manager_from_file :: (e: *Entity_Manager, file: *File) {
         print("Set a count of % for items!\n", items_count);
         if !success print("Failed to read entity data from %!\n", file.*);
     }
-    for e.items print("Read Entity: %\n", it.handle);
     if freelist_bytes > 0 {
         array_reserve(*e.freelist, freelist_count);
         success = file_read(file, e.freelist.data, freelist_bytes);

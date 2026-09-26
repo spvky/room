@@ -273,7 +273,7 @@ render_entities :: () {
             sprite = get_current_animation_frame(*it.animation_player);
         }
         if it.tag == .ROOM_PICKUP {
-            pos.y += context.camera.zoom * 4.0 * cast(float32)sin(last_time * 4);
+            pos.y += 4 + context.camera.zoom * 4.0 * cast(float32)sin(last_time * 4);
         }
         if it.tag == .ROOM_PICKUP {
             room_ptr := table_find_pointer(context.room_table, it.room_pickup_hash);

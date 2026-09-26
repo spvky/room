@@ -46,6 +46,7 @@ body_collision :: () {
             static_ptr := entity_get(static_handle);
             static_collision, static_collision_occurred := dynamic_vs_static_collision_test(it, static_ptr);
             if static_collision_occurred {
+                if static_ptr.tag == .GEAR && it.tag == .SWITCH_BLOCK continue;
                 if it.handle == context.player_handle && entity_has_props(static_ptr, .DEATH_ZONE) then reset_player();
                 dir_to_static := normalize(static_ptr.position - it.position);
                 corrected_normal := ifx dot_product(dir_to_static, static_collision.normal) < 0 then static_collision.normal else -static_collision.normal;
@@ -70,39 +71,87 @@ body_collision :: () {
 
             dynamic_collision, dynamic_collision_occurred := dynamic_vs_dynamic_collision_test(it, dynamic_ptr);
             if dynamic_collision_occurred {
-                contains_kinematic := entity_has_props(dynamic_ptr, .KINEMATIC) || entity_has_props(it, .KINEMATIC);
-                push_amount := ifx contains_kinematic then dynamic_collision.depth else dynamic_collision.depth / 2;
-
-                if contains_kinematic {
-                    kinematic_ptr: *Entity = ifx entity_has_props(it, .KINEMATIC) then it else dynamic_ptr;
-                    non_kinematic_ptr: *Entity = ifx entity_has_props(it, .KINEMATIC) then dynamic_ptr else it;
-                    push_normal := ifx dot_product(non_kinematic_ptr.position - kinematic_ptr.position, dynamic_collision.normal) > 0 then dynamic_collision.normal else -dynamic_collision.normal;
-                    non_kinematic_ptr.position += push_normal * (push_amount + 0.01);
-                } else {
-                    it_to_dynamic := normalize(dynamic_ptr.position - it.position);
-                    push_normal := ifx dot_product(it_to_dynamic, dynamic_collision.normal) > 0 then -dynamic_collision.normal else dynamic_collision.normal;
-                    it.position += push_normal * (push_amount + 0.01);
-                    dynamic_ptr.position += -push_normal * (push_amount + 0.01);
-                }
-
-                x_dot := abs(dot(dynamic_collision.normal, Vector2.{1, 0}));
-                y_dot := abs(dot(dynamic_collision.normal, Vector2.{0, 1}));
-
-                if x_dot > 0.1 {
-                    if it.tag == .PLAYER && dynamic_ptr.tag == .CRATE {
-                        player_crate_pushing(it, dynamic_ptr);
-                    } else {
-                        it.velocity.x = 0;
-                    }
-                }
-                // Really need to start using a specialized proc to handle each pairing here
-                if y_dot > 0.1 {
-                    it.velocity.y = 0;
-                    if !entity_has_props(dynamic_ptr, .KINEMATIC) dynamic_ptr.velocity.y = 0;
-                }
+                dynamic_entity_collisions(it, dynamic_ptr, dynamic_collision);
             }
         }
     }
+}
+
+// TODO: It's time to move to using this to make the dynamic collision code easier to read and change
+dynamic_entity_collisions :: (a: *Entity, b: *Entity, collision: Collision) #expand {
+    duo :: (t: Entity_Tag) -> bool #expand {
+        return `a.tag == t && `b.tag == t;
+    }
+    pairing :: (t1: Entity_Tag, t2: Entity_Tag) -> bool #expand {
+        return (`a.tag == t1 && `b.tag == t2) || (`a.tag == t2 && `b.tag == t1);
+    }
+
+    x_dot := abs(dot(collision.normal, Vector2.{1, 0}));
+    y_dot := abs(dot(collision.normal, Vector2.{0, 1}));
+
+    if pairing(.PLAYER, .CRATE) {
+        player, crate := entity_sort(.PLAYER, .CRATE);
+        if x_dot > 0.1 {
+            player_crate_pushing(player, crate);
+        }
+        if y_dot > 0.1 {
+            player.velocity.y = 0;
+            crate.velocity.y = 0;
+        }
+        entity_equal_push();
+    }
+
+    if pairing(.PLAYER, .SWITCH_BLOCK) {
+        entity_kinematic_push();
+    }
+
+    if duo(.CRATE) {
+        if x_dot > 0.1 {
+            a.velocity.x = 0;
+            b.velocity.x = 0;
+        }
+        if y_dot > 0.1 {
+            a.velocity.y = 0;
+            b.velocity.y = 0;
+        }
+        entity_equal_push();
+    }
+
+    if pairing(.CRATE, .SWITCH_BLOCK) {
+        entity_kinematic_push();
+    }
+}
+
+entity_sort :: (tag1: Entity_Tag, tag2: Entity_Tag) -> *Entity, *Entity #expand {
+    entity1 := ifx `a.tag == tag1 then `a else `b;
+    entity2 := ifx `a.tag == tag2 then `a else `b;
+    return entity1, entity2;
+}
+
+entity_equal_push :: () #expand {
+    a_to_b := `b.position - `a.position;
+    push_normal := ifx dot_product(a_to_b, `collision.normal) > 0 then -`collision.normal else `collision.normal;
+    push_amount := `collision.depth / 2;
+    `a.position += push_normal * (push_amount + 0.01);
+    `b.position += -push_normal * (push_amount + 0.01);
+}
+
+entity_kinematic_push :: () #expand {
+    kinematic_ptr: *Entity;
+    dynamic_ptr: *Entity;
+    if entity_has_props(`a, .KINEMATIC) && !entity_has_props(`b, .KINEMATIC) {
+        kinematic_ptr = `a;
+        dynamic_ptr = `b;
+    } else if entity_has_props(`b, .KINEMATIC) && !entity_has_props(`a, .KINEMATIC) {
+        kinematic_ptr = `b;
+        dynamic_ptr = `a;
+    } else {
+        return;
+    }
+    kin_to_dyn := dynamic_ptr.position - kinematic_ptr.position;
+    push_normal := ifx dot_product(kin_to_dyn, `collision.normal) > 0 then `collision.normal else -`collision.normal;
+    push_amount := `collision.depth;
+    dynamic_ptr.position += push_normal * (push_amount + 0.01);
 }
 
 // Is this useful?
@@ -142,51 +191,27 @@ moving_block_velocity :: () {
     }
 }
 
-// TODO: It's time to move to using this to make the dynamic collision code easier to read and change
-dynamic_entity_collisions :: (a: *Entity, b: *Entity, collision: Collision) {
-    duo :: (t: Entity_Tag) -> bool #expand {
-        return `a.tag == t && `b.tag == t;
-    }
-    pairing :: (t1: Entity_Tag, t2: Entity_Tag) -> bool #expand {
-        return (`a.tag == t1 && `b.tag == t2) || (`a.tag == t2 && `b.tag == t1);
-    }
-
-    if pairing(.PLAYER, .CRATE) {
-        player := ifx a.tag == .PLAYER then a else b;
-        crate := ifx a.tag == .CRATE then a else b;
-        player_crate_pushing(player, crate);
-    }
-
-    if duo(.CRATE) {
-    }
-
-    if pairing(.GEAR, .SWITCH_BLOCK) {
-    }
-
-    // Also probably a good time to start tracking chunks to cut down on collision checks
-}
-
-player_crate_pushing :: inline (p: *Entity, c: *Entity) {
-    if p.velocity.x > 0 {
-        if entity_has_flags(c, .RIGHT_BLOCKED) {
-            p.velocity.x = 0;
+player_crate_pushing :: (player: *Entity, crate: *Entity) #expand {
+    if player.velocity.x > 0 {
+        if entity_has_flags(crate, .RIGHT_BLOCKED) {
+            player.velocity.x = 0;
         } else {
-            if abs(p.velocity.x) > PLAYER_MOVE_SPEED / 3 {
-                p.velocity.x = PLAYER_MOVE_SPEED / 3;
+            if abs(player.velocity.x) > PLAYER_MOVE_SPEED / 3 {
+                player.velocity.x = PLAYER_MOVE_SPEED / 3;
             }
 
-            c.velocity.x = p.velocity.x;
+            crate.velocity.x = player.velocity.x;
         }
     }
 
-    if p.velocity.x < 0 {
-        if entity_has_flags(c, .LEFT_BLOCKED) {
-            p.velocity.x = 0;
+    if player.velocity.x < 0 {
+        if entity_has_flags(crate, .LEFT_BLOCKED) {
+            player.velocity.x = 0;
         } else {
-            if abs(p.velocity.x) > PLAYER_MOVE_SPEED / 3 {
-                p.velocity.x = -PLAYER_MOVE_SPEED / 3;
+            if abs(player.velocity.x) > PLAYER_MOVE_SPEED / 3 {
+                player.velocity.x = -PLAYER_MOVE_SPEED / 3;
             }
-            c.velocity.x = p.velocity.x;
+            crate.velocity.x = player.velocity.x;
         }
     }
 }
