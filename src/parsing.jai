@@ -1,5 +1,7 @@
 bake_world :: () {
     entities_clear();
+    reset_world_tilemap();
+    reset_world_rooms();
     write_room_cards_to_world();
     open_map_exits();
     generate_world_map_png("assets/world.png");
@@ -15,6 +17,16 @@ reset_world_tilemap :: () {
         for y: 0..WORLD_HEIGHT - 1 {
             idx := coord_to_index(.{xx x, xx y}, .WORLD);
             world.collision[idx] = .BLANK;
+        }
+    }
+}
+
+reset_world_rooms :: () {
+    world := context.world;
+    for x: 0..MAP_WIDTH - 1 {
+        for y: 0..MAP_HEIGHT - 1 {
+            idx := coord_to_index(.{xx x, xx y}, .MAP);
+            world.rooms[idx] = .{};
         }
     }
 }
@@ -118,7 +130,6 @@ write_room_cards_to_world :: () {
 
         // Should find a better place to do this maybe
         if it.tag == .SWITCH_BLOCK {
-            print("Parsing a switch block: % | %", it.first_child, it.last_child);
             off_position_entity: Entity;
             off_position_entity.position = it.position;
             off_position_entity.tag = .SWITCH_BLOCK_OFF_TARGET;
@@ -202,6 +213,9 @@ open_map_exits :: () {
                 if south_neighbor.exists {
                     south_exits = exits_match(current_room.exits, south_neighbor.exits, .SOUTH);
                 }
+            }
+            if current_coord == .{4, 4} {
+                print("East Exits: %\nSouth_Exits: %\n", east_exits, south_exits);
             }
             // Set the tiles corresponding to the exits to empty
             if east_exits != 0 {
