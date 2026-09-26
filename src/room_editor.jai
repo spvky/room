@@ -523,6 +523,18 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
         entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
         entity.sprite = sprite(20);
         entity_add(entity, e = entities);
+    case .TELEPORTER;
+        entity.render_kind = .ANIMATION_PLAYER;
+        entity.props = .RENDERABLE | .ANIMATED;
+        entity.extents = Vector2.{TILE_SIZE, TILE_SIZE * 3};
+        entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE * 3};
+        entity.animation_player = Sprite_Animation_Player.{
+                                                           atlas = *context.atlas.tile_atlas,
+                                                           seconds_per_frame = 0.125,
+                                                           start = 21,
+                                                           idx = 21,
+                                                           length = 4};
+        entity_add(entity, e = entities);
     }
 }
 
@@ -729,6 +741,7 @@ draw_actions_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     create_entity_action_button(.BUTTON, x + 170);
     create_entity_action_button(.SWITCH_BLOCK, shift_y = false);
     create_entity_action_button(.ASSEMBLER, x + 170);
+    create_entity_action_button(.TELEPORTER, shift_y = false);
     y -= 32;
     create_wall_action_button(.WALL, x + 170);
     create_wall_action_button(.TOP_HALF, shift_y = false);

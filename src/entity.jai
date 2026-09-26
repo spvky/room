@@ -98,6 +98,7 @@ Entity_Tag :: enum u8 {
     ASSEMBLER;
     ROOM_PICKUP;
     PLAYER_SPAWN;
+    TELEPORTER;
 }
 
 Entity_Properties :: enum_flags u32 {
