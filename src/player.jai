@@ -107,10 +107,12 @@ player_interaction :: () {
     }
 }
 
-make_player :: (position: Vector2, e := context.entities) -> Entity_Handle {
+make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> Entity_Handle {
+    print("Player Spawning in Room: %\n", map_coord);
     entity: Entity;
     half_tile := Vector2.{TILE_SIZE, TILE_SIZE} / 2;
     entity.position = position;
+    entity.current_room = map_coord;
     entity.shape_kind = .CIRCLE;
     entity.radius = TILE_SIZE / 2;
     entity.tag = .PLAYER;

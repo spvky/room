@@ -55,9 +55,10 @@ game_state_update :: () {
         rooms_refresh();
         map_refresh();
         bake_world();
-        snap_camera_pos();
 
         context.game_state = .GAMEPLAY;
+
+        snap_camera_pos();
     }
 
     if is_action_buffered(.TOGGLE_DEBUG_MODE) {

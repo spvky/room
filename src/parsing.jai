@@ -105,7 +105,7 @@ write_room_cards_to_world :: () {
         half_room := Vector2.{22.5 * TILE_SIZE, 22.5 * TILE_SIZE};
         room_center := Vector2.{cast(float)start_x * TILE_SIZE, cast(float)start_y * TILE_SIZE} + half_room;
 
-        write_room_entities_to_world(*r.entities, room_center, it.rotation);
+        write_room_entities_to_world(*r.entities, room_center, it.rotation, it.coord);
     }
 
     for *context.entities {
@@ -127,14 +127,14 @@ write_room_cards_to_world :: () {
     }
 }
 
-write_room_entities_to_world :: (e: *Entity_Manager, room_center: Vector2, rotation: u8) #expand {
+write_room_entities_to_world :: (e: *Entity_Manager, room_center: Vector2, rotation: u8, map_coord: Coord) #expand {
     float_rotation := (PI / 2) * cast(float)rotation;
 
     for *e {
         if it.tag == .PLAYER_SPAWN {
             if !player_is_valid() && !context.game_data.has_stored_player {
                 position := room_center + rotate(it.position, float_rotation);
-                player_handle := make_player(position);
+                player_handle := make_player(position, map_coord);
                 context.player_handle.* = player_handle;
                 context.inspector_state.current_handle = player_handle;
             }
@@ -142,6 +142,7 @@ write_room_entities_to_world :: (e: *Entity_Manager, room_center: Vector2, rotat
             new_entity := it.*;
             new_entity.rotation += float_rotation;
             new_entity.position = room_center + rotate(new_entity.position, float_rotation);
+            new_entity.current_room = map_coord;
             new_handle := entity_add(new_entity);
             table_set(*`pre_post_handle_map, it.handle, new_handle);
         }

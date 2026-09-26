@@ -13,7 +13,7 @@ Entity :: struct {
     tag: Entity_Tag;
     state: Entity_State;
     relative_room_coord: Coord;
-    current_coord: Coord;
+    current_room: Coord;
     text_message: Display_Message;
     render_kind: Entity_Render_Kind;
     render_extents: Vector2;

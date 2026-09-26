@@ -60,6 +60,9 @@ snap_camera_pos :: () {
     player := player_get();
     if player {
         raw_pos := player.position + context.camera.camera_look;
+        print("Raw Pos: %\n", player.position);
+        print("Snapping Pos: % | %\n", context.camera.target_position, context.camera.position);
+        context.camera.target_room = player.current_room;
 
         min, max := camera_bounds_from_room(context.camera.target_room);
         true_pos: Vector2;
@@ -67,6 +70,8 @@ snap_camera_pos :: () {
         true_pos.y = clamp(raw_pos.y, min.y, max.y);
         context.camera.target_position = true_pos;
         context.camera.position = true_pos;
+
+        print("Snapped Pos: % | %\n", context.camera.target_position, context.camera.position);
     }
 }
 
