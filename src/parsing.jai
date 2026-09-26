@@ -211,14 +211,17 @@ open_map_exits :: () {
                     array_add(*late_tile_updates, .{id2, .EMPTY});
                 }
                 if _contains(east_exits, .EAST) {
-                    id1 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, ROOM_HEIGHT / 2}, .WORLD);
-                    id2 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, (ROOM_HEIGHT / 2) + 1}, .WORLD);
-                    id3 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, (ROOM_HEIGHT / 2) + 2}, .WORLD);
-                    id4 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, (ROOM_HEIGHT / 2) - 1}, .WORLD);
+                    // These are hardcoded now based on room dimensions of 45x45
+                    id1 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, 21}, .WORLD);
+                    id2 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, 22}, .WORLD);
+                    id3 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, 23}, .WORLD);
+                    id4 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, 24}, .WORLD);
+                    id5 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, 25}, .WORLD);
                     array_add(*late_tile_updates, .{id1, .EMPTY});
                     array_add(*late_tile_updates, .{id2, .EMPTY});
                     array_add(*late_tile_updates, .{id3, .EMPTY});
                     array_add(*late_tile_updates, .{id4, .EMPTY});
+                    array_add(*late_tile_updates, .{id5, .EMPTY});
                 }
                 if _contains(east_exits, .EAST_SOUTH) {
                     id1 := coord_to_index(origin_tile + .{ROOM_WIDTH + 1, 1}, .WORLD);
@@ -236,12 +239,17 @@ open_map_exits :: () {
                     array_add(*late_tile_updates, .{id2, .EMPTY});
                 }
                 if _contains(south_exits, .SOUTH) {
-                    id1 := coord_to_index(origin_tile + .{ROOM_WIDTH / 2, 0}, .WORLD);
-                    id2 := coord_to_index(origin_tile + .{(ROOM_WIDTH / 2) + 1, 0}, .WORLD);
-                    id3 := coord_to_index(origin_tile + .{(ROOM_WIDTH / 2) + 2, 0}, .WORLD);
-                    id4 := coord_to_index(origin_tile + .{(ROOM_WIDTH / 2) - 1, 0}, .WORLD);
+                    // These are hardcoded now based on room dimensions of 45x45
+                    id1 := coord_to_index(origin_tile + .{21, 0}, .WORLD);
+                    id2 := coord_to_index(origin_tile + .{22, 0}, .WORLD);
+                    id3 := coord_to_index(origin_tile + .{23, 0}, .WORLD);
+                    id4 := coord_to_index(origin_tile + .{24, 0}, .WORLD);
+                    id5 := coord_to_index(origin_tile + .{25, 0}, .WORLD);
                     array_add(*late_tile_updates, .{id1, .EMPTY});
                     array_add(*late_tile_updates, .{id2, .EMPTY});
+                    array_add(*late_tile_updates, .{id3, .EMPTY});
+                    array_add(*late_tile_updates, .{id4, .EMPTY});
+                    array_add(*late_tile_updates, .{id5, .EMPTY});
                 }
                 if _contains(south_exits, .SOUTH_WEST) {
                     id1 := coord_to_index(origin_tile + .{2, 0}, .WORLD);

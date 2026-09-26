@@ -1,25 +1,7 @@
-// Rewriting the room designer for several reasons
 /*
-1. Remove inconsistencies that come from storing entities in a grid (most notably moving blocks atm)
-2. Generally make the room designer easier to work with, it's a little hacky and painful to design rooms with currently
-3. Remove the friction of translating entities between 2 different types
-4. Design around the ability to play a room and test it while building it
-5. Genrally make serialization simpler
-6. Once different rune effects are implemented I imagine it will be more
-
-Things to consider:
-1. Size of data will most likely be slightly larger, but seeing as how the current build is with assets is 1MB compressed, that's probably fine
-*/
-
-/*
-	9/22/2026 6:09:38 PM
+	9/26/2026 3:41:56 PM
 	Left Todo
-	1. Room Pickups
-	Next todo:
-
-	2. Different Map Screens
-
-	. Playing Room
+	-Playing Room
 */
 
 // Use local tile size for the editor to make translating positions easier on hydration
@@ -338,6 +320,7 @@ hotkey_actions :: () {
 
 click_actions :: () {
     editor_state := context.room_editor_state;
+    if editor_state.mouse_captured return;
     entities := *editor_state.current_room.entities;
     handle := editor_state.current_entity_handle;
     c := editor_state.current_mouse_coord;
