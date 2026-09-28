@@ -1,0 +1,4301 @@
+
+In Workspace 2 ("Target Program"):
+The program contains circular dependencies.
+Strangely, we did not find a cycle, so this is probably due to a compiler bug. To help you work around the problem, we'll now print out what is not compiling:
+
+Here are items, waiting to compile, that look suspicious because we don't know why they are waiting:
+
+C:/Users/Colin/code/room_designer/src/util.jai:49,36: Info: (procedure 'gameplay_pos_to_screen_position')
+
+    }
+    gameplay_pos_to_screen_position :: (v: Vector2) -> int, int, bool {
+                                       ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/util.jai:49,36: s=0x0 type=LAMBDA_BODY
+
+    }
+    gameplay_pos_to_screen_position :: (v: Vector2) -> int, int, bool {
+                                       ^
+
+C:/Users/Colin/code/room_designer/src/game_ui.jai:6,28: Info: (procedure 'render_map_placement_ui')
+
+    RIGHT_CHANNEL_MID_PCT: float32: #run RIGHT_BOUNT_PCT + (LEFT_BOUND_PCT / 2);
+    render_map_placement_ui :: () {
+                               ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/game_ui.jai:6,28: s=0x0 type=LAMBDA_BODY
+
+    RIGHT_CHANNEL_MID_PCT: float32: #run RIGHT_BOUNT_PCT + (LEFT_BOUND_PCT / 2);
+    render_map_placement_ui :: () {
+                               ^
+
+C:/Users/Colin/code/jai/modules/Input/windows.jai:59,17: Info: (procedure 'MyWindowProc')
+
+    };
+    MyWindowProc :: (hwnd: HWND, message: u32,
+                    ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Input/windows.jai:59,17: s=0x0 type=LAMBDA_BODY
+
+    };
+    MyWindowProc :: (hwnd: HWND, message: u32,
+                    ^
+
+C:/Users/Colin/code/jai/modules/Basic/String_Builder.jai:300,11: Info: (procedure 'expand')
+
+    }
+    expand :: (using builder: *String_Builder) -> bool {
+              ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Basic/String_Builder.jai:300,11: s=0x0 type=LAMBDA_BODY
+
+    }
+    expand :: (using builder: *String_Builder) -> bool {
+              ^
+
+C:/Users/Colin/code/room_designer/src/runes.jai:122,16: Info: (procedure 'render_rune')
+
+    }
+    render_rune :: (r: Rune, position: Vector2, size: Vector2, color: Vector4 = .{0, 0, 0, 1}) {
+                   ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/runes.jai:122,16: s=0x0 type=LAMBDA_BODY
+
+    }
+    render_rune :: (r: Rune, position: Vector2, size: Vector2, color: Vector4 = .{0, 0, 0, 1}) {
+                   ^
+
+C:/Users/Colin/code/room_designer/src/camera.jai:47,28: Info: (procedure 'camera_bounds_from_room')
+
+    }
+    camera_bounds_from_room :: (c: Coord) -> Vector2, Vector2 {
+                               ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/camera.jai:47,28: s=0x0 type=LAMBDA_BODY
+
+    }
+    camera_bounds_from_room :: (c: Coord) -> Vector2, Vector2 {
+                               ^
+
+C:/Users/Colin/code/jai/modules/Default_Allocator/module.jai:31,23: Info: (procedure 'allocator_proc')
+
+    allocator_default_heap : *Heap;
+    allocator_proc :: (mode: Allocator_Mode, requested_size: s64, old_size: s64, old_memory: *void, allocator_data: *void) -> *void {
+                      ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Default_Allocator/module.jai:31,23: s=0x0 type=LAMBDA_BODY
+
+    allocator_default_heap : *Heap;
+    allocator_proc :: (mode: Allocator_Mode, requested_size: s64, old_size: s64, old_memory: *void, allocator_data: *void) -> *void {
+                      ^
+
+C:/Users/Colin/code/jai/modules/Default_Allocator/module.jai:1881,22: Info: (procedure 'is_this_yours')
+
+    }
+    is_this_yours :: (heap: *Heap, memory: *void) -> bool {
+                     ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Default_Allocator/module.jai:1881,22: s=0x0 type=LAMBDA_BODY
+
+    }
+    is_this_yours :: (heap: *Heap, memory: *void) -> bool {
+                     ^
+
+C:/Users/Colin/code/jai/modules/Default_Allocator/module.jai:1623,19: Info: (procedure 'deallocate')
+
+    // Deallocate the given block
+    deallocate :: (p: *void) {
+                  ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Default_Allocator/module.jai:1623,19: s=0x0 type=LAMBDA_BODY
+
+    // Deallocate the given block
+    deallocate :: (p: *void) {
+                  ^
+
+C:/Users/Colin/code/jai/modules/Default_Allocator/module.jai:1460,17: Info: (procedure 'allocate')
+
+    // Allocate a block of the given size
+    allocate :: (heap: *Heap, size: s64) -> *void {
+                ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Default_Allocator/module.jai:1460,17: s=0x0 type=LAMBDA_BODY
+
+    // Allocate a block of the given size
+    allocate :: (heap: *Heap, size: s64) -> *void {
+                ^
+
+C:/Users/Colin/code/jai/modules/Default_Allocator/module.jai:111,19: Info: (procedure 'assert')
+
+    #if ENABLE_ASSERTS {
+        assert :: (truth: bool, message: string, location := #caller_location) {
+                  ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Default_Allocator/module.jai:111,19: s=0x0 type=LAMBDA_BODY
+
+    #if ENABLE_ASSERTS {
+        assert :: (truth: bool, message: string, location := #caller_location) {
+                  ^
+
+C:/Users/Colin/code/room_designer/src/parsing.jai:253,19: Info: (procedure 'open_map_exits')
+
+    }
+    open_map_exits :: () {
+                      ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/parsing.jai:253,19: s=0x0 type=LAMBDA_BODY
+
+    }
+    open_map_exits :: () {
+                      ^
+
+C:/Users/Colin/code/room_designer/src/parsing.jai:159,30: Info: (procedure 'write_room_cards_to_world')
+
+    }
+    write_room_cards_to_world :: () {
+                                 ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/parsing.jai:159,30: s=0x0 type=LAMBDA_BODY
+
+    }
+    write_room_cards_to_world :: () {
+                                 ^
+
+C:/Users/Colin/code/room_designer/src/parsing.jai:111,16: Info: (procedure 'parse_runes')
+
+    }
+    parse_runes :: () {
+                   ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/parsing.jai:111,16: s=0x0 type=LAMBDA_BODY
+
+    }
+    parse_runes :: () {
+                   ^
+
+C:/Users/Colin/code/room_designer/src/parsing.jai:101,22: Info: (procedure 'reset_world_rooms')
+
+    }
+    reset_world_rooms :: () {
+                         ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/parsing.jai:101,22: s=0x0 type=LAMBDA_BODY
+
+    }
+    reset_world_rooms :: () {
+                         ^
+
+C:/Users/Colin/code/room_designer/src/parsing.jai:91,24: Info: (procedure 'reset_world_tilemap')
+
+    }
+    reset_world_tilemap :: () {
+                           ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/parsing.jai:91,24: s=0x0 type=LAMBDA_BODY
+
+    }
+    reset_world_tilemap :: () {
+                           ^
+
+C:/Users/Colin/code/room_designer/src/parsing.jai:15,21: Info: (procedure 'pair_teleporters')
+
+    }
+    pair_teleporters :: () {
+                        ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/parsing.jai:15,21: s=0x0 type=LAMBDA_BODY
+
+    }
+    pair_teleporters :: () {
+                        ^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:778,21: Info: (procedure 'draw_load_window')
+
+    }
+    draw_load_window :: (state: *Subwindow_State, r: Rect, data: *void) {
+                        ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:778,21: s=0x0 type=LAMBDA_BODY
+
+    }
+    draw_load_window :: (state: *Subwindow_State, r: Rect, data: *void) {
+                        ^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:731,24: Info: (procedure 'draw_actions_window')
+
+    }
+    draw_actions_window :: (state: *Subwindow_State, r: Rect, data: *void) {
+                           ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:731,24: s=0x0 type=LAMBDA_BODY
+
+    }
+    draw_actions_window :: (state: *Subwindow_State, r: Rect, data: *void) {
+                           ^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:705,22: Info: (procedure 'build_rooms_array')
+
+    }
+    build_rooms_array :: () -> [..]*Room {
+                         ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:705,22: s=0x0 type=LAMBDA_BODY
+
+    }
+    build_rooms_array :: () -> [..]*Room {
+                         ^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:637,23: Info: (procedure 'draw_entity_window')
+
+    }
+    draw_entity_window :: (state: *Subwindow_State, r: Rect, data: *void) {
+                          ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:637,23: s=0x0 type=LAMBDA_BODY
+
+    }
+    draw_entity_window :: (state: *Subwindow_State, r: Rect, data: *void) {
+                          ^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:541,26: Info: (procedure 'draw_core_room_window')
+
+    }
+    draw_core_room_window :: (state: *Subwindow_State, r: Rect, data: *void) {
+                             ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:541,26: s=0x0 type=LAMBDA_BODY
+
+    }
+    draw_core_room_window :: (state: *Subwindow_State, r: Rect, data: *void) {
+                             ^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:321,18: Info: (procedure 'click_actions')
+
+    }
+    click_actions :: () {
+                     ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:321,18: s=0x0 type=LAMBDA_BODY
+
+    }
+    click_actions :: () {
+                     ^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:299,19: Info: (procedure 'hotkey_actions')
+
+    }
+    hotkey_actions :: () {
+                      ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:299,19: s=0x0 type=LAMBDA_BODY
+
+    }
+    hotkey_actions :: () {
+                      ^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:264,26: Info: (procedure 'render_room_editor_ui')
+
+    }
+    render_room_editor_ui :: () {
+                             ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:264,26: s=0x0 type=LAMBDA_BODY
+
+    }
+    render_room_editor_ui :: () {
+                             ^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:70,21: Info: (procedure 'init_room_editor')
+
+    #add_context room_editor_state: *Room_Editor_State;
+    init_room_editor :: () {
+                        ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:70,21: s=0x0 type=LAMBDA_BODY
+
+    #add_context room_editor_state: *Room_Editor_State;
+    init_room_editor :: () {
+                        ^
+
+C:/Users/Colin/code/room_designer/src/player.jai:28,16: Info: (procedure 'init_player')
+
+    #add_context player_data: *Player_Data;
+    init_player :: () {
+                   ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/player.jai:28,16: s=0x0 type=LAMBDA_BODY
+
+    #add_context player_data: *Player_Data;
+    init_player :: () {
+                   ^
+
+C:/Users/Colin/code/room_designer/src/camera.jai:83,29: Info: (procedure 'cam_relative_pos_extents')
+
+    }
+    cam_relative_pos_extents :: (p: Vector2, e: Vector2) -> Vector2, Vector2 {
+                                ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/camera.jai:83,29: s=0x0 type=LAMBDA_BODY
+
+    }
+    cam_relative_pos_extents :: (p: Vector2, e: Vector2) -> Vector2, Vector2 {
+                                ^
+
+C:/Users/Colin/code/room_designer/src/camera.jai:14,16: Info: (procedure 'init_camera')
+
+    #add_context camera: *Camera;
+    init_camera :: () {
+                   ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/camera.jai:14,16: s=0x0 type=LAMBDA_BODY
+
+    #add_context camera: *Camera;
+    init_camera :: () {
+                   ^
+
+C:/Users/Colin/code/room_designer/src/io.jai:306,27: Info: (procedure 'generate_world_map_png')
+
+    }
+    generate_world_map_png :: (path: string) {
+                              ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/io.jai:306,27: s=0x0 type=LAMBDA_BODY
+
+    }
+    generate_world_map_png :: (path: string) {
+                              ^
+
+C:/Users/Colin/code/room_designer/src/io.jai:179,22: Info: (procedure 'is_room_available')
+
+    }
+    is_room_available :: (hash: u32) -> bool {
+                         ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/io.jai:179,22: s=0x0 type=LAMBDA_BODY
+
+    }
+    is_room_available :: (hash: u32) -> bool {
+                         ^
+
+C:/Users/Colin/code/room_designer/src/text.jai:31,25: Info: (procedure 'render_floating_text')
+
+    }
+    render_floating_text :: () {
+                            ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/text.jai:31,25: s=0x0 type=LAMBDA_BODY
+
+    }
+    render_floating_text :: () {
+                            ^
+
+C:/Users/Colin/code/room_designer/src/util.jai:22,37: Info: (procedure 'check_world_collision_tile_value')
+
+    }
+    check_world_collision_tile_value :: (c: Coord) -> Collision_Tile {
+                                        ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/util.jai:22,37: s=0x0 type=LAMBDA_BODY
+
+    }
+    check_world_collision_tile_value :: (c: Coord) -> Collision_Tile {
+                                        ^
+
+C:/Users/Colin/code/room_designer/src/inspector.jai:12,19: Info: (procedure 'init_inspector')
+
+    #add_context inspector_state: *Inspector_State;
+    init_inspector :: () {
+                      ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/inspector.jai:12,19: s=0x0 type=LAMBDA_BODY
+
+    #add_context inspector_state: *Inspector_State;
+    init_inspector :: () {
+                      ^
+
+C:/Users/Colin/code/room_designer/src/map_screen.jai:225,29: Info: (procedure 'map_tile_occupied')
+
+    }
+    map_tile_occupied :: inline (c: Coord) -> bool {
+                                ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_screen.jai:225,29: s=0x0 type=LAMBDA_BODY
+
+    }
+    map_tile_occupied :: inline (c: Coord) -> bool {
+                                ^
+
+C:/Users/Colin/code/room_designer/src/map_screen.jai:219,29: Info: (procedure 'rotate_map_selected_room')
+
+    }
+    rotate_map_selected_room :: () {
+                                ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_screen.jai:219,29: s=0x0 type=LAMBDA_BODY
+
+    }
+    rotate_map_selected_room :: () {
+                                ^
+
+C:/Users/Colin/code/room_designer/src/map_screen.jai:213,26: Info: (procedure 'prev_map_selected_idx')
+
+    }
+    prev_map_selected_idx :: () {
+                             ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_screen.jai:213,26: s=0x0 type=LAMBDA_BODY
+
+    }
+    prev_map_selected_idx :: () {
+                             ^
+
+C:/Users/Colin/code/room_designer/src/map_screen.jai:207,26: Info: (procedure 'next_map_selected_idx')
+
+    }
+    next_map_selected_idx :: () {
+                             ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_screen.jai:207,26: s=0x0 type=LAMBDA_BODY
+
+    }
+    next_map_selected_idx :: () {
+                             ^
+
+C:/Users/Colin/code/room_designer/src/map_screen.jai:202,31: Info: (procedure 'get_room_at_wrapping_index')
+
+    // Map Placement and editing
+    get_room_at_wrapping_index :: (req_idx: int) -> *Room {
+                                  ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_screen.jai:202,31: s=0x0 type=LAMBDA_BODY
+
+    // Map Placement and editing
+    get_room_at_wrapping_index :: (req_idx: int) -> *Room {
+                                  ^
+
+C:/Users/Colin/code/room_designer/src/map_screen.jai:120,15: Info: (procedure 'init_world')
+
+    }
+    init_world :: () {
+                  ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_screen.jai:120,15: s=0x0 type=LAMBDA_BODY
+
+    }
+    init_world :: () {
+                  ^
+
+C:/Users/Colin/code/room_designer/src/map_screen.jai:97,16: Info: (procedure 'map_refresh')
+
+    }
+    map_refresh :: () {
+                   ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_screen.jai:97,16: s=0x0 type=LAMBDA_BODY
+
+    }
+    map_refresh :: () {
+                   ^
+
+C:/Users/Colin/code/room_designer/src/map_screen.jai:86,13: Info: (procedure 'init_map')
+
+    }
+    init_map :: () {
+                ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_screen.jai:86,13: s=0x0 type=LAMBDA_BODY
+
+    }
+    init_map :: () {
+                ^
+
+C:/Users/Colin/code/room_designer/src/map_screen.jai:79,18: Info: (procedure 'rooms_refresh')
+
+    }
+    rooms_refresh :: () {
+                     ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_screen.jai:79,18: s=0x0 type=LAMBDA_BODY
+
+    }
+    rooms_refresh :: () {
+                     ^
+
+C:/Users/Colin/code/room_designer/src/map_screen.jai:66,33: Info: (procedure 'render_map_placed_room_cards')
+
+    }
+    render_map_placed_room_cards :: () {
+                                    ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_screen.jai:66,33: s=0x0 type=LAMBDA_BODY
+
+    }
+    render_map_placed_room_cards :: () {
+                                    ^
+
+C:/Users/Colin/code/room_designer/src/map_screen.jai:41,32: Info: (procedure 'render_map_placement_cursor')
+
+    }
+    render_map_placement_cursor :: () {
+                                   ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_screen.jai:41,32: s=0x0 type=LAMBDA_BODY
+
+    }
+    render_map_placement_cursor :: () {
+                                   ^
+
+C:/Users/Colin/code/room_designer/src/collision.jai:68,26: Info: (procedure 'init_collision_tables')
+
+    }
+    init_collision_tables :: () {
+                             ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/collision.jai:68,26: s=0x0 type=LAMBDA_BODY
+
+    }
+    init_collision_tables :: () {
+                             ^
+
+C:/Users/Colin/code/room_designer/src/render.jai:317,27: Info: (procedure 'debug_render_colliders')
+
+    }
+    debug_render_colliders :: () {
+                              ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/render.jai:317,27: s=0x0 type=LAMBDA_BODY
+
+    }
+    debug_render_colliders :: () {
+                              ^
+
+C:/Users/Colin/code/room_designer/src/render.jai:262,20: Info: (procedure 'render_entities')
+
+    }
+    render_entities :: () {
+                       ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/render.jai:262,20: s=0x0 type=LAMBDA_BODY
+
+    }
+    render_entities :: () {
+                       ^
+
+C:/Users/Colin/code/room_designer/src/render.jai:210,32: Info: (procedure 'render_boundaries_from_rect')
+
+    }
+    render_boundaries_from_rect :: (start: Coord, width: s16, height: s16) -> float32, float32, float32, float32 {
+                                   ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/render.jai:210,32: s=0x0 type=LAMBDA_BODY
+
+    }
+    render_boundaries_from_rect :: (start: Coord, width: s16, height: s16) -> float32, float32, float32, float32 {
+                                   ^
+
+C:/Users/Colin/code/room_designer/src/render.jai:195,32: Info: (procedure 'render_boundaries_from_cell')
+
+    }
+    render_boundaries_from_cell :: (c: Coord) -> float32, float32, float32, float32 {
+                                   ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/render.jai:195,32: s=0x0 type=LAMBDA_BODY
+
+    }
+    render_boundaries_from_cell :: (c: Coord) -> float32, float32, float32, float32 {
+                                   ^
+
+C:/Users/Colin/code/room_designer/src/render.jai:79,28: Info: (procedure 'draw_current_room_exits')
+
+    }
+    draw_current_room_exits :: (height: int) {
+                               ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/render.jai:79,28: s=0x0 type=LAMBDA_BODY
+
+    }
+    draw_current_room_exits :: (height: int) {
+                               ^
+
+C:/Users/Colin/code/room_designer/src/render.jai:6,19: Info: (procedure 'init_rendering')
+
+    #add_context gameplay_texture: *Texture;
+    init_rendering :: () {
+                      ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/render.jai:6,19: s=0x0 type=LAMBDA_BODY
+
+    #add_context gameplay_texture: *Texture;
+    init_rendering :: () {
+                      ^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:396,18: Info: (procedure 'apply_gravity')
+
+    }
+    apply_gravity :: (delta: float32) {
+                     ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:396,18: s=0x0 type=LAMBDA_BODY
+
+    }
+    apply_gravity :: (delta: float32) {
+                     ^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:389,19: Info: (procedure 'apply_velocity')
+
+    // }
+    apply_velocity :: (delta: float32) {
+                      ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:389,19: s=0x0 type=LAMBDA_BODY
+
+    // }
+    apply_velocity :: (delta: float32) {
+                      ^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:230,21: Info: (procedure 'sensor_collision')
+
+    }
+    sensor_collision :: () {
+                        ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:230,21: s=0x0 type=LAMBDA_BODY
+
+    }
+    sensor_collision :: () {
+                        ^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:219,27: Info: (procedure 'decay_crate_x_velocity')
+
+    }
+    decay_crate_x_velocity :: () {
+                              ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:219,27: s=0x0 type=LAMBDA_BODY
+
+    }
+    decay_crate_x_velocity :: () {
+                              ^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:165,26: Info: (procedure 'moving_block_velocity')
+
+    }
+    moving_block_velocity :: () {
+                             ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:165,26: s=0x0 type=LAMBDA_BODY
+
+    }
+    moving_block_velocity :: () {
+                             ^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:41,19: Info: (procedure 'body_collision')
+
+    }
+    body_collision :: () {
+                      ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:41,19: s=0x0 type=LAMBDA_BODY
+
+    }
+    body_collision :: () {
+                      ^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:29,26: Info: (procedure 'apply_movement_deltas')
+
+    }
+    apply_movement_deltas :: () {
+                             ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:29,26: s=0x0 type=LAMBDA_BODY
+
+    }
+    apply_movement_deltas :: () {
+                             ^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:11,40: Info: (procedure 'set_relative_position_and_rotations')
+
+    FALLING_GRAVITY :: #run calculate_falling_gravity();
+    set_relative_position_and_rotations :: () {
+                                           ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:11,40: s=0x0 type=LAMBDA_BODY
+
+    FALLING_GRAVITY :: #run calculate_falling_gravity();
+    set_relative_position_and_rotations :: () {
+                                           ^
+
+C:/Users/Colin/code/room_designer/src/assets.jai:17,18: Info: (procedure 'init_textures')
+
+    #add_context atlas: *Asset_Atlas;
+    init_textures :: () {
+                     ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/assets.jai:17,18: s=0x0 type=LAMBDA_BODY
+
+    #add_context atlas: *Asset_Atlas;
+    init_textures :: () {
+                     ^
+
+C:/Users/Colin/code/room_designer/src/game_state.jai:19,19: Info: (procedure 'init_game_data')
+
+    #add_context game_data: *Game_Data;
+    init_game_data :: () {
+                      ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/game_state.jai:19,19: s=0x0 type=LAMBDA_BODY
+
+    #add_context game_data: *Game_Data;
+    init_game_data :: () {
+                      ^
+
+C:/Users/Colin/code/room_designer/src/gameplay.jai:45,32: Info: (procedure 'handle_entity_sprite_sheets')
+
+    }
+    handle_entity_sprite_sheets :: () {
+                                   ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/gameplay.jai:45,32: s=0x0 type=LAMBDA_BODY
+
+    }
+    handle_entity_sprite_sheets :: () {
+                                   ^
+
+C:/Users/Colin/code/room_designer/src/gameplay.jai:38,29: Info: (procedure 'advance_animation_timers')
+
+    }
+    advance_animation_timers :: (delta: float32) {
+                                ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/gameplay.jai:38,29: s=0x0 type=LAMBDA_BODY
+
+    }
+    advance_animation_timers :: (delta: float32) {
+                                ^
+
+C:/Users/Colin/code/room_designer/src/debug_mode.jai:7,20: Info: (procedure 'init_debug_mode')
+
+    #add_context debug_mode: *Debug_Mode_State;
+    init_debug_mode :: () {
+                       ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/debug_mode.jai:7,20: s=0x0 type=LAMBDA_BODY
+
+    #add_context debug_mode: *Debug_Mode_State;
+    init_debug_mode :: () {
+                       ^
+
+C:/Users/Colin/code/room_designer/src/power.jai:1,30: Info: (procedure 'handle_power_conductivity')
+
+    handle_power_conductivity :: () {
+                                 ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/power.jai:1,30: s=0x0 type=LAMBDA_BODY
+
+    handle_power_conductivity :: () {
+                                 ^
+
+C:/Users/Colin/code/jai/modules/Basic/String_Builder.jai:65,17: Info: (procedure 'free_buffers')
+
+    }
+    free_buffers :: (using builder: *String_Builder) {  // free_buffers will be deprecated pretty soon, and the only entry point to resetting a String_Builder will be reset().  -jblow, 1 June 2022
+                    ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Basic/String_Builder.jai:65,17: s=0x0 type=LAMBDA_BODY
+
+    }
+    free_buffers :: (using builder: *String_Builder) {  // free_buffers will be deprecated pretty soon, and the only entry point to resetting a String_Builder will be reset().  -jblow, 1 June 2022
+                    ^
+
+C:/Users/Colin/code/jai/modules/Basic/module.jai:107,10: Info: (procedure 'alloc')
+
+    }
+    alloc :: (size: s64) -> *void {
+             ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Basic/module.jai:107,10: s=0x0 type=LAMBDA_BODY
+
+    }
+    alloc :: (size: s64) -> *void {
+             ^
+
+C:/Users/Colin/code/jai/modules/Basic/String_Builder.jai:49,24: Info: (procedure 'init_string_builder')
+
+    }
+    init_string_builder :: (using builder: *String_Builder, buffer_size := -1) {
+                           ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Basic/String_Builder.jai:49,24: s=0x0 type=LAMBDA_BODY
+
+    }
+    init_string_builder :: (using builder: *String_Builder, buffer_size := -1) {
+                           ^
+
+C:/Users/Colin/code/jai/modules/Basic/Temporary_Storage_Paged_Alloc.jai:27,29: Info: (procedure 'temporary_allocator_proc')
+
+    }
+    temporary_allocator_proc :: (mode: Allocator_Mode, requested_size: s64, old_size: s64, old_memory: *void, allocator_data: *void) -> *void {
+                                ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Basic/Temporary_Storage_Paged_Alloc.jai:27,29: s=0x0 type=LAMBDA_BODY
+
+    }
+    temporary_allocator_proc :: (mode: Allocator_Mode, requested_size: s64, old_size: s64, old_memory: *void, allocator_data: *void) -> *void {
+                                ^
+
+C:/Users/Colin/code/jai/modules/Basic/module.jai:81,18: Info: (procedure 'assert_helper')
+
+    }
+    assert_helper :: (message := "", args: .. Any, loc := #caller_location) -> bool {
+                     ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Basic/module.jai:81,18: s=0x0 type=LAMBDA_BODY
+
+    }
+    assert_helper :: (message := "", args: .. Any, loc := #caller_location) -> bool {
+                     ^
+
+C:/Users/Colin/code/jai/modules/File/windows.jai:21,14: Info: (procedure 'file_open')
+
+    }
+    file_open :: (name: string, for_writing := false, keep_existing_content := false, log_errors := false) -> File, bool {
+                 ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/File/windows.jai:21,14: s=0x0 type=LAMBDA_BODY
+
+    }
+    file_open :: (name: string, for_writing := false, keep_existing_content := false, log_errors := false) -> File, bool {
+                 ^
+
+C:/Users/Colin/code/jai/modules/Basic/module.jai:117,9: Info: (procedure 'free')
+
+    }
+    free :: (memory: *void) {
+            ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Basic/module.jai:117,9: s=0x0 type=LAMBDA_BODY
+
+    }
+    free :: (memory: *void) {
+            ^
+
+C:/Users/Colin/code/jai/modules/System.jai:150,25: Info: (procedure 'get_error_string')
+
+    get_error_value :: Windows.GetLastError;
+    get_error_string :: (error_code: OS_Error_Code) -> string {
+                        ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/System.jai:150,25: s=0x0 type=LAMBDA_BODY
+
+    get_error_value :: Windows.GetLastError;
+    get_error_string :: (error_code: OS_Error_Code) -> string {
+                        ^
+
+C:/Users/Colin/code/jai/modules/Basic/Print.jai:357,8: Info: (procedure 'log')
+
+    // You can pass flags. source_identifier and data get copied from context.
+    //
+    log :: (format_string: string, args: .. Any, loc := #caller_location, flags := Log_Flags.NONE, user_flags : u32 = 0, section : *Log_Section = null) {
+           ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Basic/Print.jai:357,8: s=0x0 type=LAMBDA_BODY
+
+    // You can pass flags. source_identifier and data get copied from context.
+    //
+    log :: (format_string: string, args: .. Any, loc := #caller_location, flags := Log_Flags.NONE, user_flags : u32 = 0, section : *Log_Section = null) {
+           ^
+
+C:/Users/Colin/code/jai/modules/Basic/Print.jai:343,11: Info: (procedure 'tprint')
+
+    } @PrintLike
+    tprint :: (format_string: string, args: .. Any) -> string {
+              ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Basic/Print.jai:343,11: s=0x0 type=LAMBDA_BODY
+
+    } @PrintLike
+    tprint :: (format_string: string, args: .. Any) -> string {
+              ^
+
+C:/Users/Colin/code/jai/modules/Runtime_Support.jai:389,27: Info: (procedure '__jai_runtime_init')
+
+    #scope_export
+    #program_export
+    __jai_runtime_init :: (argc: s32, argv: **u8) -> *#Context #c_call {
+                          ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Runtime_Support.jai:389,27: s=0x0 type=LAMBDA_BODY
+
+    #scope_export
+    #program_export
+    __jai_runtime_init :: (argc: s32, argv: **u8) -> *#Context #c_call {
+                          ^
+
+C:/Users/Colin/code/jai/modules/Runtime_Support.jai:69,37: Info: (procedure 'runtime_support_assertion_failed')
+
+    }
+    runtime_support_assertion_failed :: (loc: Source_Code_Location, message: string) -> bool {
+                                        ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Runtime_Support.jai:69,37: s=0x0 type=LAMBDA_BODY
+
+    }
+    runtime_support_assertion_failed :: (loc: Source_Code_Location, message: string) -> bool {
+                                        ^
+
+C:/Users/Colin/code/jai/modules/Windows.jai:5042,11: Info: (procedure 'assert')
+
+    // Simple assert that does not do anything fancy. Avoiding dependencies on Basic, etc.
+    assert :: (arg: bool, loc := #caller_location) {
+              ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Windows.jai:5042,11: s=0x0 type=LAMBDA_BODY
+
+    // Simple assert that does not do anything fancy. Avoiding dependencies on Basic, etc.
+    assert :: (arg: bool, loc := #caller_location) {
+              ^
+
+C:/Users/Colin/code/jai/modules/Basic/module.jai:125,12: Info: (procedure 'realloc')
+
+    }
+    realloc :: (memory: *void, size: s64, old_size: s64) -> *void {
+               ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Basic/module.jai:125,12: s=0x0 type=LAMBDA_BODY
+
+    }
+    realloc :: (memory: *void, size: s64, old_size: s64) -> *void {
+               ^
+
+C:/Users/Colin/code/jai/modules/Basic/Array.jai:272,25: Info: (procedure 'array_reserve')
+
+    // in vanilla array_reserve() being a constant), it causes everyone up the chain to
+    // have more polymorphs than necessary, because they need to call different leaves!
+    array_reserve :: inline (array: *Resizable_Array, desired_items: s64, element_size: s64) {
+                            ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Basic/Array.jai:272,25: s=0x0 type=LAMBDA_BODY
+
+    // in vanilla array_reserve() being a constant), it causes everyone up the chain to
+    // have more polymorphs than necessary, because they need to call different leaves!
+    array_reserve :: inline (array: *Resizable_Array, desired_items: s64, element_size: s64) {
+                            ^
+
+C:/Users/Colin/code/jai/modules/Basic/module.jai:522,24: Info: (procedure 'remember_allocators')
+
+    }
+    remember_allocators :: (data: *$T) {
+                           ^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Basic/module.jai:522,24: s=0x0 type=LAMBDA_BODY
+
+    }
+    remember_allocators :: (data: *$T) {
+                           ^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Hash_Table.jai:483,11: Info: (procedure 'expand')
+
+    // A beta user requested being able to call expand(), so, here:
+    expand :: (table: *Table, new_allocated := -1) {
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Hash_Table.jai:483,11: s=0x0 type=LAMBDA_BODY
+
+    // A beta user requested being able to call expand(), so, here:
+    expand :: (table: *Table, new_allocated := -1) {
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Hash_Table.jai:529,28: Info: (procedure '_internal_resize_memory')
+
+    #scope_file
+    _internal_resize_memory :: (using table: *Table, slots_to_allocate: s64 = 0) {
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Hash_Table.jai:529,28: s=0x0 type=LAMBDA_BODY
+
+    #scope_file
+    _internal_resize_memory :: (using table: *Table, slots_to_allocate: s64 = 0) {
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Basic/module.jai:522,24: Info: (procedure 'remember_allocators')
+
+    }
+    remember_allocators :: (data: *$T) {
+                           ^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Basic/module.jai:522,24: s=0x0 type=LAMBDA_BODY
+
+    }
+    remember_allocators :: (data: *$T) {
+                           ^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Basic/Print.jai:1019,21: Info: (procedure 'print_to_builder')
+
+    }
+    print_to_builder :: (builder : *String_Builder, format_string : string, args: .. Any) -> bool {
+                        ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Basic/Print.jai:1019,21: s=0x0 type=LAMBDA_BODY
+
+    }
+    print_to_builder :: (builder : *String_Builder, format_string : string, args: .. Any) -> bool {
+                        ^
+
+C:/Users/Colin/code/jai/modules/Entities/module.jai:61,19: Info: (header of procedure 'entities_clear')
+
+    entities_clear :: (e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) {
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Entities/module.jai:61,19: s=0x0 type=LAMBDA
+
+    }
+    entities_clear :: (e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) {
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Entities/module.jai:68,18: Info: (header of procedure 'entities_free')
+
+    entities_free :: (e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) {
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Entities/module.jai:68,18: s=0x0 type=LAMBDA
+
+    }
+    entities_free :: (e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) {
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Entities/module.jai:74,15: Info: (header of procedure 'entity_add')
+
+    entity_add :: (new_entity: Raw_Entity(ENTITY_HEADER_TYPE), e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) -> Entity_Handle {
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Entities/module.jai:74,15: s=0x0 type=LAMBDA
+
+    }
+    entity_add :: (new_entity: Raw_Entity(ENTITY_HEADER_TYPE), e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) -> Entity_Handle {
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Entities/module.jai:98,15: Info: (header of procedure 'entity_get')
+
+    entity_get :: (handle: Entity_Handle, e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) -> *Raw_Entity(ENTITY_HEADER_TYPE) {
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Entities/module.jai:98,15: s=0x0 type=LAMBDA
+
+    }
+    entity_get :: (handle: Entity_Handle, e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) -> *Raw_Entity(ENTITY_HEADER_TYPE) {
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Entities/module.jai:106,18: Info: (header of procedure 'entity_remove')
+
+    entity_remove :: (handle: Entity_Handle, e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) {
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Entities/module.jai:106,18: s=0x0 type=LAMBDA
+
+    }
+    entity_remove :: (handle: Entity_Handle, e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) {
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Entities/module.jai:141,17: Info: (header of procedure 'entity_valid')
+
+    entity_valid :: (handle: Entity_Handle, e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) -> bool {
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Entities/module.jai:141,17: s=0x0 type=LAMBDA
+
+    }
+    entity_valid :: (handle: Entity_Handle, e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) -> bool {
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Entities/module.jai:146,21: Info: (header of procedure 'entity_add_child')
+
+    entity_add_child :: (parent_handle: Entity_Handle, child_entity: Raw_Entity(ENTITY_HEADER_TYPE), e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) -> Entity_Handle {
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Entities/module.jai:146,21: s=0x0 type=LAMBDA
+
+    }
+    entity_add_child :: (parent_handle: Entity_Handle, child_entity: Raw_Entity(ENTITY_HEADER_TYPE), e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) -> Entity_Handle {
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/player.jai:125,16: Info: (header of procedure 'make_player')
+
+    make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> Entity_Handle {
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/player.jai:125,16: s=0x0 type=LAMBDA
+
+    }
+    make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> Entity_Handle {
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/GetRect/module.jai:820,193: Info: (#run)
+
+    // Arrays into which we will load the bitmaps at compile-time.
+    // Doing this in a somewhat awkward way because that is just how things work right now:
+    memory_radiobox_full, memory_radiobox_empty, memory_checkbox_full, memory_checkbox_empty, memory_default_font, memory_mode_circle, memory_mode_hsv, memory_mode_rgb, memory_mode_numbers :: #run get_global_data();
+                                                                                                                                                                                                ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/GetRect/module.jai:820,193: s=0x0 type=DIRECTIVE_RUN
+
+    // Arrays into which we will load the bitmaps at compile-time.
+    // Doing this in a somewhat awkward way because that is just how things work right now:
+    memory_radiobox_full, memory_radiobox_empty, memory_checkbox_full, memory_checkbox_empty, memory_default_font, memory_mode_circle, memory_mode_hsv, memory_mode_rgb, memory_mode_numbers :: #run get_global_data();
+                                                                                                                                                                                                ^^^^
+
+C:/Users/Colin/code/jai/modules/Entities/module.jai:19,9: Info: (#run)
+
+        return sprint("% :: Raw_Entity(ENTITY_HEADER_TYPE);", ENTITY_ALIAS);
+    };
+    #insert #run -> string {
+            ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Entities/module.jai:19,9: s=0x0 type=DIRECTIVE_RUN
+
+        return sprint("% :: Raw_Entity(ENTITY_HEADER_TYPE);", ENTITY_ALIAS);
+    };
+    #insert #run -> string {
+            ^^^^
+
+
+Here are some other items, that may just be waiting on the ones listed above:
+
+C:/Users/Colin/code/room_designer/src/player.jai:26,14: Info: (declaration of 'player_data')
+
+    #add_context player_handle: *Entity_Handle;
+    #add_context player_data: *Player_Data;
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/player.jai:26,14: s=0x0 type=DECLARATION
+
+    #add_context player_handle: *Entity_Handle;
+    #add_context player_data: *Player_Data;
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/inspector.jai:1,1: Info: (declaration of 'Inspector_State')
+
+    Inspector_State :: struct {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/inspector.jai:1,1: s=0x0 type=DECLARATION
+
+    Inspector_State :: struct {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/inspector.jai:10,14: Info: (declaration of 'inspector_state')
+
+    }
+    #add_context inspector_state: *Inspector_State;
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/inspector.jai:10,14: s=0x0 type=DECLARATION
+
+    }
+    #add_context inspector_state: *Inspector_State;
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:12,5: Info: (declaration of 'current_room')
+
+    editor_click_mode: Room_Editor_Click_Mode;
+    current_room: *Room;
+    ^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:12,5: s=0x0 type=DECLARATION
+
+    editor_click_mode: Room_Editor_Click_Mode;
+    current_room: *Room;
+    ^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/game_state.jai:17,14: Info: (declaration of 'game_data')
+
+    #add_context game_state: Game_State;
+    #add_context game_data: *Game_Data;
+                 ^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/game_state.jai:17,14: s=0x0 type=DECLARATION
+
+    #add_context game_state: Game_State;
+    #add_context game_data: *Game_Data;
+                 ^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/player.jai:1,1: Info: (declaration of 'Player_Data')
+
+    Player_Data :: struct {
+    ^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/player.jai:1,1: s=0x0 type=DECLARATION
+
+    Player_Data :: struct {
+    ^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:8,1: Info: (declaration of 'Room_Editor_State')
+
+    // Use local tile size for the editor to make translating positions easier on hydration
+    Room_Editor_State :: struct {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:8,1: s=0x0 type=DECLARATION
+
+    // Use local tile size for the editor to make translating positions easier on hydration
+    Room_Editor_State :: struct {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/game_state.jai:9,1: Info: (declaration of 'Game_Data')
+
+    }
+    Game_Data :: struct {
+    ^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/game_state.jai:9,1: s=0x0 type=DECLARATION
+
+    }
+    Game_Data :: struct {
+    ^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:68,14: Info: (declaration of 'room_editor_state')
+
+    }
+    #add_context room_editor_state: *Room_Editor_State;
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:68,14: s=0x0 type=DECLARATION
+
+    }
+    #add_context room_editor_state: *Room_Editor_State;
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/map_types.jai:44,1: Info: (declaration of 'Room')
+
+    }
+    Room :: struct {
+    ^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_types.jai:44,1: s=0x0 type=DECLARATION
+
+    }
+    Room :: struct {
+    ^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/util.jai:18,31: Info: (header of procedure 'check_collision_tile_value')
+
+    check_collision_tile_value :: (r: *Room, c: Coord) -> Collision_Tile #expand {
+                                  ^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/util.jai:18,31: s=0x0 type=LAMBDA
+
+    }
+    check_collision_tile_value :: (r: *Room, c: Coord) -> Collision_Tile #expand {
+                                  ^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:705,22: Info: (header of procedure 'build_rooms_array')
+
+    build_rooms_array :: () -> [..]*Room {
+                         ^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:705,22: s=0x0 type=LAMBDA
+
+    }
+    build_rooms_array :: () -> [..]*Room {
+                         ^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:174,25: Info: (header of procedure 'render_room_entities')
+
+    render_room_entities :: (r: *Room) {
+                            ^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:174,25: s=0x0 type=LAMBDA
+
+    }
+    render_room_entities :: (r: *Room) {
+                            ^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:122,26: Info: (header of procedure 'render_room_collision')
+
+    render_room_collision :: (r: *Room, faded := false) {
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:122,26: s=0x0 type=LAMBDA
+
+    }
+    render_room_collision :: (r: *Room, faded := false) {
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/io.jai:184,22: Info: (header of procedure 'generate_room_png')
+
+    generate_room_png :: (r: *Room, path: string) {
+                         ^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/io.jai:184,22: s=0x0 type=LAMBDA
+
+    }
+    generate_room_png :: (r: *Room, path: string) {
+                         ^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/io.jai:47,14: Info: (header of procedure 'load_room')
+
+    load_room :: (filename: string, static := false) -> Room, bool {
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/io.jai:47,14: s=0x0 type=LAMBDA
+
+    }
+    load_room :: (filename: string, static := false) -> Room, bool {
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/io.jai:5,14: Info: (header of procedure 'save_room')
+
+    save_room :: (r: Room) {
+                 ^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/io.jai:5,14: s=0x0 type=LAMBDA
+
+    PIXELS_PER_TILE :: 2;
+    save_room :: (r: Room) {
+                 ^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/map_screen.jai:202,31: Info: (header of procedure 'get_room_at_wrapping_index')
+
+    get_room_at_wrapping_index :: (req_idx: int) -> *Room {
+                                  ^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_screen.jai:202,31: s=0x0 type=LAMBDA
+
+    // Map Placement and editing
+    get_room_at_wrapping_index :: (req_idx: int) -> *Room {
+                                  ^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/map_screen.jai:127,16: Info: (header of procedure 'rotate_room')
+
+    rotate_room :: (r: Room) -> Room {
+                   ^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_screen.jai:127,16: s=0x0 type=LAMBDA
+
+    }
+    rotate_room :: (r: Room) -> Room {
+                   ^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/util.jai:26,23: Info: (header of procedure 'get_room_from_hash')
+
+    get_room_from_hash :: (hash: u32) -> *Room {
+                          ^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/util.jai:26,23: s=0x0 type=LAMBDA
+
+    }
+    get_room_from_hash :: (hash: u32) -> *Room {
+                          ^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/render.jai:227,26: Info: (header of procedure 'render_room_and_frame')
+
+    render_room_and_frame :: (room: *Room, position: Vector2, size: Vector2) {
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/render.jai:227,26: s=0x0 type=LAMBDA
+
+    // #MAP_PLACEMENT_RENDERING
+    render_room_and_frame :: (room: *Room, position: Vector2, size: Vector2) {
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Basic/Array.jai:112,14: Info: (procedure 'array_add')
+
+    }
+    array_add :: (array: *[..]$T) -> *T {
+                 ^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Basic/Array.jai:112,14: s=0x0 type=LAMBDA_BODY
+
+    }
+    array_add :: (array: *[..]$T) -> *T {
+                 ^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Basic/Array.jai:112,14: Info: (procedure 'array_add')
+
+    }
+    array_add :: (array: *[..]$T) -> *T {
+                 ^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Basic/Array.jai:112,14: s=0x0 type=LAMBDA_BODY
+
+    }
+    array_add :: (array: *[..]$T) -> *T {
+                 ^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Basic/Array.jai:93,14: Info: (procedure 'array_add')
+
+    // Adding things to an array:
+    //
+    array_add :: (array: *[..]$T, item: T, debug := false) #no_abc {
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Basic/Array.jai:93,14: s=0x0 type=LAMBDA_BODY
+
+    // Adding things to an array:
+    //
+    array_add :: (array: *[..]$T, item: T, debug := false) #no_abc {
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Basic/Array.jai:93,14: Info: (procedure 'array_add')
+
+    // Adding things to an array:
+    //
+    array_add :: (array: *[..]$T, item: T, debug := false) #no_abc {
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Basic/Array.jai:93,14: s=0x0 type=LAMBDA_BODY
+
+    // Adding things to an array:
+    //
+    array_add :: (array: *[..]$T, item: T, debug := false) #no_abc {
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Basic/Array.jai:315,22: Info: (procedure 'maybe_grow')
+
+    // we can call this function without knowing T at compile-time. This makes
+    // the calling sites in this file slightly uglier, but maybe that's okay.
+    maybe_grow :: inline (array: *Resizable_Array, element_size: s64, debug := false) {
+                         ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Basic/Array.jai:315,22: s=0x0 type=LAMBDA_BODY
+
+    // we can call this function without knowing T at compile-time. This makes
+    // the calling sites in this file slightly uglier, but maybe that's okay.
+    maybe_grow :: inline (array: *Resizable_Array, element_size: s64, debug := false) {
+                         ^
+
+C:/Users/Colin/code/jai/modules/Basic/Array.jai:100,14: Info: (procedure 'array_add')
+
+    }
+    array_add :: (array: *[..]$T, to_append: ..T) { // Multi-argument version. Single-argument will be chosen in overload resolution for appropriate cases!
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Basic/Array.jai:100,14: s=0x0 type=LAMBDA_BODY
+
+    }
+    array_add :: (array: *[..]$T, to_append: ..T) { // Multi-argument version. Single-argument will be chosen in overload resolution for appropriate cases!
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Basic/Array.jai:297,17: Info: (procedure 'array_resize')
+
+    }
+    array_resize :: (array: *[..]$T, new_count: s64, $initialize := true) {
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Basic/Array.jai:297,17: s=0x0 type=LAMBDA_BODY
+
+    }
+    array_resize :: (array: *[..]$T, new_count: s64, $initialize := true) {
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Runtime_Support.jai:526,17: Info: (Context1)
+
+    // if you make an error of some kind, even a simple one like an undeclared identifier,
+    // you won't get a helpful error message.
+    Context_Base :: struct {
+                    ^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Runtime_Support.jai:526,17: s=0x0 type=STRUCT
+
+    // if you make an error of some kind, even a simple one like an undeclared identifier,
+    // you won't get a helpful error message.
+    Context_Base :: struct {
+                    ^^^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:8,22: Info: (Room_Editor_State)
+
+    // Use local tile size for the editor to make translating positions easier on hydration
+    Room_Editor_State :: struct {
+                         ^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:8,22: s=0x0 type=STRUCT
+
+    // Use local tile size for the editor to make translating positions easier on hydration
+    Room_Editor_State :: struct {
+                         ^^^^^^
+
+C:/Users/Colin/code/room_designer/src/player.jai:1,16: Info: (Player_Data)
+
+    Player_Data :: struct {
+                   ^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/player.jai:1,16: s=0x0 type=STRUCT
+
+    Player_Data :: struct {
+                   ^^^^^^
+
+C:/Users/Colin/code/room_designer/src/map_types.jai:44,9: Info: (Room)
+
+    }
+    Room :: struct {
+            ^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_types.jai:44,9: s=0x0 type=STRUCT
+
+    }
+    Room :: struct {
+            ^^^^^^
+
+C:/Users/Colin/code/room_designer/src/inspector.jai:1,20: Info: (Inspector_State)
+
+    Inspector_State :: struct {
+                       ^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/inspector.jai:1,20: s=0x0 type=STRUCT
+
+    Inspector_State :: struct {
+                       ^^^^^^
+
+C:/Users/Colin/code/room_designer/src/game_state.jai:9,14: Info: (Game_Data)
+
+    }
+    Game_Data :: struct {
+                 ^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/game_state.jai:9,14: s=0x0 type=STRUCT
+
+    }
+    Game_Data :: struct {
+                 ^^^^^^
+
+C:/Users/Colin/code/room_designer/src/parsing.jai:1,15: Info: (procedure 'bake_world')
+
+    bake_world :: () {
+                  ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/parsing.jai:1,15: s=0x0 type=LAMBDA_BODY
+
+    bake_world :: () {
+                  ^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:13,5: Info: (declaration of 'current_entity_handle')
+
+    current_room: *Room;
+    current_entity_handle: Entity_Handle;
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:13,5: s=0x0 type=DECLARATION
+
+    current_room: *Room;
+    current_entity_handle: Entity_Handle;
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/player.jai:38,20: Info: (procedure 'player_is_valid')
+
+    }
+    player_is_valid :: () -> bool {
+                       ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/player.jai:38,20: s=0x0 type=LAMBDA_BODY
+
+    }
+    player_is_valid :: () -> bool {
+                       ^
+
+C:/Users/Colin/code/room_designer/src/entity.jai:316,14: Info: (procedure 'make_wall')
+
+    }
+    make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
+                 ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/entity.jai:316,14: s=0x0 type=LAMBDA_BODY
+
+    }
+    make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
+                 ^
+
+C:/Users/Colin/code/room_designer/src/inspector.jai:2,5: Info: (declaration of 'current_handle')
+
+    Inspector_State :: struct {
+        current_handle: Entity_Handle;
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/inspector.jai:2,5: s=0x0 type=DECLARATION
+
+    Inspector_State :: struct {
+        current_handle: Entity_Handle;
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/game_state.jai:11,5: Info: (declaration of 'stored_player')
+
+    Game_Data :: struct {
+        has_stored_player: bool;
+        stored_player: Entity;
+        ^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/game_state.jai:11,5: s=0x0 type=DECLARATION
+
+    Game_Data :: struct {
+        has_stored_player: bool;
+        stored_player: Entity;
+        ^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/player.jai:25,14: Info: (declaration of 'player_handle')
+
+    }
+    #add_context player_handle: *Entity_Handle;
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/player.jai:25,14: s=0x0 type=DECLARATION
+
+    }
+    #add_context player_handle: *Entity_Handle;
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Entities/module.jai:16,1: Info: (#insert)
+
+    }
+    #insert #run -> string {
+    ^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Entities/module.jai:16,1: s=0x0 type=DIRECTIVE_INSERT
+
+    }
+    #insert #run -> string {
+    ^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Entities/module.jai:16,9: Info: (#run)
+
+    }
+    #insert #run -> string {
+            ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Entities/module.jai:16,9: s=0x0 type=DIRECTIVE_RUN
+
+    }
+    #insert #run -> string {
+            ^^^^
+
+C:/Users/Colin/code/jai/modules/GetRect/module.jai:820,116: Info: (declaration of 'memory_mode_circle')
+
+    // Arrays into which we will load the bitmaps at compile-time.
+    // Doing this in a somewhat awkward way because that is just how things work right now:
+    memory_radiobox_full, memory_radiobox_empty, memory_checkbox_full, memory_checkbox_empty, memory_default_font, memory_mode_circle, memory_mode_hsv, memory_mode_rgb, memory_mode_numbers :: #run get_global_data();
+                                                                                                                   ^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/GetRect/module.jai:820,116: s=0x0 type=DECLARATION
+
+    // Arrays into which we will load the bitmaps at compile-time.
+    // Doing this in a somewhat awkward way because that is just how things work right now:
+    memory_radiobox_full, memory_radiobox_empty, memory_checkbox_full, memory_checkbox_empty, memory_default_font, memory_mode_circle, memory_mode_hsv, memory_mode_rgb, memory_mode_numbers :: #run get_global_data();
+                                                                                                                   ^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/entity.jai:297,1: Info: (declaration of 'entity_has_flags')
+
+    }
+    entity_has_flags :: inline (h: Entity_Handle, flags: Entity_Flags) -> bool {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/entity.jai:297,1: s=0x0 type=DECLARATION
+
+    }
+    entity_has_flags :: inline (h: Entity_Handle, flags: Entity_Flags) -> bool {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/entity.jai:297,28: Info: (header of procedure 'entity_has_flags')
+
+    entity_has_flags :: inline (h: Entity_Handle, flags: Entity_Flags) -> bool {
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/entity.jai:297,28: s=0x0 type=LAMBDA
+
+    }
+    entity_has_flags :: inline (h: Entity_Handle, flags: Entity_Flags) -> bool {
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/camera.jai:59,20: Info: (procedure 'snap_camera_pos')
+
+    }
+    snap_camera_pos :: () {
+                       ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/camera.jai:59,20: s=0x0 type=LAMBDA_BODY
+
+    }
+    snap_camera_pos :: () {
+                       ^
+
+C:/Users/Colin/code/room_designer/src/gameplay.jai:1,20: Info: (procedure 'gameplay_update')
+
+    gameplay_update :: (delta: float32) {
+                       ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/gameplay.jai:1,20: s=0x0 type=LAMBDA_BODY
+
+    gameplay_update :: (delta: float32) {
+                       ^
+
+C:/Users/Colin/code/room_designer/build.jai:51,9: Info: (procedure 'init')
+
+    }
+    init :: () {
+            ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/build.jai:51,9: s=0x0 type=LAMBDA_BODY
+
+    }
+    init :: () {
+            ^
+
+C:/Users/Colin/code/jai/modules/GetRect/module.jai:820,50: Info: (declaration of 'memory_checkbox_full')
+
+    // Arrays into which we will load the bitmaps at compile-time.
+    // Doing this in a somewhat awkward way because that is just how things work right now:
+    memory_radiobox_full, memory_radiobox_empty, memory_checkbox_full, memory_checkbox_empty, memory_default_font, memory_mode_circle, memory_mode_hsv, memory_mode_rgb, memory_mode_numbers :: #run get_global_data();
+                                                 ^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/GetRect/module.jai:820,50: s=0x0 type=DECLARATION
+
+    // Arrays into which we will load the bitmaps at compile-time.
+    // Doing this in a somewhat awkward way because that is just how things work right now:
+    memory_radiobox_full, memory_radiobox_empty, memory_checkbox_full, memory_checkbox_empty, memory_default_font, memory_mode_circle, memory_mode_hsv, memory_mode_rgb, memory_mode_numbers :: #run get_global_data();
+                                                 ^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/io.jai:5,14: Info: (procedure 'save_room')
+
+    PIXELS_PER_TILE :: 2;
+    save_room :: (r: Room) {
+                 ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/io.jai:5,14: s=0x0 type=LAMBDA_BODY
+
+    PIXELS_PER_TILE :: 2;
+    save_room :: (r: Room) {
+                 ^
+
+C:/Users/Colin/code/room_designer/src/render.jai:306,1: Info: (declaration of 'draw_entity_collider')
+
+    }
+    draw_entity_collider :: inline (e: *Entity, color: Vector4) {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/render.jai:306,1: s=0x0 type=DECLARATION
+
+    }
+    draw_entity_collider :: inline (e: *Entity, color: Vector4) {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/render.jai:306,32: Info: (header of procedure 'draw_entity_collider')
+
+    draw_entity_collider :: inline (e: *Entity, color: Vector4) {
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/render.jai:306,32: s=0x0 type=LAMBDA
+
+    }
+    draw_entity_collider :: inline (e: *Entity, color: Vector4) {
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/util.jai:26,23: Info: (procedure 'get_room_from_hash')
+
+    }
+    get_room_from_hash :: (hash: u32) -> *Room {
+                          ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/util.jai:26,23: s=0x0 type=LAMBDA_BODY
+
+    }
+    get_room_from_hash :: (hash: u32) -> *Room {
+                          ^
+
+C:/Users/Colin/code/room_designer/src/entity.jai:307,1: Info: (declaration of 'entity_has_flags')
+
+    }
+    entity_has_flags :: inline (e: *Entity, flags: Entity_Flags) -> bool {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/entity.jai:307,1: s=0x0 type=DECLARATION
+
+    }
+    entity_has_flags :: inline (e: *Entity, flags: Entity_Flags) -> bool {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/entity.jai:307,28: Info: (header of procedure 'entity_has_flags')
+
+    entity_has_flags :: inline (e: *Entity, flags: Entity_Flags) -> bool {
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/entity.jai:307,28: s=0x0 type=LAMBDA
+
+    }
+    entity_has_flags :: inline (e: *Entity, flags: Entity_Flags) -> bool {
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/camera.jai:34,18: Info: (procedure 'camera_follow')
+
+    }
+    camera_follow :: () {
+                     ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/camera.jai:34,18: s=0x0 type=LAMBDA_BODY
+
+    }
+    camera_follow :: () {
+                     ^
+
+C:/Users/Colin/code/jai/modules/GetRect/module.jai:820,5: Info: (declaration of 'memory_radiobox_full')
+
+    // Arrays into which we will load the bitmaps at compile-time.
+    // Doing this in a somewhat awkward way because that is just how things work right now:
+    memory_radiobox_full, memory_radiobox_empty, memory_checkbox_full, memory_checkbox_empty, memory_default_font, memory_mode_circle, memory_mode_hsv, memory_mode_rgb, memory_mode_numbers :: #run get_global_data();
+    ^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/GetRect/module.jai:820,5: s=0x0 type=DECLARATION
+
+    // Arrays into which we will load the bitmaps at compile-time.
+    // Doing this in a somewhat awkward way because that is just how things work right now:
+    memory_radiobox_full, memory_radiobox_empty, memory_checkbox_full, memory_checkbox_empty, memory_default_font, memory_mode_circle, memory_mode_hsv, memory_mode_rgb, memory_mode_numbers :: #run get_global_data();
+    ^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/parsing.jai:364,16: Info: (procedure 'exits_match')
+
+    // Takes 2 rooms and a coord relative to the first and returns which of the first rooms exits are clear
+    exits_match :: (a: Room_Exits, b: Room_Exits, direction: Map_Direction) -> Room_Exits {
+                   ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/parsing.jai:364,16: s=0x0 type=LAMBDA_BODY
+
+    // Takes 2 rooms and a coord relative to the first and returns which of the first rooms exits are clear
+    exits_match :: (a: Room_Exits, b: Room_Exits, direction: Map_Direction) -> Room_Exits {
+                   ^
+
+C:/Users/Colin/code/room_designer/src/map_screen.jai:157,22: Info: (procedure 'rotate_room_exits')
+
+    }
+    rotate_room_exits :: (exits: Room_Exits, rot: int = 0) -> Room_Exits {
+                         ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_screen.jai:157,22: s=0x0 type=LAMBDA_BODY
+
+    }
+    rotate_room_exits :: (exits: Room_Exits, rot: int = 0) -> Room_Exits {
+                         ^
+
+C:/Users/Colin/code/room_designer/src/collision.jai:45,1: Info: (declaration of 'rigidbody_edges')
+
+    #add_context dynamic_collision_hashes: *Dynamic_Collision_Hashes;
+    rigidbody_edges :: (r: *Entity) -> [4][2]Vector2, bool {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/collision.jai:45,1: s=0x0 type=DECLARATION
+
+    #add_context dynamic_collision_hashes: *Dynamic_Collision_Hashes;
+    rigidbody_edges :: (r: *Entity) -> [4][2]Vector2, bool {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/collision.jai:45,20: Info: (header of procedure 'rigidbody_edges')
+
+    rigidbody_edges :: (r: *Entity) -> [4][2]Vector2, bool {
+                       ^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/collision.jai:45,20: s=0x0 type=LAMBDA
+
+    #add_context dynamic_collision_hashes: *Dynamic_Collision_Hashes;
+    rigidbody_edges :: (r: *Entity) -> [4][2]Vector2, bool {
+                       ^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/collision.jai:78,1: Info: (declaration of 'pair_handle_hash')
+
+    }
+    pair_handle_hash :: (a: Entity_Handle, b: Entity_Handle) -> u64 #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/collision.jai:78,1: s=0x0 type=DECLARATION
+
+    }
+    pair_handle_hash :: (a: Entity_Handle, b: Entity_Handle) -> u64 #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/collision.jai:78,21: Info: (header of procedure 'pair_handle_hash')
+
+    pair_handle_hash :: (a: Entity_Handle, b: Entity_Handle) -> u64 #expand {
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/collision.jai:78,21: s=0x0 type=LAMBDA
+
+    }
+    pair_handle_hash :: (a: Entity_Handle, b: Entity_Handle) -> u64 #expand {
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/collision.jai:87,1: Info: (declaration of 'dynamic_collision_has_been_solved_this_frame')
+
+    }
+    dynamic_collision_has_been_solved_this_frame :: (a: Entity_Handle, b: Entity_Handle) -> bool {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/collision.jai:87,1: s=0x0 type=DECLARATION
+
+    }
+    dynamic_collision_has_been_solved_this_frame :: (a: Entity_Handle, b: Entity_Handle) -> bool {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/collision.jai:87,49: Info: (header of procedure 'dynamic_collision_has_been_solved_this_frame')
+
+    dynamic_collision_has_been_solved_this_frame :: (a: Entity_Handle, b: Entity_Handle) -> bool {
+                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/collision.jai:87,49: s=0x0 type=LAMBDA
+
+    }
+    dynamic_collision_has_been_solved_this_frame :: (a: Entity_Handle, b: Entity_Handle) -> bool {
+                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/io.jai:184,22: Info: (procedure 'generate_room_png')
+
+    }
+    generate_room_png :: (r: *Room, path: string) {
+                         ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/io.jai:184,22: s=0x0 type=LAMBDA_BODY
+
+    }
+    generate_room_png :: (r: *Room, path: string) {
+                         ^
+
+C:/Users/Colin/code/room_designer/src/collision.jai:112,1: Info: (declaration of 'dynamic_vs_static_collision_test')
+
+    }
+    dynamic_vs_static_collision_test :: (d: *Entity, s: *Entity, mode := Collision_Mode.SAT) -> Collision, bool {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/collision.jai:112,1: s=0x0 type=DECLARATION
+
+    }
+    dynamic_vs_static_collision_test :: (d: *Entity, s: *Entity, mode := Collision_Mode.SAT) -> Collision, bool {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/collision.jai:112,37: Info: (header of procedure 'dynamic_vs_static_collision_test')
+
+    dynamic_vs_static_collision_test :: (d: *Entity, s: *Entity, mode := Collision_Mode.SAT) -> Collision, bool {
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/collision.jai:112,37: s=0x0 type=LAMBDA
+
+    }
+    dynamic_vs_static_collision_test :: (d: *Entity, s: *Entity, mode := Collision_Mode.SAT) -> Collision, bool {
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/collision.jai:164,1: Info: (declaration of 'dynamic_vs_dynamic_collision_test')
+
+    }
+    dynamic_vs_dynamic_collision_test :: (a: *Entity, b: *Entity, mode := Collision_Mode.SAT) -> Collision, bool {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/collision.jai:164,1: s=0x0 type=DECLARATION
+
+    }
+    dynamic_vs_dynamic_collision_test :: (a: *Entity, b: *Entity, mode := Collision_Mode.SAT) -> Collision, bool {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/collision.jai:164,38: Info: (header of procedure 'dynamic_vs_dynamic_collision_test')
+
+    dynamic_vs_dynamic_collision_test :: (a: *Entity, b: *Entity, mode := Collision_Mode.SAT) -> Collision, bool {
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/collision.jai:164,38: s=0x0 type=LAMBDA
+
+    }
+    dynamic_vs_dynamic_collision_test :: (a: *Entity, b: *Entity, mode := Collision_Mode.SAT) -> Collision, bool {
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/GetRect/module.jai:820,136: Info: (declaration of 'memory_mode_hsv')
+
+    // Arrays into which we will load the bitmaps at compile-time.
+    // Doing this in a somewhat awkward way because that is just how things work right now:
+    memory_radiobox_full, memory_radiobox_empty, memory_checkbox_full, memory_checkbox_empty, memory_default_font, memory_mode_circle, memory_mode_hsv, memory_mode_rgb, memory_mode_numbers :: #run get_global_data();
+                                                                                                                                       ^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/GetRect/module.jai:820,136: s=0x0 type=DECLARATION
+
+    // Arrays into which we will load the bitmaps at compile-time.
+    // Doing this in a somewhat awkward way because that is just how things work right now:
+    memory_radiobox_full, memory_radiobox_empty, memory_checkbox_full, memory_checkbox_empty, memory_default_font, memory_mode_circle, memory_mode_hsv, memory_mode_rgb, memory_mode_numbers :: #run get_global_data();
+                                                                                                                                       ^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/runes.jai:60,27: Info: (procedure 'rune_indices_from_bits')
+
+    }
+    rune_indices_from_bits :: (rune: Rune) -> [..]int {
+                              ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/runes.jai:60,27: s=0x0 type=LAMBDA_BODY
+
+    }
+    rune_indices_from_bits :: (rune: Rune) -> [..]int {
+                              ^
+
+C:/Users/Colin/code/room_designer/src/collision.jai:244,1: Info: (declaration of 'project_rigidbody_along_axis')
+
+    // SAT
+    project_rigidbody_along_axis :: (rb: *Entity, a: Vector2) -> Interval {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/collision.jai:244,1: s=0x0 type=DECLARATION
+
+    // SAT
+    project_rigidbody_along_axis :: (rb: *Entity, a: Vector2) -> Interval {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/collision.jai:244,33: Info: (header of procedure 'project_rigidbody_along_axis')
+
+    project_rigidbody_along_axis :: (rb: *Entity, a: Vector2) -> Interval {
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/collision.jai:244,33: s=0x0 type=LAMBDA
+
+    // SAT
+    project_rigidbody_along_axis :: (rb: *Entity, a: Vector2) -> Interval {
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/collision.jai:271,1: Info: (declaration of 'store_rigidbody_axes')
+
+    }
+    store_rigidbody_axes :: (rb: *Entity, axes: *[..]Vector2) {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/collision.jai:271,1: s=0x0 type=DECLARATION
+
+    }
+    store_rigidbody_axes :: (rb: *Entity, axes: *[..]Vector2) {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/collision.jai:271,25: Info: (header of procedure 'store_rigidbody_axes')
+
+    store_rigidbody_axes :: (rb: *Entity, axes: *[..]Vector2) {
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/collision.jai:271,25: s=0x0 type=LAMBDA
+
+    }
+    store_rigidbody_axes :: (rb: *Entity, axes: *[..]Vector2) {
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/collision.jai:280,1: Info: (declaration of 'static_rectangle_nearest_point')
+
+    }
+    // AABB
+    static_rectangle_nearest_point :: (p: Vector2, rb: *Entity) -> Vector2 {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/collision.jai:280,1: s=0x0 type=DECLARATION
+
+    }
+    // AABB
+    static_rectangle_nearest_point :: (p: Vector2, rb: *Entity) -> Vector2 {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/collision.jai:280,35: Info: (header of procedure 'static_rectangle_nearest_point')
+
+    static_rectangle_nearest_point :: (p: Vector2, rb: *Entity) -> Vector2 {
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/collision.jai:280,35: s=0x0 type=LAMBDA
+
+    }
+    // AABB
+    static_rectangle_nearest_point :: (p: Vector2, rb: *Entity) -> Vector2 {
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/assets.jai:13,1: Info: (declaration of 'map_cursor_bytes')
+
+    frame_bytes :: #run read_entire_file("assets/room_frame.png");
+    collision_circle_bytes :: #run read_entire_file("assets/collision_circle.png");
+    map_cursor_bytes :: #run read_entire_file("assets/map_cursor.png");
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/assets.jai:13,1: s=0x0 type=DECLARATION
+
+    frame_bytes :: #run read_entire_file("assets/room_frame.png");
+    collision_circle_bytes :: #run read_entire_file("assets/collision_circle.png");
+    map_cursor_bytes :: #run read_entire_file("assets/map_cursor.png");
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/runes.jai:55,22: Info: (procedure 'parse_effect_rune')
+
+                   encircled = true};
+    parse_effect_rune :: (r: Rune) -> Effect_Rune {
+                         ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/runes.jai:55,22: s=0x0 type=LAMBDA_BODY
+
+                   encircled = true};
+    parse_effect_rune :: (r: Rune) -> Effect_Rune {
+                         ^
+
+C:/Users/Colin/code/room_designer/src/map_screen.jai:377,31: Info: (procedure 'render_map_screen_controls')
+
+    }
+    render_map_screen_controls :: () {
+                                  ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_screen.jai:377,31: s=0x0 type=LAMBDA_BODY
+
+    }
+    render_map_screen_controls :: () {
+                                  ^
+
+C:/Users/Colin/code/room_designer/src/player.jai:46,17: Info: (procedure 'reset_player')
+
+    }
+    reset_player :: () {
+                    ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/player.jai:46,17: s=0x0 type=LAMBDA_BODY
+
+    }
+    reset_player :: () {
+                    ^
+
+C:/Users/Colin/code/room_designer/src/parsing.jai:385,29: Info: (procedure 'parse_walls_from_tilemap')
+
+    }
+    parse_walls_from_tilemap :: () {
+                                ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/parsing.jai:385,29: s=0x0 type=LAMBDA_BODY
+
+    }
+    parse_walls_from_tilemap :: () {
+                                ^
+
+C:/Users/Colin/code/room_designer/src/map_screen.jai:334,22: Info: (procedure 'map_screen_update')
+
+    }
+    map_screen_update :: () {
+                         ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_screen.jai:334,22: s=0x0 type=LAMBDA_BODY
+
+    }
+    map_screen_update :: () {
+                         ^
+
+C:/Users/Colin/code/room_designer/src/map_screen.jai:229,37: Info: (procedure 'place_or_select_room_at_position')
+
+    }
+    place_or_select_room_at_position :: () {
+                                        ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_screen.jai:229,37: s=0x0 type=LAMBDA_BODY
+
+    }
+    place_or_select_room_at_position :: () {
+                                        ^
+
+C:/Users/Colin/code/room_designer/src/dev_util.jai:9,13: Info: (procedure 'draw_dot')
+
+    }
+    draw_dot :: (pos: Vector2, radius: float32, color: Vector4 = .{1, 1, 1, 1}) {
+                ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/dev_util.jai:9,13: s=0x0 type=LAMBDA_BODY
+
+    }
+    draw_dot :: (pos: Vector2, radius: float32, color: Vector4 = .{1, 1, 1, 1}) {
+                ^
+
+C:/Users/Colin/code/room_designer/src/map_screen.jai:33,31: Info: (procedure 'render_map_placement_scene')
+
+    }
+    render_map_placement_scene :: () {
+                                  ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_screen.jai:33,31: s=0x0 type=LAMBDA_BODY
+
+    }
+    render_map_placement_scene :: () {
+                                  ^
+
+C:/Users/Colin/code/room_designer/src/game_state.jai:41,22: Info: (procedure 'game_state_update')
+
+    }
+    game_state_update :: () {
+                         ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/game_state.jai:41,22: s=0x0 type=LAMBDA_BODY
+
+    }
+    game_state_update :: () {
+                         ^
+
+C:/Users/Colin/code/jai/modules/GetRect/module.jai:820,27: Info: (declaration of 'memory_radiobox_empty')
+
+    // Arrays into which we will load the bitmaps at compile-time.
+    // Doing this in a somewhat awkward way because that is just how things work right now:
+    memory_radiobox_full, memory_radiobox_empty, memory_checkbox_full, memory_checkbox_empty, memory_default_font, memory_mode_circle, memory_mode_hsv, memory_mode_rgb, memory_mode_numbers :: #run get_global_data();
+                          ^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/GetRect/module.jai:820,27: s=0x0 type=DECLARATION
+
+    // Arrays into which we will load the bitmaps at compile-time.
+    // Doing this in a somewhat awkward way because that is just how things work right now:
+    memory_radiobox_full, memory_radiobox_empty, memory_checkbox_full, memory_checkbox_empty, memory_default_font, memory_mode_circle, memory_mode_hsv, memory_mode_rgb, memory_mode_numbers :: #run get_global_data();
+                          ^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:1075,18: Info: (procedure 'modify_string')
+
+    }
+    modify_string :: (ps: *string, new_value: string) {
+                     ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:1075,18: s=0x0 type=LAMBDA_BODY
+
+    }
+    modify_string :: (ps: *string, new_value: string) {
+                     ^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:95,39: Info: (procedure 'render_room_editor_mouse_selection')
+
+    }
+    render_room_editor_mouse_selection :: () {
+                                          ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:95,39: s=0x0 type=LAMBDA_BODY
+
+    }
+    render_room_editor_mouse_selection :: () {
+                                          ^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:815,26: Info: (procedure 'get_mouse_editor_cell')
+
+    }
+    get_mouse_editor_cell :: () -> Coord, bool {
+                             ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:815,26: s=0x0 type=LAMBDA_BODY
+
+    }
+    get_mouse_editor_cell :: () -> Coord, bool {
+                             ^
+
+C:/Users/Colin/code/room_designer/src/io.jai:47,14: Info: (procedure 'load_room')
+
+    }
+    load_room :: (filename: string, static := false) -> Room, bool {
+                 ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/io.jai:47,14: s=0x0 type=LAMBDA_BODY
+
+    }
+    load_room :: (filename: string, static := false) -> Room, bool {
+                 ^
+
+C:/Users/Colin/code/room_designer/src/assets.jai:11,1: Info: (declaration of 'frame_bytes')
+
+    }
+    frame_bytes :: #run read_entire_file("assets/room_frame.png");
+    ^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/assets.jai:11,1: s=0x0 type=DECLARATION
+
+    }
+    frame_bytes :: #run read_entire_file("assets/room_frame.png");
+    ^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/assets.jai:11,16: Info: (#run)
+
+    }
+    frame_bytes :: #run read_entire_file("assets/room_frame.png");
+                   ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/assets.jai:11,16: s=0x0 type=DIRECTIVE_RUN
+
+    }
+    frame_bytes :: #run read_entire_file("assets/room_frame.png");
+                   ^^^^
+
+C:/Users/Colin/code/room_designer/src/assets.jai:11,16: Info: (#run/#assert procedure body)
+
+    }
+    frame_bytes :: #run read_entire_file("assets/room_frame.png");
+                   ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/assets.jai:11,16: s=0x0 type=LAMBDA_BODY
+
+    }
+    frame_bytes :: #run read_entire_file("assets/room_frame.png");
+                   ^^^^
+
+C:/Users/Colin/code/room_designer/src/render.jai:227,26: Info: (procedure 'render_room_and_frame')
+
+    // #MAP_PLACEMENT_RENDERING
+    render_room_and_frame :: (room: *Room, position: Vector2, size: Vector2) {
+                             ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/render.jai:227,26: s=0x0 type=LAMBDA_BODY
+
+    // #MAP_PLACEMENT_RENDERING
+    render_room_and_frame :: (room: *Room, position: Vector2, size: Vector2) {
+                             ^
+
+C:/Users/Colin/code/room_designer/src/io.jai:368,16: Info: (procedure 'to_c_string')
+
+    }
+    to_c_string :: (s: string) -> *u8 {
+                   ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/io.jai:368,16: s=0x0 type=LAMBDA_BODY
+
+    }
+    to_c_string :: (s: string) -> *u8 {
+                   ^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:81,1: Info: (declaration of 'dynamic_entity_collisions')
+
+    // TODO: It's time to move to using this to make the dynamic collision code easier to read and change
+    dynamic_entity_collisions :: (a: *Entity, b: *Entity, collision: Collision) #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:81,1: s=0x0 type=DECLARATION
+
+    // TODO: It's time to move to using this to make the dynamic collision code easier to read and change
+    dynamic_entity_collisions :: (a: *Entity, b: *Entity, collision: Collision) #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:81,30: Info: (header of procedure 'dynamic_entity_collisions')
+
+    dynamic_entity_collisions :: (a: *Entity, b: *Entity, collision: Collision) #expand {
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:81,30: s=0x0 type=LAMBDA
+
+    // TODO: It's time to move to using this to make the dynamic collision code easier to read and change
+    dynamic_entity_collisions :: (a: *Entity, b: *Entity, collision: Collision) #expand {
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:717,27: Info: (procedure 'draw_collection_window')
+
+    }
+    draw_collection_window :: (state: *Subwindow_State, r: Rect, data: *void) {
+                              ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:717,27: s=0x0 type=LAMBDA_BODY
+
+    }
+    draw_collection_window :: (state: *Subwindow_State, r: Rect, data: *void) {
+                              ^
+
+C:/Users/Colin/code/room_designer/src/collision.jai:97,35: Info: (procedure 'rebuild_static_collision_table')
+
+    }
+    rebuild_static_collision_table :: () {
+                                      ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/collision.jai:97,35: s=0x0 type=LAMBDA_BODY
+
+    }
+    rebuild_static_collision_table :: () {
+                                      ^
+
+C:/Users/Colin/code/room_designer/src/assets.jai:12,1: Info: (declaration of 'collision_circle_bytes')
+
+    frame_bytes :: #run read_entire_file("assets/room_frame.png");
+    collision_circle_bytes :: #run read_entire_file("assets/collision_circle.png");
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/assets.jai:12,1: s=0x0 type=DECLARATION
+
+    frame_bytes :: #run read_entire_file("assets/room_frame.png");
+    collision_circle_bytes :: #run read_entire_file("assets/collision_circle.png");
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/inspector.jai:3,5: Info: (declaration of 'inspector_window')
+
+    Inspector_State :: struct {
+        current_handle: Entity_Handle;
+        inspector_window: Subwindow_Info = .{
+        ^
+                                             rect = #run get_rect(cast(float32)WINDOW_WIDTH - 405, cast(float32)WINDOW_HEIGHT - 880, 400, 870),
+                                             draw = draw_inspector_window,
+                                             open = false,
+                                             title_text = "Inspector"};
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/inspector.jai:3,5: s=0x0 type=DECLARATION
+
+    Inspector_State :: struct {
+        current_handle: Entity_Handle;
+        inspector_window: Subwindow_Info = .{
+        ^
+                                             rect = #run get_rect(cast(float32)WINDOW_WIDTH - 405, cast(float32)WINDOW_HEIGHT - 880, 400, 870),
+                                             draw = draw_inspector_window,
+                                             open = false,
+                                             title_text = "Inspector"};
+
+C:/Users/Colin/code/room_designer/src/inspector.jai:4,49: Info: (#run)
+
+    current_handle: Entity_Handle;
+    inspector_window: Subwindow_Info = .{
+                                         rect = #run get_rect(cast(float32)WINDOW_WIDTH - 405, cast(float32)WINDOW_HEIGHT - 880, 400, 870),
+                                                ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/inspector.jai:4,49: s=0x0 type=DIRECTIVE_RUN
+
+    current_handle: Entity_Handle;
+    inspector_window: Subwindow_Info = .{
+                                         rect = #run get_rect(cast(float32)WINDOW_WIDTH - 405, cast(float32)WINDOW_HEIGHT - 880, 400, 870),
+                                                ^^^^
+
+C:/Users/Colin/code/room_designer/src/render.jai:38,16: Info: (procedure 'render_grid')
+
+    }
+    render_grid :: () {
+                   ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/render.jai:38,16: s=0x0 type=LAMBDA_BODY
+
+    }
+    render_grid :: () {
+                   ^
+
+C:/Users/Colin/code/room_designer/src/inspector.jai:85,1: Info: (declaration of 'inspector_relation_handle_display')
+
+    }
+    inspector_relation_handle_display :: (handle_name: string, ptr: *Entity_Handle, loc := #caller_location) #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/inspector.jai:85,1: s=0x0 type=DECLARATION
+
+    }
+    inspector_relation_handle_display :: (handle_name: string, ptr: *Entity_Handle, loc := #caller_location) #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/inspector.jai:85,38: Info: (header of procedure 'inspector_relation_handle_display')
+
+    inspector_relation_handle_display :: (handle_name: string, ptr: *Entity_Handle, loc := #caller_location) #expand {
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/inspector.jai:85,38: s=0x0 type=LAMBDA
+
+    }
+    inspector_relation_handle_display :: (handle_name: string, ptr: *Entity_Handle, loc := #caller_location) #expand {
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Entities/module.jai:61,1: Info: (declaration of 'entities_clear')
+
+    }
+    entities_clear :: (e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Entities/module.jai:61,1: s=0x0 type=DECLARATION
+
+    }
+    entities_clear :: (e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Entities/module.jai:68,1: Info: (declaration of 'entities_free')
+
+    }
+    entities_free :: (e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Entities/module.jai:68,1: s=0x0 type=DECLARATION
+
+    }
+    entities_free :: (e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/game_state.jai:34,30: Info: (procedure 'exit_map_placement_screen')
+
+    }
+    exit_map_placement_screen :: () {
+                                 ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/game_state.jai:34,30: s=0x0 type=LAMBDA_BODY
+
+    }
+    exit_map_placement_screen :: () {
+                                 ^
+
+C:/Users/Colin/code/room_designer/src/assets.jai:12,27: Info: (#run)
+
+    frame_bytes :: #run read_entire_file("assets/room_frame.png");
+    collision_circle_bytes :: #run read_entire_file("assets/collision_circle.png");
+                              ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/assets.jai:12,27: s=0x0 type=DIRECTIVE_RUN
+
+    frame_bytes :: #run read_entire_file("assets/room_frame.png");
+    collision_circle_bytes :: #run read_entire_file("assets/collision_circle.png");
+                              ^^^^
+
+C:/Users/Colin/code/room_designer/src/assets.jai:12,27: Info: (#run/#assert procedure body)
+
+    frame_bytes :: #run read_entire_file("assets/room_frame.png");
+    collision_circle_bytes :: #run read_entire_file("assets/collision_circle.png");
+                              ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/assets.jai:12,27: s=0x0 type=LAMBDA_BODY
+
+    frame_bytes :: #run read_entire_file("assets/room_frame.png");
+    collision_circle_bytes :: #run read_entire_file("assets/collision_circle.png");
+                              ^^^^
+
+C:/Users/Colin/code/room_designer/src/map_screen.jai:26,15: Info: (procedure 'init_rooms')
+
+    #add_context world: *World;
+    init_rooms :: () {
+                  ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_screen.jai:26,15: s=0x0 type=LAMBDA_BODY
+
+    #add_context world: *World;
+    init_rooms :: () {
+                  ^
+
+C:/Users/Colin/code/room_designer/src/render.jai:24,11: Info: (procedure 'render')
+
+    }
+    render :: () {
+              ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/render.jai:24,11: s=0x0 type=LAMBDA_BODY
+
+    }
+    render :: () {
+              ^
+
+C:/Users/Colin/code/jai/modules/Entities/module.jai:74,1: Info: (declaration of 'entity_add')
+
+    }
+    entity_add :: (new_entity: Raw_Entity(ENTITY_HEADER_TYPE), e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) -> Entity_Handle {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Entities/module.jai:74,1: s=0x0 type=DECLARATION
+
+    }
+    entity_add :: (new_entity: Raw_Entity(ENTITY_HEADER_TYPE), e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) -> Entity_Handle {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Entities/module.jai:98,1: Info: (declaration of 'entity_get')
+
+    }
+    entity_get :: (handle: Entity_Handle, e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) -> *Raw_Entity(ENTITY_HEADER_TYPE) {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Entities/module.jai:98,1: s=0x0 type=DECLARATION
+
+    }
+    entity_get :: (handle: Entity_Handle, e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) -> *Raw_Entity(ENTITY_HEADER_TYPE) {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Entities/module.jai:106,1: Info: (declaration of 'entity_remove')
+
+    }
+    entity_remove :: (handle: Entity_Handle, e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Entities/module.jai:106,1: s=0x0 type=DECLARATION
+
+    }
+    entity_remove :: (handle: Entity_Handle, e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/collision.jai:206,27: Info: (procedure 'line_intersection_test')
+
+    }
+    line_intersection_test :: (a: Vector2, b: Vector2, c: Vector2, d: Vector2) -> Vector2, bool {
+                              ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/collision.jai:206,27: s=0x0 type=LAMBDA_BODY
+
+    }
+    line_intersection_test :: (a: Vector2, b: Vector2, c: Vector2, d: Vector2) -> Vector2, bool {
+                              ^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:174,25: Info: (procedure 'render_room_entities')
+
+    }
+    render_room_entities :: (r: *Room) {
+                            ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:174,25: s=0x0 type=LAMBDA_BODY
+
+    }
+    render_room_entities :: (r: *Room) {
+                            ^
+
+C:/Users/Colin/code/room_designer/src/map_types.jai:52,5: Info: (declaration of 'entities')
+
+    texture: Texture;
+    // Doing this to avoid a circular dependency in hash_table
+    entities: *Entity_Manager;
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_types.jai:52,5: s=0x0 type=DECLARATION
+
+    texture: Texture;
+    // Doing this to avoid a circular dependency in hash_table
+    entities: *Entity_Manager;
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/player.jai:91,23: Info: (procedure 'player_interaction')
+
+    }
+    player_interaction :: () {
+                          ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/player.jai:91,23: s=0x0 type=LAMBDA_BODY
+
+    }
+    player_interaction :: () {
+                          ^
+
+C:/Users/Colin/code/room_designer/src/camera.jai:26,16: Info: (procedure 'camera_look')
+
+    }
+    camera_look :: () {
+                   ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/camera.jai:26,16: s=0x0 type=LAMBDA_BODY
+
+    }
+    camera_look :: () {
+                   ^
+
+C:/Users/Colin/code/room_designer/src/inspector.jai:54,23: Info: (procedure 'debug_inspector_ui')
+
+    }
+    debug_inspector_ui :: () {
+                          ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/inspector.jai:54,23: s=0x0 type=LAMBDA_BODY
+
+    }
+    debug_inspector_ui :: () {
+                          ^
+
+C:/Users/Colin/code/room_designer/src/text.jai:19,25: Info: (procedure 'manage_floating_text')
+
+    }
+    manage_floating_text :: (delta: float32) {
+                            ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/text.jai:19,25: s=0x0 type=LAMBDA_BODY
+
+    }
+    manage_floating_text :: (delta: float32) {
+                            ^
+
+C:/Users/Colin/code/room_designer/src/player.jai:83,16: Info: (procedure 'player_jump')
+
+    }
+    player_jump :: () {
+                   ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/player.jai:83,16: s=0x0 type=LAMBDA_BODY
+
+    }
+    player_jump :: () {
+                   ^
+
+C:/Users/Colin/code/jai/modules/GetRect/module.jai:820,95: Info: (declaration of 'memory_default_font')
+
+    // Arrays into which we will load the bitmaps at compile-time.
+    // Doing this in a somewhat awkward way because that is just how things work right now:
+    memory_radiobox_full, memory_radiobox_empty, memory_checkbox_full, memory_checkbox_empty, memory_default_font, memory_mode_circle, memory_mode_hsv, memory_mode_rgb, memory_mode_numbers :: #run get_global_data();
+                                                                                              ^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/GetRect/module.jai:820,95: s=0x0 type=DECLARATION
+
+    // Arrays into which we will load the bitmaps at compile-time.
+    // Doing this in a somewhat awkward way because that is just how things work right now:
+    memory_radiobox_full, memory_radiobox_empty, memory_checkbox_full, memory_checkbox_empty, memory_default_font, memory_mode_circle, memory_mode_hsv, memory_mode_rgb, memory_mode_numbers :: #run get_global_data();
+                                                                                              ^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Entities/module.jai:141,1: Info: (declaration of 'entity_valid')
+
+    }
+    entity_valid :: (handle: Entity_Handle, e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) -> bool {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Entities/module.jai:141,1: s=0x0 type=DECLARATION
+
+    }
+    entity_valid :: (handle: Entity_Handle, e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) -> bool {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/io.jai:99,1: Info: (declaration of 'write_entity_manager_to_file')
+
+    }
+    write_entity_manager_to_file :: (e: *Entity_Manager, file: *File) {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/io.jai:99,1: s=0x0 type=DECLARATION
+
+    }
+    write_entity_manager_to_file :: (e: *Entity_Manager, file: *File) {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/io.jai:99,33: Info: (header of procedure 'write_entity_manager_to_file')
+
+    write_entity_manager_to_file :: (e: *Entity_Manager, file: *File) {
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/io.jai:99,33: s=0x0 type=LAMBDA
+
+    }
+    write_entity_manager_to_file :: (e: *Entity_Manager, file: *File) {
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/io.jai:120,1: Info: (declaration of 'read_entity_manager_from_file')
+
+    }
+    read_entity_manager_from_file :: (e: *Entity_Manager, file: *File) {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/io.jai:120,1: s=0x0 type=DECLARATION
+
+    }
+    read_entity_manager_from_file :: (e: *Entity_Manager, file: *File) {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/io.jai:120,34: Info: (header of procedure 'read_entity_manager_from_file')
+
+    read_entity_manager_from_file :: (e: *Entity_Manager, file: *File) {
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/io.jai:120,34: s=0x0 type=LAMBDA
+
+    }
+    read_entity_manager_from_file :: (e: *Entity_Manager, file: *File) {
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Entities/module.jai:146,1: Info: (declaration of 'entity_add_child')
+
+    }
+    entity_add_child :: (parent_handle: Entity_Handle, child_entity: Raw_Entity(ENTITY_HEADER_TYPE), e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) -> Entity_Handle {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Entities/module.jai:146,1: s=0x0 type=DECLARATION
+
+    }
+    entity_add_child :: (parent_handle: Entity_Handle, child_entity: Raw_Entity(ENTITY_HEADER_TYPE), e: *Raw_Entity_Manager(ENTITY_HEADER_TYPE) = context.entities) -> Entity_Handle {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:194,1: Info: (declaration of 'player_crate_pushing')
+
+    }
+    player_crate_pushing :: (player: *Entity, crate: *Entity) #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:194,1: s=0x0 type=DECLARATION
+
+    }
+    player_crate_pushing :: (player: *Entity, crate: *Entity) #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:194,25: Info: (header of procedure 'player_crate_pushing')
+
+    player_crate_pushing :: (player: *Entity, crate: *Entity) #expand {
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:194,25: s=0x0 type=LAMBDA
+
+    }
+    player_crate_pushing :: (player: *Entity, crate: *Entity) #expand {
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/collision.jai:24,12: Info: (procedure 'overlap')
+
+    }
+    overlap :: (a: Interval, b: Interval) -> bool, float32 {
+               ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/collision.jai:24,12: s=0x0 type=LAMBDA_BODY
+
+    }
+    overlap :: (a: Interval, b: Interval) -> bool, float32 {
+               ^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:86,29: Info: (procedure 'render_room_editor_scene')
+
+    }
+    render_room_editor_scene :: () {
+                                ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:86,29: s=0x0 type=LAMBDA_BODY
+
+    }
+    render_room_editor_scene :: () {
+                                ^
+
+C:/Users/Colin/code/room_designer/src/render.jai:237,26: Info: (procedure 'render_gameplay_scene')
+
+    // #GAMEPLAY_RENDERING
+    render_gameplay_scene :: () {
+                             ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/render.jai:237,26: s=0x0 type=LAMBDA_BODY
+
+    // #GAMEPLAY_RENDERING
+    render_gameplay_scene :: () {
+                             ^
+
+C:/Users/Colin/code/room_designer/src/runes.jai:85,16: Info: (procedure 'rotate_rune')
+
+    }
+    rotate_rune :: (rune: Rune, rot: int = 1) -> Rune {
+                   ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/runes.jai:85,16: s=0x0 type=LAMBDA_BODY
+
+    }
+    rotate_rune :: (rune: Rune, rot: int = 1) -> Rune {
+                   ^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:122,26: Info: (procedure 'render_room_collision')
+
+    }
+    render_room_collision :: (r: *Room, faded := false) {
+                             ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:122,26: s=0x0 type=LAMBDA_BODY
+
+    }
+    render_room_collision :: (r: *Room, faded := false) {
+                             ^
+
+C:/Users/Colin/code/room_designer/src/util.jai:30,34: Info: (procedure 'mouse_pointer_to_gameplay_pos')
+
+    }
+    mouse_pointer_to_gameplay_pos :: () -> Vector2, bool {
+                                     ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/util.jai:30,34: s=0x0 type=LAMBDA_BODY
+
+    }
+    mouse_pointer_to_gameplay_pos :: () -> Vector2, bool {
+                                     ^
+
+C:/Users/Colin/code/room_designer/src/player.jai:57,26: Info: (procedure 'set_player_move_delta')
+
+    }
+    set_player_move_delta :: () {
+                             ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/player.jai:57,26: s=0x0 type=LAMBDA_BODY
+
+    }
+    set_player_move_delta :: () {
+                             ^
+
+C:/Users/Colin/code/room_designer/src/player.jai:11,5: Info: (declaration of 'timers')
+
+    }
+    timers: [TIMERS_LENGTH]float;
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/player.jai:11,5: s=0x0 type=DECLARATION
+
+    }
+    timers: [TIMERS_LENGTH]float;
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/player.jai:6,5: Info: (declaration of 'TIMERS_LENGTH')
+
+    // Automatically resize the timers array as we add more timer types
+    TIMERS_LENGTH :: #run -> int {
+    ^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/player.jai:6,5: s=0x0 type=DECLARATION
+
+    // Automatically resize the timers array as we add more timer types
+    TIMERS_LENGTH :: #run -> int {
+    ^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:8,1: Info: (declaration of 'RISING_GRAVITY')
+
+    PLAYER_JUMP_SPEED :: #run calculate_jump_speed();
+    PLAYER_MOVE_SPEED :: #run calculate_lateral_speed();
+    RISING_GRAVITY :: #run calculate_rising_gravity();
+    ^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:8,1: s=0x0 type=DECLARATION
+
+    PLAYER_JUMP_SPEED :: #run calculate_jump_speed();
+    PLAYER_MOVE_SPEED :: #run calculate_lateral_speed();
+    RISING_GRAVITY :: #run calculate_rising_gravity();
+    ^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:8,19: Info: (#run)
+
+    PLAYER_JUMP_SPEED :: #run calculate_jump_speed();
+    PLAYER_MOVE_SPEED :: #run calculate_lateral_speed();
+    RISING_GRAVITY :: #run calculate_rising_gravity();
+                      ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:8,19: s=0x0 type=DIRECTIVE_RUN
+
+    PLAYER_JUMP_SPEED :: #run calculate_jump_speed();
+    PLAYER_MOVE_SPEED :: #run calculate_lateral_speed();
+    RISING_GRAVITY :: #run calculate_rising_gravity();
+                      ^^^^
+
+C:/Users/Colin/code/room_designer/src/player.jai:42,1: Info: (declaration of 'player_get')
+
+    }
+    player_get :: () -> *Entity {
+    ^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/player.jai:42,1: s=0x0 type=DECLARATION
+
+    }
+    player_get :: () -> *Entity {
+    ^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/player.jai:42,15: Info: (header of procedure 'player_get')
+
+    player_get :: () -> *Entity {
+                  ^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/player.jai:42,15: s=0x0 type=LAMBDA
+
+    }
+    player_get :: () -> *Entity {
+                  ^^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:158,1: Info: (declaration of 'zero_velo_on_axis')
+
+    // Is this useful?
+    zero_velo_on_axis :: (entity: *Entity, normal: Vector2) {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:158,1: s=0x0 type=DECLARATION
+
+    // Is this useful?
+    zero_velo_on_axis :: (entity: *Entity, normal: Vector2) {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:158,22: Info: (header of procedure 'zero_velo_on_axis')
+
+    zero_velo_on_axis :: (entity: *Entity, normal: Vector2) {
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:158,22: s=0x0 type=LAMBDA
+
+    // Is this useful?
+    zero_velo_on_axis :: (entity: *Entity, normal: Vector2) {
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/camera.jai:78,16: Info: (procedure 'zoom_camera')
+
+    }
+    zoom_camera :: (delta: float) {
+                   ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/camera.jai:78,16: s=0x0 type=LAMBDA_BODY
+
+    }
+    zoom_camera :: (delta: float) {
+                   ^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:8,19: Info: (#run/#assert procedure body)
+
+    PLAYER_JUMP_SPEED :: #run calculate_jump_speed();
+    PLAYER_MOVE_SPEED :: #run calculate_lateral_speed();
+    RISING_GRAVITY :: #run calculate_rising_gravity();
+                      ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:8,19: s=0x0 type=LAMBDA_BODY
+
+    PLAYER_JUMP_SPEED :: #run calculate_jump_speed();
+    PLAYER_MOVE_SPEED :: #run calculate_lateral_speed();
+    RISING_GRAVITY :: #run calculate_rising_gravity();
+                      ^^^^
+
+C:/Users/Colin/code/room_designer/src/map_screen.jai:127,16: Info: (procedure 'rotate_room')
+
+    }
+    rotate_room :: (r: Room) -> Room {
+                   ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_screen.jai:127,16: s=0x0 type=LAMBDA_BODY
+
+    }
+    rotate_room :: (r: Room) -> Room {
+                   ^
+
+C:/Users/Colin/code/room_designer/src/assets.jai:48,1: Info: (declaration of 'set_atlas_for_entity_manager')
+
+    // }
+    set_atlas_for_entity_manager :: (e: *Entity_Manager) {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/assets.jai:48,1: s=0x0 type=DECLARATION
+
+    // }
+    set_atlas_for_entity_manager :: (e: *Entity_Manager) {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/assets.jai:48,33: Info: (header of procedure 'set_atlas_for_entity_manager')
+
+    set_atlas_for_entity_manager :: (e: *Entity_Manager) {
+                                    ^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/assets.jai:48,33: s=0x0 type=LAMBDA
+
+    // }
+    set_atlas_for_entity_manager :: (e: *Entity_Manager) {
+                                    ^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/player.jai:125,1: Info: (declaration of 'make_player')
+
+    }
+    make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> Entity_Handle {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/player.jai:125,1: s=0x0 type=DECLARATION
+
+    }
+    make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> Entity_Handle {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/inspector.jai:4,49: Info: (#run/#assert procedure body)
+
+    current_handle: Entity_Handle;
+    inspector_window: Subwindow_Info = .{
+                                         rect = #run get_rect(cast(float32)WINDOW_WIDTH - 405, cast(float32)WINDOW_HEIGHT - 880, 400, 870),
+                                                ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/inspector.jai:4,49: s=0x0 type=LAMBDA_BODY
+
+    current_handle: Entity_Handle;
+    inspector_window: Subwindow_Info = .{
+                                         rect = #run get_rect(cast(float32)WINDOW_WIDTH - 405, cast(float32)WINDOW_HEIGHT - 880, 400, 870),
+                                                ^^^^
+
+C:/Users/Colin/code/room_designer/src/player.jai:6,22: Info: (#run)
+
+    // Automatically resize the timers array as we add more timer types
+    TIMERS_LENGTH :: #run -> int {
+                     ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/player.jai:6,22: s=0x0 type=DIRECTIVE_RUN
+
+    // Automatically resize the timers array as we add more timer types
+    TIMERS_LENGTH :: #run -> int {
+                     ^^^^
+
+C:/Users/Colin/code/room_designer/src/player.jai:6,22: Info: (#run/#assert procedure body)
+
+    // Automatically resize the timers array as we add more timer types
+    TIMERS_LENGTH :: #run -> int {
+                     ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/player.jai:6,22: s=0x0 type=LAMBDA_BODY
+
+    // Automatically resize the timers array as we add more timer types
+    TIMERS_LENGTH :: #run -> int {
+                     ^^^^
+
+C:/Users/Colin/code/room_designer/src/inspector.jai:105,29: Info: (procedure 'inspector_entity_picking')
+
+    }
+    inspector_entity_picking :: () {
+                                ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/inspector.jai:105,29: s=0x0 type=LAMBDA_BODY
+
+    }
+    inspector_entity_picking :: () {
+                                ^
+
+C:/Users/Colin/code/room_designer/src/input.jai:38,15: Info: (procedure 'init_input')
+
+    }
+    init_input :: () {
+                  ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/input.jai:38,15: s=0x0 type=LAMBDA_BODY
+
+    }
+    init_input :: () {
+                  ^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:6,1: Info: (declaration of 'PLAYER_JUMP_SPEED')
+
+    TIME_TO_DESCENT: float32: 0.28;
+    // Compile time calculated constants
+    PLAYER_JUMP_SPEED :: #run calculate_jump_speed();
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:6,1: s=0x0 type=DECLARATION
+
+    TIME_TO_DESCENT: float32: 0.28;
+    // Compile time calculated constants
+    PLAYER_JUMP_SPEED :: #run calculate_jump_speed();
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:6,22: Info: (#run)
+
+    TIME_TO_DESCENT: float32: 0.28;
+    // Compile time calculated constants
+    PLAYER_JUMP_SPEED :: #run calculate_jump_speed();
+                         ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:6,22: s=0x0 type=DIRECTIVE_RUN
+
+    TIME_TO_DESCENT: float32: 0.28;
+    // Compile time calculated constants
+    PLAYER_JUMP_SPEED :: #run calculate_jump_speed();
+                         ^^^^
+
+C:/Users/Colin/code/room_designer/src/game_state.jai:29,30: Info: (procedure 'open_map_placement_screen')
+
+    }
+    open_map_placement_screen :: () {
+                                 ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/game_state.jai:29,30: s=0x0 type=LAMBDA_BODY
+
+    }
+    open_map_placement_screen :: () {
+                                 ^
+
+C:/Users/Colin/code/jai/modules/GetRect/module.jai:820,153: Info: (declaration of 'memory_mode_rgb')
+
+    // Arrays into which we will load the bitmaps at compile-time.
+    // Doing this in a somewhat awkward way because that is just how things work right now:
+    memory_radiobox_full, memory_radiobox_empty, memory_checkbox_full, memory_checkbox_empty, memory_default_font, memory_mode_circle, memory_mode_hsv, memory_mode_rgb, memory_mode_numbers :: #run get_global_data();
+                                                                                                                                                        ^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/GetRect/module.jai:820,153: s=0x0 type=DECLARATION
+
+    // Arrays into which we will load the bitmaps at compile-time.
+    // Doing this in a somewhat awkward way because that is just how things work right now:
+    memory_radiobox_full, memory_radiobox_empty, memory_checkbox_full, memory_checkbox_empty, memory_default_font, memory_mode_circle, memory_mode_hsv, memory_mode_rgb, memory_mode_numbers :: #run get_global_data();
+                                                                                                                                                        ^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/input.jai:72,18: Info: (procedure 'process_input')
+
+    }
+    process_input :: (delta: float32) {
+                     ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/input.jai:72,18: s=0x0 type=LAMBDA_BODY
+
+    }
+    process_input :: (delta: float32) {
+                     ^
+
+C:/Users/Colin/code/room_designer/src/io.jai:147,19: Info: (procedure 'load_all_rooms')
+
+    }
+    load_all_rooms :: () {
+                      ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/io.jai:147,19: s=0x0 type=LAMBDA_BODY
+
+    }
+    load_all_rooms :: () {
+                      ^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:7,1: Info: (declaration of 'PLAYER_MOVE_SPEED')
+
+    // Compile time calculated constants
+    PLAYER_JUMP_SPEED :: #run calculate_jump_speed();
+    PLAYER_MOVE_SPEED :: #run calculate_lateral_speed();
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:7,1: s=0x0 type=DECLARATION
+
+    // Compile time calculated constants
+    PLAYER_JUMP_SPEED :: #run calculate_jump_speed();
+    PLAYER_MOVE_SPEED :: #run calculate_lateral_speed();
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:125,1: Info: (declaration of 'entity_sort')
+
+    }
+    entity_sort :: (tag1: Entity_Tag, tag2: Entity_Tag) -> *Entity, *Entity #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:125,1: s=0x0 type=DECLARATION
+
+    }
+    entity_sort :: (tag1: Entity_Tag, tag2: Entity_Tag) -> *Entity, *Entity #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:125,16: Info: (header of procedure 'entity_sort')
+
+    entity_sort :: (tag1: Entity_Tag, tag2: Entity_Tag) -> *Entity, *Entity #expand {
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:125,16: s=0x0 type=LAMBDA
+
+    }
+    entity_sort :: (tag1: Entity_Tag, tag2: Entity_Tag) -> *Entity, *Entity #expand {
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:285,19: Info: (procedure 'mouse_movement')
+
+    }
+    mouse_movement :: () {
+                      ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:285,19: s=0x0 type=LAMBDA_BODY
+
+    }
+    mouse_movement :: () {
+                      ^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:420,1: Info: (declaration of 'make_entity_in_room_editor')
+
+    // NOTE: When hydrating entities, all of their sprite/atlas pointers will need to be refetched as they will be invalid
+    make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_Tag) #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:420,1: s=0x0 type=DECLARATION
+
+    // NOTE: When hydrating entities, all of their sprite/atlas pointers will need to be refetched as they will be invalid
+    make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_Tag) #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:420,31: Info: (header of procedure 'make_entity_in_room_editor')
+
+    make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_Tag) #expand {
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:420,31: s=0x0 type=LAMBDA
+
+    // NOTE: When hydrating entities, all of their sprite/atlas pointers will need to be refetched as they will be invalid
+    make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_Tag) #expand {
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:28,5: Info: (declaration of 'core_window')
+
+    kb_captured: bool;
+    core_window: Subwindow_Info = .{
+    ^
+                                    rect = #run get_rect(5, cast(float32)WINDOW_HEIGHT - 750, 350, 740),
+                                    draw = draw_core_room_window,
+                                    open = true,
+                                    title_text = "Room"};
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:28,5: s=0x0 type=DECLARATION
+
+    kb_captured: bool;
+    core_window: Subwindow_Info = .{
+    ^
+                                    rect = #run get_rect(5, cast(float32)WINDOW_HEIGHT - 750, 350, 740),
+                                    draw = draw_core_room_window,
+                                    open = true,
+                                    title_text = "Room"};
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:29,44: Info: (#run)
+
+    core_window: Subwindow_Info = .{
+                                    rect = #run get_rect(5, cast(float32)WINDOW_HEIGHT - 750, 350, 740),
+                                           ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:29,44: s=0x0 type=DIRECTIVE_RUN
+
+    core_window: Subwindow_Info = .{
+                                    rect = #run get_rect(5, cast(float32)WINDOW_HEIGHT - 750, 350, 740),
+                                           ^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:29,44: Info: (#run/#assert procedure body)
+
+    core_window: Subwindow_Info = .{
+                                    rect = #run get_rect(5, cast(float32)WINDOW_HEIGHT - 750, 350, 740),
+                                           ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:29,44: s=0x0 type=LAMBDA_BODY
+
+    core_window: Subwindow_Info = .{
+                                    rect = #run get_rect(5, cast(float32)WINDOW_HEIGHT - 750, 350, 740),
+                                           ^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:33,5: Info: (declaration of 'entity_window')
+
+                                    open = true,
+                                    title_text = "Room"};
+    entity_window: Subwindow_Info = .{
+    ^
+                                      rect = #run get_rect(cast(float)WINDOW_WIDTH - 355, cast(float32)WINDOW_HEIGHT - 750, 350, 740),
+                                      draw = draw_entity_window,
+                                      open = true,
+                                      title_text = "Entity"};
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:33,5: s=0x0 type=DECLARATION
+
+                                    open = true,
+                                    title_text = "Room"};
+    entity_window: Subwindow_Info = .{
+    ^
+                                      rect = #run get_rect(cast(float)WINDOW_WIDTH - 355, cast(float32)WINDOW_HEIGHT - 750, 350, 740),
+                                      draw = draw_entity_window,
+                                      open = true,
+                                      title_text = "Entity"};
+
+C:/Users/Colin/code/room_designer/src/physics.jai:9,1: Info: (declaration of 'FALLING_GRAVITY')
+
+    PLAYER_MOVE_SPEED :: #run calculate_lateral_speed();
+    RISING_GRAVITY :: #run calculate_rising_gravity();
+    FALLING_GRAVITY :: #run calculate_falling_gravity();
+    ^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:9,1: s=0x0 type=DECLARATION
+
+    PLAYER_MOVE_SPEED :: #run calculate_lateral_speed();
+    RISING_GRAVITY :: #run calculate_rising_gravity();
+    FALLING_GRAVITY :: #run calculate_falling_gravity();
+    ^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:9,20: Info: (#run)
+
+    PLAYER_MOVE_SPEED :: #run calculate_lateral_speed();
+    RISING_GRAVITY :: #run calculate_rising_gravity();
+    FALLING_GRAVITY :: #run calculate_falling_gravity();
+                       ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:9,20: s=0x0 type=DIRECTIVE_RUN
+
+    PLAYER_MOVE_SPEED :: #run calculate_lateral_speed();
+    RISING_GRAVITY :: #run calculate_rising_gravity();
+    FALLING_GRAVITY :: #run calculate_falling_gravity();
+                       ^^^^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:9,20: Info: (#run/#assert procedure body)
+
+    PLAYER_MOVE_SPEED :: #run calculate_lateral_speed();
+    RISING_GRAVITY :: #run calculate_rising_gravity();
+    FALLING_GRAVITY :: #run calculate_falling_gravity();
+                       ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:9,20: s=0x0 type=LAMBDA_BODY
+
+    PLAYER_MOVE_SPEED :: #run calculate_lateral_speed();
+    RISING_GRAVITY :: #run calculate_rising_gravity();
+    FALLING_GRAVITY :: #run calculate_falling_gravity();
+                       ^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:39,5: Info: (declaration of 'actions_window')
+
+                                      title_text = "Entity"};
+    actions_window: Subwindow_Info = .{
+    ^
+                                       rect = #run get_rect(5, 20, 350, 300),
+                                       draw = draw_actions_window,
+                                       open = true,
+                                       title_text = "Actions"};
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:39,5: s=0x0 type=DECLARATION
+
+                                      title_text = "Entity"};
+    actions_window: Subwindow_Info = .{
+    ^
+                                       rect = #run get_rect(5, 20, 350, 300),
+                                       draw = draw_actions_window,
+                                       open = true,
+                                       title_text = "Actions"};
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:40,47: Info: (#run)
+
+    actions_window: Subwindow_Info = .{
+                                       rect = #run get_rect(5, 20, 350, 300),
+                                              ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:40,47: s=0x0 type=DIRECTIVE_RUN
+
+    actions_window: Subwindow_Info = .{
+                                       rect = #run get_rect(5, 20, 350, 300),
+                                              ^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:40,47: Info: (#run/#assert procedure body)
+
+    actions_window: Subwindow_Info = .{
+                                       rect = #run get_rect(5, 20, 350, 300),
+                                              ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:40,47: s=0x0 type=LAMBDA_BODY
+
+    actions_window: Subwindow_Info = .{
+                                       rect = #run get_rect(5, 20, 350, 300),
+                                              ^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:45,5: Info: (declaration of 'collection_window')
+
+                                       title_text = "Actions"};
+    collection_window: Subwindow_Info = .{
+    ^
+                                          rect = #run get_rect(cast(float)WINDOW_WIDTH - 355, 20, 350, 300),
+                                          draw = draw_collection_window,
+                                          title_text = "Collection"};
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:45,5: s=0x0 type=DECLARATION
+
+                                       title_text = "Actions"};
+    collection_window: Subwindow_Info = .{
+    ^
+                                          rect = #run get_rect(cast(float)WINDOW_WIDTH - 355, 20, 350, 300),
+                                          draw = draw_collection_window,
+                                          title_text = "Collection"};
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:46,50: Info: (#run)
+
+    collection_window: Subwindow_Info = .{
+                                          rect = #run get_rect(cast(float)WINDOW_WIDTH - 355, 20, 350, 300),
+                                                 ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:46,50: s=0x0 type=DIRECTIVE_RUN
+
+    collection_window: Subwindow_Info = .{
+                                          rect = #run get_rect(cast(float)WINDOW_WIDTH - 355, 20, 350, 300),
+                                                 ^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:46,50: Info: (#run/#assert procedure body)
+
+    collection_window: Subwindow_Info = .{
+                                          rect = #run get_rect(cast(float)WINDOW_WIDTH - 355, 20, 350, 300),
+                                                 ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:46,50: s=0x0 type=LAMBDA_BODY
+
+    collection_window: Subwindow_Info = .{
+                                          rect = #run get_rect(cast(float)WINDOW_WIDTH - 355, 20, 350, 300),
+                                                 ^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:753,1: Info: (declaration of 'draw_collection_entity_entry')
+
+    }
+    draw_collection_entity_entry :: (entity: *Entity, identifier: int, loc := #caller_location) #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:753,1: s=0x0 type=DECLARATION
+
+    }
+    draw_collection_entity_entry :: (entity: *Entity, identifier: int, loc := #caller_location) #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:753,33: Info: (header of procedure 'draw_collection_entity_entry')
+
+    draw_collection_entity_entry :: (entity: *Entity, identifier: int, loc := #caller_location) #expand {
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:753,33: s=0x0 type=LAMBDA
+
+    }
+    draw_collection_entity_entry :: (entity: *Entity, identifier: int, loc := #caller_location) #expand {
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:50,5: Info: (declaration of 'load_window')
+
+                                          title_text = "Collection"};
+    load_window: Subwindow_Info = .{
+    ^
+                                    rect = #run get_rect((cast(float32)WINDOW_WIDTH / 2) - 400, cast(float32)WINDOW_HEIGHT - 800, 800, 600),
+                                    open = false,
+                                    draw = draw_load_window,
+                                    title_text = "Load"};
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:50,5: s=0x0 type=DECLARATION
+
+                                          title_text = "Collection"};
+    load_window: Subwindow_Info = .{
+    ^
+                                    rect = #run get_rect((cast(float32)WINDOW_WIDTH / 2) - 400, cast(float32)WINDOW_HEIGHT - 800, 800, 600),
+                                    open = false,
+                                    draw = draw_load_window,
+                                    title_text = "Load"};
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:51,44: Info: (#run)
+
+    load_window: Subwindow_Info = .{
+                                    rect = #run get_rect((cast(float32)WINDOW_WIDTH / 2) - 400, cast(float32)WINDOW_HEIGHT - 800, 800, 600),
+                                           ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:51,44: s=0x0 type=DIRECTIVE_RUN
+
+    load_window: Subwindow_Info = .{
+                                    rect = #run get_rect((cast(float32)WINDOW_WIDTH / 2) - 400, cast(float32)WINDOW_HEIGHT - 800, 800, 600),
+                                           ^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:51,44: Info: (#run/#assert procedure body)
+
+    load_window: Subwindow_Info = .{
+                                    rect = #run get_rect((cast(float32)WINDOW_WIDTH / 2) - 400, cast(float32)WINDOW_HEIGHT - 800, 800, 600),
+                                           ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:51,44: s=0x0 type=LAMBDA_BODY
+
+    load_window: Subwindow_Info = .{
+                                    rect = #run get_rect((cast(float32)WINDOW_WIDTH / 2) - 400, cast(float32)WINDOW_HEIGHT - 800, 800, 600),
+                                           ^^^^
+
+C:/Users/Colin/code/room_designer/src/collision.jai:42,14: Info: (declaration of 'static_collision_table')
+
+    Dynamic_Collision_Hashes :: Table(u64, void);
+    #add_context static_collision_table: *Static_Collision_Table;
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/collision.jai:42,14: s=0x0 type=DECLARATION
+
+    Dynamic_Collision_Hashes :: Table(u64, void);
+    #add_context static_collision_table: *Static_Collision_Table;
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/collision.jai:39,1: Info: (declaration of 'Static_Collision_Table')
+
+    }
+    Static_Collision_Table :: Table(Entity_Handle, [..]Axis_Interval_Pair, given_hash_function = handle_hash, given_compare_function = handle_compare);
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/collision.jai:39,1: s=0x0 type=DECLARATION
+
+    }
+    Static_Collision_Table :: Table(Entity_Handle, [..]Axis_Interval_Pair, given_hash_function = handle_hash, given_compare_function = handle_compare);
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/camera.jai:20,21: Info: (procedure 'camera_smoothing')
+
+    }
+    camera_smoothing :: (delta: float32) {
+                        ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/camera.jai:20,21: s=0x0 type=LAMBDA_BODY
+
+    }
+    camera_smoothing :: (delta: float32) {
+                        ^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:841,1: Info: (declaration of 'handle_field')
+
+        SIB;
+    }
+    handle_field :: (field_name: string, field_ptr: *Entity_Handle, relationship: Entity_Relationship, follow_handle := true, set_button := true, loc := #caller_location) #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:841,1: s=0x0 type=DECLARATION
+
+        SIB;
+    }
+    handle_field :: (field_name: string, field_ptr: *Entity_Handle, relationship: Entity_Relationship, follow_handle := true, set_button := true, loc := #caller_location) #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:841,17: Info: (header of procedure 'handle_field')
+
+    handle_field :: (field_name: string, field_ptr: *Entity_Handle, relationship: Entity_Relationship, follow_handle := true, set_button := true, loc := #caller_location) #expand {
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:841,17: s=0x0 type=LAMBDA
+
+        SIB;
+    }
+    handle_field :: (field_name: string, field_ptr: *Entity_Handle, relationship: Entity_Relationship, follow_handle := true, set_button := true, loc := #caller_location) #expand {
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/map_screen.jai:296,20: Info: (procedure 'move_map_cursor')
+
+    }
+    move_map_cursor :: () {
+                       ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/map_screen.jai:296,20: s=0x0 type=LAMBDA_BODY
+
+    }
+    move_map_cursor :: () {
+                       ^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:921,1: Info: (declaration of 'extents_display')
+
+    }
+    extents_display :: (field_name: string, entity_ptr: *Entity, loc := #caller_location) #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:921,1: s=0x0 type=DECLARATION
+
+    }
+    extents_display :: (field_name: string, entity_ptr: *Entity, loc := #caller_location) #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:921,20: Info: (header of procedure 'extents_display')
+
+    extents_display :: (field_name: string, entity_ptr: *Entity, loc := #caller_location) #expand {
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:921,20: s=0x0 type=LAMBDA
+
+    }
+    extents_display :: (field_name: string, entity_ptr: *Entity, loc := #caller_location) #expand {
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/assets.jai:13,21: Info: (#run)
+
+    frame_bytes :: #run read_entire_file("assets/room_frame.png");
+    collision_circle_bytes :: #run read_entire_file("assets/collision_circle.png");
+    map_cursor_bytes :: #run read_entire_file("assets/map_cursor.png");
+                        ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/assets.jai:13,21: s=0x0 type=DIRECTIVE_RUN
+
+    frame_bytes :: #run read_entire_file("assets/room_frame.png");
+    collision_circle_bytes :: #run read_entire_file("assets/collision_circle.png");
+    map_cursor_bytes :: #run read_entire_file("assets/map_cursor.png");
+                        ^^^^
+
+C:/Users/Colin/code/room_designer/src/assets.jai:13,21: Info: (#run/#assert procedure body)
+
+    frame_bytes :: #run read_entire_file("assets/room_frame.png");
+    collision_circle_bytes :: #run read_entire_file("assets/collision_circle.png");
+    map_cursor_bytes :: #run read_entire_file("assets/map_cursor.png");
+                        ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/assets.jai:13,21: s=0x0 type=LAMBDA_BODY
+
+    frame_bytes :: #run read_entire_file("assets/room_frame.png");
+    collision_circle_bytes :: #run read_entire_file("assets/collision_circle.png");
+    map_cursor_bytes :: #run read_entire_file("assets/map_cursor.png");
+                        ^^^^
+
+C:/Users/Colin/code/room_designer/src/inspector.jai:18,26: Info: (procedure 'draw_inspector_window')
+
+    }
+    draw_inspector_window :: (state: *Subwindow_State, r: Rect, data: *void) {
+                             ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/inspector.jai:18,26: s=0x0 type=LAMBDA_BODY
+
+    }
+    draw_inspector_window :: (state: *Subwindow_State, r: Rect, data: *void) {
+                             ^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:7,22: Info: (#run)
+
+    // Compile time calculated constants
+    PLAYER_JUMP_SPEED :: #run calculate_jump_speed();
+    PLAYER_MOVE_SPEED :: #run calculate_lateral_speed();
+                         ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:7,22: s=0x0 type=DIRECTIVE_RUN
+
+    // Compile time calculated constants
+    PLAYER_JUMP_SPEED :: #run calculate_jump_speed();
+    PLAYER_MOVE_SPEED :: #run calculate_lateral_speed();
+                         ^^^^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:7,22: Info: (#run/#assert procedure body)
+
+    // Compile time calculated constants
+    PLAYER_JUMP_SPEED :: #run calculate_jump_speed();
+    PLAYER_MOVE_SPEED :: #run calculate_lateral_speed();
+                         ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:7,22: s=0x0 type=LAMBDA_BODY
+
+    // Compile time calculated constants
+    PLAYER_JUMP_SPEED :: #run calculate_jump_speed();
+    PLAYER_MOVE_SPEED :: #run calculate_lateral_speed();
+                         ^^^^
+
+C:/Users/Colin/code/room_designer/src/player.jai:151,17: Info: (procedure 'store_player')
+
+    }
+    store_player :: () {
+                    ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/player.jai:151,17: s=0x0 type=LAMBDA_BODY
+
+    }
+    store_player :: () {
+                    ^
+
+C:/Users/Colin/code/room_designer/build.jai:7,9: Info: (procedure 'main')
+
+    last_time: float64;
+    main :: () {
+            ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/build.jai:7,9: s=0x0 type=LAMBDA_BODY
+
+    last_time: float64;
+    main :: () {
+            ^
+
+C:/Users/Colin/code/room_designer/src/player.jai:160,19: Info: (procedure 'restore_player')
+
+    }
+    restore_player :: () {
+                      ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/player.jai:160,19: s=0x0 type=LAMBDA_BODY
+
+    }
+    restore_player :: () {
+                      ^
+
+C:/Users/Colin/code/room_designer/src/entity.jai:288,1: Info: (declaration of 'entity_has_props')
+
+    }
+    entity_has_props :: inline (e: *Entity, props: Entity_Properties) -> bool {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/entity.jai:288,1: s=0x0 type=DECLARATION
+
+    }
+    entity_has_props :: inline (e: *Entity, props: Entity_Properties) -> bool {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/entity.jai:288,28: Info: (header of procedure 'entity_has_props')
+
+    entity_has_props :: inline (e: *Entity, props: Entity_Properties) -> bool {
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/entity.jai:288,28: s=0x0 type=LAMBDA
+
+    }
+    entity_has_props :: inline (e: *Entity, props: Entity_Properties) -> bool {
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/dev_util.jai:23,1: Info: (declaration of 'default_of')
+
+    }
+    default_of :: ($T: Type) -> T #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/dev_util.jai:23,1: s=0x0 type=DECLARATION
+
+    }
+    default_of :: ($T: Type) -> T #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/dev_util.jai:23,15: Info: (header of procedure 'default_of')
+
+    default_of :: ($T: Type) -> T #expand {
+                  ^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/dev_util.jai:23,15: s=0x0 type=LAMBDA
+
+    }
+    default_of :: ($T: Type) -> T #expand {
+                  ^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/build.jai:44,15: Info: (procedure 'start_game')
+
+    }
+    start_game :: () {
+                  ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/build.jai:44,15: s=0x0 type=LAMBDA_BODY
+
+    }
+    start_game :: () {
+                  ^
+
+C:/Users/Colin/code/jai/modules/GetRect/module.jai:820,72: Info: (declaration of 'memory_checkbox_empty')
+
+    // Arrays into which we will load the bitmaps at compile-time.
+    // Doing this in a somewhat awkward way because that is just how things work right now:
+    memory_radiobox_full, memory_radiobox_empty, memory_checkbox_full, memory_checkbox_empty, memory_default_font, memory_mode_circle, memory_mode_hsv, memory_mode_rgb, memory_mode_numbers :: #run get_global_data();
+                                                                       ^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/GetRect/module.jai:820,72: s=0x0 type=DECLARATION
+
+    // Arrays into which we will load the bitmaps at compile-time.
+    // Doing this in a somewhat awkward way because that is just how things work right now:
+    memory_radiobox_full, memory_radiobox_empty, memory_checkbox_full, memory_checkbox_empty, memory_default_font, memory_mode_circle, memory_mode_hsv, memory_mode_rgb, memory_mode_numbers :: #run get_global_data();
+                                                                       ^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/entity.jai:278,1: Info: (declaration of 'entity_has_props')
+
+    // }
+    entity_has_props :: inline (h: Entity_Handle, props: Entity_Properties) -> bool {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/entity.jai:278,1: s=0x0 type=DECLARATION
+
+    // }
+    entity_has_props :: inline (h: Entity_Handle, props: Entity_Properties) -> bool {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/entity.jai:278,28: Info: (header of procedure 'entity_has_props')
+
+    entity_has_props :: inline (h: Entity_Handle, props: Entity_Properties) -> bool {
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/entity.jai:278,28: s=0x0 type=LAMBDA
+
+    // }
+    entity_has_props :: inline (h: Entity_Handle, props: Entity_Properties) -> bool {
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/physics.jai:6,22: Info: (#run/#assert procedure body)
+
+    TIME_TO_DESCENT: float32: 0.28;
+    // Compile time calculated constants
+    PLAYER_JUMP_SPEED :: #run calculate_jump_speed();
+                         ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/physics.jai:6,22: s=0x0 type=LAMBDA_BODY
+
+    TIME_TO_DESCENT: float32: 0.28;
+    // Compile time calculated constants
+    PLAYER_JUMP_SPEED :: #run calculate_jump_speed();
+                         ^^^^
+
+C:/Users/Colin/code/room_designer/src/parsing.jai:218,1: Info: (declaration of 'write_room_entities_to_world')
+
+    }
+    write_room_entities_to_world :: (e: *Entity_Manager, room_center: Vector2, rotation: u8, map_coord: Coord) #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/parsing.jai:218,1: s=0x0 type=DECLARATION
+
+    }
+    write_room_entities_to_world :: (e: *Entity_Manager, room_center: Vector2, rotation: u8, map_coord: Coord) #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/parsing.jai:218,33: Info: (header of procedure 'write_room_entities_to_world')
+
+    write_room_entities_to_world :: (e: *Entity_Manager, room_center: Vector2, rotation: u8, map_coord: Coord) #expand {
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/parsing.jai:218,33: s=0x0 type=LAMBDA
+
+    }
+    write_room_entities_to_world :: (e: *Entity_Manager, room_center: Vector2, rotation: u8, map_coord: Coord) #expand {
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/parsing.jai:240,1: Info: (declaration of 'refresh_handle')
+
+    }
+    refresh_handle :: (handle_ptr: *Entity_Handle) #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/parsing.jai:240,1: s=0x0 type=DECLARATION
+
+    }
+    refresh_handle :: (handle_ptr: *Entity_Handle) #expand {
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/parsing.jai:240,19: Info: (header of procedure 'refresh_handle')
+
+    refresh_handle :: (handle_ptr: *Entity_Handle) #expand {
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/parsing.jai:240,19: s=0x0 type=LAMBDA
+
+    }
+    refresh_handle :: (handle_ptr: *Entity_Handle) #expand {
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:279,23: Info: (procedure 'room_editor_update')
+
+    }
+    room_editor_update :: () {
+                          ^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:279,23: s=0x0 type=LAMBDA_BODY
+
+    }
+    room_editor_update :: () {
+                          ^
+
+C:/Users/Colin/code/jai/modules/GetRect/module.jai:820,170: Info: (declaration of 'memory_mode_numbers')
+
+    // Arrays into which we will load the bitmaps at compile-time.
+    // Doing this in a somewhat awkward way because that is just how things work right now:
+    memory_radiobox_full, memory_radiobox_empty, memory_checkbox_full, memory_checkbox_empty, memory_default_font, memory_mode_circle, memory_mode_hsv, memory_mode_rgb, memory_mode_numbers :: #run get_global_data();
+                                                                                                                                                                         ^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/GetRect/module.jai:820,170: s=0x0 type=DECLARATION
+
+    // Arrays into which we will load the bitmaps at compile-time.
+    // Doing this in a somewhat awkward way because that is just how things work right now:
+    memory_radiobox_full, memory_radiobox_empty, memory_checkbox_full, memory_checkbox_empty, memory_default_font, memory_mode_circle, memory_mode_hsv, memory_mode_rgb, memory_mode_numbers :: #run get_global_data();
+                                                                                                                                                                         ^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/jai/modules/GetRect/module.jai:820,5: Info: (Compound Declaration)
+
+    // Arrays into which we will load the bitmaps at compile-time.
+    // Doing this in a somewhat awkward way because that is just how things work right now:
+    memory_radiobox_full, memory_radiobox_empty, memory_checkbox_full, memory_checkbox_empty, memory_default_font, memory_mode_circle, memory_mode_hsv, memory_mode_rgb, memory_mode_numbers :: #run get_global_data();
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/GetRect/module.jai:820,5: s=0x0 type=COMPOUND_DECLARATION
+
+    // Arrays into which we will load the bitmaps at compile-time.
+    // Doing this in a somewhat awkward way because that is just how things work right now:
+    memory_radiobox_full, memory_radiobox_empty, memory_checkbox_full, memory_checkbox_empty, memory_default_font, memory_mode_circle, memory_mode_hsv, memory_mode_rgb, memory_mode_numbers :: #run get_global_data();
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:34,46: Info: (#run)
+
+                                    title_text = "Room"};
+    entity_window: Subwindow_Info = .{
+                                      rect = #run get_rect(cast(float)WINDOW_WIDTH - 355, cast(float32)WINDOW_HEIGHT - 750, 350, 740),
+                                             ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:34,46: s=0x0 type=DIRECTIVE_RUN
+
+                                    title_text = "Room"};
+    entity_window: Subwindow_Info = .{
+                                      rect = #run get_rect(cast(float)WINDOW_WIDTH - 355, cast(float32)WINDOW_HEIGHT - 750, 350, 740),
+                                             ^^^^
+
+C:/Users/Colin/code/room_designer/src/room_editor.jai:34,46: Info: (#run/#assert procedure body)
+
+                                    title_text = "Room"};
+    entity_window: Subwindow_Info = .{
+                                      rect = #run get_rect(cast(float)WINDOW_WIDTH - 355, cast(float32)WINDOW_HEIGHT - 750, 350, 740),
+                                             ^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/src/room_editor.jai:34,46: s=0x0 type=LAMBDA_BODY
+
+                                    title_text = "Room"};
+    entity_window: Subwindow_Info = .{
+                                      rect = #run get_rect(cast(float)WINDOW_WIDTH - 355, cast(float32)WINDOW_HEIGHT - 750, 350, 740),
+                                             ^^^^
+
+C:/Users/Colin/code/room_designer/build.jai:72,1: Info: (using statement)
+
+    #import "Simp_Extended";
+    #import "Hash_Table";
+    #import "Entities"(ENTITY_HEADER_TYPE = Entity_Base);
+    ^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/room_designer/build.jai:72,1: s=0x0 type=USING
+
+    #import "Simp_Extended";
+    #import "Hash_Table";
+    #import "Entities"(ENTITY_HEADER_TYPE = Entity_Base);
+    ^^^^^^^
+
+C:/Users/Colin/code/jai/modules/Entities/module.jai:19,1: Info: (#insert)
+
+        return sprint("% :: Raw_Entity(ENTITY_HEADER_TYPE);", ENTITY_ALIAS);
+    };
+    #insert #run -> string {
+    ^^^^^^^
+
+In Workspace 2 ("Target Program"):
+C:/Users/Colin/code/jai/modules/Entities/module.jai:19,1: s=0x0 type=DIRECTIVE_INSERT
+
+        return sprint("% :: Raw_Entity(ENTITY_HEADER_TYPE);", ENTITY_ALIAS);
+    };
+    #insert #run -> string {
+    ^^^^^^^
+
+

@@ -11,29 +11,6 @@ bake_world :: () {
     print("Found % static entities while re-building the static collision table!\n", context.static_collision_table.count);
 }
 
-pair_teleporters :: () {
-    entities := context.entities;
-    x_teleporters: [..]*Entity;
-    y_teleporters: [..]*Entity;
-    x_teleporters.allocator = temp;
-    y_teleporters.allocator = temp;
-
-    for *entities {
-        if it.tag != .TELEPORTER continue;
-        if it.rotation == 0 {
-            array_add(*x_teleporters, it);
-        } else {
-            array_add(*y_teleporters, it);
-        }
-    }
-
-    while x_teleporters.count > 1 {
-        if x_teleporters.count > 1 {
-        }
-        // Should sort based on distance here
-    }
-}
-
 reset_world_tilemap :: () {
     world := context.world;
     for x: 0..WORLD_WIDTH - 1 {
