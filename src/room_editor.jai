@@ -338,21 +338,21 @@ click_actions :: () {
         case .HANDLE_SET_CHILD;
             for entities {
                 if c == it.relative_room_coord && entity_valid(handle, e = entities) {
-                    entity := entity_get(handle, e = entities);
-                    if entity_valid(entity.last_child, e = entities) {
-                        last_child := entity_get(entity.last_child, e = entities);
-                        last_child.next_sibling = it.handle;
-                        it.prev_sibling = last_child.handle;
-                    } else if entity_valid(entity.first_child, e = entities) {
-                        first_child := entity_get(entity.first_child, e = entities);
-                        first_child.next_sibling = it.handle;
-                        it.prev_sibling = first_child.handle;
-                    } else {
-                        entity.first_child = it.handle;
-                        entity.last_child = it.handle;
-                    }
-                    it.parent = handle;
-                    entity.last_child = it.handle;
+                    // if entity_valid(entity.last_child, e = entities) {
+                    //     last_child := entity_get(entity.last_child, e = entities);
+                    //     last_child.next_sibling = it.handle;
+                    //     it.prev_sibling = last_child.handle;
+                    // } else if entity_valid(entity.first_child, e = entities) {
+                    //     first_child := entity_get(entity.first_child, e = entities);
+                    //     first_child.next_sibling = it.handle;
+                    //     it.prev_sibling = first_child.handle;
+                    // } else {
+                    //     entity.first_child = it.handle;
+                    //     entity.last_child = it.handle;
+                    // }
+                    // it.parent = handle;
+                    // entity.last_child = it.handle;
+                    entity_assign_child(handle, it.handle, e = entities);
 
                     editor_state.editor_click_mode = .SELECT;
                 }
@@ -360,20 +360,21 @@ click_actions :: () {
         case .HANDLE_SET_PARENT;
             for entities {
                 if c == it.relative_room_coord && entity_valid(handle, e = entities) {
-                    entity := entity_get(handle, e = entities);
-                    if entity_valid(it.last_child, e = entities) {
-                        last_child := entity_get(it.last_child, e = entities);
-                        last_child.next_sibling = handle;
-                        entity.prev_sibling = last_child.handle;
-                    } else if entity_valid(it.first_child, e = entities) {
-                        first_child := entity_get(it.first_child, e = entities);
-                        first_child.next_sibling = handle;
-                        entity.prev_sibling = first_child.handle;
-                    } else {
-                        it.first_child = handle;
-                        it.last_child = handle;
-                    }
-                    entity.parent = it.handle;
+                    // if entity_valid(it.last_child, e = entities) {
+                    //     last_child := entity_get(it.last_child, e = entities);
+                    //     last_child.next_sibling = handle;
+                    //     entity.prev_sibling = last_child.handle;
+                    // 
+                    // } else if entity_valid(it.first_child, e = entities) {
+                    //     first_child := entity_get(it.first_child, e = entities);
+                    //     first_child.next_sibling = handle;
+                    //     entity.prev_sibling = first_child.handle;
+                    // } else {
+                    //     it.first_child = handle;
+                    //     it.last_child = handle;
+                    // }
+                    // entity.parent = it.handle;
+                    entity_assign_child(it.handle, handle, e = entities);
 
                     editor_state.editor_click_mode = .SELECT;
                 }

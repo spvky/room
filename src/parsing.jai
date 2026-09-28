@@ -136,6 +136,7 @@ write_room_cards_to_world :: () {
             entity_add_child(it.handle, off_position_entity);
         }
     }
+    print("Finished Refreshing handles\n");
 }
 
 write_room_entities_to_world :: (e: *Entity_Manager, room_center: Vector2, rotation: u8, map_coord: Coord) #expand {

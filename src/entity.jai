@@ -227,7 +227,7 @@ entity_remove :: (handle: Entity_Handle, e: *Entity_Manager = context.entities) 
     }
 }
 
-entity_valid :: (handle: Entity_Handle, e: *Entity_Manager = context.entities) -> bool {
+entity_valid :: (handle: Entity_Handle, e: *Entity_Manager = context.entities) -> bool #expand {
     if handle == .{0, 0} return false;
     return entity_get(handle, e = e) != null;
 }
@@ -266,6 +266,80 @@ entity_add_child :: (parent_handle: Entity_Handle, child_entity: Entity, e: *Ent
         }
     }
     return child_handle;
+}
+
+entity_assign_child :: (parent_handle: Entity_Handle, child_handle: Entity_Handle, e: *Entity_Manager = context.entities) {
+    if !entity_valid(parent_handle, e = e) || !entity_valid(child_handle, e = e) {
+        print("Invalid parent or child when assigning child | Parent: %, Child: %\n", parent_handle, child_handle);
+    }
+    parent := entity_get(parent_handle, e = e);
+    child := entity_get(child_handle, e = e);
+
+    if entity_valid(parent.last_child, e = e) {
+        print("Last Child Route\n");
+        first_child_handle := parent.first_child;
+        last_child := entity_get(parent.last_child, e = e);
+        if !entity_valid(last_child.next_sibling, e = e) {
+            print("Invalid Sibling\n");
+            if parent.first_child == parent.last_child {
+                child.parent = parent_handle;
+
+                parent.first_child = last_child.handle;
+                child.prev_sibling = last_child.handle;
+                child.next_sibling = last_child.handle;
+
+                parent.last_child = child_handle;
+                last_child.next_sibling = child_handle;
+                last_child.prev_sibling = child_handle;
+
+                return;
+            }
+        }
+        print("Valid Sibling\n");
+        while entity_valid(last_child.next_sibling, e = e) {
+            if last_child.next_sibling == first_child_handle {
+                print("There are 2 siblings\n");
+                print("Last Childs Handle: %\n", last_child.handle);
+                first_child := entity_get(parent.first_child, e = e);
+
+                child.parent = parent_handle;
+
+                parent.last_child = child_handle;
+                last_child.next_sibling = child_handle;
+
+                child.next_sibling = first_child.handle;
+                child.prev_sibling = last_child.handle;
+
+                print("Setting First Child(%)'s prev sibling to %\n", first_child.handle, child_handle);
+                first_child.prev_sibling = child_handle;
+                return;
+            } else {
+                last_child = entity_get(last_child.next_sibling, e = e);
+            }
+        }
+    } else if entity_valid(parent.first_child, e = e) {
+        print("First Child Route\n");
+        first_child := entity_get(parent.first_child, e = e);
+        first_child.next_sibling = child_handle;
+        parent.last_child = child_handle;
+        child.parent = parent.handle;
+        child.next_sibling = parent.first_child;
+        child.prev_sibling = parent.first_child;
+    } else {
+        print("No Children Route\n");
+        parent.first_child = child_handle;
+        parent.last_child = child_handle;
+        child.parent = parent_handle;
+    }
+}
+
+// Get a list of children using the default allocator
+entity_get_children_list :: (parent_handle: Entity_Handle, e: *Entity_Manager = context.entities) -> [..]Entity_Handle {
+    children: [..]Entity_Handle;
+    if !entity_valid(parent_handle, e = e)
+        entity := entity_get(parent_handle, e = e);
+    if !entity_valid(entity.first_child, e = e) return children;
+    // TODO finish this
 }
 
 for_expansion :: (e: *Entity_Manager, body: Code, flags: For_Flags) #expand {
