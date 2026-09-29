@@ -334,12 +334,19 @@ entity_assign_child :: (parent_handle: Entity_Handle, child_handle: Entity_Handl
 }
 
 // Get a list of children using the default allocator
-entity_get_children_list :: (parent_handle: Entity_Handle, e: *Entity_Manager = context.entities) -> [..]Entity_Handle {
+entity_get_child_list :: (parent_handle: Entity_Handle, e: *Entity_Manager = context.entities) -> [..]Entity_Handle {
     children: [..]Entity_Handle;
-    if !entity_valid(parent_handle, e = e)
-        entity := entity_get(parent_handle, e = e);
+    if !entity_valid(parent_handle, e = e) return children;
+    entity := entity_get(parent_handle, e = e);
     if !entity_valid(entity.first_child, e = e) return children;
-    // TODO finish this
+    first_child := entity_get(entity.first_child, e = e);
+    iterations: int;
+    while iterations < 64 && first_child {
+        array_add_if_unique(*children, first_child.handle, handle_compare);
+        first_child = entity_get(first_child.next_sibling, e = e);
+        iterations += 1;
+    }
+    return children;
 }
 
 for_expansion :: (e: *Entity_Manager, body: Code, flags: For_Flags) #expand {
