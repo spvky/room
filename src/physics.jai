@@ -71,14 +71,14 @@ body_collision :: () {
 
             dynamic_collision, dynamic_collision_occurred := dynamic_vs_dynamic_collision_test(it, dynamic_ptr);
             if dynamic_collision_occurred {
-                dynamic_entity_collisions(it, dynamic_ptr, dynamic_collision);
+                solve_dynamic_collisions(it, dynamic_ptr, dynamic_collision);
             }
         }
     }
 }
 
 // TODO: It's time to move to using this to make the dynamic collision code easier to read and change
-dynamic_entity_collisions :: (a: *Entity, b: *Entity, collision: Collision) #expand {
+solve_dynamic_collisions :: (a: *Entity, b: *Entity, collision: Collision) #expand {
     duo :: (t: Entity_Tag) -> bool #expand {
         return `a.tag == t && `b.tag == t;
     }
@@ -152,6 +152,12 @@ entity_kinematic_push :: () #expand {
     push_normal := ifx dot_product(kin_to_dyn, `collision.normal) > 0 then `collision.normal else -`collision.normal;
     push_amount := `collision.depth;
     dynamic_ptr.position += push_normal * (push_amount + 0.01);
+    if `x_dot > 0.1 {
+        dynamic_ptr.velocity.x = 0;
+    }
+    if `y_dot > 0.1 {
+        dynamic_ptr.velocity.y = 0;
+    }
 }
 
 // Is this useful?
