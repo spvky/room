@@ -11,7 +11,7 @@ Entity :: struct {
     props: Entity_Properties;
     flags: Entity_Flags;
     tag: Entity_Tag;
-    state: Entity_State;
+    messages: Entity_Messages;
     relative_room_coord: Coord;
     current_room: Coord;
     text_message: Display_Message;
@@ -135,15 +135,8 @@ Entity_Flags :: enum_flags u32 {
     TEXT_ACTIVE :: 1 << 6;
 }
 
-Entity_Message :: enum_flags u32 {
+Entity_Messages :: enum_flags u8 {
     RAY_HIT_SOLID :: 1 << 0;
-}
-
-Entity_State :: enum u8 {
-    STAND;
-    MOVING;
-    RISING;
-    FALLING;
 }
 
 init_entities :: () {

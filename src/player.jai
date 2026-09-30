@@ -1,23 +1,29 @@
 Player_Data :: struct {
     last_stable_ground: Vector2;
     state: Player_State;
-
-    TIMERS_CARDINALITY :: #run -> int {
-        info := cast(*Type_Info_Enum)Player_Timer_Type;
-        return info.values.count;
-    }
-    timers: [TIMERS_CARDINALITY]float;
-}
-
-Player_Timer_Type :: enum u8 {
-    SPRINT;
+    prev_state: Player_State;
+    timers: Timer_Collection;
 }
 
 Player_State :: enum {
     IDLE;
-    RUNNING;
-    RISING;
-    FALLING;
+    RUN;
+    PUSH;
+    RISE;
+    FALL;
+}
+
+Timer_Collection :: struct {
+    CARDINALITY :: #run -> int {
+        info := cast(*Type_Info_Enum)Timer_Type;
+        return info.values.count;
+    }
+    values: [CARDINALITY]float;
+}
+
+Timer_Type :: enum u8 {
+    SPRINT;
+    LOOK;
 }
 
 #add_context player_handle: *Entity_Handle;
@@ -33,27 +39,16 @@ init_player :: () {
     }
 }
 
-manage_player_timers :: (delta: float) {
-    info := cast(*Type_Info_Enum)Player_Timer_Type;
-    for info.values {
-        if context.player_data.timers[it_index] > 0 {
-            context.player_data.timers[it_index] -= delta;
-        } else {
-            context.player_data.timers[it_index] = 0;
-        }
-    }
+get_player_timer_value :: (type: Timer_Type) -> float #expand {
+    return context.player_data.timers.values[type];
 }
 
-get_player_timer_value :: (type: Player_Timer_Type) -> float #expand {
-    return context.player_data.timers[type];
+set_player_timer_value :: (type: Timer_Type, value: float) #expand {
+    context.player_data.timers.values[type] = value;
 }
 
-set_player_timer_value :: (type: Player_Timer_Type, value: float) #expand {
-    context.player_data.timers[type] = value;
-}
-
-increase_player_timer_value :: (type: Player_Timer_Type, delta: float) #expand {
-    context.player_data.timers[type] += delta;
+increase_player_timer_value :: (type: Timer_Type, delta: float) #expand {
+    context.player_data.timers.values[type] += delta;
 }
 
 player_is_valid :: () -> bool {
@@ -72,29 +67,23 @@ reset_player :: () {
     player.velocity = .{};
 }
 
+manage_player_state :: () {
+}
+
 set_player_move_delta :: () {
     player := player_get();
     if player {
         c, in_bounds := calculate_map_coord_from_position(player.position);
         if in_bounds then context.camera.target_room = c;
-        if player.state == {
-        case .MOVING;
-            #through;
-        case .STAND;
-            #through;
-        case .RISING;
-            #through;
-        case .FALLING;
-            x: float32;
-            if is_action_held(.MOVE_LEFT) {
-                x -= 1;
-            }
-            if is_action_held(.MOVE_RIGHT) {
-                x += 1;
-            }
-
-            player.movement_delta.x = x;
+        x: float32;
+        if is_action_held(.MOVE_LEFT) {
+            x -= 1;
         }
+        if is_action_held(.MOVE_RIGHT) {
+            x += 1;
+        }
+
+        player.movement_delta.x = x;
     }
 }
 
