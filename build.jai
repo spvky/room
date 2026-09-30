@@ -60,7 +60,6 @@ init :: () {
     init_world();
     init_collision_tables();
     init_inspector();
-    init_game_data();
     init_room_editor();
     init_debug_mode();
 }

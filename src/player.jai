@@ -3,6 +3,10 @@ Player_Data :: struct {
     state: Player_State;
     prev_state: Player_State;
     timers: Timer_Collection;
+    stored_player: Entity;
+    current_room: Coord;
+    current_position: Vector2;
+    has_stored_player: bool;
 }
 
 Player_State :: enum {
@@ -68,6 +72,9 @@ reset_player :: () {
 }
 
 manage_player_state :: () {
+}
+
+manage_player_timers :: (delta: float) {
 }
 
 set_player_move_delta :: () {
@@ -168,15 +175,15 @@ make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> E
 store_player :: () {
     assert(player_is_valid(), "Tried to store player and they didn't exist!\n");
     player := player_get();
-    context.game_data.player_current_room = context.camera.target_room;
-    context.game_data.player_current_position = player.position;
-    context.game_data.stored_player = player.*;
-    context.game_data.has_stored_player = true;
+    context.player_data.current_room = context.camera.target_room;
+    context.player_data.current_position = player.position;
+    context.player_data.stored_player = player.*;
+    context.player_data.has_stored_player = true;
 }
 
 restore_player :: () {
-    assert(context.game_data.has_stored_player, "Tried to restore an unstored player!\n");
-    context.player_handle.* = entity_add(context.game_data.stored_player);
+    assert(context.player_data.has_stored_player, "Tried to restore an unstored player!\n");
+    context.player_handle.* = entity_add(context.player_data.stored_player);
 
     // Ground Sensor Entity
     gse: Entity;
@@ -186,13 +193,4 @@ restore_player :: () {
     gse.tag = .GROUND_SENSOR;
     gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
     entity_add_child(context.player_handle.*, gse);
-
-    // Left Ray Entity
-    lre: Entity;
-    lre.offset = Vector2.{(context.game_data.stored_player.radius * 0.9), 0};
-    lre.tag = .WALL_CASTER;
-    lre.ray.direction = .{1, 0};
-    lre.ray.max_toi = 32.0;
-    lre.props = .RAY_CASTER | .RELATIVE_POSITION | .RELATIVE_ROTATION;
-    entity_add_child(context.player_handle.*, lre);
 }

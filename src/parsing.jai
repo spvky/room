@@ -144,7 +144,7 @@ write_room_entities_to_world :: (e: *Entity_Manager, room_center: Vector2, rotat
 
     for *e {
         if it.tag == .PLAYER_SPAWN {
-            if !player_is_valid() && !context.game_data.has_stored_player {
+            if !player_is_valid() && !context.player_data.has_stored_player {
                 position := room_center + rotate(it.position, float_rotation);
                 player_handle := make_player(position, map_coord);
                 context.player_handle.* = player_handle;

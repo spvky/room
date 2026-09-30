@@ -265,7 +265,7 @@ place_or_select_room_at_position :: () {
             placed_card := context.map.placed_room_cards[idx_of_room];
             hash := placed_card.room_hash;
             room_to_grab := table_find_pointer(context.room_table, hash);
-            room_is_occupied := placed_card.coord == context.game_data.player_current_room;
+            room_is_occupied := placed_card.coord == context.player_data.current_room;
             if !room_to_grab {
                 print("Tried to grab a room with an invalid ptr\n");
             }

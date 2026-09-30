@@ -6,21 +6,7 @@ Game_State :: enum u8 {
     ROOM_EDITOR;
 }
 
-Game_Data :: struct {
-    has_stored_player: bool;
-    stored_player: Entity;
-    player_current_room: Coord;
-    player_current_position: Vector2;
-}
-
 #add_context game_state: Game_State;
-#add_context game_data: *Game_Data;
-
-init_game_data :: () {
-    if !context.game_data {
-        context.game_data = New(Game_Data);
-    }
-}
 
 in_game_state :: (state: Game_State) -> bool #expand {
     return context.game_state == state;
@@ -51,7 +37,7 @@ game_state_update :: () {
     }
     if is_action_buffered(.GOTO_GAMEPLAY) {
         consume_action(.GOTO_GAMEPLAY);
-        context.game_data.has_stored_player = false;
+        context.player_data.has_stored_player = false;
         rooms_refresh();
         map_refresh();
         bake_world();
