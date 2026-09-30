@@ -1,6 +1,16 @@
 Player_Data :: struct {
     last_stable_ground: Vector2;
     state: Player_State;
+
+    TIMERS_CARDINALITY :: #run -> int {
+        info := cast(*Type_Info_Enum)Player_Timer_Type;
+        return info.values.count;
+    }
+    timers: [TIMERS_CARDINALITY]float;
+}
+
+Player_Timer_Type :: enum u8 {
+    SPRINT;
 }
 
 Player_State :: enum {
@@ -21,6 +31,29 @@ init_player :: () {
     if !context.player_data {
         context.player_data = New(Player_Data);
     }
+}
+
+manage_player_timers :: (delta: float) {
+    info := cast(*Type_Info_Enum)Player_Timer_Type;
+    for info.values {
+        if context.player_data.timers[it_index] > 0 {
+            context.player_data.timers[it_index] -= delta;
+        } else {
+            context.player_data.timers[it_index] = 0;
+        }
+    }
+}
+
+get_player_timer_value :: (type: Player_Timer_Type) -> float #expand {
+    return context.player_data.timers[type];
+}
+
+set_player_timer_value :: (type: Player_Timer_Type, value: float) #expand {
+    context.player_data.timers[type] = value;
+}
+
+increase_player_timer_value :: (type: Player_Timer_Type, delta: float) #expand {
+    context.player_data.timers[type] += delta;
 }
 
 player_is_valid :: () -> bool {

@@ -350,9 +350,7 @@ entity_get_child_list :: (parent_handle: Entity_Handle, e: *Entity_Manager = con
 }
 
 for_expansion :: (e: *Entity_Manager, body: Code, flags: For_Flags) #expand {
-    // print("Looping over entity manager count is %\n", e.count);
     for index: 0..e.items.count - 1 {
-        // print("ENTGUY IDX: %\n", e.items[index].handle.index);
         if index == 0 continue;
         if e.items[index].handle.index == 0 continue;
 
