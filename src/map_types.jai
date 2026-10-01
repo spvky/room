@@ -113,6 +113,7 @@ Collision_Tile :: enum u8 {
     LEFT_HALF;
     RIGHT_HALF;
     BLANK;
+    EXIT;
 }
 
 World :: struct {

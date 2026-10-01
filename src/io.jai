@@ -191,6 +191,10 @@ generate_room_png :: (r: *Room, path: string) {
         COLOR_WALL;
         COLOR_BLANK;
         COLOR_RED;
+        COLOR_EXIT;
+        COLOR_GREY;
+        COLOR_BLACK;
+        COLOR_SWITCH_BLOCK;
     }
     _set_pixel :: (idx: int, color: Room_Color) #expand {
         if color == {
@@ -206,6 +210,14 @@ generate_room_png :: (r: *Room, path: string) {
             `pixel_data[idx] = .{0, 0, 0, 255};
         case .COLOR_RED;
             `pixel_data[idx] = .{255, 0, 0, 255};
+        case .COLOR_EXIT;
+            `pixel_data[idx] = .{233, 233, 0, 255};
+        case .COLOR_GREY;
+            `pixel_data[idx] = .{100, 100, 100, 255};
+        case .COLOR_BLACK;
+            `pixel_data[idx] = .{0, 0, 0, 255};
+        case .COLOR_SWITCH_BLOCK;
+            `pixel_data[idx] = .{68, 35, 31, 255};
         }
     }
     _set_tile :: (tile: Collision_Tile) #expand {
@@ -240,6 +252,31 @@ generate_room_png :: (r: *Room, path: string) {
             _set_pixel(`tr, .COLOR_WALL);
             _set_pixel(`bl, .COLOR_EMPTY);
             _set_pixel(`br, .COLOR_WALL);
+        case .EXIT;
+            _set_pixel(`tl, .COLOR_EXIT);
+            _set_pixel(`tr, .COLOR_EXIT);
+            _set_pixel(`bl, .COLOR_EXIT);
+            _set_pixel(`br, .COLOR_EXIT);
+        }
+    }
+
+    _set_entity_tile :: (tag: Entity_Tag) #expand {
+        if tag == {
+        case .CRATE;
+            _set_pixel(`tl, .COLOR_GREY);
+            _set_pixel(`tr, .COLOR_BLACK);
+            _set_pixel(`bl, .COLOR_BLACK);
+            _set_pixel(`br, .COLOR_GREY);
+        case .GEAR;
+            _set_pixel(`tl, .COLOR_RED);
+            _set_pixel(`tr, .COLOR_RED);
+            _set_pixel(`bl, .COLOR_RED);
+            _set_pixel(`br, .COLOR_RED);
+        case .SWITCH_BLOCK;
+            _set_pixel(`tl, .COLOR_SWITCH_BLOCK);
+            _set_pixel(`tr, .COLOR_SWITCH_BLOCK);
+            _set_pixel(`bl, .COLOR_SWITCH_BLOCK);
+            _set_pixel(`br, .COLOR_SWITCH_BLOCK);
         }
     }
 
@@ -263,31 +300,78 @@ generate_room_png :: (r: *Room, path: string) {
             if x == 0 || x == ROOM_WIDTH + 1 || y == 0 || y == ROOM_HEIGHT + 1 {
                 is_wall: bool = true;
 
+                // I think i'm pretty locked in with 45x45 rooms at this point so it's magic number time
+
                 // Will only work with even numbered, square maps
                 if _has_exit(.NORTH_EAST) && (x == ROOM_WIDTH - 1 || x == ROOM_WIDTH) && y == ROOM_HEIGHT + 1 then is_wall = false;
-                if _has_exit(.NORTH) && (x == HALF_ROOM_SIZE - 1 || x == HALF_ROOM_SIZE || x == HALF_ROOM_SIZE + 1 || x == HALF_ROOM_SIZE + 2) && y == ROOM_HEIGHT + 1 then is_wall = false;
+                if _has_exit(.NORTH) && (x == 21 || x == 22 || x == 23 || x == 24 || x == 25) && y == ROOM_HEIGHT + 1 then is_wall = false;
                 if _has_exit(.NORTH_WEST) && (x == 1 || x == 2) && y == ROOM_HEIGHT + 1 then is_wall = false;
 
                 if _has_exit(.SOUTH_EAST) && (x == ROOM_WIDTH - 1 || x == ROOM_WIDTH) && y == 0 then is_wall = false;
-                if _has_exit(.SOUTH) && (x == HALF_ROOM_SIZE - 1 || x == HALF_ROOM_SIZE || x == HALF_ROOM_SIZE + 1 || x == HALF_ROOM_SIZE + 2) && y == 0 then is_wall = false;
+                if _has_exit(.SOUTH) && (x == 21 || x == 22 || x == 23 || x == 24 || x == 25) && y == 0 then is_wall = false;
                 if _has_exit(.SOUTH_WEST) && (x == 1 || x == 2) && y == 0 then is_wall = false;
 
                 if _has_exit(.EAST_SOUTH) && (y == 1 || y == 2) && x == ROOM_WIDTH + 1 then is_wall = false;
-                if _has_exit(.EAST) && (y == HALF_ROOM_SIZE - 1 || y == HALF_ROOM_SIZE || y == HALF_ROOM_SIZE + 1 || y == HALF_ROOM_SIZE + 2) && x == ROOM_WIDTH + 1 then is_wall = false;
+                if _has_exit(.EAST) && (y == 21 || y == 22 || y == 23 || y == 24 || y == 25) && x == ROOM_WIDTH + 1 then is_wall = false;
                 if _has_exit(.EAST_NORTH) && (y == ROOM_HEIGHT - 1 || y == ROOM_HEIGHT) && x == ROOM_WIDTH + 1 then is_wall = false;
 
                 if _has_exit(.WEST_SOUTH) && (y == 1 || y == 2) && x == 0 then is_wall = false;
-                if _has_exit(.WEST) && (y == HALF_ROOM_SIZE - 1 || y == HALF_ROOM_SIZE || y == HALF_ROOM_SIZE + 1 || y == HALF_ROOM_SIZE + 2) && x == 0 then is_wall = false;
+                if _has_exit(.WEST) && (y == 21 || y == 22 || y == 23 || y == 24 || y == 25) && x == 0 then is_wall = false;
                 if _has_exit(.WEST_NORTH) && (y == ROOM_HEIGHT - 1 || y == ROOM_HEIGHT) && x == 0 then is_wall = false;
 
                 if is_wall {
                     _set_tile(.WALL);
                 } else {
-                    _set_tile(.EMPTY);
+                    _set_tile(.EXIT);
                 }
             } else {
                 tile := check_collision_tile_value(r, .{xx (x - 1), xx (y - 1)});
                 _set_tile(tile);
+            }
+        }
+    }
+
+    for r.entities {
+        if it.tag == {
+        case .CRATE; #through;
+        case .GEAR;
+            by := it.relative_room_coord.y * 2;
+            bx := it.relative_room_coord.x * 2;
+            bl := by * pixel_array_width + bx;
+            br := by * pixel_array_width + (bx + 1);
+            tl := (by + 1) * pixel_array_width + bx;
+            tr := (by + 1) * pixel_array_width + (bx + 1);
+            _set_entity_tile(it.tag);
+        case .SWITCH_BLOCK;
+            center_y := it.relative_room_coord.y * 2;
+            center_x := it.relative_room_coord.x * 2;
+            x_extent := cast(int)(it.extents.x / TILE_SIZE);
+            y_extent := cast(int)(it.extents.y / TILE_SIZE);
+
+            x_range: int;
+            if x_extent > 1 {
+                x_range = ((x_extent - 1) / 2);
+            } else {
+                x_range = 0;
+            }
+
+            y_range: int;
+            if y_extent > 1 {
+                y_range = ((y_extent - 1) / 2);
+            } else {
+                y_range = 0;
+            }
+
+            for y: 0 - y_range..y_range {
+                for x: 0 - x_range..x_range {
+                    by := (it.relative_room_coord.y + y) * 2;
+                    bx := (it.relative_room_coord.x + x) * 2;
+                    bl := by * pixel_array_width + bx;
+                    br := by * pixel_array_width + (bx + 1);
+                    tl := (by + 1) * pixel_array_width + bx;
+                    tr := (by + 1) * pixel_array_width + (bx + 1);
+                    _set_entity_tile(it.tag);
+                }
             }
         }
     }
