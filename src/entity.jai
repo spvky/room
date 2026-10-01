@@ -188,31 +188,34 @@ entity_get :: (handle: Entity_Handle, e: *Entity_Manager = context.entities) -> 
 
 entity_remove :: (handle: Entity_Handle, e: *Entity_Manager = context.entities) {
     if handle.index > 0 && cast(int)handle.index < e.items.count && e.items[handle.index].handle == handle {
-        entity := entity_get(handle, e = e);
-        if entity_valid(entity.first_child, e = e) {
-            current_child := entity_get(entity.first_child, e = e);
-
-            while entity_valid(current_child.next_sibling, e = e) {
-                entity_remove(current_child.next_sibling, e = e);
-            }
-
-            entity_remove(current_child.handle, e = e);
+        children := entity_get_child_list(handle, e = e);
+        for children {
+            entity_remove(it, e = e);
         }
-
-        if entity_valid(entity.next_sibling, e = e) {
-            next_sibling := entity_get(entity.next_sibling, e = e);
-            next_sibling.prev_sibling = entity.prev_sibling;
-        }
-
-        if entity_valid(entity.prev_sibling, e = e) {
-            prev_sibling := entity_get(entity.prev_sibling, e = e);
-            prev_sibling.next_sibling = entity.next_sibling;
-        }
-
-        if !entity_valid(entity.prev_sibling, e = e) && entity_valid(entity.parent, e = e) {
-            parent := entity_get(entity.parent, e = e);
-            parent.first_child = entity.next_sibling;
-        }
+        // if entity_valid(entity.first_child, e = e) {
+        //     current_child := entity_get(entity.first_child, e = e);
+        // 
+        //     while entity_valid(current_child.next_sibling, e = e) {
+        //         entity_remove(current_child.next_sibling, e = e);
+        //     }
+        // 
+        //     entity_remove(current_child.handle, e = e);
+        // }
+        // 
+        // if entity_valid(entity.next_sibling, e = e) {
+        //     next_sibling := entity_get(entity.next_sibling, e = e);
+        //     next_sibling.prev_sibling = entity.prev_sibling;
+        // }
+        // 
+        // if entity_valid(entity.prev_sibling, e = e) {
+        //     prev_sibling := entity_get(entity.prev_sibling, e = e);
+        //     prev_sibling.next_sibling = entity.next_sibling;
+        // }
+        // 
+        // if !entity_valid(entity.prev_sibling, e = e) && entity_valid(entity.parent, e = e) {
+        //     parent := entity_get(entity.parent, e = e);
+        //     parent.first_child = entity.next_sibling;
+        // }
 
         array_add(*e.freelist, handle);
         e.items[handle.index] = .{};

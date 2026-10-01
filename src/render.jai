@@ -82,21 +82,21 @@ draw_current_room_exits :: (height: int) {
     }
     room := context.room_editor_state.current_room;
 
-    h_west_start: float32 = 445;
-    h_west_end: float32 = 538.636;
-    h_east_start: float32 = 1381.363;
-    h_east_end: float32 = 1475;
-    h_center_start: float32 = 913.181;
-    h_center_end: float32 = 1006.818;
-
-    v_north_start: float32 = 1055;
-    v_north_end: float32 = 961.363;
-    v_south_start: float32 = 118.636;
-    v_south_end: float32 = 25;
-    v_center_start: float32 = 586.818;
-    v_center_end: float32 = 493.181;
-
     tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary := get_tile_ui_data(height);
+
+    h_west_start: float32 = left_boundary;
+    h_west_end: float32 = left_boundary + (tile_height * 2);
+    h_east_start: float32 = right_boundary - (tile_height * 2);
+    h_east_end: float32 = right_boundary;
+    h_center_start: float32 = ((left_boundary + right_boundary) / 2) - (tile_height * 2.5);
+    h_center_end: float32 = ((left_boundary + right_boundary) / 2) + (tile_height * 2.5);
+
+    v_north_start: float32 = top_boundary;
+    v_north_end: float32 = top_boundary - (tile_height * 2);
+    v_south_start: float32 = bot_boundary + (tile_height * 2);
+    v_south_end: float32 = bot_boundary;
+    v_center_start: float32 = ((bot_boundary + top_boundary) / 2) + (tile_height * 2.5);
+    v_center_end: float32 = ((bot_boundary + top_boundary) / 2) - (tile_height * 2.5);
 
     color := Vector4.{0.7, 0.7, 0, 1};
 

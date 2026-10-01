@@ -90,6 +90,18 @@ render_room_editor_scene :: () {
     render_room_editor_ui();
 
     #if OS == .WINDOWS render_room_editor_mouse_selection();
+    render_mode_text();
+}
+
+render_mode_text :: () {
+    screen_x := 360;
+    screen_y := (cast(int)WINDOW_HEIGHT) - 50;
+    mode_string := tprint("%", context.room_editor_state.editor_click_mode);
+    draw_text(context.atlas.font, screen_x, screen_y, mode_string);
+    if context.room_editor_state.editor_click_mode == .SET_WALL_START || context.room_editor_state.editor_click_mode == .SET_WALL_END {
+        wall_type_string := tprint("%", context.room_editor_state.wall_to_make);
+        draw_text(context.atlas.font, screen_x, screen_y - 50, wall_type_string);
+    }
 }
 
 render_room_editor_mouse_selection :: () {
@@ -316,6 +328,32 @@ hotkey_actions :: () {
             entity.rotation += PI / 2;
         }
     }
+
+    if is_action_buffered(.EDITOR_CANCEL) {
+        consume_action(.EDITOR_CANCEL);
+        editor_state.editor_click_mode = .SELECT;
+    }
+
+    if is_action_buffered(.EDITOR_WALL_MODE) {
+        consume_action(.EDITOR_WALL_MODE);
+        if editor_state.editor_click_mode != .SET_WALL_START {
+            editor_state.editor_click_mode = .SET_WALL_START;
+            editor_state.wall_to_make = .WALL;
+        } else {
+            if editor_state.wall_to_make == {
+            case .WALL;
+                editor_state.wall_to_make = .TOP_HALF;
+            case .TOP_HALF;
+                editor_state.wall_to_make = .BOT_HALF;
+            case .BOT_HALF;
+                editor_state.wall_to_make = .LEFT_HALF;
+            case .LEFT_HALF;
+                editor_state.wall_to_make = .RIGHT_HALF;
+            case .RIGHT_HALF;
+                editor_state.wall_to_make = .WALL;
+            }
+        }
+    }
 }
 
 click_actions :: () {
@@ -338,20 +376,6 @@ click_actions :: () {
         case .HANDLE_SET_CHILD;
             for entities {
                 if c == it.relative_room_coord && entity_valid(handle, e = entities) {
-                    // if entity_valid(entity.last_child, e = entities) {
-                    //     last_child := entity_get(entity.last_child, e = entities);
-                    //     last_child.next_sibling = it.handle;
-                    //     it.prev_sibling = last_child.handle;
-                    // } else if entity_valid(entity.first_child, e = entities) {
-                    //     first_child := entity_get(entity.first_child, e = entities);
-                    //     first_child.next_sibling = it.handle;
-                    //     it.prev_sibling = first_child.handle;
-                    // } else {
-                    //     entity.first_child = it.handle;
-                    //     entity.last_child = it.handle;
-                    // }
-                    // it.parent = handle;
-                    // entity.last_child = it.handle;
                     entity_assign_child(handle, it.handle, e = entities);
 
                     editor_state.editor_click_mode = .SELECT;
@@ -360,20 +384,6 @@ click_actions :: () {
         case .HANDLE_SET_PARENT;
             for entities {
                 if c == it.relative_room_coord && entity_valid(handle, e = entities) {
-                    // if entity_valid(it.last_child, e = entities) {
-                    //     last_child := entity_get(it.last_child, e = entities);
-                    //     last_child.next_sibling = handle;
-                    //     entity.prev_sibling = last_child.handle;
-                    // 
-                    // } else if entity_valid(it.first_child, e = entities) {
-                    //     first_child := entity_get(it.first_child, e = entities);
-                    //     first_child.next_sibling = handle;
-                    //     entity.prev_sibling = first_child.handle;
-                    // } else {
-                    //     it.first_child = handle;
-                    //     it.last_child = handle;
-                    // }
-                    // entity.parent = it.handle;
                     entity_assign_child(it.handle, handle, e = entities);
 
                     editor_state.editor_click_mode = .SELECT;
@@ -461,7 +471,7 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
         lse.offset = Vector2.{-TILE_SIZE / 2, 0};
         lse.extents = Vector2.{TILE_SIZE / 7.5, TILE_SIZE * 0.95};
         lse.shape_kind = .RECTANGLE;
-        lse.tag = .RIGHT_SENSOR;
+        lse.tag = .LEFT_SENSOR;
         lse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
         entity_add_child(crate_handle, lse, e = entities);
     case .GEAR;
