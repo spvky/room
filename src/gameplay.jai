@@ -2,6 +2,7 @@ gameplay_update :: (delta: float32) {
     // Upkeep
     decay_crate_x_velocity();
     handle_power_conductivity();
+    advance_timed_events(delta);
     // Camera
     camera_smoothing(delta);
     camera_follow();

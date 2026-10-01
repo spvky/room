@@ -253,6 +253,16 @@ render_gameplay_scene :: () {
     sv[1] = .{xx WINDOW_WIDTH, 0};
     sv[2] = .{xx WINDOW_WIDTH, xx WINDOW_WIDTH};
     sv[3] = .{0, xx WINDOW_WIDTH};
+    if context.screen_effects.current_effects & .SHAKE == .SHAKE {
+        shake := context.screen_effects.shake_magnitude / 2;
+
+        x := random_get_within_range(-shake.x, shake.x);
+        y := random_get_within_range(-shake.y, shake.y);
+        shift := Vector2.{x, y};
+        for *sv {
+            it.* += shift;
+        }
+    }
     immediate_quad(sv[0], sv[1], sv[2], sv[3], .{1, 1, 1, 1});
     render_floating_text();
     debug_inspector_ui();

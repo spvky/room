@@ -52,6 +52,7 @@ init :: () {
     init_camera();
     init_player();
     init_rendering();
+    init_events();
     init_textures();
     init_entities();
     init_rooms();
@@ -62,6 +63,7 @@ init :: () {
     init_inspector();
     init_room_editor();
     init_debug_mode();
+    init_screen_effects();
 }
 
 #import "Basic";
@@ -77,6 +79,7 @@ init :: () {
 #import "Hash";
 #import "GetRect";
 #import "File_Utilities";
+#import "Random";
 #import "stb_image_write";
 GL :: #import "GL";
 #load "src/assets.jai";
@@ -104,3 +107,4 @@ GL :: #import "GL";
 #load "src/room_editor.jai";
 #load "src/util.jai";
 #load "src/debug_mode.jai";
+#load "src/screen_effects.jai";
