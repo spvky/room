@@ -441,7 +441,7 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
         // Ground Sensor Entity
         gse: Entity;
         gse.offset = Vector2.{0, -TILE_SIZE / 2};
-        gse.extents = Vector2.{TILE_SIZE, TILE_SIZE / 8};
+        gse.extents = Vector2.{TILE_SIZE * 0.8, TILE_SIZE / 8};
         gse.shape_kind = .RECTANGLE;
         gse.tag = .GROUND_SENSOR;
         gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
@@ -455,6 +455,15 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
         rse.tag = .RIGHT_SENSOR;
         rse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
         entity_add_child(crate_handle, rse, e = entities);
+
+        // Left Sensor
+        lse: Entity;
+        lse.offset = Vector2.{-TILE_SIZE / 2, 0};
+        lse.extents = Vector2.{TILE_SIZE / 7.5, TILE_SIZE * 0.95};
+        lse.shape_kind = .RECTANGLE;
+        lse.tag = .RIGHT_SENSOR;
+        lse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
+        entity_add_child(crate_handle, lse, e = entities);
     case .GEAR;
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};

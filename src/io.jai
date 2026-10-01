@@ -335,8 +335,8 @@ generate_room_png :: (r: *Room, path: string) {
         if it.tag == {
         case .CRATE; #through;
         case .GEAR;
-            by := it.relative_room_coord.y * 2;
-            bx := it.relative_room_coord.x * 2;
+            by := (it.relative_room_coord.y + 1) * 2;
+            bx := (it.relative_room_coord.x + 1) * 2;
             bl := by * pixel_array_width + bx;
             br := by * pixel_array_width + (bx + 1);
             tl := (by + 1) * pixel_array_width + bx;
@@ -364,8 +364,8 @@ generate_room_png :: (r: *Room, path: string) {
 
             for y: 0 - y_range..y_range {
                 for x: 0 - x_range..x_range {
-                    by := (it.relative_room_coord.y + y) * 2;
-                    bx := (it.relative_room_coord.x + x) * 2;
+                    by := (it.relative_room_coord.y + y + 1) * 2;
+                    bx := (it.relative_room_coord.x + x + 1) * 2;
                     bl := by * pixel_array_width + bx;
                     br := by * pixel_array_width + (bx + 1);
                     tl := (by + 1) * pixel_array_width + bx;

@@ -245,7 +245,7 @@ render_gameplay_scene :: () {
         clear_render_target(0, 0.4, 0.6, 1);
     }
     render_entities();
-    // debug_render_colliders();
+    debug_render_colliders();
     set_render_target(window);
     set_shader_for_images(context.gameplay_texture);
     sv: [4]Vector2;
@@ -315,7 +315,13 @@ render_entities :: () {
 
 draw_entity_collider :: inline (e: *Entity, color: Vector4) {
     p: [4]Vector2;
-    pos, extents := cam_relative_pos_extents(e.position, e.render_extents);
+    pos: Vector2;
+    extents: Vector2;
+    if entity_has_props(e, .SENSOR) {
+        pos, extents = cam_relative_pos_extents(e.position, e.extents);
+    } else {
+        pos, extents = cam_relative_pos_extents(e.position, e.render_extents);
+    }
     half := extents / 2;
     p[0] = pos + .{-half.x, half.y};
     p[1] = pos + .{-half.x, -half.y};
