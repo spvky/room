@@ -83,7 +83,7 @@ write_room_cards_to_world :: () {
     world := context.world;
     map := context.map;
 
-    pre_post_handle_map: Table(Entity_Handle, Entity_Handle, given_hash_function = handle_hash, given_compare_function = handle_compare);
+    pre_post_handle_map: Table(Room_Handle_Pair, Entity_Handle, given_hash_function = room_handle_hash, given_compare_function = room_handle_compare);
     pre_post_handle_map.allocator = temp;
     for map.placed_room_cards {
         r := get_room_from_hash(it.room_hash);
@@ -113,20 +113,19 @@ write_room_cards_to_world :: () {
                 world.collision[world_idx] = collision_tile;
             }
         }
-        print("Finished Writing intGrid for room %, parsing % entities now\n", it.room_hash, r.entities.count);
         half_room := Vector2.{22.5 * TILE_SIZE, 22.5 * TILE_SIZE};
         room_center := Vector2.{cast(float)start_x * TILE_SIZE, cast(float)start_y * TILE_SIZE} + half_room;
 
-        write_room_entities_to_world(*r.entities, room_center, it.rotation, it.coord);
+        write_room_entities_to_world(r, room_center, it.rotation, it.coord);
     }
 
     for *context.entities {
         if entity_has_props(it, .NO_HANDLE_REFRESH) continue;
-        refresh_handle(*it.parent);
-        refresh_handle(*it.first_child);
-        refresh_handle(*it.last_child);
-        refresh_handle(*it.prev_sibling);
-        refresh_handle(*it.next_sibling);
+        refresh_handle(*it.parent, it.room_hash);
+        refresh_handle(*it.first_child, it.room_hash);
+        refresh_handle(*it.last_child, it.room_hash);
+        refresh_handle(*it.prev_sibling, it.room_hash);
+        refresh_handle(*it.next_sibling, it.room_hash);
 
         // Should find a better place to do this maybe
         if it.tag == .SWITCH_BLOCK {
@@ -139,10 +138,10 @@ write_room_cards_to_world :: () {
     print("Finished Refreshing handles\n");
 }
 
-write_room_entities_to_world :: (e: *Entity_Manager, room_center: Vector2, rotation: u8, map_coord: Coord) #expand {
+write_room_entities_to_world :: (r: *Room, room_center: Vector2, rotation: u8, map_coord: Coord) #expand {
     float_rotation := (PI / 2) * cast(float)rotation;
 
-    for *e {
+    for *r.entities {
         if it.tag == .PLAYER_SPAWN {
             if !player_is_valid() && !context.player_data.has_stored_player {
                 position := room_center + rotate(it.position, float_rotation);
@@ -156,14 +155,18 @@ write_room_entities_to_world :: (e: *Entity_Manager, room_center: Vector2, rotat
             new_entity.position = room_center + rotate(new_entity.position, float_rotation);
             new_entity.current_room = map_coord;
             new_handle := entity_add(new_entity);
-            table_set(*`pre_post_handle_map, it.handle, new_handle);
+            room_handle_pair := Room_Handle_Pair.{
+                                                  handle = it.handle, room_hash = djb2_hash(r.name)};
+
+            table_set(*`pre_post_handle_map, room_handle_pair, new_handle);
         }
     }
 }
 
-refresh_handle :: (handle_ptr: *Entity_Handle) #expand {
+refresh_handle :: (handle_ptr: *Entity_Handle, room_hash: u32) #expand {
     if handle_ptr.index != 0 {
-        new_handle_ptr := table_find_pointer(*`pre_post_handle_map, handle_ptr.*);
+        room_handle_pair := Room_Handle_Pair.{handle = handle_ptr, room_hash = room_hash};
+        new_handle_ptr := table_find_pointer(*`pre_post_handle_map, room_handle_pair);
         if new_handle_ptr {
             if entity_valid(new_handle_ptr.*) {
                 handle_ptr.* = new_handle_ptr.*;
@@ -215,9 +218,7 @@ open_map_exits :: () {
                     south_exits = exits_match(current_room.exits, south_neighbor.exits, .SOUTH);
                 }
             }
-            if current_coord == .{4, 4} {
-                print("East Exits: %\nSouth_Exits: %\n", east_exits, south_exits);
-            }
+            print("Room: %\nEast Exits: %\nSouth_Exits: %\n", current_room.rune, east_exits, south_exits);
             // Set the tiles corresponding to the exits to empty
             if east_exits != 0 {
                 if _contains(east_exits, .EAST_NORTH) {

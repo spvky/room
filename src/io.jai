@@ -13,6 +13,12 @@ save_room :: (r: Room) {
         file_close(*file);
         print("Finished writing room to %\n", path);
     }
+
+    // Set room_hash for each entity when saving
+    room_hash := djb2_hash(r.name);
+    for *r.entities {
+        it.room_hash = room_hash;
+    }
     // Version
     version: float32 = ASSET_VERSION;
     success := file_write(*file, *version, size_of(float32));
@@ -99,6 +105,7 @@ write_entity_manager_to_file :: (e: *Entity_Manager, file: *File) {
     items_bytes := e.items.count * size_of(Entity);
     freelist_bytes := e.freelist.count * size_of(Entity_Handle);
     success := file_write(file, *items_bytes, size_of(int));
+
     if !success print("Failed to write entity items bytes to %!\n", file.*);
     success = file_write(file, *freelist_bytes, size_of(int));
     if !success print("Failed to write entity freelist bytes to %!\n", file.*);
@@ -198,7 +205,7 @@ generate_room_png :: (r: *Room, path: string) {
     _set_pixel :: (idx: int, color: Room_Color) #expand {
         if color == {
         case .COLOR_WALL;
-            `pixel_data[idx] = .{255, 255, 255, 255};
+            `pixel_data[idx] = .{132, 136, 135, 255};
         case .COLOR_EMPTY;
             if r.flags & .STATIC == .STATIC {
                 `pixel_data[idx] = .{55, 148, 110, 255};

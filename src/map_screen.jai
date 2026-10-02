@@ -173,9 +173,9 @@ rotate_room_exits :: (exits: Room_Exits, rot: int = 0) -> Room_Exits {
         if _has_exit(.WEST) then ir |= .SOUTH;
         if _has_exit(.WEST_SOUTH) then ir |= .SOUTH_EAST;
         // South
-        if _has_exit(.SOUTH_EAST) then ir |= .EAST_SOUTH;
+        if _has_exit(.SOUTH_EAST) then ir |= .EAST_NORTH;
         if _has_exit(.SOUTH) then ir |= .EAST;
-        if _has_exit(.SOUTH_WEST) then ir |= .EAST_NORTH;
+        if _has_exit(.SOUTH_WEST) then ir |= .EAST_SOUTH;
         // East
         if _has_exit(.EAST_SOUTH) then ir |= .NORTH_EAST;
         if _has_exit(.EAST) then ir |= .NORTH;

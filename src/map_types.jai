@@ -91,6 +91,17 @@ Room_Modifier :: enum {
     RAIN;
 }
 
+Room_Handle_Pair :: struct {
+    handle: Entity_Handle;
+    room_hash: u32;
+}
+
+room_handle_compare :: (a: Room_Handle_Pair, b: Room_Handle_Pair) -> bool {
+    return a.handle == b.handle && a.room_hash == b.room_hash;
+}
+
+room_handle_hash :: (a: Room_Handle_Pair) -> u32 {return sdbm_hash(*a, size_of(Room_Handle_Pair));}
+
 Room_Card :: struct {
     room_hash: u32;
     coord: Coord;

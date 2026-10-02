@@ -278,7 +278,11 @@ sensor_collision :: () {
                 if did_collide {
                     touching_ground = true;
                     if !(other_entity.tag == .CRATE && parent_entity.tag == .CRATE) {
-                        parent_entity.inherited_velocity = other_entity.velocity;
+                        if other_entity.velocity == .{0, 0} {
+                            parent_entity.inherited_velocity = other_entity.inherited_velocity;
+                        } else {
+                            parent_entity.inherited_velocity = other_entity.velocity;
+                        }
                     }
                 }
             }
