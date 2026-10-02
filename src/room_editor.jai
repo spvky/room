@@ -443,7 +443,7 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
     case .CRATE;
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
-        entity.props = .RENDERABLE | .SOLID | .GRAVITY_AFFECTED | .DYNAMIC | .PRESSES_BUTTONS;
+        entity.props = .RENDERABLE | .SOLID | .GRAVITY_AFFECTED | .DYNAMIC | .PRESSES_BUTTONS | .UNSTABLE;
         entity.render_kind = .SPRITE;
         entity.sprite = sprite(0);
         entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
@@ -453,7 +453,7 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
         // Ground Sensor Entity
         gse: Entity;
         gse.offset = Vector2.{0, -TILE_SIZE / 2};
-        gse.extents = Vector2.{TILE_SIZE * 0.8, TILE_SIZE / 8};
+        gse.extents = Vector2.{TILE_SIZE * 0.9, TILE_SIZE / 8};
         gse.shape_kind = .RECTANGLE;
         gse.tag = .GROUND_SENSOR;
         gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;

@@ -265,8 +265,10 @@ sensor_collision :: () {
                     touching_unstable_ground = entity_has_props(static_body, .UNSTABLE);
 
                     parent_entity := entity_get(it.parent);
+
+                    if it.parent == context.player_handle && entity_has_props(static_body, .DEATH_ZONE) then reset_player();
                     if static_body.tag == .GEAR && parent_entity.tag == .CRATE {
-                        parent_entity.inherited_velocity = rotate(Vector2.{1, 0}, static_body.rotation) * PLAYER_MOVE_SPEED / 3;
+                        parent_entity.inherited_velocity = rotate(Vector2.{1, 0}, static_body.rotation) * PLAYER_MOVE_SPEED / 2;
                     }
                 }
             }
@@ -277,6 +279,7 @@ sensor_collision :: () {
                 _, did_collide := dynamic_vs_dynamic_collision_test(it, other_entity);
                 if did_collide {
                     touching_ground = true;
+                    touching_unstable_ground = entity_has_props(other_entity, .UNSTABLE);
                     if !(other_entity.tag == .CRATE && parent_entity.tag == .CRATE) {
                         if other_entity.velocity == .{0, 0} {
                             parent_entity.inherited_velocity = other_entity.inherited_velocity;
@@ -294,7 +297,12 @@ sensor_collision :: () {
                 }
             } else {
                 parent_entity.flags &= ~.GROUNDED;
-                parent_entity.inherited_velocity = .{};
+                if parent_entity.inherited_velocity != Vector2.{} {
+                    parent_entity.inherited_velocity *= 0.9;
+                    if length(parent_entity.inherited_velocity) < 1 {
+                        parent_entity.inherited_velocity = Vector2.{};
+                    }
+                }
             }
         case .RIGHT_SENSOR;
             if !entity_valid(it.parent) continue;

@@ -245,7 +245,10 @@ render_gameplay_scene :: () {
         clear_render_target(0, 0.4, 0.6, 1);
     }
     render_entities();
-    // debug_render_colliders();
+
+    if context.debug_mode.on {
+        debug_render_colliders();
+    }
     set_render_target(window);
     set_shader_for_images(context.gameplay_texture);
     sv: [4]Vector2;
