@@ -10,6 +10,7 @@ Action :: enum {
     EDITOR_ROTATE;
     EDITOR_CANCEL;
     EDITOR_WALL_MODE;
+    EDITOR_GRAB;
     // Menus
     CONFIRM;
     CANCEL;
@@ -47,6 +48,7 @@ init_input :: () {
     register_input(.EDITOR_ROTATE, #char "R");
     register_input(.EDITOR_CANCEL, #char "Q");
     register_input(.EDITOR_WALL_MODE, #char "W");
+    register_input(.EDITOR_GRAB, #char "G");
     // Menu
     register_input(.MENU_UP, .ARROW_UP);
     register_input(.MENU_DOWN, .ARROW_DOWN);

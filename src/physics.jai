@@ -40,10 +40,17 @@ apply_movement_deltas :: () {
 
 body_collision :: () {
     for *context.entities {
+        entity_not_falling := it.velocity.y >= 0;
+        is_player_entity := context.player_handle.* == it.handle;
+        player_holding_down := is_action_held(.MOVE_DOWN);
         if !(entity_has_props(it, .DYNAMIC)) continue;
         // Static Collision
         for static_info, static_handle: context.static_collision_table {
+            if it.tag == .SWITCH_BLOCK continue;
             static_ptr := entity_get(static_handle);
+            is_oneway := entity_has_props(static_ptr, .ONE_WAY);
+            is_below_wall := it.position.y < static_ptr.position.y;
+            if is_oneway && (entity_not_falling || (is_player_entity && player_holding_down) || is_below_wall) continue;
             static_collision, static_collision_occurred := dynamic_vs_static_collision_test(it, static_ptr);
             if static_collision_occurred {
                 if static_ptr.tag == .GEAR && it.tag == .SWITCH_BLOCK continue;
@@ -239,6 +246,8 @@ sensor_collision :: () {
         if it.tag == {
         case .GROUND_SENSOR;
             if !entity_valid(it.parent) continue;
+            parent_is_player := context.player_handle.* == it.parent;
+            player_holding_down := is_action_held(.MOVE_DOWN);
             touching_ground: bool;
             touching_unstable_ground: bool;
             parent_entity := entity_get(it.parent);
@@ -247,6 +256,8 @@ sensor_collision :: () {
             for static_info, static_handle: context.static_collision_table {
                 if !entity_valid(static_handle) continue;
                 static_body := entity_get(static_handle);
+                is_oneway := entity_has_props(static_body, .ONE_WAY);
+                if is_oneway && parent_is_player && player_holding_down continue;
                 if !entity_has_props(static_body, .SOLID) continue;
                 _, did_collide := dynamic_vs_static_collision_test(it, static_body);
                 if did_collide {

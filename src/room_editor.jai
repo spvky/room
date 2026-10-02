@@ -331,6 +331,11 @@ hotkey_actions :: () {
         editor_state.editor_click_mode = .SELECT;
     }
 
+    if is_action_buffered(.EDITOR_GRAB) {
+        consume_action(.EDITOR_GRAB);
+        editor_state.editor_click_mode = .VECTOR_SET;
+    }
+
     if is_action_buffered(.EDITOR_WALL_MODE) {
         consume_action(.EDITOR_WALL_MODE);
         if editor_state.editor_click_mode != .SET_WALL_START {

@@ -123,6 +123,7 @@ Entity_Properties :: enum_flags u32 {
     PICKUP :: 1 << 18;
     PRESSES_BUTTONS :: 1 << 19;
     NO_HANDLE_REFRESH :: 1 << 20;
+    ONE_WAY :: 1 << 21;
 }
 
 Entity_Flags :: enum_flags u32 {
@@ -407,7 +408,7 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
-        entity.props = .RENDERABLE | .STATIC | .SOLID;
+        entity.props = .RENDERABLE | .STATIC | .SOLID | .FOREGROUND;
         entity.render_kind = .SPRITE;
         entity.sprite = sprite(1);
         entity.render_extents = Vector2.{f_right - f_left, f_top - f_bot};
@@ -423,7 +424,7 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
-        entity.props = .RENDERABLE | .STATIC | .SOLID;
+        entity.props = .RENDERABLE | .STATIC | .SOLID | .ONE_WAY | .FOREGROUND;
         entity.render_kind = .SPRITE;
         entity.sprite = sprite(1);
         entity.render_extents = Vector2.{f_right - f_left, f_top - f_bot};
@@ -439,7 +440,7 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
-        entity.props = .RENDERABLE | .STATIC | .SOLID;
+        entity.props = .RENDERABLE | .STATIC | .SOLID | .ONE_WAY | .FOREGROUND;
         entity.render_kind = .SPRITE;
         entity.sprite = sprite(1);
         entity.render_extents = Vector2.{f_right - f_left, f_top - f_bot};
@@ -455,7 +456,7 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
-        entity.props = .RENDERABLE | .STATIC | .SOLID;
+        entity.props = .RENDERABLE | .STATIC | .SOLID | .FOREGROUND;
         entity.render_kind = .SPRITE;
         entity.sprite = sprite(1);
         entity.render_extents = Vector2.{f_right - f_left, f_top - f_bot};
@@ -472,7 +473,7 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
-        entity.props = .RENDERABLE | .STATIC | .SOLID;
+        entity.props = .RENDERABLE | .STATIC | .SOLID | .FOREGROUND;
         entity.render_kind = .SPRITE;
         entity.sprite = sprite(1);
         entity.render_extents = Vector2.{f_right - f_left, f_top - f_bot};

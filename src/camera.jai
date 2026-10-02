@@ -23,11 +23,23 @@ camera_smoothing :: (delta: float32) {
     }
 }
 
-camera_look :: () {
+camera_look :: (delta: float) {
     look_delta: float32;
-    if is_action_held(.MOVE_UP) look_delta += 196;
-    if is_action_held(.MOVE_DOWN) look_delta -= 160;
+    if is_action_held(.MOVE_UP) {
+        increase_player_timer_value(.LOOK_UP, delta);
+        look_up_time := get_player_timer_value(.LOOK_UP);
+        if look_up_time >= 1 then look_delta += 160;
+    } else {
+        set_player_timer_value(.LOOK_UP, 0);
+    }
 
+    if is_action_held(.MOVE_DOWN) {
+        increase_player_timer_value(.LOOK_DOWN, delta);
+        look_down_time := get_player_timer_value(.LOOK_DOWN);
+        if look_down_time >= 1 then look_delta -= 160;
+    } else {
+        set_player_timer_value(.LOOK_DOWN, 0);
+    }
     context.camera.camera_look.y = look_delta + 24;
 }
 

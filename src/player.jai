@@ -27,7 +27,8 @@ Timer_Collection :: struct {
 
 Timer_Type :: enum u8 {
     SPRINT;
-    LOOK;
+    LOOK_DOWN;
+    LOOK_UP;
 }
 
 #add_context player_handle: *Entity_Handle;
