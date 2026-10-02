@@ -72,9 +72,6 @@ init_room_editor :: () {
         context.room_editor_state = New(Room_Editor_State);
         context.room_editor_state.current_room = New(Room);
 
-        context.room_editor_state.current_room.* = load_room("a.room", true);
-        set_atlas_for_entity_manager(*context.room_editor_state.current_room.entities);
-
         ui_init();
         proc := default_theme_procs[0];
         context.room_editor_state.theme = proc();
@@ -635,6 +632,7 @@ draw_core_room_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     save_pressed := button(save_button_rect, "Save Room");
     if save_pressed {
         save_room(editor_state.current_room.*);
+        rooms_refresh();
     }
     load_button_rect := get_rect(x + 115, y, 100, 30);
     load_pressed := button(load_button_rect, "Load Room");

@@ -90,6 +90,7 @@ load_room :: (filename: string, static := false) -> Room, bool {
     replace_chars(img_path, " ", #char "_");
     texture_ok := texture_load_from_file(*r.texture, img_path);
     _room_assert("Failure to load room texture!");
+    set_atlas_for_entity_manager(*r.entities);
 
     return r, true;
 }
@@ -148,7 +149,6 @@ load_all_rooms :: () {
         _, _, extension, filename := path_decomp(it);
         if equal(extension, "room") {
             room, success := load_room(filename); // Put the room into the map from here
-            set_atlas_for_entity_manager(*room.entities);
             if success {
                 room_hash := djb2_hash(room.name);
 
@@ -163,7 +163,6 @@ load_all_rooms :: () {
         _, _, extension, filename := path_decomp(it);
         if equal(extension, "room") {
             room, success := load_room(filename, true); // Put the room into the map from here
-            set_atlas_for_entity_manager(*room.entities);
             if success {
                 room_hash := djb2_hash(room.name);
 
