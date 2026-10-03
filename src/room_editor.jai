@@ -10,6 +10,7 @@ Room_Editor_State :: struct {
 
     current_mouse_coord: Coord;
     wall_start_coord: Coord;
+    wall_end_coord: Coord;
 
     collection_window_scroll_value: float32;
     load_window_scroll_value: float32;
@@ -49,8 +50,8 @@ Room_Editor_State :: struct {
 
 Room_Editor_Click_Mode :: enum u8 {
     SELECT;
-    SET_WALL_START;
-    SET_WALL_END;
+    MAKE_WALL;
+    MAKE_WALL_VOLUME;
     VECTOR_SET;
     HANDLE_SET_CHILD;
     HANDLE_SET_SIB;
@@ -75,12 +76,38 @@ init_room_editor :: () {
 
 render_room_editor_scene :: () {
     render_grid();
-    render_room_entities(context.room_editor_state.current_room);
     render_room_collision(context.room_editor_state.current_room);
+    render_wall_volume_fill();
+    render_room_entities(context.room_editor_state.current_room);
     render_room_editor_ui();
 
     #if OS == .WINDOWS render_room_editor_mouse_selection();
     render_mode_text();
+}
+
+render_wall_volume_fill :: () {
+    editor_state := context.room_editor_state;
+    if editor_state.editor_click_mode == .MAKE_WALL_VOLUME {
+        min_x: int = min(editor_state.wall_start_coord.x, editor_state.wall_end_coord.x);
+        max_x: int = max(editor_state.wall_start_coord.x, editor_state.wall_end_coord.x);
+        min_y: int = min(editor_state.wall_start_coord.y, editor_state.wall_end_coord.y);
+        max_y: int = max(editor_state.wall_start_coord.y, editor_state.wall_end_coord.y);
+
+        set_shader_for_color(true);
+        for y: min_y..max_y {
+            for x: min_x..max_x {
+                c := Coord.{xx x, xx y};
+                left, right, bot, top := render_boundaries_from_cell(c);
+
+                immediate_quad(
+                               .{left, top},
+                               .{left, bot},
+                               .{right, bot},
+                               .{right, top},
+                               .{1, 1, 1, 0.3});
+            }
+        }
+    }
 }
 
 render_mode_text :: () {
@@ -88,7 +115,7 @@ render_mode_text :: () {
     screen_y := (cast(int)WINDOW_HEIGHT) - 50;
     mode_string := tprint("%", context.room_editor_state.editor_click_mode);
     draw_text(context.atlas.font, screen_x, screen_y, mode_string);
-    if context.room_editor_state.editor_click_mode == .SET_WALL_START || context.room_editor_state.editor_click_mode == .SET_WALL_END {
+    if context.room_editor_state.editor_click_mode == .MAKE_WALL || context.room_editor_state.editor_click_mode == .MAKE_WALL_VOLUME {
         wall_type_string := tprint("%", context.room_editor_state.wall_to_make);
         draw_text(context.atlas.font, screen_x, screen_y - 50, wall_type_string);
     }
@@ -281,6 +308,7 @@ render_room_editor_ui :: () {
 room_editor_update :: () {
     mouse_movement();
     click_actions();
+    hold_actions();
     hotkey_actions();
 }
 
@@ -289,11 +317,9 @@ mouse_movement :: () {
     if ok {
         state := context.room_editor_state;
         state.current_mouse_coord = cell;
-        if state.editor_click_mode == .SET_WALL_END {
+        if state.editor_click_mode == .MAKE_WALL_VOLUME {
             c := state.current_mouse_coord;
-            if state.wall_to_make == .TOP_HALF || state.wall_to_make == .BOT_HALF c.y = state.wall_start_coord.y;
-            if state.wall_to_make == .LEFT_HALF || state.wall_to_make == .RIGHT_HALF c.x = state.wall_start_coord.x;
-            state.current_room.int_grid[coord_to_index(c)] = state.wall_to_make;
+            state.wall_end_coord = c;
         }
     }
 }
@@ -331,8 +357,8 @@ hotkey_actions :: () {
 
     if is_action_buffered(.EDITOR_WALL_MODE) {
         consume_action(.EDITOR_WALL_MODE);
-        if editor_state.editor_click_mode != .SET_WALL_START {
-            editor_state.editor_click_mode = .SET_WALL_START;
+        if editor_state.editor_click_mode != .MAKE_WALL {
+            editor_state.editor_click_mode = .MAKE_WALL;
             editor_state.wall_to_make = .WALL;
         } else {
             if editor_state.wall_to_make == {
@@ -351,6 +377,26 @@ hotkey_actions :: () {
     }
 }
 
+hold_actions :: () {
+    editor_state := context.room_editor_state;
+    if editor_state.mouse_captured return;
+    entities := *editor_state.current_room.entities;
+    handle := editor_state.current_entity_handle;
+    c := editor_state.current_mouse_coord;
+
+    if is_action_held(.EDITOR_LEFT_CLICK) {
+        if editor_state.editor_click_mode == {
+        case .MAKE_WALL;
+            editor_state.current_room.int_grid[coord_to_index(c)] = editor_state.wall_to_make;
+            if is_action_held(.HOLD_ACTION) && editor_state.wall_to_make == .WALL {
+                consume_action(.EDITOR_LEFT_CLICK);
+                editor_state.editor_click_mode = .MAKE_WALL_VOLUME;
+                editor_state.wall_start_coord = c;
+            }
+        }
+    }
+}
+
 click_actions :: () {
     editor_state := context.room_editor_state;
     if editor_state.mouse_captured return;
@@ -358,25 +404,25 @@ click_actions :: () {
     handle := editor_state.current_entity_handle;
     c := editor_state.current_mouse_coord;
     if is_action_buffered(.EDITOR_LEFT_CLICK) {
-        consume_action(.EDITOR_LEFT_CLICK);
         if editor_state.editor_click_mode == {
         case .SELECT;
+            consume_action(.EDITOR_LEFT_CLICK);
             room_editor_entity_picking();
-        case .SET_WALL_START;
-            editor_state.current_room.int_grid[coord_to_index(c)] = editor_state.wall_to_make;
-            editor_state.wall_start_coord = c;
-            editor_state.editor_click_mode = .SET_WALL_END;
-        case .SET_WALL_END;
+
+        case .MAKE_WALL_VOLUME;
+            consume_action(.EDITOR_LEFT_CLICK);
+            wall_volume_fill();
             editor_state.editor_click_mode = .SELECT;
         case .HANDLE_SET_CHILD;
+            consume_action(.EDITOR_LEFT_CLICK);
             for entities {
                 if c == it.relative_room_coord && entity_valid(handle, e = entities) {
                     entity_assign_child(handle, it.handle, e = entities);
-
                     editor_state.editor_click_mode = .SELECT;
                 }
             }
         case .HANDLE_SET_PARENT;
+            consume_action(.EDITOR_LEFT_CLICK);
             for entities {
                 if c == it.relative_room_coord && entity_valid(handle, e = entities) {
                     entity_assign_child(it.handle, handle, e = entities);
@@ -386,10 +432,8 @@ click_actions :: () {
             }
 
             editor_state.editor_click_mode = .SELECT;
-        case .HANDLE_SET_SIB;
-            // Don't think this is ever necessary
-            editor_state.editor_click_mode = .SELECT;
         case .VECTOR_SET;
+            consume_action(.EDITOR_LEFT_CLICK);
             if entity_valid(handle, e = entities) {
                 entity := entity_get(handle, e = entities);
                 entity.relative_room_coord = c;
@@ -397,6 +441,7 @@ click_actions :: () {
             }
             editor_state.editor_click_mode = .SELECT;
         case .MAKE_ENTITY;
+            consume_action(.EDITOR_LEFT_CLICK);
             tag := editor_state.entity_to_make;
             make_entity_in_room_editor(entities, c, tag);
             if !is_action_held(.HOLD_ACTION) editor_state.editor_click_mode = .SELECT;
@@ -407,6 +452,24 @@ click_actions :: () {
         cell, ok := get_mouse_editor_cell();
         if ok {
             context.room_editor_state.current_room.int_grid[(coord_to_index(c))] = .EMPTY;
+        }
+    }
+
+    if is_action_held(.EDITOR_LEFT_CLICK) {
+    }
+}
+
+wall_volume_fill :: () {
+    editor_state := context.room_editor_state;
+    min_x: int = min(editor_state.wall_start_coord.x, editor_state.wall_end_coord.x);
+    max_x: int = max(editor_state.wall_start_coord.x, editor_state.wall_end_coord.x);
+    min_y: int = min(editor_state.wall_start_coord.y, editor_state.wall_end_coord.y);
+    max_y: int = max(editor_state.wall_start_coord.y, editor_state.wall_end_coord.y);
+
+    for y: min_y..max_y {
+        for x: min_x..max_x {
+            c := Coord.{xx x, xx y};
+            context.room_editor_state.current_room.int_grid[(coord_to_index(c))] = editor_state.wall_to_make;
         }
     }
 }
@@ -758,12 +821,6 @@ draw_actions_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     create_entity_action_button(.SWITCH_BLOCK, shift_y = false);
     create_entity_action_button(.ASSEMBLER, x + 170);
     create_entity_action_button(.TELEPORTER, shift_y = false);
-    y -= 32;
-    create_wall_action_button(.WALL, x + 170);
-    create_wall_action_button(.TOP_HALF, shift_y = false);
-    create_wall_action_button(.BOT_HALF, x + 170);
-    create_wall_action_button(.RIGHT_HALF, shift_y = false);
-    create_wall_action_button(.LEFT_HALF, x + 170);
 }
 
 draw_collection_entity_entry :: (entity: *Entity, identifier: int, loc := #caller_location) #expand {
@@ -983,19 +1040,6 @@ create_entity_action_button :: (tag: Entity_Tag, x_position: float = -1, shift_y
     if should_make_entity {
         `editor_state.entity_to_make = tag;
         `editor_state.editor_click_mode = .MAKE_ENTITY;
-    }
-    if shift_y `y -= 32;
-}
-
-create_wall_action_button :: (type: Collision_Tile, x_position: float = -1, shift_y := true, loc := #caller_location) #expand {
-    x: float;
-    if x_position == -1 then x = `x + 5; else x = x_position;
-    button_rect := get_rect(x, `y, 165, 30);
-    button_text := tprint("%", type);
-    should_make_wall := button(button_rect, button_text, loc = loc);
-    if should_make_wall {
-        `editor_state.wall_to_make = type;
-        `editor_state.editor_click_mode = .SET_WALL_START;
     }
     if shift_y `y -= 32;
 }
