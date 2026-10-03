@@ -499,7 +499,7 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
     case .CRATE;
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
-        entity.props = .RENDERABLE | .SOLID | .GRAVITY_AFFECTED | .DYNAMIC | .PRESSES_BUTTONS | .UNSTABLE;
+        entity.props = .RENDERABLE | .SOLID | .GRAVITY_AFFECTED | .DYNAMIC | .PRESSES_BUTTONS | .UNSTABLE | .NO_ROTATE;
         entity.render_kind = .SPRITE;
         entity.sprite = sprite(0);
         entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
@@ -512,7 +512,7 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
         gse.extents = Vector2.{TILE_SIZE * 0.9, TILE_SIZE / 8};
         gse.shape_kind = .RECTANGLE;
         gse.tag = .GROUND_SENSOR;
-        gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
+        gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_ROTATE;
         entity_add_child(crate_handle, gse, e = entities);
 
         // Right Sensor
@@ -521,7 +521,7 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
         rse.extents = Vector2.{TILE_SIZE / 7.5, TILE_SIZE * 0.95};
         rse.shape_kind = .RECTANGLE;
         rse.tag = .RIGHT_SENSOR;
-        rse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
+        rse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_ROTATE;
         entity_add_child(crate_handle, rse, e = entities);
 
         // Left Sensor
@@ -530,7 +530,7 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
         lse.extents = Vector2.{TILE_SIZE / 7.5, TILE_SIZE * 0.95};
         lse.shape_kind = .RECTANGLE;
         lse.tag = .LEFT_SENSOR;
-        lse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
+        lse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_ROTATE;
         entity_add_child(crate_handle, lse, e = entities);
     case .GEAR;
         entity.shape_kind = .RECTANGLE;

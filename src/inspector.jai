@@ -37,6 +37,7 @@ draw_inspector_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     inspector_vec2_display("Pos", *entity.position);
     inspector_vec2_display("Velo", *entity.velocity);
     inspector_vec2_display("Inh Velocity", *entity.inherited_velocity);
+    rotation_display(*entity.rotation);
     inspector_vec2_display("Render_Extents", *entity.render_extents);
     inspector_relation_handle_display("Parent", *entity.parent);
     inspector_relation_handle_display("First Child", *entity.first_child);
@@ -77,6 +78,17 @@ inspector_vec2_display :: (field_name: string, ptr: *Vector2) #expand {
     label(label_rect, field_name, *`base_theme.label_theme);
     `y_pos -= 27;
     text := tprint("{% , %}", formatFloat(ptr.x, width = 1, trailing_width = 2, zero_removal = .NO), formatFloat(ptr.y, width = 1, trailing_width = 2, zero_removal = .NO));
+    text_rect := get_rect(`label_margin + 20, `y_pos, 700, 25);
+    label(text_rect, text, *`base_theme.label_theme);
+    `y_pos -= 27;
+}
+
+rotation_display :: (ptr: *float) #expand {
+    label_rect := get_rect(`label_margin, `y_pos, 700, 25);
+    label(label_rect, "rotation", *`base_theme.label_theme);
+    rotation_in_half_pi := ptr.* / (PI / 2);
+    `y_pos -= 27;
+    text := tprint("% | %", formatFloat(ptr.*, width = 1, trailing_width = 2, zero_removal = .NO), formatFloat(rotation_in_half_pi, width = 1, trailing_width = 2, zero_removal = .NO));
     text_rect := get_rect(`label_margin + 20, `y_pos, 700, 25);
     label(text_rect, text, *`base_theme.label_theme);
     `y_pos -= 27;

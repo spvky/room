@@ -151,7 +151,9 @@ write_room_entities_to_world :: (r: *Room, room_center: Vector2, rotation: u8, m
             }
         } else {
             new_entity := it.*;
-            new_entity.rotation += float_rotation;
+            if !entity_has_props(it, .NO_ROTATE) {
+                new_entity.rotation += float_rotation;
+            }
             new_entity.position = room_center + rotate(new_entity.position, float_rotation);
             new_entity.current_room = map_coord;
             new_handle := entity_add(new_entity);

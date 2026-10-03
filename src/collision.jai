@@ -44,18 +44,17 @@ Dynamic_Collision_Hashes :: Table(u64, void);
 #add_context static_raycast_table: *Static_Raycast_Table;
 #add_context dynamic_collision_hashes: *Dynamic_Collision_Hashes;
 
-rigidbody_edges :: (r: *Rigidbody) -> [4][2]Vector2, bool {
+rigidbody_edges :: (r: *Entity) -> [4][2]Vector2, bool {
     edges: [4][2]Vector2;
 
     if r.shape_kind == .RECTANGLE {
-        half_x := r.extents.x / 2;
-        half_y := r.extents.y / 2;
-
         p: [4]Vector2;
-        p[0] = .{(-half_x) * cos(r.rotation) - (half_y) * sin(r.rotation), (-half_x) * sin(r.rotation) + (half_y) * cos(r.rotation)} + r.position;
-        p[1] = .{(-half_x) * cos(r.rotation) - (-half_y) * sin(r.rotation), (-half_x) * sin(r.rotation) + (-half_y) * cos(r.rotation)} + r.position;
-        p[2] = .{(half_x) * cos(r.rotation) - (-half_y) * sin(r.rotation), (half_x) * sin(r.rotation) + (-half_y) * cos(r.rotation)} + r.position;
-        p[3] = .{(half_x) * cos(r.rotation) - (half_y) * sin(r.rotation), (half_x) * sin(r.rotation) + (half_y) * cos(r.rotation)} + r.position;
+        h := r.extents / 2;
+
+        p[0] = rotate(Vector2.{-h.x, -h.y}, r.rotation) + r.position;
+        p[1] = rotate(Vector2.{-h.x, h.y}, r.rotation) + r.position;
+        p[2] = rotate(Vector2.{h.x, h.y}, r.rotation) + r.position;
+        p[3] = rotate(Vector2.{h.x, -h.y}, r.rotation) + r.position;
 
         edges[0] = .[p[0], p[1]];
         edges[1] = .[p[1], p[2]];
@@ -167,7 +166,7 @@ dynamic_vs_static_collision_test :: (d: *Entity, s: *Entity, mode := Collision_M
     return collision, true;
 }
 
-dynamic_vs_dynamic_collision_test :: (a: *Rigidbody, b: *Rigidbody, mode := Collision_Mode.SAT) -> Collision, bool {
+dynamic_vs_dynamic_collision_test :: (a: *Entity, b: *Entity, mode := Collision_Mode.SAT) -> Collision, bool {
     collision: Collision;
     if a.shape_kind == .CIRCLE && b.shape_kind == .CIRCLE {
         dist := distance(a.position, b.position);
@@ -247,19 +246,20 @@ line_orientation :: (a: Vector2, b: Vector2, c: Vector2) -> s8 {
 }
 
 // SAT
-project_rigidbody_along_axis :: (rb: *Rigidbody, a: Vector2) -> Interval {
+project_rigidbody_along_axis :: (r: *Entity, a: Vector2) -> Interval {
     // Minimum and maximum dot products along the axis
     min := FLOAT32_MAX;
     max := -FLOAT32_MAX;
-    if rb.shape_kind == {
+    if r.shape_kind == {
     case .RECTANGLE;
         // Points to test
         p: [4]Vector2;
-        h := rb.extents / 2;
-        p[0] = rb.position - h;
-        p[1] = rb.position + h;
-        p[2] = rb.position + .{-h.x, h.y};
-        p[3] = rb.position + .{h.x, -h.y};
+        h := r.extents / 2;
+
+        p[0] = rotate(-h, r.rotation) + r.position;
+        p[1] = rotate(h, r.rotation) + r.position;
+        p[2] = rotate(Vector2.{-h.x, h.y}, r.rotation) + r.position;
+        p[3] = rotate(Vector2.{h.x, -h.y}, r.rotation) + r.position;
 
         for p {
             dot := dot_product(it, a);
@@ -267,8 +267,8 @@ project_rigidbody_along_axis :: (rb: *Rigidbody, a: Vector2) -> Interval {
             max = ifx dot > max then dot else max;
         }
     case .CIRCLE;
-        min = dot_product(rb.position - (rb.radius * a), a);
-        max = dot_product(rb.position + (rb.radius * a), a);
+        min = dot_product(r.position - (r.radius * a), a);
+        max = dot_product(r.position + (r.radius * a), a);
     case .CAPSULE;
     }
     return Interval.{min, max};

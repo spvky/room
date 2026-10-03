@@ -326,10 +326,15 @@ draw_entity_collider :: inline (e: *Entity, color: Vector4) {
         pos, extents = cam_relative_pos_extents(e.position, e.render_extents);
     }
     half := extents / 2;
-    p[0] = pos + .{-half.x, half.y};
-    p[1] = pos + .{-half.x, -half.y};
-    p[2] = pos + .{half.x, -half.y};
-    p[3] = pos + .{half.x, half.y};
+
+    p[0] = rotate(-half, e.rotation) + pos;
+    p[1] = rotate(Vector2.{half.x, -half.y}, e.rotation) + pos;
+    p[2] = rotate(half, e.rotation) + pos;
+    p[3] = rotate(Vector2.{-half.x, half.y}, e.rotation) + pos;
+    // p[0] = pos + .{-half.x, half.y};
+    // p[1] = pos + .{-half.x, -half.y};
+    // p[2] = pos + .{half.x, -half.y};
+    // p[3] = pos + .{half.x, half.y};
     immediate_quad(p[0], p[1], p[2], p[3], color);
 }
 

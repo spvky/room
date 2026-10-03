@@ -125,6 +125,7 @@ Entity_Properties :: enum_flags u32 {
     PRESSES_BUTTONS :: 1 << 19;
     NO_HANDLE_REFRESH :: 1 << 20;
     ONE_WAY :: 1 << 21;
+    NO_ROTATE :: 1 << 22;
 }
 
 Entity_Flags :: enum_flags u32 {
