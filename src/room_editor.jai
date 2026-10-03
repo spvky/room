@@ -1,10 +1,3 @@
-/*
-	9/26/2026 3:41:56 PM
-	Left Todo
-	-Playing Room
-*/
-
-// Use local tile size for the editor to make translating positions easier on hydration
 Room_Editor_State :: struct {
     theme: Overall_Theme;
     editor_click_mode: Room_Editor_Click_Mode;

@@ -139,3 +139,10 @@ Map :: struct {
     // Grid to indicate which cells have a room placed in them
     occupied: [MAP_WIDTH * MAP_HEIGHT]bool;
 }
+
+Pixel_Raw :: struct {
+    r: u8;
+    g: u8;
+    b: u8;
+    a: u8;
+}
