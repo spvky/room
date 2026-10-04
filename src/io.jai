@@ -201,16 +201,18 @@ generate_room_png :: (r: *Room, path: string) {
         COLOR_GREY;
         COLOR_BLACK;
         COLOR_SWITCH_BLOCK;
+        COLOR_PICKUP;
+        COLOR_ASSEMBLER;
     }
     _set_pixel :: (idx: int, color: Room_Color) #expand {
         if color == {
         case .COLOR_WALL;
-            `pixel_data[idx] = .{132, 136, 135, 255};
+            `pixel_data[idx] = .{200, 200, 200, 255};
         case .COLOR_EMPTY;
             if r.flags & .STATIC == .STATIC {
-                `pixel_data[idx] = .{55, 148, 110, 255};
+                `pixel_data[idx] = .{49, 95, 115, 255};
             } else {
-                `pixel_data[idx] = .{80, 115, 240, 255};
+                `pixel_data[idx] = .{68, 124, 149, 255};
             }
         case .COLOR_BLANK;
             `pixel_data[idx] = .{0, 0, 0, 255};
@@ -224,6 +226,10 @@ generate_room_png :: (r: *Room, path: string) {
             `pixel_data[idx] = .{0, 0, 0, 255};
         case .COLOR_SWITCH_BLOCK;
             `pixel_data[idx] = .{68, 35, 31, 255};
+        case .COLOR_PICKUP;
+            `pixel_data[idx] = .{239, 0, 194, 255};
+        case .COLOR_ASSEMBLER;
+            `pixel_data[idx] = .{153, 229, 80, 255};
         }
     }
     _set_tile :: (tile: Collision_Tile) #expand {
@@ -278,11 +284,21 @@ generate_room_png :: (r: *Room, path: string) {
             _set_pixel(`tr, .COLOR_RED);
             _set_pixel(`bl, .COLOR_RED);
             _set_pixel(`br, .COLOR_RED);
+        case .ROOM_PICKUP;
+            _set_pixel(`tl, .COLOR_PICKUP);
+            _set_pixel(`tr, .COLOR_PICKUP);
+            _set_pixel(`bl, .COLOR_PICKUP);
+            _set_pixel(`br, .COLOR_PICKUP);
         case .SWITCH_BLOCK;
             _set_pixel(`tl, .COLOR_SWITCH_BLOCK);
             _set_pixel(`tr, .COLOR_SWITCH_BLOCK);
             _set_pixel(`bl, .COLOR_SWITCH_BLOCK);
             _set_pixel(`br, .COLOR_SWITCH_BLOCK);
+        case .ASSEMBLER;
+            _set_pixel(`tl, .COLOR_ASSEMBLER);
+            _set_pixel(`tr, .COLOR_ASSEMBLER);
+            _set_pixel(`bl, .COLOR_ASSEMBLER);
+            _set_pixel(`br, .COLOR_ASSEMBLER);
         }
     }
 
@@ -340,6 +356,8 @@ generate_room_png :: (r: *Room, path: string) {
     for r.entities {
         if it.tag == {
         case .CRATE; #through;
+        case .ROOM_PICKUP; #through;
+        case .ASSEMBLER; #through;
         case .GEAR;
             by := (it.relative_room_coord.y + 1) * 2;
             bx := (it.relative_room_coord.x + 1) * 2;

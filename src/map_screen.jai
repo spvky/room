@@ -1,7 +1,7 @@
-LEFT_BOUND_PCT: float32: 0.21875;
-RIGHT_BOUNT_PCT: float32: 0.78125;
+LEFT_BOUND_PCT: float32: 0.30;
+RIGHT_BOUND_PCT: float32: 0.78125;
 LEFT_CHANNEL_MID_PCT: float32: #run LEFT_BOUND_PCT / 2;
-RIGHT_CHANNEL_MID_PCT: float32: #run RIGHT_BOUNT_PCT + (LEFT_BOUND_PCT / 2);
+RIGHT_CHANNEL_MID_PCT: float32: #run RIGHT_BOUND_PCT + (LEFT_BOUND_PCT / 2);
 
 Map_Screen_State :: struct {
     selected_idx: int;
@@ -39,6 +39,7 @@ render_map_placement_scene :: () {
     render_grid();
     render_map_placed_room_cards();
     render_map_placement_cursor();
+    render_selected_room();
     render_map_placement_ui();
     render_map_screen_controls();
 }
@@ -229,6 +230,47 @@ rotate_map_selected_room :: () {
 
 map_tile_occupied :: inline (c: Coord) -> bool {
     return context.map.occupied[coord_to_index(c, .MAP)];
+}
+
+get_room_card_under_cursor :: () -> *Room_Card, bool {
+    coord := context.map_screen_state.cursor_position;
+
+    for *context.map.placed_room_cards {
+        if it.coord == coord return it, true;
+    }
+    return null, false;
+}
+
+render_selected_room :: () {
+    should_render: bool;
+    sprite: Sprite;
+    rotation: float;
+
+    if context.map_screen_state.cursor_state == {
+    case .PLACE;
+        room := get_room_at_wrapping_index(context.map_screen_state.selected_idx);
+        rotation = cast(float32)context.map_screen_state.cursor_rotation * (PI / 2);
+        if room {
+            sprite = make_sprite(*room.texture);
+            should_render = true;
+        }
+    case .SELECT;
+        card, ok := get_room_card_under_cursor();
+        if ok {
+            room := table_find_pointer(context.room_table, card.room_hash);
+            rotation = cast(float32)card.rotation * (PI / 2);
+            if room {
+                sprite = make_sprite(*room.texture);
+                should_render = true;
+            }
+        }
+    }
+
+    if should_render {
+        position := Vector2.{325, 350};
+        size := Vector2.{580, 580};
+        render_sprite(*sprite, position, size, rotation = rotation);
+    }
 }
 
 place_or_select_room_at_position :: () {

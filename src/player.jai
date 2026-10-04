@@ -73,6 +73,21 @@ reset_player :: () {
 }
 
 manage_player_state :: () {
+    player := player_get();
+    data := context.player_data;
+    state: Player_State;
+
+    if entity_has_flags(player, .GROUNDED) {
+        if abs(player.movement_delta.x) > 0 {
+            state = .RUN;
+        } else {
+            state = .IDLE;
+        }
+    } else {
+        if player.velocity.y >= 0 then state = .RISE; else state = .FALL;
+    }
+    data.prev_state = data.state;
+    data.state = state;
 }
 
 manage_player_timers :: (delta: float) {

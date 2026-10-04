@@ -32,6 +32,7 @@ Action :: enum {
     GOTO_GAMEPLAY;
     GOTO_ROOM_EDITOR;
     TOGGLE_INSPECTOR;
+    TOGGLE_PLAYER_DATA;
 
     BAKE_MAP;
     CAMERA_ZOOM_IN;
@@ -71,6 +72,7 @@ init_input :: () {
     register_input(.GOTO_ROOM_EDITOR, #char "2");
     register_input(.BAKE_MAP, #char "J");
     register_input(.TOGGLE_INSPECTOR, #char "1");
+    register_input(.TOGGLE_PLAYER_DATA, #char "P");
     register_input(.CAMERA_ZOOM_IN, .PAGE_UP);
     register_input(.CAMERA_ZOOM_OUT, .PAGE_DOWN);
 }

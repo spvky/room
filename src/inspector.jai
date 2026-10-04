@@ -5,6 +5,11 @@ Inspector_State :: struct {
                                          draw = draw_inspector_window,
                                          open = false,
                                          title_text = "Inspector"};
+    player_data_window: Subwindow_Info = .{
+                                           rect = #run get_rect(5, cast(float32)WINDOW_HEIGHT - 260, 250, 250),
+                                           draw = draw_player_data_window,
+                                           open = false,
+                                           title_text = "Player"};
 }
 
 #add_context inspector_state: *Inspector_State;
@@ -12,6 +17,24 @@ Inspector_State :: struct {
 init_inspector :: () {
     if !context.inspector_state {
         context.inspector_state = New(Inspector_State);
+    }
+}
+
+draw_player_data_window :: (state: *Subwindow_State, r: Rect, data: *void) {
+    x := r.x;
+    y := r.y + r.h - 50;
+
+    state_rect := get_rect(x, y, 400, 50);
+    state_string := tprint("State: %", context.player_data.state);
+    label(state_rect, state_string, *context.room_editor_state.theme.label_theme);
+    y -= 55;
+
+    for (cast(*Type_Info_Enum)Timer_Type).names {
+        rect := get_rect(x, y, 300, 30);
+        timer_value := formatFloat(context.player_data.timers.values[it_index], width = 1, trailing_width = 2, zero_removal = .NO);
+        text := tprint("%: %", it, timer_value);
+        label(rect, text, *context.room_editor_state.theme.label_theme);
+        y -= 32;
     }
 }
 
@@ -62,12 +85,25 @@ debug_inspector_ui :: () {
         }
     }
 
+    if is_action_buffered(.TOGGLE_PLAYER_DATA) {
+        consume_action(.TOGGLE_PLAYER_DATA);
+        if context.inspector_state.player_data_window.open {
+            context.inspector_state.player_data_window.open = false;
+        } else {
+            context.inspector_state.player_data_window.open = true;
+        }
+    }
+
     current_time := to_float64_seconds(current_time_monotonic());
     w, h := get_render_dimensions(window);
     ui_per_frame_update(window, w, h, current_time);
 
     if context.inspector_state.inspector_window.open {
         add_subwindow(*context.inspector_state.inspector_window, *context.room_editor_state.theme.subwindow_theme);
+    }
+
+    if context.inspector_state.player_data_window.open {
+        add_subwindow(*context.inspector_state.player_data_window, *context.room_editor_state.theme.subwindow_theme);
     }
 
     draw_popups();

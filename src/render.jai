@@ -38,6 +38,11 @@ render :: () {
 render_grid :: () {
     grid_lines :: (height: int) #expand {
         tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary := get_tile_ui_data(height);
+
+        if context.game_state == .MAP_PLACEMENT {
+            left_boundary += 200;
+            right_boundary += 200;
+        }
         line_color: Vector4;
         // if `it == height / 2 {
         if `it == 22 || `it == 23 {

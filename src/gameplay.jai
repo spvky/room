@@ -33,6 +33,7 @@ gameplay_update :: (delta: float32) {
     inspector_entity_picking();
 
     // Cleanup
+    manage_player_state();
     table_reset(context.dynamic_collision_hashes);
 }
 
