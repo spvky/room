@@ -294,6 +294,15 @@ sensor_collision :: () {
                 parent_entity.flags |= .GROUNDED;
                 if it.parent == context.player_handle && !touching_unstable_ground {
                     context.player_data.last_stable_ground = parent_entity.position;
+                    c, in_bounds := calculate_map_coord_from_position(parent_entity.position);
+                    if in_bounds {
+                        if context.player_data.last_room_started_coord != c {
+                            print("Snapshotting world\n");
+                            snapshot_entities();
+                            context.player_data.last_room_started_coord = c;
+                            context.player_data.last_room_started_pos = parent_entity.position;
+                        }
+                    }
                 }
             } else {
                 parent_entity.flags &= ~.GROUNDED;

@@ -1,43 +1,23 @@
-Entity_Event :: struct {
-    using expensive_payload: Expensive_Event_Payload;
-    #overlay (expensive_payload) using destroy_payload: Destroy_Entity_Payload;
+// Event :: struct {
+//     kind: Event_Kind;
+// }
+
+Event_Kind :: enum {
+    NEW_ROOM;
+    PLAYER_DEATH;
 }
 
-Entity_Event_Type :: enum {
-    DESTORY_ENTITY;
-}
-
-Destroy_Entity_Payload :: struct {
-    handle_to_destroy: Entity_Handle;
-}
-
-Expensive_Event_Payload :: struct {
-    a: int;
-    b: int;
-    c: int;
-    d: int;
-}
-
-Entity_Event_Proc :: #type (handle: Entity_Handle) -> void;
-Event_Proc :: #type ();
-
-Timed_Entity_Event :: struct {
-    target: Entity_Handle;
-    duration: float;
-    current: float;
-    start_proc: Entity_Event_Proc;
-    end_proc: Entity_Event_Proc;
-}
+// Event_Proc :: #type (event: Event);
+Timed_Event_Proc :: #type ();
 
 Timed_Event :: struct {
     duration: float;
     current: float;
-    proc: Event_Proc;
+    proc: Timed_Event_Proc;
     triggered: bool;
 }
 
 Timed_Event_Manager :: struct {
-    entity_events: [..]Timed_Entity_Event;
     events: [..]Timed_Event;
 }
 

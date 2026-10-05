@@ -35,6 +35,7 @@ gameplay_update :: (delta: float32) {
     // Cleanup
     manage_player_state();
     table_reset(context.dynamic_collision_hashes);
+    snap_player := entity_get(context.player_handle, e = context.entities_snapshot);
 }
 
 advance_animation_timers :: (delta: float32) {

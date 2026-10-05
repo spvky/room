@@ -1,5 +1,8 @@
 Player_Data :: struct {
+    current_coord: Coord;
     last_stable_ground: Vector2;
+    last_room_started_coord: Coord;
+    last_room_started_pos: Vector2;
     state: Player_State;
     prev_state: Player_State;
     timers: Timer_Collection;
@@ -44,6 +47,9 @@ init_player :: () {
     }
 }
 
+manage_player_coord :: () {
+}
+
 get_player_timer_value :: (type: Timer_Type) -> float #expand {
     return context.player_data.timers.values[type];
 }
@@ -65,11 +71,8 @@ player_get :: () -> *Entity {
 }
 
 reset_player :: () {
+    restore_snapshot();
     print("Resetting Player: %\n", context.player_data.last_stable_ground);
-    player := player_get();
-    player.movement_delta = .{};
-    player.position = context.player_data.last_stable_ground;
-    player.velocity = .{};
 }
 
 manage_player_state :: () {
@@ -90,14 +93,13 @@ manage_player_state :: () {
     data.state = state;
 }
 
-manage_player_timers :: (delta: float) {
-}
-
 set_player_move_delta :: () {
     player := player_get();
     if player {
         c, in_bounds := calculate_map_coord_from_position(player.position);
-        if in_bounds then context.camera.target_room = c;
+        if in_bounds {
+            context.camera.target_room = c;
+        }
         x: float32;
         if is_action_held(.MOVE_LEFT) {
             x -= 1;

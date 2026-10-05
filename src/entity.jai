@@ -4,7 +4,42 @@ Entity_Manager :: struct {
     count: u32;
 }
 
+copy_entity_manager :: (e: *Entity_Manager) -> Entity_Manager {
+    ce: Entity_Manager;
+    if e.items.count > 0 {
+        array_reserve(*ce.items, e.items.count);
+        memcpy(ce.items.data, e.items.data, e.items.count * size_of(Entity));
+        ce.items.count = e.items.count;
+    }
+    if e.freelist.count > 0 {
+        array_reserve(*ce.freelist, e.freelist.count);
+        memcpy(ce.freelist.data, e.freelist.data, e.freelist.count * size_of(Entity_Handle));
+        ce.freelist.count = e.freelist.count;
+    }
+    ce.count = e.count;
+    return ce;
+}
+
+init_entities :: () {
+    if !context.entities {
+        context.entities = New(Entity_Manager);
+    }
+
+    if !context.entities_snapshot {
+        context.entities_snapshot = New(Entity_Manager);
+    }
+}
+
+snapshot_entities :: () #expand {
+    context.entities_snapshot.* = copy_entity_manager(context.entities);
+}
+
+restore_snapshot :: () #expand {
+    context.entities.* = copy_entity_manager(context.entities_snapshot);
+}
+
 #add_context entities: *Entity_Manager;
+#add_context entities_snapshot: *Entity_Manager;
 
 Entity :: struct {
     #as using rigibody: Rigidbody;
@@ -142,12 +177,6 @@ Entity_Messages :: enum_flags u8 {
     RAY_HIT_SOLID :: 1 << 0;
 }
 
-init_entities :: () {
-    if !context.entities {
-        context.entities = New(Entity_Manager);
-    }
-}
-
 entities_clear :: (e: *Entity_Manager = context.entities) {
     array_reset_keeping_memory(*e.items);
     array_reset_keeping_memory(*e.freelist);
@@ -195,31 +224,6 @@ entity_remove :: (handle: Entity_Handle, e: *Entity_Manager = context.entities) 
         for children {
             entity_remove(it, e = e);
         }
-        // if entity_valid(entity.first_child, e = e) {
-        //     current_child := entity_get(entity.first_child, e = e);
-        // 
-        //     while entity_valid(current_child.next_sibling, e = e) {
-        //         entity_remove(current_child.next_sibling, e = e);
-        //     }
-        // 
-        //     entity_remove(current_child.handle, e = e);
-        // }
-        // 
-        // if entity_valid(entity.next_sibling, e = e) {
-        //     next_sibling := entity_get(entity.next_sibling, e = e);
-        //     next_sibling.prev_sibling = entity.prev_sibling;
-        // }
-        // 
-        // if entity_valid(entity.prev_sibling, e = e) {
-        //     prev_sibling := entity_get(entity.prev_sibling, e = e);
-        //     prev_sibling.next_sibling = entity.next_sibling;
-        // }
-        // 
-        // if !entity_valid(entity.prev_sibling, e = e) && entity_valid(entity.parent, e = e) {
-        //     parent := entity_get(entity.parent, e = e);
-        //     parent.first_child = entity.next_sibling;
-        // }
-
         array_add(*e.freelist, handle);
         e.items[handle.index] = .{};
         e.count -= 1;
