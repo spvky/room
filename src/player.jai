@@ -47,9 +47,6 @@ init_player :: () {
     }
 }
 
-manage_player_coord :: () {
-}
-
 get_player_timer_value :: (type: Timer_Type) -> float #expand {
     return context.player_data.timers.values[type];
 }

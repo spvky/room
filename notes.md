@@ -25,3 +25,31 @@ Next is snapshotting the world when entering a room when getting first stable gr
 - When we touch stable ground we create a new snapshot by creating a copy of the entity manager in memory and storing the player
 - if we die, reset to last stable ground and load snapshotted entity manager
 - Need to make sure this is fast as it will happen on each room we enter
+
+10/5/2026 5:51:31 PM
+Finished it, seems fast enough for now
+thinking about ways to simplify the flow of logic
+maybe visit the original design where instead of most functions doing
+
+some_proc() :: {
+    for *entities {
+        if !<condition> continue;
+        (do thing)
+    }
+}
+
+for functions that don't require entities pairs like collision
+
+some_proc(e: *Entity) #expand {
+    (do thing)
+}
+--
+{
+    for *entities {
+        if <condition> some_proc(it);
+        if <condition> some_proc(it);
+        if <condition> some_proc(it);
+    }
+}
+
+should give better cache locality and may be easier to debug;

@@ -1,108 +1,37 @@
-window: Window_Type;
-should_close: bool;
-WINDOW_WIDTH :: 1920;
-WINDOW_HEIGHT :: 1080;
-last_time: float64;
+#run {
+    #import "Basic";
+    #import "Codex";
+    #import "Compiler";
 
-main :: () {
-    window = create_window(WINDOW_WIDTH, WINDOW_HEIGHT, "Room");
-    set_render_target(window);
-    init();
+    set_build_options_dc(.{do_output = false});
 
-    print("Camera Zoom: %\n", context.camera.zoom);
-    start_game();
-    while !should_close {
-        update_window_events();
-        now := seconds_since_init();
-        raw_delta: float64 = now - last_time;
-        delta := cast(float32)raw_delta;
+    w := compiler_create_workspace("Target");
+    options := get_build_options(w);
+    copy_commonly_propagated_fields(get_build_options(), *options);
+    options.output_executable_name = "negative-zero";
+    set_build_options(options, w);
 
-        // Clamp Delta to make debugging easier but also alert that our delta is slow
-        if delta >= 0.008333 {
-            print("Unusually High Delta: %, clamping to 0.008333 (120 FPS)\n", delta);
-            delta = 0.008333;
+    compiler_begin_intercept(w);
+    add_build_file("src/main.jai", w);
+
+    while true {
+        message := compiler_wait_for_message();
+        if message.kind == {
+        case .TYPECHECKED;
+            tc := cast(*Message_Typechecked)message;
+            for tc.procedure_bodies {
+                metrics := collect_metrics(it);
+                header := it.expression.header;
+                print("% -> %\n", header.name, metrics.total_calls);
+            }
+        case .COMPLETE;
+            mc := cast(*Message_Complete)message;
+            if mc.error_code != .NONE {
+                exit(1);
+            }
+            break;
         }
-        last_time = now;
-        for event: events_this_frame {
-            getrect_handle_event(event);
-        }
-        process_input(delta);
-        if context.game_state == {
-        case .GAMEPLAY;
-            gameplay_update(delta);
-        case .MAP_PLACEMENT;
-            map_screen_update();
-        case .ROOM_EDITOR;
-            room_editor_update();
-        }
-        render();
-        game_state_update();
-        reset_temporary_storage();
     }
+    compiler_end_intercept(w);
+    print("\n");
 }
-
-start_game :: () {
-    bake_world();
-    snap_camera_pos();
-
-    context.game_state = .ROOM_EDITOR;
-}
-
-init :: () {
-    init_camera();
-    init_player();
-    init_rendering();
-    init_events();
-    init_textures();
-    init_entities();
-    init_rooms();
-    init_map();
-    init_input();
-    init_world();
-    init_collision_tables();
-    init_inspector();
-    init_room_editor();
-    init_debug_mode();
-    init_screen_effects();
-}
-
-#import "Basic";
-#import "Simp";
-#import "Simp_Extended";
-#import "Input";
-#import "InputBuffer"(ACTION_TYPE = Action);
-#import "Math";
-#import "Window_Creation";
-#import "File";
-#import "String";
-#import "Hash_Table";
-#import "Hash";
-#import "GetRect";
-#import "File_Utilities";
-#import "Random";
-#import "stb_image_write";
-GL :: #import "GL";
-#load "src/assets.jai";
-#load "src/render.jai";
-#load "src/input.jai";
-#load "src/runes.jai";
-#load "src/player.jai";
-#load "src/entity.jai";
-#load "src/collision.jai";
-#load "src/io.jai";
-#load "src/camera.jai";
-#load "src/map_screen.jai";
-#load "src/game_state.jai";
-#load "src/gameplay.jai";
-#load "src/events.jai";
-#load "src/physics.jai";
-#load "src/dev_util.jai";
-#load "src/parsing.jai";
-#load "src/inspector.jai";
-#load "src/text.jai";
-#load "src/map_types.jai";
-#load "src/power.jai";
-#load "src/room_editor.jai";
-#load "src/util.jai";
-#load "src/debug_mode.jai";
-#load "src/screen_effects.jai";
