@@ -1,12 +1,28 @@
-JUMP_HEIGHT: float32: 3.5 * TILE_SIZE;
-JUMP_DISTANCE: float32: TILE_SIZE * 7;
+JUMP_HEIGHT: float32: 2.5 * TILE_SIZE;
+BASE_JUMP_DISTANCE: float32: TILE_SIZE * 3;
+MAX_JUMP_DISTANCE: float32: TILE_SIZE * 6;
 TIME_TO_PEAK: float32: 0.3;
 TIME_TO_DESCENT: float32: 0.28;
 // Compile time calculated constants
-PLAYER_JUMP_SPEED :: #run calculate_jump_speed();
-PLAYER_MOVE_SPEED :: #run calculate_lateral_speed();
-RISING_GRAVITY :: #run calculate_rising_gravity();
-FALLING_GRAVITY :: #run calculate_falling_gravity();
+PLAYER_JUMP_SPEED :: #run -> float {
+    return (2 * JUMP_HEIGHT) / TIME_TO_PEAK;
+}
+
+PLAYER_BASE_MOVE_SPEED :: #run -> float {
+    return BASE_JUMP_DISTANCE / (TIME_TO_PEAK + TIME_TO_DESCENT);
+}
+
+PLAYER_MAX_MOVE_SPEED :: #run -> float {
+    return MAX_JUMP_DISTANCE / (TIME_TO_PEAK + TIME_TO_DESCENT);
+}
+
+RISING_GRAVITY :: #run -> float {
+    return (-2 * JUMP_HEIGHT) / (TIME_TO_PEAK * TIME_TO_PEAK);
+}
+
+FALLING_GRAVITY :: #run -> float {
+    return (-2 * JUMP_HEIGHT) / (TIME_TO_DESCENT * TIME_TO_DESCENT);
+}
 
 set_relative_position_and_rotations :: () {
     for *context.entities {
@@ -28,17 +44,18 @@ set_relative_position_and_rotations :: () {
 
 apply_movement_deltas :: () {
     for *context.entities {
+        if it.tag == .PLAYER continue;
         if !entity_has_props(it, .SELF_PROPELLED) continue;
         if it.movement_delta.x == 0 {
             it.velocity.x = 0;
         } else {
-            it.velocity.x = it.movement_delta.x * PLAYER_MOVE_SPEED;
+            it.velocity.x = it.movement_delta.x * PLAYER_BASE_MOVE_SPEED;
             a := 0;
         }
     }
 }
 
-body_collision :: () {
+body_collision :: (delta: float) {
     for *context.entities {
         entity_not_falling := it.velocity.y >= 0;
         is_player_entity := context.player_handle.* == it.handle;
@@ -209,8 +226,8 @@ player_crate_pushing :: (player: *Entity, crate: *Entity) #expand {
         if entity_has_flags(crate, .RIGHT_BLOCKED) {
             player.velocity.x = 0;
         } else {
-            if abs(player.velocity.x) > PLAYER_MOVE_SPEED / 3 {
-                player.velocity.x = PLAYER_MOVE_SPEED / 3;
+            if abs(player.velocity.x) > PLAYER_BASE_MOVE_SPEED / 3 {
+                player.velocity.x = PLAYER_BASE_MOVE_SPEED / 3;
             }
 
             crate.velocity.x = player.velocity.x;
@@ -221,8 +238,8 @@ player_crate_pushing :: (player: *Entity, crate: *Entity) #expand {
         if entity_has_flags(crate, .LEFT_BLOCKED) {
             player.velocity.x = 0;
         } else {
-            if abs(player.velocity.x) > PLAYER_MOVE_SPEED / 3 {
-                player.velocity.x = -PLAYER_MOVE_SPEED / 3;
+            if abs(player.velocity.x) > PLAYER_BASE_MOVE_SPEED / 3 {
+                player.velocity.x = -PLAYER_BASE_MOVE_SPEED / 3;
             }
             crate.velocity.x = player.velocity.x;
         }
@@ -268,7 +285,7 @@ sensor_collision :: () {
 
                     if it.parent == context.player_handle && entity_has_props(static_body, .DEATH_ZONE) then reset_player();
                     if static_body.tag == .GEAR && parent_entity.tag == .CRATE {
-                        parent_entity.inherited_velocity = rotate(Vector2.{1, 0}, static_body.rotation) * PLAYER_MOVE_SPEED / 2;
+                        parent_entity.inherited_velocity = rotate(Vector2.{1, 0}, static_body.rotation) * PLAYER_BASE_MOVE_SPEED / 2;
                     }
                 }
             }
@@ -437,21 +454,4 @@ apply_gravity :: (delta: float32) {
         if it.velocity.y >= 0 it.velocity.y += RISING_GRAVITY * delta;
         if it.velocity.y < 0 it.velocity.y += FALLING_GRAVITY * delta;
     }
-}
-
-#scope_file
-calculate_jump_speed :: () -> float32 {
-    return (2 * JUMP_HEIGHT) / TIME_TO_PEAK;
-}
-
-calculate_rising_gravity :: () -> float32 {
-    return (-2 * JUMP_HEIGHT) / (TIME_TO_PEAK * TIME_TO_PEAK);
-}
-
-calculate_falling_gravity :: () -> float32 {
-    return (-2 * JUMP_HEIGHT) / (TIME_TO_DESCENT * TIME_TO_DESCENT);
-}
-
-calculate_lateral_speed :: () -> float32 {
-    return JUMP_DISTANCE / (TIME_TO_PEAK + TIME_TO_DESCENT);
 }

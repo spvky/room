@@ -1,3 +1,6 @@
+DECEL_THRESHOLD :: 0.2;
+TIME_TO_MAX_SPEED :: 1;
+
 Player_Data :: struct {
     current_coord: Coord;
     last_stable_ground: Vector2;
@@ -30,6 +33,7 @@ Timer_Collection :: struct {
 
 Timer_Type :: enum u8 {
     SPRINT;
+    DECELERATE;
     LOOK_DOWN;
     LOOK_UP;
 }
@@ -90,7 +94,7 @@ manage_player_state :: () {
     data.state = state;
 }
 
-set_player_move_delta :: () {
+set_player_move_delta :: (delta: float) {
     player := player_get();
     if player {
         c, in_bounds := calculate_map_coord_from_position(player.position);
@@ -103,6 +107,19 @@ set_player_move_delta :: () {
         }
         if is_action_held(.MOVE_RIGHT) {
             x += 1;
+        }
+
+        if entity_has_flags(player, .GROUNDED) {
+            if x == 0 {
+                increase_player_timer_value(.DECELERATE, delta);
+            } else {
+                decel_value := get_player_timer_value(.DECELERATE);
+                if decel_value >= DECEL_THRESHOLD {
+                    set_player_timer_value(.SPRINT, 0);
+                }
+                set_player_timer_value(.DECELERATE, 0);
+                increase_player_timer_value(.SPRINT, delta);
+            }
         }
 
         player.movement_delta.x = x;
@@ -148,6 +165,22 @@ player_interaction :: () {
                 }
             }
         }
+    }
+}
+
+player_apply_speed :: () {
+    player := player_get();
+    if !player {
+        print("Failed to find player, skipping player_apply_speed!\n");
+        return;
+    }
+    player_move_speed: float;
+    clamped_sprint_timer := clamp(get_player_timer_value(.SPRINT), 0, TIME_TO_MAX_SPEED);
+    // speed_base :=
+    if player.movement_delta.x == 0 {
+        player.velocity.x = 0;
+    } else {
+        player.velocity.x = player.movement_delta.x * PLAYER_BASE_MOVE_SPEED;
     }
 }
 

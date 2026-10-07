@@ -18,12 +18,13 @@
         message := compiler_wait_for_message();
         if message.kind == {
         case .TYPECHECKED;
-            tc := cast(*Message_Typechecked)message;
-            for tc.procedure_bodies {
-                metrics := collect_metrics(it);
-                header := it.expression.header;
-                print("% -> %\n", header.name, metrics.total_calls);
-            }
+            // Right now this prints EVERY proc and how many times it's called in the binary, looking for a way to restrict it to just `#loaded` procs to find procs we don't use
+            // tc := cast(*Message_Typechecked)message;
+            // for tc.procedure_bodies {
+            //     metrics := collect_metrics(it);
+            //     header := it.expression.header;
+            //     print("% -> %\n", header.name, metrics.total_calls);
+            // }
         case .COMPLETE;
             mc := cast(*Message_Complete)message;
             if mc.error_code != .NONE {
