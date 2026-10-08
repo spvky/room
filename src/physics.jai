@@ -1,6 +1,6 @@
 JUMP_HEIGHT: float32: 2.5 * TILE_SIZE;
 BASE_JUMP_DISTANCE: float32: TILE_SIZE * 3;
-MAX_JUMP_DISTANCE: float32: TILE_SIZE * 6;
+MAX_JUMP_DISTANCE: float32: TILE_SIZE * 12;
 TIME_TO_PEAK: float32: 0.3;
 TIME_TO_DESCENT: float32: 0.28;
 // Compile time calculated constants

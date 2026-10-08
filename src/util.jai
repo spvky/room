@@ -11,6 +11,10 @@ coord_to_index :: (c: Coord, kind: Coord_Kind = .ROOM) -> int {
     return (c.y * width) + c.x;
 }
 
+signs_match :: inline (a: float, b: float) -> bool {
+    return a * b > 0;
+}
+
 world_coord_to_vector2 :: (c: Coord) -> Vector2 #expand {
     return c * Vector2.{TILE_SIZE, TILE_SIZE};
 }

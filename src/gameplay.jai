@@ -16,7 +16,7 @@ gameplay_update :: (delta: float32) {
     player_jump();
     set_relative_position_and_rotations();
     apply_movement_deltas();
-    player_apply_speed();
+    player_apply_speed(delta);
     moving_block_velocity();
     manage_floating_text(delta);
 

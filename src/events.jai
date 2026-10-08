@@ -1,13 +1,12 @@
-// Event :: struct {
-//     kind: Event_Kind;
-// }
+Static_Event :: struct {
+    kind: Static_Event_Kind;
+}
 
-Event_Kind :: enum {
-    NEW_ROOM;
+Static_Event_Kind :: enum {
     PLAYER_DEATH;
 }
 
-// Event_Proc :: #type (event: Event);
+Static_Event_Proc :: #type (event: Static_Event);
 Timed_Event_Proc :: #type ();
 
 Timed_Event :: struct {
