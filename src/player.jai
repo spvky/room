@@ -170,8 +170,12 @@ player_interaction :: () {
     }
 }
 
-ramp_delta :: (value: $T, max_value: T, rate: float, delta: float) -> float {
-    return (rate * delta) * value * (1 - value / max_value);
+bounded_curve :: (value: $T, max_value: T, t: float) -> float {
+    return t * value * (1 - value / max_value);
+}
+
+bounded_curve_rate :: (value: $T, max_value: T, t: float, delta: float) -> float {
+    return (t * delta) * value * (1 - value / max_value);
 }
 
 player_apply_speed :: (delta: float) {
@@ -180,44 +184,31 @@ player_apply_speed :: (delta: float) {
         print("Failed to find player, skipping player_apply_speed!\n");
         return;
     }
-
     clamped_sprint_timer := clamp(get_player_timer_value(.SPRINT), 0, TIME_TO_MAX_SPEED);
     t := clamped_sprint_timer / TIME_TO_MAX_SPEED;
     p_speed := player.velocity.x;
     speed_to_add: float;
+    /*
+		No Input: Decel
+		Moving: Check sprint timer
+		// above number -> Exp Speed
+		*/
     if player.movement_delta.x == 0 {
-        speed_to_add = -0.1 * p_speed;
+        player.velocity.x += -0.1 * p_speed;
     } else {
         if t <= 0.1 {
-            speed_to_add = PLAYER_BASE_MOVE_SPEED * delta * player.movement_delta.x;
+            player.velocity.x = PLAYER_BASE_MOVE_SPEED * delta * player.movement_delta.x;
         } else {
             if signs_match(p_speed, player.movement_delta.x) {
-                speed_to_add = player.movement_delta.x * ramp_delta(p_speed, PLAYER_MAX_MOVE_SPEED, t * 3, delta);
+                player.velocity.x = player.movement_delta.x * ramp_delta(PLAYER_BASE_MOVE_SPEED, PLAYER_MAX_MOVE_SPEED, t);
             } else {
                 // Skid 
-                speed_to_add = player.movement_delta.x * ramp_delta(0.1, PLAYER_MAX_MOVE_SPEED, 3, delta);
+                player.velocity.x += player.movement_delta.x * bounded_curve_rate(PLAYER_BASE_MOVE_SPEED, PLAYER_MAX_MOVE_SPEED, t, delta);
             }
         }
     }
     print("to add: %\n", speed_to_add);
     player.velocity.x += speed_to_add;
-    /*
-			get the sprint timer,
-			should I clamp it?
-			get abs player x velo
-		*/
-
-    // if t > 0.1 {
-    //     context.player_data.speed_to_add = ramp_delta(p_speed, PLAYER_MAX_MOVE_SPEED, t * 3, delta);
-    // }
-    // if player.movement_delta.x == 0 {
-    // } else {
-    //     if t <= 0.1 {
-    //         player.velocity.x = player.movement_delta.x * PLAYER_BASE_MOVE_SPEED;
-    //     } else {
-    //         player.velocity.x += player.movement_delta.x * context.player_data.speed_to_add;
-    //     }
-    // }
 }
 
 make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> Entity_Handle {
