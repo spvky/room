@@ -11,8 +11,12 @@ coord_to_index :: (c: Coord, kind: Coord_Kind = .ROOM) -> int {
     return (c.y * width) + c.x;
 }
 
-signs_match :: inline (a: float, b: float) -> bool {
+signs_match :: inline (a: float, b: float) -> bool #expand {
     return a * b > 0;
+}
+
+ramp :: (value: $T, max_value: T, t: float) -> float #expand {
+    return value * (pow(max_value / value, t));
 }
 
 world_coord_to_vector2 :: (c: Coord) -> Vector2 #expand {

@@ -53,3 +53,15 @@ some_proc(e: *Entity) #expand {
 }
 
 should give better cache locality and may be easier to debug;
+
+10/7/2026 4:28:27 PM
+
+Player Speed:
+
+-From a standstill:
+    -- Set players x velocity to a low value * move_delta
+-While moving:
+    -- if our x_velo is < max speed {
+        calculate speed to add using ramp proc
+        
+    }

@@ -1,5 +1,7 @@
 DECEL_THRESHOLD :: 0.2;
-TIME_TO_MAX_SPEED :: 1;
+DECEL_RATE :: 6.0;
+TIME_TO_MAX_SPEED :: 1.4;
+SKID_MULTIPLIER :: 7;
 
 Player_Data :: struct {
     current_coord: Coord;
@@ -170,14 +172,6 @@ player_interaction :: () {
     }
 }
 
-bounded_curve :: (value: $T, max_value: T, t: float) -> float {
-    return t * value * (1 - value / max_value);
-}
-
-bounded_curve_rate :: (value: $T, max_value: T, t: float, delta: float) -> float {
-    return (t * delta) * value * (1 - value / max_value);
-}
-
 player_apply_speed :: (delta: float) {
     player := player_get();
     if !player {
@@ -187,28 +181,35 @@ player_apply_speed :: (delta: float) {
     clamped_sprint_timer := clamp(get_player_timer_value(.SPRINT), 0, TIME_TO_MAX_SPEED);
     t := clamped_sprint_timer / TIME_TO_MAX_SPEED;
     p_speed := player.velocity.x;
-    speed_to_add: float;
-    /*
-		No Input: Decel
-		Moving: Check sprint timer
-		// above number -> Exp Speed
-		*/
+    abs_speed := abs(player.velocity.x);
     if player.movement_delta.x == 0 {
-        player.velocity.x += -0.1 * p_speed;
+        if entity_has_flags(player, .GROUNDED) {
+            if abs_speed > 1 {
+                player.velocity.x += -p_speed * DECEL_RATE * delta;
+            } else {
+                player.velocity.x = 0;
+            }
+        }
     } else {
         if t <= 0.1 {
-            player.velocity.x = PLAYER_BASE_MOVE_SPEED * delta * player.movement_delta.x;
-        } else {
-            if signs_match(p_speed, player.movement_delta.x) {
-                player.velocity.x = player.movement_delta.x * ramp_delta(PLAYER_BASE_MOVE_SPEED, PLAYER_MAX_MOVE_SPEED, t);
+            if abs_speed < PLAYER_BASE_MOVE_SPEED {
+                player.velocity.x += PLAYER_BASE_MOVE_SPEED * player.movement_delta.x * delta * 10;
             } else {
-                // Skid 
-                player.velocity.x += player.movement_delta.x * bounded_curve_rate(PLAYER_BASE_MOVE_SPEED, PLAYER_MAX_MOVE_SPEED, t, delta);
+                player.velocity.x = PLAYER_BASE_MOVE_SPEED * player.movement_delta.x;
+            }
+        } else {
+            curved_speed := ramp(PLAYER_BASE_MOVE_SPEED, PLAYER_MAX_MOVE_SPEED, t);
+            if signs_match(p_speed, player.movement_delta.x) {
+                if abs_speed < curved_speed {
+                    player.velocity.x += player.movement_delta.x * curved_speed * delta * 10;
+                } else {
+                    player.velocity.x = player.movement_delta.x * curved_speed;
+                }
+            } else {
+                player.velocity.x += player.movement_delta.x * curved_speed * delta * 3;
             }
         }
     }
-    print("to add: %\n", speed_to_add);
-    player.velocity.x += speed_to_add;
 }
 
 make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> Entity_Handle {

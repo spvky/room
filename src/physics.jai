@@ -1,6 +1,6 @@
 JUMP_HEIGHT: float32: 2.5 * TILE_SIZE;
 BASE_JUMP_DISTANCE: float32: TILE_SIZE * 3;
-MAX_JUMP_DISTANCE: float32: TILE_SIZE * 12;
+MAX_JUMP_DISTANCE: float32: TILE_SIZE * 8;
 TIME_TO_PEAK: float32: 0.3;
 TIME_TO_DESCENT: float32: 0.28;
 // Compile time calculated constants
@@ -225,6 +225,7 @@ player_crate_pushing :: (player: *Entity, crate: *Entity) #expand {
     if player.velocity.x > 0 {
         if entity_has_flags(crate, .RIGHT_BLOCKED) {
             player.velocity.x = 0;
+            crate.velocity.x = 0;
         } else {
             if abs(player.velocity.x) > PLAYER_BASE_MOVE_SPEED / 3 {
                 player.velocity.x = PLAYER_BASE_MOVE_SPEED / 3;
@@ -237,6 +238,7 @@ player_crate_pushing :: (player: *Entity, crate: *Entity) #expand {
     if player.velocity.x < 0 {
         if entity_has_flags(crate, .LEFT_BLOCKED) {
             player.velocity.x = 0;
+            crate.velocity.x = 0;
         } else {
             if abs(player.velocity.x) > PLAYER_BASE_MOVE_SPEED / 3 {
                 player.velocity.x = -PLAYER_BASE_MOVE_SPEED / 3;
