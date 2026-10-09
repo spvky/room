@@ -1,5 +1,5 @@
 JUMP_HEIGHT: float32: 2.5 * TILE_SIZE;
-BASE_JUMP_DISTANCE: float32: TILE_SIZE * 3;
+BASE_JUMP_DISTANCE: float32: TILE_SIZE * 5;
 MAX_JUMP_DISTANCE: float32: TILE_SIZE * 8;
 TIME_TO_PEAK: float32: 0.3;
 TIME_TO_DESCENT: float32: 0.28;
@@ -78,6 +78,7 @@ body_collision :: (delta: float) {
                 x_dot := abs(dot(static_collision.normal, Vector2.{1, 0}));
                 y_dot := abs(dot(static_collision.normal, Vector2.{0, 1}));
                 if x_dot > 0.1 {
+                    if it.tag == .PLAYER then set_player_timer_value(.SPRINT, 0);
                     it.velocity.x = 0;
                 }
                 if y_dot > 0.1 {
@@ -115,18 +116,27 @@ solve_dynamic_collisions :: (a: *Entity, b: *Entity, collision: Collision) #expa
 
     if pairing(.PLAYER, .CRATE) {
         player, crate := entity_sort(.PLAYER, .CRATE);
+        push_type: Push_Type;
         if x_dot > 0.1 {
-            player_crate_pushing(player, crate);
+            set_player_timer_value(.SPRINT, 0);
+            push_type = player_crate_pushing(player, crate);
         }
         if y_dot > 0.1 {
             player.velocity.y = 0;
             crate.velocity.y = 0;
         }
-        entity_equal_push();
+        if push_type == {
+        case .DYN_DYN;
+            entity_equal_push(player, crate, collision);
+        case .DYN_KINEMATIC;
+            entity_kinematic_push(player, crate, collision);
+        }
     }
 
     if pairing(.PLAYER, .SWITCH_BLOCK) {
-        entity_kinematic_push();
+        if x_dot > 0 then set_player_timer_value(.SPRINT, 0);
+        player, switch_block := entity_sort(.PLAYER, .SWITCH_BLOCK);
+        entity_kinematic_push(player, switch_block, collision);
     }
 
     if duo(.CRATE) {
@@ -138,11 +148,12 @@ solve_dynamic_collisions :: (a: *Entity, b: *Entity, collision: Collision) #expa
             a.velocity.y = 0;
             b.velocity.y = 0;
         }
-        entity_equal_push();
+        entity_equal_push(a, b, collision);
     }
 
     if pairing(.CRATE, .SWITCH_BLOCK) {
-        entity_kinematic_push();
+        crate, switch_block := entity_sort(.CRATE, .SWITCH_BLOCK);
+        entity_kinematic_push(crate, switch_block, collision);
     }
 }
 
@@ -152,35 +163,24 @@ entity_sort :: (tag1: Entity_Tag, tag2: Entity_Tag) -> *Entity, *Entity #expand 
     return entity1, entity2;
 }
 
-entity_equal_push :: () #expand {
-    a_to_b := `b.position - `a.position;
-    push_normal := ifx dot_product(a_to_b, `collision.normal) > 0 then -`collision.normal else `collision.normal;
-    push_amount := `collision.depth / 2;
-    `a.position += push_normal * (push_amount + 0.01);
-    `b.position += -push_normal * (push_amount + 0.01);
+entity_equal_push :: (a: *Entity, b: *Entity, collision: Collision) #expand {
+    a_to_b := b.position - a.position;
+    push_normal := ifx dot_product(a_to_b, collision.normal) > 0 then -collision.normal else collision.normal;
+    push_amount := collision.depth / 2;
+    a.position += push_normal * (push_amount + 0.01);
+    b.position += -push_normal * (push_amount + 0.01);
 }
 
-entity_kinematic_push :: () #expand {
-    kinematic_ptr: *Entity;
-    dynamic_ptr: *Entity;
-    if entity_has_props(`a, .KINEMATIC) && !entity_has_props(`b, .KINEMATIC) {
-        kinematic_ptr = `a;
-        dynamic_ptr = `b;
-    } else if entity_has_props(`b, .KINEMATIC) && !entity_has_props(`a, .KINEMATIC) {
-        kinematic_ptr = `b;
-        dynamic_ptr = `a;
-    } else {
-        return;
-    }
-    kin_to_dyn := dynamic_ptr.position - kinematic_ptr.position;
-    push_normal := ifx dot_product(kin_to_dyn, `collision.normal) > 0 then `collision.normal else -`collision.normal;
-    push_amount := `collision.depth;
-    dynamic_ptr.position += push_normal * (push_amount + 0.01);
+entity_kinematic_push :: (dynamic: *Entity, kinematic: *Entity, collision: Collision) #expand {
+    kin_to_dyn := dynamic.position - kinematic.position;
+    push_normal := ifx dot_product(kin_to_dyn, collision.normal) > 0 then collision.normal else -collision.normal;
+    push_amount := collision.depth;
+    dynamic.position += push_normal * (push_amount + 0.01);
     if `x_dot > 0.1 {
-        dynamic_ptr.velocity.x = 0;
+        dynamic.velocity.x = 0;
     }
     if `y_dot > 0.1 {
-        dynamic_ptr.velocity.y = 0;
+        dynamic.velocity.y = 0;
     }
 }
 
@@ -221,14 +221,21 @@ moving_block_velocity :: () {
     }
 }
 
-player_crate_pushing :: (player: *Entity, crate: *Entity) #expand {
+Push_Type :: enum {
+    DYN_DYN;
+    DYN_KINEMATIC;
+}
+
+player_crate_pushing :: (player: *Entity, crate: *Entity) -> Push_Type #expand {
+    push_type: Push_Type = .DYN_DYN;
     if player.velocity.x > 0 {
         if entity_has_flags(crate, .RIGHT_BLOCKED) {
             player.velocity.x = 0;
             crate.velocity.x = 0;
+            push_type = .DYN_KINEMATIC;
         } else {
-            if abs(player.velocity.x) > PLAYER_BASE_MOVE_SPEED / 3 {
-                player.velocity.x = PLAYER_BASE_MOVE_SPEED / 3;
+            if abs(player.velocity.x) > PLAYER_BASE_MOVE_SPEED / 2 {
+                player.velocity.x = PLAYER_BASE_MOVE_SPEED / 2;
             }
 
             crate.velocity.x = player.velocity.x;
@@ -239,13 +246,15 @@ player_crate_pushing :: (player: *Entity, crate: *Entity) #expand {
         if entity_has_flags(crate, .LEFT_BLOCKED) {
             player.velocity.x = 0;
             crate.velocity.x = 0;
+            push_type = .DYN_KINEMATIC;
         } else {
-            if abs(player.velocity.x) > PLAYER_BASE_MOVE_SPEED / 3 {
-                player.velocity.x = -PLAYER_BASE_MOVE_SPEED / 3;
+            if abs(player.velocity.x) > PLAYER_BASE_MOVE_SPEED / 2 {
+                player.velocity.x = -PLAYER_BASE_MOVE_SPEED / 2;
             }
             crate.velocity.x = player.velocity.x;
         }
     }
+    return push_type;
 }
 
 decay_crate_x_velocity :: () {

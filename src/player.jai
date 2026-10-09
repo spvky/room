@@ -1,7 +1,7 @@
 DECEL_THRESHOLD :: 0.2;
 DECEL_RATE :: 6.0;
-TIME_TO_MAX_SPEED :: 1.4;
-SKID_MULTIPLIER :: 7;
+TIME_TO_MAX_SPEED :: 1.2;
+SKID_MULTIPLIER :: 8;
 
 Player_Data :: struct {
     current_coord: Coord;
@@ -193,7 +193,7 @@ player_apply_speed :: (delta: float) {
     } else {
         if t <= 0.1 {
             if abs_speed < PLAYER_BASE_MOVE_SPEED {
-                player.velocity.x += PLAYER_BASE_MOVE_SPEED * player.movement_delta.x * delta * 10;
+                player.velocity.x += PLAYER_BASE_MOVE_SPEED * player.movement_delta.x * delta * 15;
             } else {
                 player.velocity.x = PLAYER_BASE_MOVE_SPEED * player.movement_delta.x;
             }
