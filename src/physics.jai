@@ -80,7 +80,10 @@ body_collision :: (delta: float) {
                 x_dot := abs(dot(static_collision.normal, Vector2.{1, 0}));
                 y_dot := abs(dot(static_collision.normal, Vector2.{0, 1}));
                 if x_dot > 0.1 {
-                    if it.tag == .PLAYER then set_player_timer_value(.SPRINT, 0);
+                    if it.tag == .PLAYER {
+                        set_player_timer_value(.SPRINT, 0);
+                        pdata_set_temp_flags(.PUSHING);
+                    }
                     it.velocity.x = 0;
                 }
                 if y_dot > 0.1 {
@@ -242,6 +245,7 @@ player_crate_pushing :: (player: *Entity, crate: *Entity) -> Push_Type #expand {
 
             crate.velocity.x = player.velocity.x;
         }
+        pdata_set_temp_flags(.PUSHING);
     }
 
     if player.velocity.x < 0 {
@@ -255,6 +259,7 @@ player_crate_pushing :: (player: *Entity, crate: *Entity) -> Push_Type #expand {
             }
             crate.velocity.x = player.velocity.x;
         }
+        pdata_set_temp_flags(.PUSHING);
     }
     return push_type;
 }

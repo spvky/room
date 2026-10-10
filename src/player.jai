@@ -17,7 +17,28 @@ Player_Data :: struct {
     current_room: Coord;
     current_position: Vector2;
     has_stored_player: bool;
+    player_flags: Player_Temp_Flags;
     facing_right: bool = true;
+}
+
+pdata_has_temp_flags :: (f: Player_Temp_Flags) -> bool #expand {
+    return context.player_data.player_flags & f == f;
+}
+
+pdata_set_temp_flags :: (f: Player_Temp_Flags) #expand {
+    context.player_data.player_flags |= f;
+}
+
+pdata_unset_temp_flags :: (f: Player_Temp_Flags) #expand {
+    context.player_data.player_flags &= ~f;
+}
+
+pdata_wipe_flags :: () #expand {
+    context.player_data.player_flags = 0;
+}
+
+Player_Temp_Flags :: enum u8 {
+    PUSHING :: 1 << 0;
 }
 
 Player_State :: enum {
@@ -87,25 +108,31 @@ manage_player_state :: () {
     player := player_get();
     if player {
         data := context.player_data;
-        state: Player_State;
+        pushing_this_frame := pdata_has_temp_flags(.PUSHING) || (entity_has_flags(player, .RIGHT_BLOCKED) && player.movement_delta.x > 0) || (entity_has_flags(player, .LEFT_BLOCKED) && player.movement_delta.x < 0);
 
+        state: Player_State;
         if entity_has_flags(player, .GROUNDED) {
-            if abs(player.movement_delta.x) > 0 {
-                if is_action_held(.SPRINT) {
-                    if signs_match(player.movement_delta.x, player.velocity.x) {
-                        state = .RUN;
+            if pushing_this_frame {
+                state = .PUSH;
+            } else {
+                if abs(player.movement_delta.x) > 0 {
+                    if is_action_held(.SPRINT) {
+                        if signs_match(player.movement_delta.x, player.velocity.x) {
+                            state = .RUN;
+                        } else {
+                            state = .SKID;
+                        }
                     } else {
-                        state = .SKID;
+                        state = .WALK;
                     }
                 } else {
-                    state = .WALK;
+                    state = .IDLE;
                 }
-            } else {
-                state = .IDLE;
             }
         } else {
             if player.velocity.y >= 0 then state = .RISE; else state = .FALL;
         }
+
         data.prev_state = data.state;
         data.state = state;
 
@@ -119,6 +146,8 @@ manage_player_state :: () {
                 }
             case .WALK;
                 set_animation(*player.animation_player, *PLAYER_WALK_ANIMATION, 0.075);
+            case .PUSH;
+                set_animation(*player.animation_player, *PLAYER_PUSH_ANIMATION, 0.075);
             case .RUN;
                 if data.prev_state == .FALL {
                     set_animation(*player.animation_player, *PLAYER_RUN_ANIMATION);
@@ -134,6 +163,7 @@ manage_player_state :: () {
             }
         }
     }
+    pdata_wipe_flags();
 }
 
 set_player_move_delta :: (delta: float) {
@@ -278,14 +308,23 @@ make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> E
     gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_HANDLE_REFRESH;
     entity_add_child(player_handle, gse, e = e);
 
-    // Left Ray Entity
-    lre: Entity;
-    lre.offset = Vector2.{(entity.radius * 0.9), 0};
-    lre.tag = .WALL_CASTER;
-    lre.ray.direction = .{1, 0};
-    lre.ray.max_toi = 32.0;
-    lre.props = .RAY_CASTER | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_HANDLE_REFRESH;
-    entity_add_child(player_handle, lre, e = e);
+    // Left Wall Sensor Entity
+    lws: Entity;
+    lws.offset = Vector2.{-TILE_SIZE / 2, 0};
+    lws.extents = Vector2.{TILE_SIZE / 8, TILE_SIZE * 0.8};
+    lws.shape_kind = .RECTANGLE;
+    lws.tag = .LEFT_SENSOR;
+    lws.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_HANDLE_REFRESH;
+    entity_add_child(player_handle, lws, e = e);
+
+    // Right Wall Sensor Entity
+    rws: Entity;
+    rws.offset = Vector2.{TILE_SIZE / 2, 0};
+    rws.extents = Vector2.{TILE_SIZE / 8, TILE_SIZE * 0.8};
+    rws.shape_kind = .RECTANGLE;
+    rws.tag = .RIGHT_SENSOR;
+    rws.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_HANDLE_REFRESH;
+    entity_add_child(player_handle, rws, e = e);
     return player_handle;
 }
 

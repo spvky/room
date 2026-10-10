@@ -8,6 +8,7 @@ PLAYER_FALL_LOOP_ANIMATION := Sprite_Animation.{start = 73, end = 75};
 PLAYER_RUN_TO_IDLE_ANIMATION := Sprite_Animation.{start = 48, end = 54, next_anim = *PLAYER_IDLE_ANIMATION};
 PLAYER_SKID_ANIMATION := Sprite_Animation.{start = 44, end = 47, next_anim = *PLAYER_RUN_ANIMATION, transition_proc = player_exit_skid};
 PLAYER_WALK_ANIMATION := Sprite_Animation.{start = 15, end = 24};
+PLAYER_PUSH_ANIMATION := Sprite_Animation.{start = 131, end = 140};
 
 GEAR_ANIMATION := Sprite_Animation.{start = 17, end = 18};
 

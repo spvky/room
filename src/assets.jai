@@ -22,7 +22,7 @@ init_textures :: () {
     atlas := context.atlas;
     atlas.rune_atlas = load_sprite_atlas_from_file("runes.png", 5, 4);
     atlas.tile_atlas = load_sprite_atlas_from_file("tiles_32.png", 16, 16);
-    atlas.character_atlas = load_sprite_atlas_from_file("main_character.png", 13, 9);
+    atlas.character_atlas = load_sprite_atlas_from_file("main_character.png", 16, 9);
 
     frame_bytes_view: []u8;
     frame_bytes_view.data = frame_bytes.data;
