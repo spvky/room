@@ -1,6 +1,7 @@
 Asset_Atlas :: struct {
     rune_atlas: Sprite_Atlas;
     tile_atlas: Sprite_Atlas;
+    character_atlas: Sprite_Atlas;
     room_frame_texture: Texture;
     collision_circle: Texture;
     map_cursor: Texture;
@@ -20,7 +21,9 @@ init_textures :: () {
     }
     atlas := context.atlas;
     atlas.rune_atlas = load_sprite_atlas_from_file("runes.png", 5, 4);
-    atlas.tile_atlas = load_sprite_atlas_from_file("tiles.png", 16, 16);
+    atlas.tile_atlas = load_sprite_atlas_from_file("tiles_32.png", 16, 16);
+    atlas.character_atlas = load_sprite_atlas_from_file("main_character.png", 13, 9);
+
     frame_bytes_view: []u8;
     frame_bytes_view.data = frame_bytes.data;
     frame_bytes_view.count = frame_bytes.count;
@@ -33,17 +36,6 @@ init_textures :: () {
     pixel_height := WINDOW_HEIGHT / 24;
     atlas.font = get_font_at_size("assets", "OpenSans-BoldItalic.ttf", pixel_height);
 }
-
-// my_init_fonts :: () {
-//     // So that we can load our font, set to path of running executable.
-//     // @Incomplete: Pack a default font into Simp.
-// 
-//     pixel_height := window_height / 24;
-// 
-//     // @Cleanup: Don't have path + name be separate.
-//     my_font = Simp.get_font_at_size(base_dir, "OpenSans-BoldItalic.ttf", pixel_height);
-//     assert(my_font != null);
-// }
 
 set_atlas_for_entity_manager :: (e: *Entity_Manager) {
     for *e {

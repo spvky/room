@@ -43,8 +43,7 @@ main :: () {
 start_game :: () {
     bake_world();
     snap_camera_pos();
-
-    context.game_state = .ROOM_EDITOR;
+    context.game_state = .GAMEPLAY;
 }
 
 init :: () {

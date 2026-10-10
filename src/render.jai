@@ -281,6 +281,7 @@ render_entities :: () {
     for *context.entities {
         if !entity_has_props(it, .RENDERABLE) || entity_has_props(it, .FOREGROUND) continue;
         pos, extents := cam_relative_pos_extents(it.position, it.render_extents);
+        pos += it.render_offset;
         sprite: Sprite;
         if it.render_kind == {
         case .SPRITE;
@@ -288,12 +289,14 @@ render_entities :: () {
         case .SPRITE_SHEET;
             sprite = get_current_sprite_sheet_frame(*it.sprite_sheet);
         case .ANIMATION_PLAYER;
-            sprite = get_current_animation_frame(*it.animation_player);
+            if it.tag == .PLAYER {
+                sprite = get_current_animation_frame(*it.animation_player, !context.player_data.facing_right);
+            } else {
+                sprite = get_current_animation_frame(*it.animation_player);
+            }
         }
         if it.tag == .ROOM_PICKUP {
             pos.y += 4 + context.camera.zoom * 4.0 * cast(float32)sin(last_time * 4);
-        }
-        if it.tag == .ROOM_PICKUP {
             room_ptr := table_find_pointer(context.room_table, it.room_pickup_hash);
             has_been_picked_up := room_ptr.flags & .PICKED_UP == .PICKED_UP;
             if has_been_picked_up {
@@ -328,7 +331,12 @@ draw_entity_collider :: inline (e: *Entity, color: Vector4) {
     if entity_has_props(e, .SENSOR) {
         pos, extents = cam_relative_pos_extents(e.position, e.extents);
     } else {
-        pos, extents = cam_relative_pos_extents(e.position, e.render_extents);
+        if e.shape_kind == {
+        case .RECTANGLE;
+            pos, extents = cam_relative_pos_extents(e.position, e.extents);
+        case .CIRCLE;
+            pos, extents = cam_relative_pos_extents(e.position, .{e.radius * 2, e.radius * 2});
+        }
     }
     half := extents / 2;
 

@@ -1,5 +1,4 @@
 DECEL_THRESHOLD :: 0.2;
-DECEL_RATE :: 8.0;
 TIME_TO_MAX_SPEED :: 1.2;
 SKID_MULTIPLIER :: 8;
 
@@ -8,6 +7,7 @@ Player_Data :: struct {
     last_stable_ground: Vector2;
     last_room_started_coord: Coord;
     last_room_started_pos: Vector2;
+    friction: float = 8.0;
     current_speed: float;
     speed_to_add: float;
     state: Player_State;
@@ -17,7 +17,17 @@ Player_Data :: struct {
     current_room: Coord;
     current_position: Vector2;
     has_stored_player: bool;
+    facing_right: bool = true;
 }
+
+PLAYER_IDLE_ANIMATION := Sprite_Animation.{start = 1, end = 10};
+PLAYER_DASH_ANIMATION := Sprite_Animation.{start = 29, end = 33, next_anim = *PLAYER_RUN_ANIMATION};
+PLAYER_RUN_ANIMATION := Sprite_Animation.{start = 34, end = 43};
+PLAYER_JUMP_ANIMATION := Sprite_Animation.{start = 63, end = 68, next_anim = *PLAYER_RISE_ANIMATION};
+PLAYER_RISE_ANIMATION := Sprite_Animation.{start = 67, end = 68};
+PLAYER_FALL_ANIMATION := Sprite_Animation.{start = 69, end = 72, next_anim = *PLAYER_FALL_LOOP_ANIMATION};
+PLAYER_FALL_LOOP_ANIMATION := Sprite_Animation.{start = 73, end = 75};
+PLAYER_RUN_TO_IDLE_ANIMATION := Sprite_Animation.{start = 48, end = 54, next_anim = *PLAYER_IDLE_ANIMATION};
 
 Player_State :: enum {
     IDLE;
@@ -82,20 +92,49 @@ reset_player :: () {
 
 manage_player_state :: () {
     player := player_get();
-    data := context.player_data;
-    state: Player_State;
+    if player {
+        data := context.player_data;
+        state: Player_State;
 
-    if entity_has_flags(player, .GROUNDED) {
-        if abs(player.movement_delta.x) > 0 {
-            state = .RUN;
+        if entity_has_flags(player, .GROUNDED) {
+            if abs(player.movement_delta.x) > 0 {
+                state = .RUN;
+            } else {
+                state = .IDLE;
+            }
         } else {
-            state = .IDLE;
+            if player.velocity.y >= 0 then state = .RISE; else state = .FALL;
         }
-    } else {
-        if player.velocity.y >= 0 then state = .RISE; else state = .FALL;
+        data.prev_state = data.state;
+        data.state = state;
+
+        if data.prev_state != data.state {
+            if data.state == {
+            case .IDLE;
+                if data.prev_state == .RUN {
+                    player.animation_player.current_animation = PLAYER_RUN_TO_IDLE_ANIMATION;
+                    player.animation_player.idx = PLAYER_RUN_TO_IDLE_ANIMATION.start;
+                } else {
+                    player.animation_player.current_animation = PLAYER_IDLE_ANIMATION;
+                    player.animation_player.idx = PLAYER_IDLE_ANIMATION.start;
+                }
+            case .RUN;
+                if data.prev_state == .FALL {
+                    player.animation_player.current_animation = PLAYER_RUN_ANIMATION;
+                    player.animation_player.idx = PLAYER_RUN_ANIMATION.start;
+                } else {
+                    player.animation_player.current_animation = PLAYER_DASH_ANIMATION;
+                    player.animation_player.idx = PLAYER_DASH_ANIMATION.start;
+                }
+            case .RISE;
+                player.animation_player.current_animation = PLAYER_JUMP_ANIMATION;
+                player.animation_player.idx = PLAYER_JUMP_ANIMATION.start;
+            case .FALL;
+                player.animation_player.current_animation = PLAYER_FALL_ANIMATION;
+                player.animation_player.idx = PLAYER_FALL_ANIMATION.start;
+            }
+        }
     }
-    data.prev_state = data.state;
-    data.state = state;
 }
 
 set_player_move_delta :: (delta: float) {
@@ -108,9 +147,11 @@ set_player_move_delta :: (delta: float) {
         x: float32;
         if is_action_held(.MOVE_LEFT) {
             x -= 1;
+            context.player_data.facing_right = false;
         }
         if is_action_held(.MOVE_RIGHT) {
             x += 1;
+            context.player_data.facing_right = true;
         }
 
         if entity_has_flags(player, .GROUNDED) {
@@ -175,7 +216,7 @@ player_interaction :: () {
 player_apply_speed :: (delta: float) {
     player := player_get();
     if !player {
-        print("Failed to find player, skipping player_apply_speed!\n");
+        // print("Failed to find player, skipping player_apply_speed!\n");
         return;
     }
     clamped_sprint_timer := clamp(get_player_timer_value(.SPRINT), 0, TIME_TO_MAX_SPEED);
@@ -185,35 +226,26 @@ player_apply_speed :: (delta: float) {
     if player.movement_delta.x == 0 {
         if entity_has_flags(player, .GROUNDED) {
             if abs_speed > 1 {
-                player.velocity.x += -p_speed * DECEL_RATE * delta;
+                player.velocity.x += -p_speed * context.player_data.friction * delta;
             } else {
                 player.velocity.x = 0;
             }
         }
     } else {
-        if t <= 0.1 {
-            if abs_speed < PLAYER_BASE_MOVE_SPEED {
-                player.velocity.x += PLAYER_BASE_MOVE_SPEED * player.movement_delta.x * delta * 15;
+        curved_speed := ramp(PLAYER_BASE_MOVE_SPEED, PLAYER_MAX_MOVE_SPEED, t);
+        if signs_match(p_speed, player.movement_delta.x) {
+            if abs_speed < curved_speed {
+                player.velocity.x += player.movement_delta.x * curved_speed * delta * 10;
             } else {
-                player.velocity.x = PLAYER_BASE_MOVE_SPEED * player.movement_delta.x;
+                player.velocity.x = player.movement_delta.x * curved_speed;
             }
         } else {
-            curved_speed := ramp(PLAYER_BASE_MOVE_SPEED, PLAYER_MAX_MOVE_SPEED, t);
-            if signs_match(p_speed, player.movement_delta.x) {
-                if abs_speed < curved_speed {
-                    player.velocity.x += player.movement_delta.x * curved_speed * delta * 10;
-                } else {
-                    player.velocity.x = player.movement_delta.x * curved_speed;
-                }
-            } else {
-                player.velocity.x += player.movement_delta.x * curved_speed * delta * 3;
-            }
+            player.velocity.x += player.movement_delta.x * curved_speed * delta * 3;
         }
     }
 }
 
 make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> Entity_Handle {
-    print("Player Spawning in Room: %\n", map_coord);
     entity: Entity;
     half_tile := Vector2.{TILE_SIZE, TILE_SIZE} / 2;
     entity.position = position;
@@ -221,11 +253,17 @@ make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> E
     entity.shape_kind = .CIRCLE;
     entity.radius = TILE_SIZE / 2;
     entity.tag = .PLAYER;
-    entity.props = .RENDERABLE | .GRAVITY_AFFECTED | .DYNAMIC | .SELF_PROPELLED | .PRESSES_BUTTONS | .NO_HANDLE_REFRESH;
-    entity.render_kind = .SPRITE;
-    entity.sprite = sprite(6);
-    entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
+    entity.props = .RENDERABLE | .GRAVITY_AFFECTED | .DYNAMIC | .SELF_PROPELLED | .PRESSES_BUTTONS | .NO_HANDLE_REFRESH | .ANIMATED;
+    entity.render_kind = .ANIMATION_PLAYER;
+    entity.render_extents = Vector2.{TILE_SIZE * 2, TILE_SIZE * 3};
+    entity.render_offset = Vector2.{0, 32};
     entity.movement_delta.x = 0;
+    entity.animation_player = Sprite_Animation_Player.{
+                                                       atlas = *context.atlas.character_atlas,
+                                                       seconds_per_frame = 0.05,
+                                                       idx = 1,
+                                                       current_animation = PLAYER_IDLE_ANIMATION};
+
     player_handle := entity_add(entity, e = e);
 
     // Ground Sensor Entity

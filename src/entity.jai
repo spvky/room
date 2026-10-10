@@ -23,6 +23,7 @@ copy_entity_manager :: (e: *Entity_Manager) -> Entity_Manager {
 init_entities :: () {
     if !context.entities {
         context.entities = New(Entity_Manager);
+        print("Entities Initialized\nEntity Size: %b\n", size_of(Entity));
     }
 
     if !context.entities_snapshot {
@@ -63,7 +64,7 @@ Entity :: struct {
     prev_sibling: Entity_Handle;
     next_sibling: Entity_Handle;
     room_hash: u32;
-    tail: [12]u8;
+    render_offset: Vector2;
 }
 
 Entity_Render_Kind :: enum u8 {

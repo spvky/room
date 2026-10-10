@@ -28,10 +28,10 @@ draw_player_data_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     state_string := tprint("State: %", context.player_data.state);
     label(state_rect, state_string, *context.room_editor_state.theme.label_theme);
     y -= 55;
-    // speed_to_add_rect := get_rect(x, y, 300, 30);
-    // speed_to_add_text := tprint("Speed To Add: %", formatFloat(context.player_data.speed_to_add, width = 1, trailing_width = 2, zero_removal = .NO));
-    // label(speed_to_add_rect, speed_to_add_text, *context.room_editor_state.theme.label_theme);
-    // y -= 32;
+    friction_rect := get_rect(x, y, 300, 30);
+    friction_text := tprint("Friction: %", formatFloat(context.player_data.friction, width = 1, trailing_width = 2, zero_removal = .NO));
+    label(friction_rect, friction_text, *context.room_editor_state.theme.label_theme);
+    y -= 32;
 
     for (cast(*Type_Info_Enum)Timer_Type).names {
         rect := get_rect(x, y, 300, 30);

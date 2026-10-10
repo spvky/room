@@ -1,6 +1,6 @@
 JUMP_HEIGHT: float32: 2.75 * TILE_SIZE;
 BASE_JUMP_DISTANCE: float32: TILE_SIZE * 5;
-MAX_JUMP_DISTANCE: float32: TILE_SIZE * 8;
+MAX_JUMP_DISTANCE: float32: TILE_SIZE * 7;
 TIME_TO_PEAK: float32: 0.3;
 TIME_TO_DESCENT: float32: 0.28;
 // Compile time calculated constants
@@ -71,7 +71,9 @@ body_collision :: (delta: float) {
             static_collision, static_collision_occurred := dynamic_vs_static_collision_test(it, static_ptr);
             if static_collision_occurred {
                 if static_ptr.tag == .GEAR && it.tag == .SWITCH_BLOCK continue;
-                if it.handle == context.player_handle && entity_has_props(static_ptr, .DEATH_ZONE) then reset_player();
+                if it.handle == context.player_handle && entity_has_props(static_ptr, .DEATH_ZONE) {
+                    reset_player();
+                }
                 dir_to_static := normalize(static_ptr.position - it.position);
                 corrected_normal := ifx dot_product(dir_to_static, static_collision.normal) < 0 then static_collision.normal else -static_collision.normal;
                 it.position += corrected_normal * (static_collision.depth + 0.01);
@@ -289,11 +291,11 @@ sensor_collision :: () {
                 if !entity_has_props(static_body, .SOLID) continue;
                 _, did_collide := dynamic_vs_static_collision_test(it, static_body);
                 if did_collide {
+                    if parent_entity.tag == .PLAYER && static_body.tag == .WALL {
+                        context.player_data.friction = 8;
+                    }
                     touching_ground = true;
                     touching_unstable_ground = entity_has_props(static_body, .UNSTABLE);
-
-                    parent_entity := entity_get(it.parent);
-
                     if it.parent == context.player_handle && entity_has_props(static_body, .DEATH_ZONE) then reset_player();
                     if static_body.tag == .GEAR && parent_entity.tag == .CRATE {
                         parent_entity.inherited_velocity = rotate(Vector2.{1, 0}, static_body.rotation) * PLAYER_BASE_MOVE_SPEED / 2;
@@ -306,6 +308,9 @@ sensor_collision :: () {
                 if other_entity == it || other_entity.handle == it.parent || !entity_has_props(other_entity, .SOLID) || entity_has_props(other_entity, .STATIC) continue;
                 _, did_collide := dynamic_vs_dynamic_collision_test(it, other_entity);
                 if did_collide {
+                    if parent_entity.tag == .PLAYER && other_entity.tag == .CRATE {
+                        context.player_data.friction = 25;
+                    }
                     touching_ground = true;
                     touching_unstable_ground = entity_has_props(other_entity, .UNSTABLE);
                     if !(other_entity.tag == .CRATE && parent_entity.tag == .CRATE) {

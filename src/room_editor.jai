@@ -533,8 +533,8 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
         lse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_ROTATE;
         entity_add_child(crate_handle, lse, e = entities);
     case .GEAR;
-        entity.shape_kind = .RECTANGLE;
-        entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
+        entity.shape_kind = .CIRCLE;
+        entity.radius = TILE_SIZE / 3;
         entity.tag = .GEAR;
         entity.props = .RENDERABLE | .ANIMATED | .SOLID | .STATIC | .DEATH_ZONE | .UNSTABLE;
         entity.render_kind = .ANIMATION_PLAYER;
@@ -542,9 +542,8 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
         entity.animation_player = Sprite_Animation_Player.{
                                                            atlas = *context.atlas.tile_atlas,
                                                            seconds_per_frame = 0.25,
-                                                           start = 17,
                                                            idx = 17,
-                                                           length = 1};
+                                                           current_animation = .{start = 17, end = 18}};
         entity_add(entity, e = entities);
     case .ASSEMBLER;
         entity.shape_kind = .RECTANGLE;
@@ -600,18 +599,6 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
         entity.props = .RENDERABLE;
         entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
         entity.sprite = sprite(20);
-        entity_add(entity, e = entities);
-    case .TELEPORTER;
-        entity.render_kind = .ANIMATION_PLAYER;
-        entity.props = .RENDERABLE | .ANIMATED;
-        entity.extents = Vector2.{TILE_SIZE, TILE_SIZE * 3};
-        entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE * 3};
-        entity.animation_player = Sprite_Animation_Player.{
-                                                           atlas = *context.atlas.tile_atlas,
-                                                           seconds_per_frame = 0.125,
-                                                           start = 21,
-                                                           idx = 21,
-                                                           length = 4};
         entity_add(entity, e = entities);
     }
 }
