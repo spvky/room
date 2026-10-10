@@ -26,6 +26,8 @@ Player_State :: enum {
     PUSH;
     RISE;
     FALL;
+    SKID;
+    WALK;
 }
 
 Timer_Collection :: struct {
@@ -89,7 +91,15 @@ manage_player_state :: () {
 
         if entity_has_flags(player, .GROUNDED) {
             if abs(player.movement_delta.x) > 0 {
-                state = .RUN;
+                if is_action_held(.SPRINT) {
+                    if signs_match(player.movement_delta.x, player.velocity.x) {
+                        state = .RUN;
+                    } else {
+                        state = .SKID;
+                    }
+                } else {
+                    state = .WALK;
+                }
             } else {
                 state = .IDLE;
             }
@@ -99,7 +109,7 @@ manage_player_state :: () {
         data.prev_state = data.state;
         data.state = state;
 
-        if data.prev_state != data.state && !entity_has_flags(player, .SKIDDING) {
+        if data.prev_state != data.state {
             if data.state == {
             case .IDLE;
                 if data.prev_state == .RUN {
@@ -107,12 +117,16 @@ manage_player_state :: () {
                 } else {
                     set_animation(*player.animation_player, *PLAYER_IDLE_ANIMATION);
                 }
+            case .WALK;
+                set_animation(*player.animation_player, *PLAYER_WALK_ANIMATION, 0.075);
             case .RUN;
                 if data.prev_state == .FALL {
                     set_animation(*player.animation_player, *PLAYER_RUN_ANIMATION);
                 } else {
                     set_animation(*player.animation_player, *PLAYER_DASH_ANIMATION);
                 }
+            case .SKID;
+                set_animation(*player.animation_player, *PLAYER_SKID_ANIMATION, 0.03);
             case .RISE;
                 set_animation(*player.animation_player, *PLAYER_JUMP_ANIMATION);
             case .FALL;
@@ -132,11 +146,11 @@ set_player_move_delta :: (delta: float) {
         x: float32;
         if is_action_held(.MOVE_LEFT) {
             x -= 1;
-            if !entity_has_flags(player, .SKIDDING) then context.player_data.facing_right = false;
+            if context.player_data.state != .SKID then context.player_data.facing_right = false;
         }
         if is_action_held(.MOVE_RIGHT) {
             x += 1;
-            if !entity_has_flags(player, .SKIDDING) then context.player_data.facing_right = true;
+            context.player_data.state != .SKID; context.player_data.facing_right = true;
         }
 
         if entity_has_flags(player, .GROUNDED) {
@@ -217,20 +231,19 @@ player_apply_speed :: (delta: float) {
             }
         }
     } else {
-        curved_speed := ramp(PLAYER_BASE_MOVE_SPEED, PLAYER_MAX_MOVE_SPEED, t);
-        if signs_match(p_speed, player.movement_delta.x) {
-            if abs_speed < curved_speed {
-                player.velocity.x += player.movement_delta.x * curved_speed * delta * 10;
+        if is_action_held(.SPRINT) {
+            curved_speed := ramp(PLAYER_BASE_MOVE_SPEED, PLAYER_MAX_MOVE_SPEED, t);
+            if signs_match(p_speed, player.movement_delta.x) {
+                if abs_speed < curved_speed {
+                    player.velocity.x += player.movement_delta.x * curved_speed * delta * 10;
+                } else {
+                    player.velocity.x = player.movement_delta.x * curved_speed;
+                }
             } else {
-                player.velocity.x = player.movement_delta.x * curved_speed;
+                player.velocity.x += player.movement_delta.x * curved_speed * delta * 3;
             }
         } else {
-            // if !entity_has_flags(player, .SKIDDING) && player.movement_delta.x != 0 && entity_has_flags(player, .GROUNDED) {
-            //     player.flags |= .SKIDDING;
-            //     print("Starting Skid\n");
-            //     set_animation(*player.animation_player, *PLAYER_SKID_ANIMATION);
-            // }
-            player.velocity.x += player.movement_delta.x * curved_speed * delta * 3;
+            player.velocity.x = (PLAYER_BASE_MOVE_SPEED * 0.6) * player.movement_delta.x;
         }
     }
 }

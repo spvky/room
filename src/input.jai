@@ -26,6 +26,7 @@ Action :: enum {
     MOVE_UP;
     JUMP;
     INTERACT;
+    SPRINT;
     // Debug
     TOGGLE_DEBUG_MODE;
     GOTO_MAP_PLACEMENT;
@@ -65,6 +66,7 @@ init_input :: () {
     register_input(.MOVE_DOWN, #char "S");
     register_input(.INTERACT, #char "E");
     register_input(.JUMP, .SPACEBAR);
+    register_input(.SPRINT, .SHIFT);
     // Debug
     register_input(.TOGGLE_DEBUG_MODE, #char "`");
     register_input(.GOTO_MAP_PLACEMENT, #char "9");

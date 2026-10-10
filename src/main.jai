@@ -1,7 +1,7 @@
 window: Window_Type;
 should_close: bool;
-WINDOW_WIDTH :: 1920;
-WINDOW_HEIGHT :: 1080;
+WINDOW_WIDTH := 1920;
+WINDOW_HEIGHT := 1080;
 last_time: float64;
 
 main :: () {
