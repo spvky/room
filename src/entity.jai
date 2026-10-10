@@ -54,9 +54,9 @@ Entity :: struct {
     render_kind: Entity_Render_Kind;
     render_extents: Vector2;
     room_pickup_hash: u32;
-    animation_player: Sprite_Animation_Player;
-    #overlay (animation_player) sprite_sheet: Sprite_Sheet;
-    #overlay (animation_player) sprite: Sprite;
+    sprite: Sprite;
+    #overlay (sprite) animation_player: Sprite_Animation_Player;
+    #overlay (sprite) sprite_sheet: Sprite_Sheet;
     handle: Entity_Handle;
     parent: Entity_Handle;
     first_child: Entity_Handle;

@@ -148,7 +148,6 @@ write_room_entities_to_world :: (r: *Room, room_center: Vector2, rotation: u8, m
                 player_handle := make_player(position, map_coord);
                 context.player_handle.* = player_handle;
                 player := player_get();
-                print("Made Player: %\n", player.*);
                 context.inspector_state.current_handle = player_handle;
             }
         } else {

@@ -20,15 +20,6 @@ Player_Data :: struct {
     facing_right: bool = true;
 }
 
-PLAYER_IDLE_ANIMATION := Sprite_Animation.{start = 1, end = 10};
-PLAYER_DASH_ANIMATION := Sprite_Animation.{start = 29, end = 33, next_anim = *PLAYER_RUN_ANIMATION};
-PLAYER_RUN_ANIMATION := Sprite_Animation.{start = 34, end = 43};
-PLAYER_JUMP_ANIMATION := Sprite_Animation.{start = 63, end = 68, next_anim = *PLAYER_RISE_ANIMATION};
-PLAYER_RISE_ANIMATION := Sprite_Animation.{start = 67, end = 68};
-PLAYER_FALL_ANIMATION := Sprite_Animation.{start = 69, end = 72, next_anim = *PLAYER_FALL_LOOP_ANIMATION};
-PLAYER_FALL_LOOP_ANIMATION := Sprite_Animation.{start = 73, end = 75};
-PLAYER_RUN_TO_IDLE_ANIMATION := Sprite_Animation.{start = 48, end = 54, next_anim = *PLAYER_IDLE_ANIMATION};
-
 Player_State :: enum {
     IDLE;
     RUN;
@@ -112,26 +103,20 @@ manage_player_state :: () {
             if data.state == {
             case .IDLE;
                 if data.prev_state == .RUN {
-                    player.animation_player.current_animation = PLAYER_RUN_TO_IDLE_ANIMATION;
-                    player.animation_player.idx = PLAYER_RUN_TO_IDLE_ANIMATION.start;
+                    set_animation(*player.animation_player, *PLAYER_RUN_TO_IDLE_ANIMATION);
                 } else {
-                    player.animation_player.current_animation = PLAYER_IDLE_ANIMATION;
-                    player.animation_player.idx = PLAYER_IDLE_ANIMATION.start;
+                    set_animation(*player.animation_player, *PLAYER_IDLE_ANIMATION);
                 }
             case .RUN;
                 if data.prev_state == .FALL {
-                    player.animation_player.current_animation = PLAYER_RUN_ANIMATION;
-                    player.animation_player.idx = PLAYER_RUN_ANIMATION.start;
+                    set_animation(*player.animation_player, *PLAYER_RUN_ANIMATION);
                 } else {
-                    player.animation_player.current_animation = PLAYER_DASH_ANIMATION;
-                    player.animation_player.idx = PLAYER_DASH_ANIMATION.start;
+                    set_animation(*player.animation_player, *PLAYER_DASH_ANIMATION);
                 }
             case .RISE;
-                player.animation_player.current_animation = PLAYER_JUMP_ANIMATION;
-                player.animation_player.idx = PLAYER_JUMP_ANIMATION.start;
+                set_animation(*player.animation_player, *PLAYER_JUMP_ANIMATION);
             case .FALL;
-                player.animation_player.current_animation = PLAYER_FALL_ANIMATION;
-                player.animation_player.idx = PLAYER_FALL_ANIMATION.start;
+                set_animation(*player.animation_player, *PLAYER_FALL_ANIMATION);
             }
         }
     }
@@ -262,7 +247,7 @@ make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> E
                                                        atlas = *context.atlas.character_atlas,
                                                        seconds_per_frame = 0.05,
                                                        idx = 1,
-                                                       current_animation = PLAYER_IDLE_ANIMATION};
+                                                       current_animation = *PLAYER_IDLE_ANIMATION};
 
     player_handle := entity_add(entity, e = e);
 
