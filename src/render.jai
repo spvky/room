@@ -280,8 +280,8 @@ render_gameplay_scene :: () {
 render_entities :: () {
     for *context.entities {
         if !entity_has_props(it, .RENDERABLE) || entity_has_props(it, .FOREGROUND) continue;
-        pos, extents := cam_relative_pos_extents(it.position, it.render_extents);
-        pos += it.render_offset;
+        pos, extents, offset := cam_relative_pos_extents(it.position, it.render_extents, it.render_offset);
+        pos += offset;
         sprite: Sprite;
         if it.render_kind == {
         case .SPRITE;
@@ -310,7 +310,8 @@ render_entities :: () {
     }
     for *context.entities {
         if !entity_has_props(it, .RENDERABLE) || !entity_has_props(it, .FOREGROUND) continue;
-        pos, extents := cam_relative_pos_extents(it.position, it.render_extents);
+        pos, extents, offset := cam_relative_pos_extents(it.position, it.render_extents, it.render_offset);
+        pos += offset;
         sprite: Sprite;
         if it.render_kind == {
         case .SPRITE;
@@ -329,13 +330,13 @@ draw_entity_collider :: inline (e: *Entity, color: Vector4) {
     pos: Vector2;
     extents: Vector2;
     if entity_has_props(e, .SENSOR) {
-        pos, extents = cam_relative_pos_extents(e.position, e.extents);
+        pos, extents = cam_relative_pos_extents(e.position, e.extents, .{});
     } else {
         if e.shape_kind == {
         case .RECTANGLE;
-            pos, extents = cam_relative_pos_extents(e.position, e.extents);
+            pos, extents = cam_relative_pos_extents(e.position, e.extents, .{});
         case .CIRCLE;
-            pos, extents = cam_relative_pos_extents(e.position, .{e.radius * 2, e.radius * 2});
+            pos, extents = cam_relative_pos_extents(e.position, .{e.radius * 2, e.radius * 2}, .{});
         }
     }
     half := extents / 2;

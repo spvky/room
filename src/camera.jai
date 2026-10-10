@@ -90,9 +90,10 @@ zoom_camera :: (delta: float) {
     if is_action_held(.CAMERA_ZOOM_OUT) context.camera.zoom -= 1 * delta;
 }
 
-cam_relative_pos_extents :: (p: Vector2, e: Vector2) -> Vector2, Vector2 {
+cam_relative_pos_extents :: (p: Vector2, e: Vector2, o: Vector2) -> Vector2, Vector2, Vector2 {
     center := context.camera.position;
     position := ((p - center) * context.camera.zoom) + Vector2.{(cast(float)DISPLAY_WIDTH) / 2, (cast(float)DISPLAY_HEIGHT) / 2};
     extents := e * context.camera.zoom;
-    return position, extents;
+    offset := o * context.camera.zoom;
+    return position, extents, offset;
 }

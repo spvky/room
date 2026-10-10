@@ -172,6 +172,7 @@ Entity_Flags :: enum_flags u32 {
     LEFT_BLOCKED :: 1 << 4;
     RIGHT_BLOCKED :: 1 << 5;
     TEXT_ACTIVE :: 1 << 6;
+    SKIDDING :: 1 << 7;
 }
 
 Entity_Messages :: enum_flags u8 {

@@ -99,7 +99,7 @@ manage_player_state :: () {
         data.prev_state = data.state;
         data.state = state;
 
-        if data.prev_state != data.state {
+        if data.prev_state != data.state && !entity_has_flags(player, .SKIDDING) {
             if data.state == {
             case .IDLE;
                 if data.prev_state == .RUN {
@@ -132,11 +132,11 @@ set_player_move_delta :: (delta: float) {
         x: float32;
         if is_action_held(.MOVE_LEFT) {
             x -= 1;
-            context.player_data.facing_right = false;
+            if !entity_has_flags(player, .SKIDDING) then context.player_data.facing_right = false;
         }
         if is_action_held(.MOVE_RIGHT) {
             x += 1;
-            context.player_data.facing_right = true;
+            if !entity_has_flags(player, .SKIDDING) then context.player_data.facing_right = true;
         }
 
         if entity_has_flags(player, .GROUNDED) {
@@ -225,6 +225,11 @@ player_apply_speed :: (delta: float) {
                 player.velocity.x = player.movement_delta.x * curved_speed;
             }
         } else {
+            // if !entity_has_flags(player, .SKIDDING) && player.movement_delta.x != 0 && entity_has_flags(player, .GROUNDED) {
+            //     player.flags |= .SKIDDING;
+            //     print("Starting Skid\n");
+            //     set_animation(*player.animation_player, *PLAYER_SKID_ANIMATION);
+            // }
             player.velocity.x += player.movement_delta.x * curved_speed * delta * 3;
         }
     }
@@ -241,7 +246,7 @@ make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> E
     entity.props = .RENDERABLE | .GRAVITY_AFFECTED | .DYNAMIC | .SELF_PROPELLED | .PRESSES_BUTTONS | .NO_HANDLE_REFRESH | .ANIMATED;
     entity.render_kind = .ANIMATION_PLAYER;
     entity.render_extents = Vector2.{TILE_SIZE * 2, TILE_SIZE * 3};
-    entity.render_offset = Vector2.{0, 32};
+    entity.render_offset = Vector2.{0, TILE_SIZE};
     entity.movement_delta.x = 0;
     entity.animation_player = Sprite_Animation_Player.{
                                                        atlas = *context.atlas.character_atlas,
