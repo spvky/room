@@ -283,31 +283,171 @@ render_entities :: () {
         pos, extents, offset := cam_relative_pos_extents(it.position, it.render_extents, it.render_offset);
         pos += offset;
         sprite: Sprite;
-        if it.render_kind == {
-        case .SPRITE;
-            sprite = it.sprite;
-        case .SPRITE_SHEET;
-            sprite = get_current_sprite_sheet_frame(*it.sprite_sheet);
-        case .ANIMATION_PLAYER;
-            if it.tag == .PLAYER {
-                sprite = get_current_animation_frame(*it.animation_player, !context.player_data.facing_right);
+        if it.tag == .SWITCH_BLOCK {
+            tiles_width := it.render_extents.x / TILE_SIZE;
+            tiles_height := it.render_extents.y / TILE_SIZE;
+            // print("Width: % | Height: %\n", tiles_width, tiles_height);
+
+            set_shader_for_images(*context.atlas.moving_block_texture);
+            // Todo, actually render the switch blocks
+            if tiles_width == 1 && tiles_height == 1 {
+                render_npatch_segment(.TOP_LEFT, pos + .{-TILE_SIZE / 4, TILE_SIZE / 4});
+                render_npatch_segment(.TOP_RIGHT, pos + .{TILE_SIZE / 4, TILE_SIZE / 4});
+                render_npatch_segment(.BOT_LEFT, pos + .{-TILE_SIZE / 4, -TILE_SIZE / 4});
+                render_npatch_segment(.BOT_RIGHT, pos + .{TILE_SIZE / 4, -TILE_SIZE / 4});
+            } else if tiles_width == 1 {
+                height_int := cast(int)tiles_height;
+                extent_bottom := pos.y + ((-TILE_SIZE * tiles_height) * 0.5);
+                for 0..height_int - 1 {
+                    position := Vector2.{pos.x, (extent_bottom + (TILE_SIZE / 2)) + (xx it) * (TILE_SIZE)};
+                    tl: N_Patch_Region;
+                    tr: N_Patch_Region;
+                    bl: N_Patch_Region;
+                    br: N_Patch_Region;
+                    if it == 0 {
+                        tl = .LEFT;
+                        tr = .RIGHT;
+                        bl = .BOT_LEFT;
+                        br = .BOT_RIGHT;
+                    } else if it == height_int - 1 {
+                        tl = .TOP_LEFT;
+                        tr = .TOP_RIGHT;
+                        bl = .LEFT;
+                        br = .RIGHT;
+                    } else {
+                        tl = .LEFT;
+                        tr = .RIGHT;
+                        bl = .LEFT;
+                        br = .RIGHT;
+                    }
+                    render_npatch_segment(tl, position + .{-TILE_SIZE / 4, TILE_SIZE / 4});
+                    render_npatch_segment(tr, position + .{TILE_SIZE / 4, TILE_SIZE / 4});
+                    render_npatch_segment(bl, position + .{-TILE_SIZE / 4, -TILE_SIZE / 4});
+                    render_npatch_segment(br, position + .{TILE_SIZE / 4, -TILE_SIZE / 4});
+                }
+            } else if tiles_height == 1 {
+                width_int := cast(int)tiles_width;
+                extent_left := pos.x + ((-TILE_SIZE * tiles_width) * 0.5);
+                for 0..width_int - 1 {
+                    position := Vector2.{(extent_left + (TILE_SIZE / 2)) + (xx it) * (TILE_SIZE), pos.y};
+                    tl: N_Patch_Region;
+                    tr: N_Patch_Region;
+                    bl: N_Patch_Region;
+                    br: N_Patch_Region;
+                    if it == 0 {
+                        tl = .TOP_LEFT;
+                        tr = .TOP;
+                        bl = .BOT_LEFT;
+                        br = .BOT;
+                    } else if it == width_int - 1 {
+                        tl = .TOP;
+                        tr = .TOP_RIGHT;
+                        bl = .BOT;
+                        br = .BOT_RIGHT;
+                    } else {
+                        tl = .TOP;
+                        tr = .TOP;
+                        bl = .BOT;
+                        br = .BOT;
+                    }
+                    render_npatch_segment(tl, position + .{-TILE_SIZE / 4, TILE_SIZE / 4});
+                    render_npatch_segment(tr, position + .{TILE_SIZE / 4, TILE_SIZE / 4});
+                    render_npatch_segment(bl, position + .{-TILE_SIZE / 4, -TILE_SIZE / 4});
+                    render_npatch_segment(br, position + .{TILE_SIZE / 4, -TILE_SIZE / 4});
+                }
             } else {
-                sprite = get_current_animation_frame(*it.animation_player);
+                width_int := cast(int)tiles_width;
+                height_int := cast(int)tiles_height;
+                extent_left := pos.x + ((-TILE_SIZE * tiles_width) * 0.5);
+                extent_bottom := pos.y + ((-TILE_SIZE * tiles_height) * 0.5);
+                for x: 0..width_int - 1 {
+                    for y: 0..height_int - 1 {
+                        position := Vector2.{(extent_left + (TILE_SIZE / 2)) + (xx x) * (TILE_SIZE), (extent_bottom + (TILE_SIZE / 2)) + (xx y) * (TILE_SIZE)};
+                        tl: N_Patch_Region;
+                        tr: N_Patch_Region;
+                        bl: N_Patch_Region;
+                        br: N_Patch_Region;
+                        if x == 0 && y == 0 {
+                            tl = .LEFT;
+                            tr = .CENTER;
+                            bl = .BOT_LEFT;
+                            br = .BOT;
+                        } else if x == width_int - 1 && y == height_int - 1 {
+                            tl = .TOP;
+                            tr = .TOP_RIGHT;
+                            bl = .CENTER;
+                            br = .RIGHT;
+                        } else if x == width_int - 1 && y == 0 {
+                            tl = .CENTER;
+                            tr = .RIGHT;
+                            bl = .BOT;
+                            br = .BOT_RIGHT;
+                        } else if x == 0 && y == height_int - 1 {
+                            tl = .TOP_LEFT;
+                            tr = .TOP;
+                            bl = .LEFT;
+                            br = .CENTER;
+                        } else if x == 0 {
+                            tl = .LEFT;
+                            tr = .CENTER;
+                            bl = .LEFT;
+                            br = .CENTER;
+                        } else if y == 0 {
+                            tl = .CENTER;
+                            tr = .CENTER;
+                            bl = .BOT;
+                            br = .BOT;
+                        } else if x == width_int - 1 {
+                            tl = .CENTER;
+                            tr = .RIGHT;
+                            bl = .CENTER;
+                            br = .RIGHT;
+                        } else if y == height_int - 1 {
+                            tl = .TOP;
+                            tr = .TOP;
+                            bl = .CENTER;
+                            br = .CENTER;
+                        } else {
+                            tl = .CENTER;
+                            tr = .CENTER;
+                            bl = .CENTER;
+                            br = .CENTER;
+                        }
+                        render_npatch_segment(tl, position + .{-TILE_SIZE / 4, TILE_SIZE / 4});
+                        render_npatch_segment(tr, position + .{TILE_SIZE / 4, TILE_SIZE / 4});
+                        render_npatch_segment(bl, position + .{-TILE_SIZE / 4, -TILE_SIZE / 4});
+                        render_npatch_segment(br, position + .{TILE_SIZE / 4, -TILE_SIZE / 4});
+                    }
+                }
             }
-        }
-        if it.tag == .ROOM_PICKUP {
-            pos.y += 4 + context.camera.zoom * 4.0 * cast(float32)sin(last_time * 4);
-            room_ptr := table_find_pointer(context.room_table, it.room_pickup_hash);
-            has_been_picked_up := room_ptr.flags & .PICKED_UP == .PICKED_UP;
-            if has_been_picked_up {
-                render_sprite(*sprite, pos, extents, rotation = it.rotation, color = .{1, 1, 1, 0.2});
+        } else {
+            if it.render_kind == {
+            case .SPRITE;
+                sprite = it.sprite;
+            case .SPRITE_SHEET;
+                sprite = get_current_sprite_sheet_frame(*it.sprite_sheet);
+            case .ANIMATION_PLAYER;
+                if it.tag == .PLAYER {
+                    sprite = get_current_animation_frame(*it.animation_player, !context.player_data.facing_right);
+                } else {
+                    sprite = get_current_animation_frame(*it.animation_player);
+                }
+            }
+            if it.tag == .ROOM_PICKUP {
+                pos.y += 4 + context.camera.zoom * 4.0 * cast(float32)sin(last_time * 4);
+                room_ptr := table_find_pointer(context.room_table, it.room_pickup_hash);
+                has_been_picked_up := room_ptr.flags & .PICKED_UP == .PICKED_UP;
+                if has_been_picked_up {
+                    render_sprite(*sprite, pos, extents, rotation = it.rotation, color = .{1, 1, 1, 0.2});
+                } else {
+                    render_sprite(*sprite, pos, extents, rotation = it.rotation);
+                }
             } else {
                 render_sprite(*sprite, pos, extents, rotation = it.rotation);
             }
-        } else {
-            render_sprite(*sprite, pos, extents, rotation = it.rotation);
         }
     }
+
     for *context.entities {
         if !entity_has_props(it, .RENDERABLE) || !entity_has_props(it, .FOREGROUND) continue;
         pos, extents, offset := cam_relative_pos_extents(it.position, it.render_extents, it.render_offset);
@@ -365,4 +505,85 @@ debug_render_colliders :: () {
         if entity_has_props(it, .SENSOR) color = .{0.98, 0.95, 0.21, 0.3};
         draw_entity_collider(it, color);
     }
+}
+
+UV_Rect :: struct {
+    min: Vector2;
+    max: Vector2;
+}
+
+N_Patch_Region :: enum u8 {
+    TOP_LEFT;
+    TOP;
+    TOP_RIGHT;
+    LEFT;
+    BOT_LEFT;
+    RIGHT;
+    BOT;
+    BOT_RIGHT;
+    CENTER;
+}
+
+render_npatch_segment :: (region: N_Patch_Region, position: Vector2) #expand {
+    uvs: [4]Vector2;
+    rect := get_npatch_sprite(region);
+    uvs[0] = rect.min;
+    uvs[1] = .{rect.max.x, rect.min.y};
+    uvs[2] = rect.max;
+    uvs[3] = .{rect.min.x, rect.max.y};
+    left := position.x - (TILE_SIZE / 4);
+    right := position.x + (TILE_SIZE / 4);
+    bot := position.y - (TILE_SIZE / 4);
+    top := position.y + (TILE_SIZE / 4);
+
+    p: [4]Vector2;
+    p[0] = .{left, bot};
+    p[1] = .{right, bot};
+    p[2] = .{right, top};
+    p[3] = .{left, top};
+
+    immediate_quad(p[0], p[1], p[2], p[3], .{1, 1, 1, 1}, uvs[0], uvs[1], uvs[2], uvs[3]);
+}
+
+// Made to work with 64x64 textures
+get_npatch_sprite :: (region: N_Patch_Region) -> UV_Rect #expand {
+    rect: UV_Rect;
+    unit :: 1.0 / 4.0;
+    left: float;
+    right: float;
+    top: float;
+    bot: float;
+
+    using rect;
+
+    if region == {
+    case .TOP_LEFT;
+        min = .{0, unit * 2};
+        max = .{unit * 2, 1};
+    case .TOP;
+        min = .{unit, unit * 2};
+        max = .{unit * 3, 1};
+    case .TOP_RIGHT;
+        min = .{unit * 2, unit * 2};
+        max = .{unit * 4, 1};
+    case .LEFT;
+        min = .{0, unit};
+        max = .{unit * 2, unit * 3};
+    case .CENTER;
+        min = .{unit, unit * 1};
+        max = .{unit * 3, unit * 3};
+    case .RIGHT;
+        min = .{unit * 2, unit * 1};
+        max = .{unit * 4, unit * 3};
+    case .BOT_LEFT;
+        min = .{0, 0};
+        max = .{unit * 2, unit * 2};
+    case .BOT;
+        min = .{unit, 0};
+        max = .{unit * 3, unit * 2};
+    case .BOT_RIGHT;
+        min = .{unit * 2, 0};
+        max = .{unit * 4, unit * 2};
+    }
+    return rect;
 }
