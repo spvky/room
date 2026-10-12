@@ -49,6 +49,7 @@ Player_State :: enum {
     FALL;
     SKID;
     WALK;
+    DYING;
 }
 
 Timer_Collection :: struct {
@@ -101,10 +102,23 @@ player_get :: () -> *Entity {
 
 reset_player :: () {
     restore_snapshot();
+    context.player_data.state = .IDLE;
+    context.player_data.prev_state = .IDLE;
     print("Resetting Player: %\n", context.player_data.last_stable_ground);
 }
 
+kill_player :: () {
+    player := player_get();
+    if player {
+        print("Killing Player\n");
+        context.player_data.state = .DYING;
+        context.player_data.prev_state = .DYING;
+        set_animation(*player.animation_player, *PLAYER_DEATH_ANIMATION);
+    }
+}
+
 manage_player_state :: () {
+    if context.player_data.state == .DYING then return;
     player := player_get();
     if player {
         data := context.player_data;
@@ -132,7 +146,6 @@ manage_player_state :: () {
         } else {
             if player.velocity.y >= 0 then state = .RISE; else state = .FALL;
         }
-
         data.prev_state = data.state;
         data.state = state;
 

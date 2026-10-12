@@ -56,24 +56,30 @@ apply_movement_deltas :: () {
 }
 
 body_collision :: (delta: float) {
+    player_holding_down := is_action_held(.MOVE_DOWN);
     for *context.entities {
-        entity_not_falling := it.velocity.y >= 0;
-        is_player_entity := context.player_handle.* == it.handle;
-        player_holding_down := is_action_held(.MOVE_DOWN);
+        is_player_feet := it.tag == .PLAYER_FEET_COLLIDER;
         if !(entity_has_props(it, .DYNAMIC)) continue;
         // Static Collision
         for static_info, static_handle: context.static_collision_table {
             if it.tag == .SWITCH_BLOCK continue;
             static_ptr := entity_get(static_handle);
             is_oneway := entity_has_props(static_ptr, .ONE_WAY);
-            is_below_wall := it.position.y < static_ptr.position.y;
-            if is_oneway && (entity_not_falling || (is_player_entity && player_holding_down) || is_below_wall) continue;
+            if is_oneway && it.tag == .PLAYER_HEAD_COLLIDER continue;
+            if is_player_feet && is_oneway {
+                player := entity_get(it.parent);
+                if player {
+                    is_below_wall := it.position.y < static_ptr.position.y;
+                    player_not_falling := player.velocity.y >= 0;
+                    if player_not_falling || player_holding_down || is_below_wall continue;
+                }
+            }
             static_collision, static_collision_occurred := dynamic_vs_static_collision_test(it, static_ptr);
             if static_collision_occurred {
-                if static_ptr.tag == .GEAR && it.tag == .SWITCH_BLOCK continue;
                 if (it.tag == .PLAYER_FEET_COLLIDER || it.tag == .PLAYER_FEET_COLLIDER) && entity_has_props(static_ptr, .DEATH_ZONE) {
                     // TODO: Update
-                    reset_player();
+                    kill_player();
+                    // reset_player();
                 }
                 dir_to_static := normalize(static_ptr.position - it.position);
                 corrected_normal := ifx dot_product(dir_to_static, static_collision.normal) < 0 then static_collision.normal else -static_collision.normal;
@@ -88,13 +94,23 @@ body_collision :: (delta: float) {
                 x_dot := abs(dot(static_collision.normal, Vector2.{1, 0}));
                 y_dot := abs(dot(static_collision.normal, Vector2.{0, 1}));
                 if x_dot > 0.1 {
-                    if it.tag == .PLAYER {
+                    if it.tag == .PLAYER_FEET_COLLIDER {
                         set_player_timer_value(.SPRINT, 0);
                         pdata_set_temp_flags(.PUSHING);
+                        player := player_get();
+                        if player {
+                            player.velocity.x = 0;
+                        }
                     }
                     it.velocity.x = 0;
                 }
                 if y_dot > 0.1 {
+                    if it.tag == .PLAYER_FEET_COLLIDER || it.tag == .PLAYER_HEAD_COLLIDER {
+                        player := player_get();
+                        if player {
+                            player.velocity.y = 0;
+                        }
+                    }
                     it.velocity.y = 0;
                 }
             }
@@ -339,7 +355,10 @@ sensor_collision :: () {
                     }
                     touching_ground = true;
                     touching_unstable_ground = entity_has_props(static_body, .UNSTABLE);
-                    if it.parent == context.player_handle && entity_has_props(static_body, .DEATH_ZONE) then reset_player();
+                    if it.parent == context.player_handle && entity_has_props(static_body, .DEATH_ZONE) {
+                        kill_player();
+                        // reset_player();
+                    }
                     if static_body.tag == .GEAR && parent_entity.tag == .CRATE {
                         parent_entity.inherited_velocity = rotate(Vector2.{1, 0}, static_body.rotation) * PLAYER_BASE_MOVE_SPEED / 2;
                     }

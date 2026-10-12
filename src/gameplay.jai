@@ -1,4 +1,5 @@
 gameplay_update :: (delta: float32) {
+    death_state := context.player_data.state == .DYING;
     // Upkeep
     decay_crate_x_velocity();
     handle_power_conductivity();
@@ -11,32 +12,35 @@ gameplay_update :: (delta: float32) {
     // Animation
     advance_animation_timers(delta);
     handle_entity_sprite_sheets();
-    // Numbers
-    set_player_move_delta(delta);
-    player_jump();
-    set_relative_position_and_rotations();
-    apply_movement_deltas();
-    player_apply_speed(delta);
-    moving_block_velocity();
-    manage_floating_text(delta);
 
-    // Collision
-    sensor_collision();
-    body_collision(delta);
-    raycast_collision();
+    if !death_state {
+        // Numbers
+        set_player_move_delta(delta);
+        player_jump();
+        set_relative_position_and_rotations();
+        apply_movement_deltas();
+        player_apply_speed(delta);
+        moving_block_velocity();
+        manage_floating_text(delta);
 
-    // Dynamics
-    apply_gravity(delta);
-    apply_velocity(delta);
+        // Collision
+        sensor_collision();
+        body_collision(delta);
+        raycast_collision();
 
-    // Interaction
-    player_interaction();
+        // Dynamics
+        apply_gravity(delta);
+        apply_velocity(delta);
+
+        // Interaction
+        player_interaction();
+        manage_player_state();
+    }
+
     inspector_entity_picking();
 
     // Cleanup
-    manage_player_state();
     table_reset(context.dynamic_collision_hashes);
-    snap_player := entity_get(context.player_handle, e = context.entities_snapshot);
 }
 
 advance_animation_timers :: (delta: float32) {
