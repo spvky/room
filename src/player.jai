@@ -286,7 +286,15 @@ player_apply_speed :: (delta: float) {
                 player.velocity.x += player.movement_delta.x * curved_speed * delta * 3;
             }
         } else {
-            player.velocity.x = (PLAYER_BASE_MOVE_SPEED * 0.6) * player.movement_delta.x;
+            if entity_has_flags(player, .GROUNDED) {
+                player.velocity.x = (PLAYER_BASE_MOVE_SPEED * 0.6) * player.movement_delta.x;
+            } else {
+                if signs_match(p_speed, player.movement_delta.x) {
+                    player.velocity.x = (PLAYER_BASE_MOVE_SPEED * 0.6) * player.movement_delta.x;
+                } else {
+                    player.velocity.x += (PLAYER_BASE_MOVE_SPEED * 0.6) * player.movement_delta.x * delta;
+                }
+            }
         }
     }
 }
