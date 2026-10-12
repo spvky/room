@@ -542,8 +542,7 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
         entity.animation_player = Sprite_Animation_Player.{
                                                            atlas = *context.atlas.tile_atlas,
                                                            seconds_per_frame = 0.25,
-                                                           idx = 17,
-                                                           current_animation = *GEAR_ANIMATION};
+                                                           idx = 17};
         entity_add(entity, e = entities);
     case .ASSEMBLER;
         entity.shape_kind = .RECTANGLE;

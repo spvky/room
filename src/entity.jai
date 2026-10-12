@@ -136,6 +136,8 @@ Entity_Tag :: enum u8 {
     ROOM_PICKUP;
     PLAYER_SPAWN;
     TELEPORTER;
+    PLAYER_FEET_COLLIDER;
+    PLAYER_HEAD_COLLIDER;
 }
 
 Entity_Properties :: enum_flags u32 {
@@ -162,6 +164,7 @@ Entity_Properties :: enum_flags u32 {
     NO_HANDLE_REFRESH :: 1 << 20;
     ONE_WAY :: 1 << 21;
     NO_ROTATE :: 1 << 22;
+    COLLIDER :: 1 << 23;
 }
 
 Entity_Flags :: enum_flags u32 {

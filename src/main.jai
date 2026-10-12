@@ -44,6 +44,7 @@ start_game :: () {
     bake_world();
     snap_camera_pos();
     context.game_state = .GAMEPLAY;
+    snapshot_entities();
 }
 
 init :: () {

@@ -7,7 +7,7 @@ Player_Data :: struct {
     last_stable_ground: Vector2;
     last_room_started_coord: Coord;
     last_room_started_pos: Vector2;
-    friction: float = 8.0;
+    friction: float = 25.0;
     current_speed: float;
     speed_to_add: float;
     state: Player_State;
@@ -283,13 +283,11 @@ make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> E
     half_tile := Vector2.{TILE_SIZE, TILE_SIZE} / 2;
     entity.position = position;
     entity.current_room = map_coord;
-    entity.shape_kind = .CIRCLE;
-    entity.radius = TILE_SIZE / 2;
     entity.tag = .PLAYER;
-    entity.props = .RENDERABLE | .GRAVITY_AFFECTED | .DYNAMIC | .SELF_PROPELLED | .PRESSES_BUTTONS | .NO_HANDLE_REFRESH | .ANIMATED;
+    entity.props = .RENDERABLE | .DYNAMIC | .GRAVITY_AFFECTED | .SELF_PROPELLED | .NO_HANDLE_REFRESH | .ANIMATED;
     entity.render_kind = .ANIMATION_PLAYER;
-    entity.render_extents = Vector2.{TILE_SIZE * 2, TILE_SIZE * 3};
-    entity.render_offset = Vector2.{0, TILE_SIZE};
+    entity.render_extents = Vector2.{TILE_SIZE * 1.5, TILE_SIZE * 2.5};
+    entity.render_offset = Vector2.{0, TILE_SIZE / 1.35};
     entity.movement_delta.x = 0;
     entity.animation_player = Sprite_Animation_Player.{
                                                        atlas = *context.atlas.character_atlas,
@@ -299,10 +297,28 @@ make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> E
 
     player_handle := entity_add(entity, e = e);
 
+    // Feet Collider
+    fc: Entity;
+    fc.offset = Vector2.{0, -TILE_SIZE / 4};
+    fc.shape_kind = .CIRCLE;
+    fc.radius = TILE_SIZE / 4;
+    fc.tag = .PLAYER_FEET_COLLIDER;
+    fc.props = .DYNAMIC | .RELATIVE_POSITION | .RELATIVE_ROTATION | .PRESSES_BUTTONS | .NO_HANDLE_REFRESH | .COLLIDER;
+    entity_add_child(player_handle, fc, e = e);
+
+    // Head Collider
+    hc: Entity;
+    hc.offset = Vector2.{0, TILE_SIZE / 5};
+    hc.shape_kind = .CIRCLE;
+    hc.radius = TILE_SIZE / 5;
+    hc.tag = .PLAYER_FEET_COLLIDER;
+    hc.props = .DYNAMIC | .RELATIVE_POSITION | .RELATIVE_ROTATION | .PRESSES_BUTTONS | .NO_HANDLE_REFRESH | .COLLIDER;
+    entity_add_child(player_handle, hc, e = e);
+
     // Ground Sensor Entity
     gse: Entity;
     gse.offset = Vector2.{0, -TILE_SIZE / 2};
-    gse.extents = Vector2.{TILE_SIZE * 0.8, TILE_SIZE / 8};
+    gse.extents = Vector2.{TILE_SIZE * 0.4, TILE_SIZE / 8};
     gse.shape_kind = .RECTANGLE;
     gse.tag = .GROUND_SENSOR;
     gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_HANDLE_REFRESH;
@@ -310,7 +326,7 @@ make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> E
 
     // Left Wall Sensor Entity
     lws: Entity;
-    lws.offset = Vector2.{-TILE_SIZE / 2, 0};
+    lws.offset = Vector2.{-TILE_SIZE / 4, 0};
     lws.extents = Vector2.{TILE_SIZE / 8, TILE_SIZE * 0.8};
     lws.shape_kind = .RECTANGLE;
     lws.tag = .LEFT_SENSOR;
@@ -319,7 +335,7 @@ make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> E
 
     // Right Wall Sensor Entity
     rws: Entity;
-    rws.offset = Vector2.{TILE_SIZE / 2, 0};
+    rws.offset = Vector2.{TILE_SIZE / 4, 0};
     rws.extents = Vector2.{TILE_SIZE / 8, TILE_SIZE * 0.8};
     rws.shape_kind = .RECTANGLE;
     rws.tag = .RIGHT_SENSOR;

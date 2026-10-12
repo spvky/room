@@ -71,12 +71,20 @@ body_collision :: (delta: float) {
             static_collision, static_collision_occurred := dynamic_vs_static_collision_test(it, static_ptr);
             if static_collision_occurred {
                 if static_ptr.tag == .GEAR && it.tag == .SWITCH_BLOCK continue;
-                if it.handle == context.player_handle && entity_has_props(static_ptr, .DEATH_ZONE) {
+                if (it.tag == .PLAYER_FEET_COLLIDER || it.tag == .PLAYER_FEET_COLLIDER) && entity_has_props(static_ptr, .DEATH_ZONE) {
+                    // TODO: Update
                     reset_player();
                 }
                 dir_to_static := normalize(static_ptr.position - it.position);
                 corrected_normal := ifx dot_product(dir_to_static, static_collision.normal) < 0 then static_collision.normal else -static_collision.normal;
-                it.position += corrected_normal * (static_collision.depth + 0.01);
+                if entity_has_props(it, .COLLIDER) {
+                    parent := entity_get(it.parent);
+                    if parent {
+                        parent.position += corrected_normal * (static_collision.depth + 0.01);
+                    }
+                } else {
+                    it.position += corrected_normal * (static_collision.depth + 0.01);
+                }
                 x_dot := abs(dot(static_collision.normal, Vector2.{1, 0}));
                 y_dot := abs(dot(static_collision.normal, Vector2.{0, 1}));
                 if x_dot > 0.1 {
@@ -107,7 +115,6 @@ body_collision :: (delta: float) {
     }
 }
 
-// TODO: It's time to move to using this to make the dynamic collision code easier to read and change
 solve_dynamic_collisions :: (a: *Entity, b: *Entity, collision: Collision) #expand {
     duo :: (t: Entity_Tag) -> bool #expand {
         return `a.tag == t && `b.tag == t;
@@ -119,29 +126,60 @@ solve_dynamic_collisions :: (a: *Entity, b: *Entity, collision: Collision) #expa
     x_dot := abs(dot(collision.normal, Vector2.{1, 0}));
     y_dot := abs(dot(collision.normal, Vector2.{0, 1}));
 
-    if pairing(.PLAYER, .CRATE) {
-        player, crate := entity_sort(.PLAYER, .CRATE);
-        push_type: Push_Type;
-        if x_dot > 0.1 {
-            set_player_timer_value(.SPRINT, 0);
-            push_type = player_crate_pushing(player, crate);
-        }
-        if y_dot > 0.1 {
-            player.velocity.y = 0;
-            crate.velocity.y = 0;
-        }
-        if push_type == {
-        case .DYN_DYN;
-            entity_equal_push(player, crate, collision);
-        case .DYN_KINEMATIC;
-            entity_kinematic_push(player, crate, collision);
+    if pairing(.PLAYER_FEET_COLLIDER, .CRATE) {
+        player_feet, crate := entity_sort(.PLAYER_FEET_COLLIDER, .CRATE);
+        player := entity_get(player_feet.parent);
+        if player {
+            push_type: Push_Type;
+            if x_dot > 0.1 {
+                set_player_timer_value(.SPRINT, 0);
+                push_type = player_crate_pushing(player, crate);
+            }
+            if y_dot > 0.1 {
+                player.velocity.y = 0;
+                crate.velocity.y = 0;
+            }
+            if push_type == {
+            case .DYN_DYN;
+                entity_equal_push(player, crate, collision);
+            case .DYN_KINEMATIC;
+                entity_kinematic_push(player, crate, collision);
+            }
         }
     }
 
-    if pairing(.PLAYER, .SWITCH_BLOCK) {
+    if pairing(.PLAYER_HEAD_COLLIDER, .CRATE) {
+        player_head, crate := entity_sort(.PLAYER_HEAD_COLLIDER, .CRATE);
+        player := entity_get(player_head.parent);
+        if player {
+            push_type: Push_Type;
+            if x_dot > 0.1 {
+                set_player_timer_value(.SPRINT, 0);
+            }
+            if y_dot > 0.1 {
+                player.velocity.y = 0;
+                crate.velocity.y = 0;
+            }
+            entity_equal_push(player, crate, collision);
+        }
+    }
+
+    if pairing(.PLAYER_FEET_COLLIDER, .SWITCH_BLOCK) {
         if x_dot > 0 then set_player_timer_value(.SPRINT, 0);
-        player, switch_block := entity_sort(.PLAYER, .SWITCH_BLOCK);
-        entity_kinematic_push(player, switch_block, collision);
+        player_feet, switch_block := entity_sort(.PLAYER_FEET_COLLIDER, .SWITCH_BLOCK);
+        player := entity_get(player_feet.parent);
+        if player {
+            entity_kinematic_push(player, switch_block, collision);
+        }
+    }
+
+    if pairing(.PLAYER_HEAD_COLLIDER, .SWITCH_BLOCK) {
+        if x_dot > 0 then set_player_timer_value(.SPRINT, 0);
+        player_head, switch_block := entity_sort(.PLAYER_HEAD_COLLIDER, .SWITCH_BLOCK);
+        player := entity_get(player_head.parent);
+        if player {
+            entity_kinematic_push(player, switch_block, collision);
+        }
     }
 
     if duo(.CRATE) {
@@ -297,7 +335,7 @@ sensor_collision :: () {
                 _, did_collide := dynamic_vs_static_collision_test(it, static_body);
                 if did_collide {
                     if parent_entity.tag == .PLAYER && static_body.tag == .WALL {
-                        context.player_data.friction = 8;
+                        // context.player_data.friction = 8;
                     }
                     touching_ground = true;
                     touching_unstable_ground = entity_has_props(static_body, .UNSTABLE);
@@ -313,8 +351,8 @@ sensor_collision :: () {
                 if other_entity == it || other_entity.handle == it.parent || !entity_has_props(other_entity, .SOLID) || entity_has_props(other_entity, .STATIC) continue;
                 _, did_collide := dynamic_vs_dynamic_collision_test(it, other_entity);
                 if did_collide {
-                    if parent_entity.tag == .PLAYER && other_entity.tag == .CRATE {
-                        context.player_data.friction = 25;
+                    if parent_entity.tag == .PLAYER && (other_entity.tag == .CRATE || other_entity.tag == .SWITCH_BLOCK) {
+                        // context.player_data.friction = 25;
                     }
                     touching_ground = true;
                     touching_unstable_ground = entity_has_props(other_entity, .UNSTABLE);
