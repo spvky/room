@@ -81,7 +81,7 @@ init :: () {
 #import "Random";
 #import "stb_image_write";
 GL :: #import "GL";
-#load "animations.jai";
+#load "sprites.jai";
 #load "assets.jai";
 #load "render.jai";
 #load "input.jai";
