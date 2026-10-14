@@ -208,6 +208,13 @@ dynamic_vs_dynamic_collision_test :: (a: *Entity, b: *Entity, mode := Collision_
     return collision, true;
 }
 
+circle_dynamic_entity_collision_test :: (position: Vector2, radius: Vector2, entity: *Entity) -> Collision, bool {
+    // @Warning: This is only testing the x and y unit axes
+    if entity.shape_kind ==
+case .CIRCLE;
+case .RECTANGLE;
+}
+
 line_intersection_test :: (a: Vector2, b: Vector2, c: Vector2, d: Vector2) -> Vector2, bool {
     o1 := line_orientation(a, b, c);
     o2 := line_orientation(a, b, d);
