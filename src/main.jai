@@ -53,6 +53,7 @@ init :: () {
     init_rendering();
     init_events();
     init_textures();
+    init_animations();
     init_entities();
     init_rooms();
     init_map();
@@ -81,7 +82,7 @@ init :: () {
 #import "Random";
 #import "stb_image_write";
 GL :: #import "GL";
-#load "sprites.jai";
+#load "animations.jai";
 #load "assets.jai";
 #load "render.jai";
 #load "input.jai";
@@ -96,6 +97,7 @@ GL :: #import "GL";
 #load "gameplay.jai";
 #load "events.jai";
 #load "physics.jai";
+#load "sprites.jai";
 #load "dev_util.jai";
 #load "parsing.jai";
 #load "inspector.jai";

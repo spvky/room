@@ -19,6 +19,9 @@ Player_Data :: struct {
     has_stored_player: bool;
     player_flags: Player_Temp_Flags;
     facing_right: bool = true;
+
+    PLAYER_OFFSET :: Vector2.{0, TILE_SIZE / 1.35};
+    PLAYER_EXTENTS :: Vector2.{TILE_SIZE * 1.5, TILE_SIZE * 2.5};
 }
 
 pdata_has_temp_flags :: (f: Player_Temp_Flags) -> bool #expand {
@@ -307,8 +310,8 @@ make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> E
     entity.tag = .PLAYER;
     entity.props = .RENDERABLE | .DYNAMIC | .GRAVITY_AFFECTED | .SELF_PROPELLED | .NO_HANDLE_REFRESH | .ANIMATED;
     entity.render_kind = .ANIMATION_PLAYER;
-    entity.render_extents = Vector2.{TILE_SIZE * 1.5, TILE_SIZE * 2.5};
-    entity.render_offset = Vector2.{0, TILE_SIZE / 1.35};
+    // entity.render_extents = Vector2.{TILE_SIZE * 1.5, TILE_SIZE * 2.5};
+    // entity.render_offset = Vector2.{0, TILE_SIZE / 1.35};
     entity.movement_delta.x = 0;
     entity.animation_player = Sprite_Animation_Player.{
                                                        atlas = *context.atlas.character_atlas,
@@ -363,6 +366,15 @@ make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> E
     rws.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_HANDLE_REFRESH;
     entity_add_child(player_handle, rws, e = e);
     return player_handle;
+}
+
+draw_player :: (entity: *Entity) {
+    set_shader_for_images(*context.atlas.character_atlas.texture);
+    player_render_extents := Vector2.{TILE_SIZE * 1.5, TILE_SIZE * 2.5};
+    player_offset := Vector2.{0, TILE_SIZE / 1.35};
+    uvs := get_current_animation_frame_quad(*context.animations.player, !context.player_data.facing_right);
+    pos, extents := cam_relative_pos_extents(entity.position, context.player_data.PLAYER_EXTENTS);
+    offset := context.player_data.PLAYER_OFFSET * context.camera.zoom;
 }
 
 store_player :: () {

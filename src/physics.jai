@@ -491,7 +491,7 @@ raycast_collision :: () {
         case .WALL_CASTER;
             for *other_entity: context.entities {
                 if !entity_has_props(other_entity, .SOLID) || other_entity.tag != .CRATE continue;
-                edges, is_rect := rigidbody_edges(other_entity);
+                edges, is_rect := entity_edges(other_entity);
                 if is_rect {
                     for e: edges {
                         int_point, intersects := line_intersection_test(e[0], e[1], ray_start, ray_end);

@@ -43,7 +43,17 @@ restore_snapshot :: () #expand {
 #add_context entities_snapshot: *Entity_Manager;
 
 Entity :: struct {
-    #as using rigibody: Rigidbody;
+    position: Vector2;
+    offset: Vector2;
+    movement_delta: Vector2;
+    velocity: Vector2;
+    inherited_velocity: Vector2;
+    extents: Vector2;
+    #overlay (extents) radius: float32;
+    #overlay (extents.y) height: float32;
+    rotation: float32;
+    shape_kind: Collision_Shape;
+    ray: Ray;
     props: Entity_Properties;
     flags: Entity_Flags;
     tag: Entity_Tag;
@@ -54,6 +64,7 @@ Entity :: struct {
     render_kind: Entity_Render_Kind;
     render_extents: Vector2;
     room_pickup_hash: u32;
+    room_hash: u32;
     sprite: Sprite;
     #overlay (sprite) animation_player: Sprite_Animation_Player;
     #overlay (sprite) sprite_sheet: Sprite_Sheet;
@@ -63,8 +74,6 @@ Entity :: struct {
     last_child: Entity_Handle;
     prev_sibling: Entity_Handle;
     next_sibling: Entity_Handle;
-    room_hash: u32;
-    render_offset: Vector2;
 }
 
 Entity_Render_Kind :: enum u8 {
@@ -96,20 +105,6 @@ hash_handle_pair :: (a: Entity_Handle, b: Entity_Handle) -> u64 {
     base := cast(u64)lower;
     final := base << 32 | upper;
     return final;
-}
-
-Rigidbody :: struct {
-    position: Vector2;
-    offset: Vector2;
-    movement_delta: Vector2;
-    velocity: Vector2;
-    inherited_velocity: Vector2;
-    rotation: float32;
-    shape_kind: Collision_Shape;
-    extents: Vector2;
-    ray: Ray;
-    #overlay (extents) radius: float32;
-    #overlay (extents.y) height: float32;
 }
 
 Collision_Shape :: enum {

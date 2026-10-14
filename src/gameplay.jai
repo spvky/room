@@ -11,7 +11,7 @@ gameplay_update :: (delta: float32) {
     zoom_camera(delta);
     // Animation
     advance_animation_timers(delta);
-    handle_entity_sprite_sheets();
+    // handle_entity_sprite_sheets();
 
     if !death_state {
         // Numbers
@@ -44,10 +44,13 @@ gameplay_update :: (delta: float32) {
 }
 
 advance_animation_timers :: (delta: float32) {
-    for *context.entities {
-        if !entity_has_props(it, .ANIMATED) continue;
-        advance_animation_player(*it.animation_player, delta);
-    }
+    animations := context.animations;
+    advance_animation_player(*animations.player, delta);
+    advance_animation_player(*animations.gears, delta);
+    // for *context.entities {
+    //     if !entity_has_props(it, .ANIMATED) continue;
+    //     advance_animation_player(*it.animation_player, delta);
+    // }
 }
 
 handle_entity_sprite_sheets :: () {

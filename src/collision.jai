@@ -44,7 +44,7 @@ Dynamic_Collision_Hashes :: Table(u64, void);
 #add_context static_raycast_table: *Static_Raycast_Table;
 #add_context dynamic_collision_hashes: *Dynamic_Collision_Hashes;
 
-rigidbody_edges :: (r: *Entity) -> [4][2]Vector2, bool {
+entity_edges :: (r: *Entity) -> [4][2]Vector2, bool {
     edges: [4][2]Vector2;
 
     if r.shape_kind == .RECTANGLE {
@@ -105,8 +105,8 @@ rebuild_static_collision_table :: () {
         if it.props & .STATIC == .STATIC {
             ai_pairs: [..]Axis_Interval_Pair;
             // For now just storing X and Y axis for static entities, may eventually support ramps
-            ix := project_rigidbody_along_axis(it, Vector2.{1, 0});
-            iy := project_rigidbody_along_axis(it, Vector2.{0, 1});
+            ix := project_entity_along_axis(it, Vector2.{1, 0});
+            iy := project_entity_along_axis(it, Vector2.{0, 1});
             array_add(*ai_pairs, Axis_Interval_Pair.{axis = Vector2.{1, 0}, interval = ix});
             array_add(*ai_pairs, Axis_Interval_Pair.{axis = Vector2.{0, 1}, interval = iy});
             table_set(context.static_collision_table, it.handle, ai_pairs);
@@ -125,11 +125,11 @@ dynamic_vs_static_collision_test :: (d: *Entity, s: *Entity, mode := Collision_M
             axes: [..]Vector2;
             min_depth: float32 = FLOAT32_MAX;
             axes.allocator = temp;
-            store_rigidbody_axes(d, *axes);
+            store_entity_axes(d, *axes);
             if axes.count > 0 {
                 for axes {
-                    ia := project_rigidbody_along_axis(d, it);
-                    ib := project_rigidbody_along_axis(s, it);
+                    ia := project_entity_along_axis(d, it);
+                    ib := project_entity_along_axis(s, it);
                     overlaps, depth := overlap(ia, ib);
                     if overlaps {
                         if depth < min_depth {
@@ -144,7 +144,7 @@ dynamic_vs_static_collision_test :: (d: *Entity, s: *Entity, mode := Collision_M
             }
 
             for static_ai_pairs.* {
-                id := project_rigidbody_along_axis(d, it.axis);
+                id := project_entity_along_axis(d, it.axis);
                 is := it.interval;
                 overlaps, depth := overlap(id, is);
                 if overlaps {
@@ -184,13 +184,13 @@ dynamic_vs_dynamic_collision_test :: (a: *Entity, b: *Entity, mode := Collision_
     case .SAT;
         axes: [..]Vector2;
         axes.allocator = temp;
-        store_rigidbody_axes(a, *axes);
-        store_rigidbody_axes(b, *axes);
+        store_entity_axes(a, *axes);
+        store_entity_axes(b, *axes);
 
         min_depth: float32 = FLOAT32_MAX;
         for axes {
-            ia := project_rigidbody_along_axis(a, it);
-            ib := project_rigidbody_along_axis(b, it);
+            ia := project_entity_along_axis(a, it);
+            ib := project_entity_along_axis(b, it);
             overlaps, depth := overlap(ia, ib);
             if overlaps {
                 if depth < min_depth {
@@ -246,7 +246,7 @@ line_orientation :: (a: Vector2, b: Vector2, c: Vector2) -> s8 {
 }
 
 // SAT
-project_rigidbody_along_axis :: (r: *Entity, a: Vector2) -> Interval {
+project_entity_along_axis :: (r: *Entity, a: Vector2) -> Interval {
     // Minimum and maximum dot products along the axis
     min := FLOAT32_MAX;
     max := -FLOAT32_MAX;
@@ -274,8 +274,8 @@ project_rigidbody_along_axis :: (r: *Entity, a: Vector2) -> Interval {
     return Interval.{min, max};
 }
 
-store_rigidbody_axes :: (rb: *Rigidbody, axes: *[..]Vector2) {
-    if rb.shape_kind == .CIRCLE || rb.shape_kind == .CAPSULE return;
+store_entity_axes :: (e: *Entity, axes: *[..]Vector2) {
+    if e.shape_kind == .CIRCLE || e.shape_kind == .CAPSULE return;
     // Not storing any real axes right now, just adding X/Y
     if axes.count == 0 {
         array_add(axes, Vector2.{1, 0});
@@ -283,9 +283,9 @@ store_rigidbody_axes :: (rb: *Rigidbody, axes: *[..]Vector2) {
     }
 }
 // AABB
-static_rectangle_nearest_point :: (p: Vector2, rb: *Rigidbody) -> Vector2 {
-    min_x, max_x := rb.position.x - (rb.extents.x / 2), rb.position.x + (rb.extents.x / 2);
-    min_y, max_y := rb.position.y - (rb.extents.y / 2), rb.position.y + (rb.extents.y / 2);
+static_rectangle_nearest_point :: (p: Vector2, e: *Entity) -> Vector2 {
+    min_x, max_x := e.position.x - (e.extents.x / 2), e.position.x + (e.extents.x / 2);
+    min_y, max_y := e.position.y - (e.extents.y / 2), e.position.y + (e.extents.y / 2);
     ret: Vector2;
     ret.x = clamp(p.x, min_x, max_x);
     ret.y = clamp(p.y, min_y, max_y);
