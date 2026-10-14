@@ -1109,6 +1109,8 @@ map_position_display :: (left: float32, right: float32, top: float32, bot: float
     }
 }
 
+draw_one_tile_entity_in_editor :: (entity: *Entity) {}
+
 true_vec_from_coord :: (c: Coord) -> Vector2 #expand {
     raw := Vector2.{xx c.x * TILE_SIZE, xx c.y * TILE_SIZE};
     // Translate mouse cell to true vector representation when saving an entity
