@@ -123,6 +123,7 @@ kill_player :: () {
 manage_player_state :: () {
     if context.player_data.state == .DYING then return;
     player := player_get();
+    anim := *context.animations.player;
     if player {
         data := context.player_data;
         pushing_this_frame := pdata_has_temp_flags(.PUSHING) || (entity_has_flags(player, .RIGHT_BLOCKED) && player.movement_delta.x > 0) || (entity_has_flags(player, .LEFT_BLOCKED) && player.movement_delta.x < 0);
@@ -156,26 +157,26 @@ manage_player_state :: () {
             if data.state == {
             case .IDLE;
                 if data.prev_state == .RUN {
-                    set_animation(*player.animation_player, *PLAYER_RUN_TO_IDLE_ANIMATION);
+                    set_animation(anim, *PLAYER_RUN_TO_IDLE_ANIMATION);
                 } else {
-                    set_animation(*player.animation_player, *PLAYER_IDLE_ANIMATION);
+                    set_animation(anim, *PLAYER_IDLE_ANIMATION);
                 }
             case .WALK;
-                set_animation(*player.animation_player, *PLAYER_WALK_ANIMATION, 0.075);
+                set_animation(anim, *PLAYER_WALK_ANIMATION, 0.075);
             case .PUSH;
-                set_animation(*player.animation_player, *PLAYER_PUSH_ANIMATION, 0.075);
+                set_animation(anim, *PLAYER_PUSH_ANIMATION, 0.075);
             case .RUN;
                 if data.prev_state == .FALL {
-                    set_animation(*player.animation_player, *PLAYER_RUN_ANIMATION);
+                    set_animation(anim, *PLAYER_RUN_ANIMATION);
                 } else {
-                    set_animation(*player.animation_player, *PLAYER_DASH_ANIMATION);
+                    set_animation(anim, *PLAYER_DASH_ANIMATION);
                 }
             case .SKID;
-                set_animation(*player.animation_player, *PLAYER_SKID_ANIMATION, 0.03);
+                set_animation(anim, *PLAYER_SKID_ANIMATION, 0.03);
             case .RISE;
-                set_animation(*player.animation_player, *PLAYER_JUMP_ANIMATION);
+                set_animation(anim, *PLAYER_JUMP_ANIMATION);
             case .FALL;
-                set_animation(*player.animation_player, *PLAYER_FALL_ANIMATION);
+                set_animation(anim, *PLAYER_FALL_ANIMATION);
             }
         }
     }
@@ -366,15 +367,6 @@ make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> E
     rws.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_HANDLE_REFRESH;
     entity_add_child(player_handle, rws, e = e);
     return player_handle;
-}
-
-draw_player :: (entity: *Entity) {
-    set_shader_for_images(*context.atlas.character_atlas.texture);
-    player_render_extents := Vector2.{TILE_SIZE * 1.5, TILE_SIZE * 2.5};
-    player_offset := Vector2.{0, TILE_SIZE / 1.35};
-    uvs := get_current_animation_frame_quad(*context.animations.player, !context.player_data.facing_right);
-    pos, extents := cam_relative_pos_extents(entity.position, context.player_data.PLAYER_EXTENTS);
-    offset := context.player_data.PLAYER_OFFSET * context.camera.zoom;
 }
 
 store_player :: () {

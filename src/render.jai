@@ -280,32 +280,39 @@ render_gameplay_scene :: () {
 render_entities :: () {
     for *context.entities {
         if !entity_has_props(it, .RENDERABLE) || entity_has_props(it, .FOREGROUND) continue;
-        pos, extents := cam_relative_pos_extents(it.position, it.render_extents);
-        // pos += offset;
-        sprite: Sprite;
-        if it.render_kind == {
-        case .SPRITE;
-            sprite = it.sprite;
-        case .SPRITE_SHEET;
-            sprite = get_current_sprite_sheet_frame(*it.sprite_sheet);
-        case .ANIMATION_PLAYER;
-            if it.tag == .PLAYER {
-                sprite = get_current_animation_frame(*it.animation_player, !context.player_data.facing_right);
-            } else {
-                sprite = get_current_animation_frame(*it.animation_player);
-            }
-        }
-        if it.tag == .ROOM_PICKUP {
-            pos.y += 4 + context.camera.zoom * 4.0 * cast(float32)sin(last_time * 4);
-            room_ptr := table_find_pointer(context.room_table, it.room_pickup_hash);
-            has_been_picked_up := room_ptr.flags & .PICKED_UP == .PICKED_UP;
-            if has_been_picked_up {
-                render_sprite(*sprite, pos, extents, rotation = it.rotation, color = .{1, 1, 1, 0.2});
-            } else {
-                render_sprite(*sprite, pos, extents, rotation = it.rotation);
-            }
+        // pos, extents := cam_relative_pos_extents(it.position, it.render_extents);
+        // // pos += offset;
+        // sprite: Sprite;
+        // if it.render_kind == {
+        // case .SPRITE;
+        //     sprite = it.sprite;
+        // case .SPRITE_SHEET;
+        //     sprite = get_current_sprite_sheet_frame(*it.sprite_sheet);
+        // case .ANIMATION_PLAYER;
+        //     if it.tag == .PLAYER {
+        //         sprite = get_current_animation_frame(*it.animation_player, !context.player_data.facing_right);
+        //     } else {
+        //         sprite = get_current_animation_frame(*it.animation_player);
+        //     }
+        // }
+        // if it.tag == .ROOM_PICKUP {
+        //     pos.y += 4 + context.camera.zoom * 4.0 * cast(float32)sin(last_time * 4);
+        //     room_ptr := table_find_pointer(context.room_table, it.room_pickup_hash);
+        //     has_been_picked_up := room_ptr.flags & .PICKED_UP == .PICKED_UP;
+        //     if has_been_picked_up {
+        //         render_sprite(*sprite, pos, extents, rotation = it.rotation, color = .{1, 1, 1, 0.2});
+        //     } else {
+        //         render_sprite(*sprite, pos, extents, rotation = it.rotation);
+        //     }
+        // } else {
+        //     render_sprite(*sprite, pos, extents, rotation = it.rotation);
+        // }
+        if it.tag == .SWITCH_BLOCK {
+            draw_switch_block(it);
+        } else if it.tag == .PLAYER {
+            draw_player(it);
         } else {
-            render_sprite(*sprite, pos, extents, rotation = it.rotation);
+            draw_one_tile_entity(it);
         }
     }
 
