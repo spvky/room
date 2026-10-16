@@ -10,46 +10,69 @@ Sprite_UVs :: [4]Vector2;
 draw_one_tile_entity :: (entity: *Entity) {
     atlas := *context.atlas.tile_atlas;
     pos, extents := cam_relative_pos_extents(entity.position, .{TILE_SIZE, TILE_SIZE});
+    color := Vector4.{1, 1, 1, 1};
+    uvs: UV_Quad;
+
     set_shader_for_images(*atlas.texture);
 
     if entity.tag == {
     case .CRATE;
-        uvs := uv_quad_from_atlas(atlas, 0);
-        draw_quad(uvs);
+        uvs = uv_quad_from_atlas(atlas, 0);
     case .LEVER;
-        uvs: UV_Quad;
         if entity_has_flags(entity, .POWERED) {
             uvs = uv_quad_from_atlas(atlas, 8);
         } else {
             uvs = uv_quad_from_atlas(atlas, 9);
         }
-        draw_quad(uvs);
     case .BUTTON;
-        uvs: UV_Quad;
         if entity_has_flags(entity, .POWERED) {
-            uvs = uv_quad_from_atlas(atlas, 11);
+            uvs = uv_quad_from_atlas(atlas, 12);
         } else {
-            uvs = uv_quad_from_atlas(atlas, 10);
+            uvs = uv_quad_from_atlas(atlas, 13);
         }
-        draw_quad(uvs);
+    case .ASSEMBLER;
+        if entity_has_flags(entity, .POWERED) {
+            uvs = uv_quad_from_atlas(atlas, 10);
+        } else {
+            uvs = uv_quad_from_atlas(atlas, 11);
+        }
     case .GEAR;
-        uvs := get_current_animation_frame_quad(*context.animations.gears);
-        draw_quad(uvs);
+        uvs = get_current_animation_frame_quad(*context.animations.gears);
     case .ROOM_PICKUP;
         room_ptr := table_find_pointer(context.room_table, entity.room_pickup_hash);
         if room_ptr {
             pos.y += 4 + context.camera.zoom * 4.0 * cast(float32)sin(last_time * 4);
-            uvs := uv_quad_from_atlas(atlas, 19);
-            color: Vector4;
+            uvs = uv_quad_from_atlas(atlas, 19);
             has_been_picked_up := room_ptr.flags & .PICKED_UP == .PICKED_UP;
             if has_been_picked_up {
                 color = .{1, 1, 1, 0.2};
             } else {
                 color = .{1, 1, 1, 1};
             }
-            draw_quad(uvs, color);
         }
     }
+    draw_quad(uvs, color);
+}
+
+draw_wall :: (entity: *Entity) {
+    set_shader_for_color();
+    pos, extents := cam_relative_pos_extents(entity.position, entity.extents);
+    left: float;
+    right: float;
+    top: float;
+    bot: float;
+
+    left = pos.x - (extents.x / 2);
+    right = pos.x + (extents.x / 2);
+    top = pos.y + (extents.y / 2);
+    bot = pos.y - (extents.y / 2);
+
+    immediate_quad(
+                   .{left, bot},
+                   .{right, bot},
+                   .{right, top},
+                   .{left, top},
+                   .{0.5, 0.5, 0.5, 1});
 }
 
 draw_player :: (entity: *Entity) {
@@ -64,9 +87,9 @@ draw_player :: (entity: *Entity) {
 }
 
 draw_switch_block :: (entity: *Entity) {
-    pos, extents := cam_relative_pos_extents(entity.position, entity.render_extents);
-    tiles_width := entity.render_extents.x / TILE_SIZE;
-    tiles_height := entity.render_extents.y / TILE_SIZE;
+    pos, extents := cam_relative_pos_extents(entity.position, entity.extents);
+    tiles_width := entity.extents.x / TILE_SIZE;
+    tiles_height := entity.extents.y / TILE_SIZE;
 
     set_shader_for_images(*context.atlas.moving_block_texture);
     // Todo, actually render the switch blocks

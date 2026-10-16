@@ -47,34 +47,4 @@ advance_animation_timers :: (delta: float32) {
     animations := context.animations;
     advance_animation_player(*animations.player, delta);
     advance_animation_player(*animations.gears, delta);
-    // for *context.entities {
-    //     if !entity_has_props(it, .ANIMATED) continue;
-    //     advance_animation_player(*it.animation_player, delta);
-    // }
-}
-
-handle_entity_sprite_sheets :: () {
-    for *context.entities {
-        if it.render_kind != .SPRITE_SHEET continue;
-        if it.tag == {
-        case .LEVER;
-            if entity_has_flags(it, .POWERED) {
-                it.sprite_sheet.idx = 8;
-            } else {
-                it.sprite_sheet.idx = 9;
-            }
-        case .BUTTON;
-            if entity_has_flags(it, .POWERED) {
-                it.sprite_sheet.idx = 13;
-            } else {
-                it.sprite_sheet.idx = 12;
-            }
-        case .ASSEMBLER;
-            if entity_has_flags(it, .POWERED) {
-                it.sprite_sheet.idx = 11;
-            } else {
-                it.sprite_sheet.idx = 10;
-            }
-        }
-    }
 }

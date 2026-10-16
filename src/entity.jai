@@ -61,13 +61,8 @@ Entity :: struct {
     relative_room_coord: Coord;
     current_room: Coord;
     text_message: Display_Message;
-    render_kind: Entity_Render_Kind;
-    render_extents: Vector2;
     room_pickup_hash: u32;
     room_hash: u32;
-    sprite: Sprite;
-    #overlay (sprite) animation_player: Sprite_Animation_Player;
-    #overlay (sprite) sprite_sheet: Sprite_Sheet;
     handle: Entity_Handle;
     parent: Entity_Handle;
     first_child: Entity_Handle;
@@ -414,9 +409,6 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
         entity.props = .RENDERABLE | .STATIC | .SOLID | .FOREGROUND;
-        entity.render_kind = .SPRITE;
-        entity.sprite = sprite(1);
-        entity.render_extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity_add(entity);
     case .TOP_HALF;
         entity: Entity;
@@ -430,9 +422,6 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
         entity.props = .RENDERABLE | .STATIC | .SOLID | .ONE_WAY | .FOREGROUND;
-        entity.render_kind = .SPRITE;
-        entity.sprite = sprite(1);
-        entity.render_extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity_add(entity);
     case .BOT_HALF;
         entity: Entity;
@@ -446,9 +435,6 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
         entity.props = .RENDERABLE | .STATIC | .SOLID | .ONE_WAY | .FOREGROUND;
-        entity.render_kind = .SPRITE;
-        entity.sprite = sprite(1);
-        entity.render_extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity_add(entity);
     case .LEFT_HALF;
         entity: Entity;
@@ -462,9 +448,6 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
         entity.props = .RENDERABLE | .STATIC | .SOLID | .FOREGROUND;
-        entity.render_kind = .SPRITE;
-        entity.sprite = sprite(1);
-        entity.render_extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity_add(entity);
     case .RIGHT_HALF;
         entity: Entity;
@@ -479,9 +462,6 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
         entity.props = .RENDERABLE | .STATIC | .SOLID | .FOREGROUND;
-        entity.render_kind = .SPRITE;
-        entity.sprite = sprite(1);
-        entity.render_extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity_add(entity);
     }
 }

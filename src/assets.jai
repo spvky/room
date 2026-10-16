@@ -38,32 +38,3 @@ init_textures :: () {
     pixel_height := WINDOW_HEIGHT / 24;
     atlas.font = get_font_at_size("assets", "OpenSans-BoldItalic.ttf", pixel_height);
 }
-
-set_atlas_for_entity_manager :: (e: *Entity_Manager) {
-    for *e {
-        if !entity_has_props(it, .RENDERABLE) continue;
-        if it.render_kind == {
-        case .ANIMATION_PLAYER;
-            it.animation_player.atlas = *context.atlas.tile_atlas;
-        case .SPRITE_SHEET;
-            it.sprite_sheet.atlas = *context.atlas.tile_atlas;
-        case .SPRITE;
-            it.sprite.texture = *context.atlas.tile_atlas.texture;
-        }
-    }
-}
-
-sprite :: (idx: int, null_ptr := false) -> Sprite #expand {
-    atlas := *context.atlas.tile_atlas;
-    return sprite_from_atlas(atlas, idx);
-}
-
-sprite_sheet :: (idx: int, length: int) -> Sprite_Sheet #expand {
-    atlas := *context.atlas.tile_atlas;
-    return Sprite_Sheet.{
-                         atlas = atlas, start = idx, idx = idx, length = length};
-}
-
-make_static_tile_sprite :: (idx: int) -> Sprite_Animation_Player #expand {
-    return Sprite_Animation_Player.{atlas = *context.atlas.tile_atlas, start = idx, idx = idx};
-}

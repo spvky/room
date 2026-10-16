@@ -96,7 +96,6 @@ load_room :: (filename: string, static := false) -> Room, bool {
     replace_chars(img_path, " ", #char "_");
     texture_ok := texture_load_from_file(*r.texture, img_path);
     _room_assert("Failure to load room texture!");
-    set_atlas_for_entity_manager(*r.entities);
 
     return r, true;
 }

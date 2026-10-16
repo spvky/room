@@ -120,7 +120,6 @@ write_room_cards_to_world :: () {
     }
 
     for *context.entities {
-        refresh_animation_pointers(it);
         if entity_has_props(it, .NO_HANDLE_REFRESH) continue;
         refresh_handle(*it.parent, it.room_hash);
         refresh_handle(*it.first_child, it.room_hash);
@@ -137,13 +136,6 @@ write_room_cards_to_world :: () {
         }
     }
     print("Finished Refreshing handles\n");
-}
-
-refresh_animation_pointers :: (e: *Entity) {
-    if e.tag == {
-    case .GEAR;
-        e.animation_player.current_animation = *GEAR_ANIMATION;
-    }
 }
 
 write_room_entities_to_world :: (r: *Room, room_center: Vector2, rotation: u8, map_coord: Coord) #expand {

@@ -116,7 +116,7 @@ kill_player :: () {
         print("Killing Player\n");
         context.player_data.state = .DYING;
         context.player_data.prev_state = .DYING;
-        set_animation(*player.animation_player, *PLAYER_DEATH_ANIMATION);
+        set_animation(*context.animations.player, *PLAYER_DEATH_ANIMATION);
     }
 }
 
@@ -310,15 +310,7 @@ make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> E
     entity.current_room = map_coord;
     entity.tag = .PLAYER;
     entity.props = .RENDERABLE | .DYNAMIC | .GRAVITY_AFFECTED | .SELF_PROPELLED | .NO_HANDLE_REFRESH | .ANIMATED;
-    entity.render_kind = .ANIMATION_PLAYER;
-    // entity.render_extents = Vector2.{TILE_SIZE * 1.5, TILE_SIZE * 2.5};
-    // entity.render_offset = Vector2.{0, TILE_SIZE / 1.35};
     entity.movement_delta.x = 0;
-    entity.animation_player = Sprite_Animation_Player.{
-                                                       atlas = *context.atlas.character_atlas,
-                                                       seconds_per_frame = 0.05,
-                                                       idx = 1,
-                                                       current_animation = *PLAYER_IDLE_ANIMATION};
 
     player_handle := entity_add(entity, e = e);
 

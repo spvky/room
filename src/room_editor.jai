@@ -201,6 +201,8 @@ render_room_collision :: (r: *Room, faded := false) {
 }
 
 render_room_entities :: (r: *Room) {
+    atlas := *context.atlas.tile_atlas;
+    set_shader_for_images(*atlas.texture);
     for *r.entities {
         if !entity_has_props(it, .RENDERABLE) continue;
         selected_entity := it.handle == context.room_editor_state.current_entity_handle;
@@ -208,17 +210,37 @@ render_room_entities :: (r: *Room) {
         left, right, bot, top := render_boundaries_from_cell(coord);
         center := Vector2.{right + left, top + bot} / 2;
         radius := (right - left) / 8;
+        uvs: UV_Quad;
 
-        if it.render_extents.x / TILE_SIZE > 1.001 {
+        if it.tag == {
+        case .CRATE;
+            uvs = uv_quad_from_atlas(atlas, 0);
+        case .LEVER;
+            uvs = uv_quad_from_atlas(atlas, 8);
+        case .BUTTON;
+            uvs = uv_quad_from_atlas(atlas, 12);
+        case .ASSEMBLER;
+            uvs = uv_quad_from_atlas(atlas, 11);
+        case .GEAR;
+            uvs = uv_quad_from_atlas(atlas, 18);
+        case .ROOM_PICKUP;
+            uvs = uv_quad_from_atlas(atlas, 19);
+        case .PLAYER_SPAWN;
+            uvs = uv_quad_from_atlas(atlas, 20);
+        case .SWITCH_BLOCK;
+            uvs = uv_quad_from_atlas(atlas, 7);
+        }
+
+        if it.extents.x / TILE_SIZE > 1.001 {
             room_editor_tile_size := right - left;
-            converted_x := (it.render_extents.x / TILE_SIZE) * room_editor_tile_size;
+            converted_x := (it.extents.x / TILE_SIZE) * room_editor_tile_size;
             left = center.x - (converted_x) / 2;
             right = center.x + (converted_x) / 2;
         }
 
-        if it.render_extents.y / TILE_SIZE > 1.001 {
+        if it.extents.y / TILE_SIZE > 1.001 {
             room_editor_tile_size := top - bot;
-            converted_y := (it.render_extents.y / TILE_SIZE) * room_editor_tile_size;
+            converted_y := (it.extents.y / TILE_SIZE) * room_editor_tile_size;
             top = center.y + (converted_y) / 2;
             bot = center.y - (converted_y) / 2;
         }
@@ -234,16 +256,8 @@ render_room_entities :: (r: *Room) {
             v.* += center;
         }
 
-        sprite: Sprite;
-        if it.render_kind == {
-        case .SPRITE;
-            sprite = it.sprite;
-        case .SPRITE_SHEET;
-            sprite = get_current_sprite_sheet_frame(*it.sprite_sheet);
-        case .ANIMATION_PLAYER;
-            sprite = get_current_animation_frame(*it.animation_player);
-        }
-        render_sprite_to_quad(*sprite, vertices);
+        immediate_quad(vertices[0], vertices[1], vertices[2], vertices[3], .{1, 1, 1, 1}, uvs[0], uvs[1], uvs[2], uvs[3]);
+
         if selected_entity draw_dot(center, radius, .{1, 0, 0, 1});
     }
 
@@ -259,16 +273,16 @@ render_room_entities :: (r: *Room) {
         center := Vector2.{right + left, top + bot} / 2;
         radius := (right - left) / 8;
 
-        if parent.render_extents.x / TILE_SIZE > 1.001 {
+        if parent.extents.x / TILE_SIZE > 1.001 {
             room_editor_tile_size := right - left;
-            converted_x := (parent.render_extents.x / TILE_SIZE) * room_editor_tile_size;
+            converted_x := (parent.extents.x / TILE_SIZE) * room_editor_tile_size;
             left = center.x - (converted_x) / 2;
             right = center.x + (converted_x) / 2;
         }
 
-        if parent.render_extents.y / TILE_SIZE > 1.001 {
+        if parent.extents.y / TILE_SIZE > 1.001 {
             room_editor_tile_size := top - bot;
-            converted_y := (parent.render_extents.y / TILE_SIZE) * room_editor_tile_size;
+            converted_y := (parent.extents.y / TILE_SIZE) * room_editor_tile_size;
             top = center.y + (converted_y) / 2;
             bot = center.y - (converted_y) / 2;
         }
@@ -500,9 +514,6 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
         entity.props = .RENDERABLE | .SOLID | .GRAVITY_AFFECTED | .DYNAMIC | .PRESSES_BUTTONS | .UNSTABLE | .NO_ROTATE;
-        entity.render_kind = .SPRITE;
-        entity.sprite = sprite(0);
-        entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
 
         crate_handle := entity_add(entity, e = entities);
 
@@ -537,12 +548,6 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
         entity.radius = TILE_SIZE / 3;
         entity.tag = .GEAR;
         entity.props = .RENDERABLE | .ANIMATED | .SOLID | .STATIC | .DEATH_ZONE | .UNSTABLE;
-        entity.render_kind = .ANIMATION_PLAYER;
-        entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
-        entity.animation_player = Sprite_Animation_Player.{
-                                                           atlas = *context.atlas.tile_atlas,
-                                                           seconds_per_frame = 0.25,
-                                                           idx = 17};
         entity_add(entity, e = entities);
     case .ASSEMBLER;
         entity.shape_kind = .RECTANGLE;
@@ -551,34 +556,22 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
         entity.text_message = .ASSEMBLER;
         entity.props = .RENDERABLE | .INTERACTABLE | .TEXT_DISPLAY;
         entity.flags = .POWERED;
-        entity.render_kind = .SPRITE_SHEET;
-        entity.sprite_sheet = sprite_sheet(10, 2);
-        entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
         entity_add(entity, e = entities);
     case .LEVER;
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{TILE_SIZE * 0.75, TILE_SIZE * 0.75};
         entity.text_message = .SWITCH;
-        entity.render_kind = .SPRITE_SHEET;
-        entity.sprite_sheet = sprite_sheet(8, 2);
-        entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
         entity.props = .RENDERABLE | .INTERACTABLE | .FOREGROUND | .CONDUIT | .TEXT_DISPLAY;
         entity_add(entity, e = entities);
     case .BUTTON;
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{TILE_SIZE * 0.75, TILE_SIZE * 0.75};
         entity.text_message = .SWITCH;
-        entity.render_kind = .SPRITE_SHEET;
-        entity.sprite_sheet = sprite_sheet(12, 2);
-        entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
         entity.props = .RENDERABLE | .CONDUIT | .SENSOR | .FOREGROUND;
         entity_add(entity, e = entities);
     case .SWITCH_BLOCK;
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
-        entity.render_kind = .SPRITE;
-        entity.sprite = sprite(7);
-        entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
         entity.props = .RENDERABLE | .DYNAMIC | .SOLID | .KINEMATIC | .UNSTABLE | .PRESSES_BUTTONS;
         block_handle := entity_add(entity, e = entities);
         on_position_entity: Entity;
@@ -589,15 +582,9 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
         entity.text_message = .ROOM_PICKUP;
         entity.props = .RENDERABLE | .PICKUP | .TEXT_DISPLAY | .INTERACTABLE;
         entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
-        entity.render_kind = .SPRITE;
-        entity.sprite = sprite(19);
-        entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
         entity_add(entity, e = entities);
     case .PLAYER_SPAWN;
-        entity.render_kind = .SPRITE;
         entity.props = .RENDERABLE;
-        entity.render_extents = Vector2.{TILE_SIZE, TILE_SIZE};
-        entity.sprite = sprite(20);
         entity_add(entity, e = entities);
     }
 }
@@ -863,7 +850,6 @@ draw_load_window :: (state: *Subwindow_State, r: Rect, data: *void) {
             s.y -= 60;
             if pressed {
                 context.room_editor_state.current_room.* = load_room(filename, editor_state.load_static_rooms);
-                set_atlas_for_entity_manager(*context.room_editor_state.current_room.entities);
                 editor_state.load_window.open = false;
             }
         }
@@ -988,8 +974,8 @@ extents_display :: (field_name: string, entity_ptr: *Entity, loc := #caller_loca
     up_button_rect := get_rect(`x + 170, `y + 27, 30, 30);
     down_button_rect := get_rect(`x + 170, `y - 27, 30, 30);
     field_string := tprint("{% , %}",
-                           formatFloat(entity_ptr.render_extents.x / TILE_SIZE, width = 1, trailing_width = 2, zero_removal = .NO),
-                           formatFloat(entity_ptr.render_extents.y / TILE_SIZE, width = 1, trailing_width = 2, zero_removal = .NO));
+                           formatFloat(entity_ptr.extents.x / TILE_SIZE, width = 1, trailing_width = 2, zero_removal = .NO),
+                           formatFloat(entity_ptr.extents.y / TILE_SIZE, width = 1, trailing_width = 2, zero_removal = .NO));
     label(field_rect, field_string, *`editor_state.theme.label_theme);
 
     left_pressed := button(left_button_rect, "<", loc = loc, identifier = 0);
@@ -999,19 +985,15 @@ extents_display :: (field_name: string, entity_ptr: *Entity, loc := #caller_loca
 
     if left_pressed {
         entity_ptr.extents.x -= TILE_SIZE * 1;
-        entity_ptr.render_extents.x -= TILE_SIZE * 1;
     }
     if right_pressed {
         entity_ptr.extents.x += TILE_SIZE * 1;
-        entity_ptr.render_extents.x += TILE_SIZE * 1;
     }
     if up_pressed {
         entity_ptr.extents.y += TILE_SIZE * 1;
-        entity_ptr.render_extents.y += TILE_SIZE * 1;
     }
     if down_pressed {
         entity_ptr.extents.y -= TILE_SIZE * 1;
-        entity_ptr.render_extents.y -= TILE_SIZE * 1;
     }
 
     `y -= 60;
