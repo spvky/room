@@ -79,6 +79,7 @@ render_room_editor_scene :: () {
     render_room_collision(context.room_editor_state.current_room);
     render_wall_volume_fill();
     render_room_entities(context.room_editor_state.current_room);
+    draw_immediate_dots();
     render_room_editor_ui();
 
     #if OS == .WINDOWS render_room_editor_mouse_selection();
@@ -229,6 +230,8 @@ render_room_entities :: (r: *Room) {
             uvs = uv_quad_from_atlas(atlas, 20);
         case .SWITCH_BLOCK;
             uvs = uv_quad_from_atlas(atlas, 7);
+        case .PIPE;
+            uvs = uv_quad_from_atlas(atlas, 14);
         }
 
         if it.extents.x / TILE_SIZE > 1.001 {
@@ -258,7 +261,7 @@ render_room_entities :: (r: *Room) {
 
         immediate_quad(vertices[0], vertices[1], vertices[2], vertices[3], .{1, 1, 1, 1}, uvs[0], uvs[1], uvs[2], uvs[3]);
 
-        if selected_entity draw_dot(center, radius, .{1, 0, 0, 1});
+        if selected_entity immediate_dot(center, radius, .{1, 0, 0, 1});
     }
 
     for *r.entities {
@@ -300,7 +303,7 @@ render_room_entities :: (r: *Room) {
 
         set_shader_for_color(true);
         immediate_quad(vertices[0], vertices[1], vertices[2], vertices[3], .{0.26, 0.13, 0.31, 0.6});
-        if selected_entity draw_dot(center, radius, .{1, 0, 0, 1});
+        if selected_entity immediate_dot(center, radius, .{1, 0, 0, 1});
     }
 }
 
@@ -569,6 +572,10 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
         entity.text_message = .SWITCH;
         entity.props = .RENDERABLE | .CONDUIT | .SENSOR | .FOREGROUND;
         entity_add(entity, e = entities);
+    case .PIPE;
+        entity.props = .RENDERABLE | .NO_ROTATE;
+        entity_add(entity, e = entities);
+
     case .SWITCH_BLOCK;
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
@@ -794,6 +801,7 @@ draw_actions_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     create_entity_action_button(.SWITCH_BLOCK, shift_y = false);
     create_entity_action_button(.ASSEMBLER, x + 170);
     create_entity_action_button(.TELEPORTER, shift_y = false);
+    create_entity_action_button(.PIPE, x + 170);
 }
 
 draw_collection_entity_entry :: (entity: *Entity, identifier: int, loc := #caller_location) #expand {

@@ -128,6 +128,7 @@ Entity_Tag :: enum u8 {
     TELEPORTER;
     PLAYER_FEET_COLLIDER;
     PLAYER_HEAD_COLLIDER;
+    PIPE;
 }
 
 Entity_Properties :: enum_flags u32 {
@@ -155,6 +156,7 @@ Entity_Properties :: enum_flags u32 {
     ONE_WAY :: 1 << 21;
     NO_ROTATE :: 1 << 22;
     COLLIDER :: 1 << 23;
+    WATER_COLLISION :: 1 << 24;
 }
 
 Entity_Flags :: enum_flags u32 {
@@ -408,7 +410,7 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
-        entity.props = .RENDERABLE | .STATIC | .SOLID | .FOREGROUND;
+        entity.props = .RENDERABLE | .STATIC | .SOLID | .FOREGROUND | .WATER_COLLISION;
         entity_add(entity);
     case .TOP_HALF;
         entity: Entity;
@@ -421,7 +423,7 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
-        entity.props = .RENDERABLE | .STATIC | .SOLID | .ONE_WAY | .FOREGROUND;
+        entity.props = .RENDERABLE | .STATIC | .SOLID | .ONE_WAY | .FOREGROUND | .WATER_COLLISION;
         entity_add(entity);
     case .BOT_HALF;
         entity: Entity;
@@ -434,7 +436,7 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
-        entity.props = .RENDERABLE | .STATIC | .SOLID | .ONE_WAY | .FOREGROUND;
+        entity.props = .RENDERABLE | .STATIC | .SOLID | .ONE_WAY | .FOREGROUND | .WATER_COLLISION;
         entity_add(entity);
     case .LEFT_HALF;
         entity: Entity;
@@ -447,7 +449,7 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
-        entity.props = .RENDERABLE | .STATIC | .SOLID | .FOREGROUND;
+        entity.props = .RENDERABLE | .STATIC | .SOLID | .FOREGROUND | .WATER_COLLISION;
         entity_add(entity);
     case .RIGHT_HALF;
         entity: Entity;
@@ -461,7 +463,7 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
-        entity.props = .RENDERABLE | .STATIC | .SOLID | .FOREGROUND;
+        entity.props = .RENDERABLE | .STATIC | .SOLID | .FOREGROUND | .WATER_COLLISION;
         entity_add(entity);
     }
 }

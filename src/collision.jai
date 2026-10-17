@@ -21,6 +21,13 @@ Interval :: struct {
     max: float32;
 }
 
+Shapecast_Hit :: struct {
+    hit_entity: *Entity;
+    collision: Collision;
+    shape_position_at_toi: Vector2;
+    distance_traveled: float;
+}
+
 overlap :: (a: Interval, b: Interval) -> bool, float32 {
     overlaps := a.min <= b.max && b.min <= a.max;
     if !overlaps {
@@ -208,13 +215,73 @@ dynamic_vs_dynamic_collision_test :: (a: *Entity, b: *Entity, mode := Collision_
     return collision, true;
 }
 
-// circle_dynamic_entity_collision_test :: (position: Vector2, radius: Vector2, entity: *Entity) -> Collision, bool {
-//     // @Warning: This is only testing the x and y unit axes
-//     if entity.shape_kind == {
-//     case .CIRCLE;
-//     case .RECTANGLE;
-//     }
-// }
+circle_cast :: (origin: Vector2, direction: Vector2, radius: float, step_length: float, max_steps: int, debug_display := false) -> Shapecast_Hit, bool {
+    shapecast: Shapecast_Hit;
+    for 0..max_steps {
+        distance := (cast(float)it) * step_length;
+        pos := origin + (distance * direction);
+
+        for *entity: context.entities {
+            if !entity_has_props(entity, .WATER_COLLISION) continue;
+            collision, did_collide := circle_entity_collision_test(pos, radius, entity);
+            if debug_display {
+                display_position, _ := cam_relative_pos_extents(pos, .{});
+                if did_collide {
+                    immediate_dot(display_position, radius, .{1, 0, 0, 1});
+                } else {
+                    immediate_dot(display_position, radius, .{0, 1, 0, 1});
+                }
+            }
+            if did_collide {
+                shapecast.hit_entity = entity;
+                shapecast.collision = collision;
+                shapecast.shape_position_at_toi = pos;
+                shapecast.distance_traveled = distance;
+                return shapecast, true;
+            }
+        }
+    }
+    return shapecast, false;
+}
+
+circle_entity_collision_test :: (position: Vector2, radius: float, entity: *Entity) -> Collision, bool {
+    // @Warning: This is only testing the x and y unit axes
+    collision: Collision;
+
+    if entity.shape_kind == {
+    case .CIRCLE;
+        distance_between := distance(position, entity.position);
+        if distance_between < (radius + entity.radius) {
+            collision.normal = normalize(entity.position - position);
+            collision.depth = (radius + entity.radius) - distance_between;
+        } else {
+            return collision, false;
+        }
+    case .RECTANGLE;
+        axes: [2]Vector2;
+        axes[0] = .{1, 0};
+        axes[1] = .{0, 1};
+        points := get_entity_rect_points(entity);
+        min_depth: float32 = FLOAT32_MAX;
+
+        for axes {
+            e_interval := project_points_along_axis(points, it);
+            c_interval := project_circle_along_axis(position, radius, it);
+            overlaps, depth := overlap(e_interval, c_interval);
+            if overlaps {
+                if depth < min_depth {
+                    min_depth = depth;
+                    collision.depth = depth;
+                    collision.normal = it;
+                }
+            } else {
+                return collision, false;
+            }
+        }
+    }
+
+    return collision, true;
+}
 
 line_intersection_test :: (a: Vector2, b: Vector2, c: Vector2, d: Vector2) -> Vector2, bool {
     o1 := line_orientation(a, b, c);
@@ -280,6 +347,34 @@ project_entity_along_axis :: (r: *Entity, a: Vector2) -> Interval {
     case .CAPSULE;
     }
     return Interval.{min, max};
+}
+
+get_entity_rect_points :: (entity: *Entity) -> [4]Vector2 {
+    points: [4]Vector2;
+
+    h := entity.extents / 2;
+    points[0] = rotate(-h, entity.rotation) + entity.position;
+    points[1] = rotate(h, entity.rotation) + entity.position;
+    points[2] = rotate(Vector2.{-h.x, h.y}, entity.rotation) + entity.position;
+    points[3] = rotate(Vector2.{h.x, -h.y}, entity.rotation) + entity.position;
+    return points;
+}
+
+project_circle_along_axis :: (position: Vector2, radius: float, axis: Vector2) -> Interval {
+    min := dot_product(position - (radius * axis), axis);
+    max := dot_product(position + (radius * axis), axis);
+    return .{min, max};
+}
+
+project_points_along_axis :: (points: []Vector2, axis: Vector2) -> Interval {
+    min := FLOAT32_MAX;
+    max := -FLOAT32_MAX;
+    for points {
+        dot := dot_product(it, axis);
+        min = ifx dot < min then dot else min;
+        max = ifx dot > max then dot else max;
+    }
+    return .{min, max};
 }
 
 store_entity_axes :: (e: *Entity, axes: *[..]Vector2) {

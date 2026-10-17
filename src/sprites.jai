@@ -36,6 +36,12 @@ draw_one_tile_entity :: (entity: *Entity) {
         } else {
             uvs = uv_quad_from_atlas(atlas, 11);
         }
+    case .PIPE;
+        if entity_has_flags(entity, .POWERED) {
+            uvs = uv_quad_from_atlas(atlas, 15);
+        } else {
+            uvs = uv_quad_from_atlas(atlas, 14);
+        }
     case .GEAR;
         uvs = get_current_animation_frame_quad(*context.animations.gears);
     case .ROOM_PICKUP;

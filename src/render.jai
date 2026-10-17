@@ -250,6 +250,7 @@ render_gameplay_scene :: () {
         clear_render_target(0, 0.4, 0.6, 1);
     }
     render_entities();
+    draw_immediate_dots();
 
     if context.debug_mode.on {
         debug_render_colliders();
@@ -274,7 +275,7 @@ render_gameplay_scene :: () {
     immediate_quad(sv[0], sv[1], sv[2], sv[3], .{1, 1, 1, 1});
     render_floating_text();
     debug_inspector_ui();
-    // draw_dot(.{960, 540}, 10, .{0, 0, 0, 1});
+    // immediate_dot(.{960, 540}, 10, .{0, 0, 0, 1});
 }
 
 render_entities :: () {
