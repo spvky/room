@@ -219,7 +219,6 @@ set_player_move_delta :: (delta: float) {
 
 player_jump :: () {
     player := player_get();
-    my_cast, cast_hit := circle_cast(player.position, .{1, 0}, 4, 10, 100, true);
     if is_action_buffered(.JUMP) && entity_has_flags(player, .GROUNDED) {
         consume_action(.JUMP);
         player.velocity.y = PLAYER_JUMP_SPEED;

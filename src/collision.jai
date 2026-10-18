@@ -215,14 +215,14 @@ dynamic_vs_dynamic_collision_test :: (a: *Entity, b: *Entity, mode := Collision_
     return collision, true;
 }
 
-circle_cast :: (origin: Vector2, direction: Vector2, radius: float, step_length: float, max_steps: int, debug_display := false) -> Shapecast_Hit, bool {
+circle_cast :: (origin: Vector2, direction: Vector2, radius: float, step_length: float, max_steps: int, properties_mask: Entity_Properties, debug_display := false) -> Shapecast_Hit, bool {
     shapecast: Shapecast_Hit;
     for 0..max_steps {
         distance := (cast(float)it) * step_length;
         pos := origin + (distance * direction);
 
         for *entity: context.entities {
-            if !entity_has_props(entity, .WATER_COLLISION) continue;
+            if !entity_has_props(entity, properties_mask) continue;
             collision, did_collide := circle_entity_collision_test(pos, radius, entity);
             if debug_display {
                 display_position, _ := cam_relative_pos_extents(pos, .{});

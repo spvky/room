@@ -106,5 +106,6 @@ GL :: #import "GL";
 #load "power.jai";
 #load "room_editor.jai";
 #load "util.jai";
+#load "water.jai";
 #load "debug_mode.jai";
 #load "screen_effects.jai";
