@@ -63,6 +63,7 @@ Entity :: struct {
     text_message: Display_Message;
     room_pickup_hash: u32;
     room_hash: u32;
+    misc_float: float;
     handle: Entity_Handle;
     parent: Entity_Handle;
     first_child: Entity_Handle;
@@ -129,6 +130,8 @@ Entity_Tag :: enum u8 {
     PLAYER_FEET_COLLIDER;
     PLAYER_HEAD_COLLIDER;
     PIPE;
+    WATER_NODE_VERTICAL;
+    WATER_NODE_HORIZONTAL;
 }
 
 Entity_Properties :: enum_flags u32 {

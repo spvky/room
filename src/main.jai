@@ -94,7 +94,6 @@ GL :: #import "GL";
 #load "io.jai";
 #load "camera.jai";
 #load "map_screen.jai";
-#load "game_state.jai";
 #load "gameplay.jai";
 #load "events.jai";
 #load "physics.jai";
