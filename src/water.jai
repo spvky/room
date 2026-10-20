@@ -51,6 +51,7 @@ horizontal_water_flow :: () {
 	one benefit of the physical approach is that it may be easier to equalize water in real time
 
 
+maybe use events to handle water transfers, run the flow step, create events of handle + water amount, the only issue is that there are easily cases where this loop becomes hard to solve, if we are trying to resolve immediately -- the answer could be as above to let things take a few frames to equalize, but in that case wiping values to 0 each frame will not make sense, I think it makes more sense to design it in a way were it is not ruined if some flow is missed in a frame, make everything just flow forward and resolve
 
 
 */
