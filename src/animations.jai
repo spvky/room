@@ -27,6 +27,8 @@ PLAYER_SKID_ANIMATION := Sprite_Animation.{start = 44, end = 47, next_anim = *PL
 PLAYER_WALK_ANIMATION := Sprite_Animation.{start = 15, end = 24};
 PLAYER_PUSH_ANIMATION := Sprite_Animation.{start = 131, end = 140};
 PLAYER_DEATH_ANIMATION := Sprite_Animation.{start = 108, end = 130, transition_proc = reset_player};
+PLAYER_WALL_SLIDE_ANIMATION := Sprite_Animation.{start = 76, end = 79};
+PLAYER_WALL_JUMP_ANIMATION := Sprite_Animation.{start = 80, end = 83};
 GEAR_ANIMATION := Sprite_Animation.{start = 18, end = 18};
 
 set_animation :: (player: *Sprite_Animation_Player, animation: *Sprite_Animation, speed := 0.05) #expand {

@@ -2,6 +2,7 @@ Asset_Atlas :: struct {
     rune_atlas: Sprite_Atlas;
     tile_atlas: Sprite_Atlas;
     character_atlas: Sprite_Atlas;
+    factory_atlas: Sprite_Atlas;
     room_frame_texture: Texture;
     collision_circle: Texture;
     moving_block_texture: Texture;
@@ -24,6 +25,7 @@ init_textures :: () {
     atlas := context.atlas;
     atlas.rune_atlas = load_sprite_atlas_from_file("runes.png", 5, 4);
     atlas.tile_atlas = load_sprite_atlas_from_file("tiles_32.png", 16, 16);
+    atlas.factory_atlas = load_sprite_atlas_from_file("factory.png", 3, 3);
     atlas.character_atlas = load_sprite_atlas_from_file("main_character.png", 16, 9);
 
     ok := texture_load_from_memory(*atlas.room_frame_texture, cast([]u8)frame_bytes);
