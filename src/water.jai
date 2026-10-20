@@ -106,6 +106,13 @@ Pipe - Source of water, pushes constant amount
 Grounded_Water_Node - Created when a (Pipe/Falling_Water_Node) collides with the ground, Pushes water in both directions, if it's blocked on both sides begins to expand into a volume
 Falling_Water_Node - Created when water from a  Grounded_Node would fall off of a cliff, Mainly serves so that we don't have to calculate a dropoff every cycle
 
+Flow Management:
+
+Global Consts: 
+	-Water transfer rate: float
+	-Water drain rate: float
+
+If the water system takes a bit of time to equalize, could simulate it for a second or something on bake to ensure it's in a settled state once a bake finishes
 
 
 */
