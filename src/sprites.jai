@@ -36,7 +36,7 @@ draw_one_tile_entity :: (entity: *Entity) {
         } else {
             uvs = uv_quad_from_atlas(atlas, 11);
         }
-    case .PIPE;
+    case .WATER_PIPE;
         if entity_has_flags(entity, .POWERED) {
             uvs = uv_quad_from_atlas(atlas, 15);
         } else {

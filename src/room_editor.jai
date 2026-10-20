@@ -230,7 +230,7 @@ render_room_entities :: (r: *Room) {
             uvs = uv_quad_from_atlas(atlas, 20);
         case .SWITCH_BLOCK;
             uvs = uv_quad_from_atlas(atlas, 7);
-        case .PIPE;
+        case .WATER_PIPE;
             uvs = uv_quad_from_atlas(atlas, 14);
         }
 
@@ -572,7 +572,7 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
         entity.text_message = .SWITCH;
         entity.props = .RENDERABLE | .CONDUIT | .SENSOR | .FOREGROUND;
         entity_add(entity, e = entities);
-    case .PIPE;
+    case .WATER_PIPE;
         entity.props = .RENDERABLE | .NO_ROTATE;
         entity_add(entity, e = entities);
 
@@ -801,7 +801,7 @@ draw_actions_window :: (state: *Subwindow_State, r: Rect, data: *void) {
     create_entity_action_button(.SWITCH_BLOCK, shift_y = false);
     create_entity_action_button(.ASSEMBLER, x + 170);
     create_entity_action_button(.TELEPORTER, shift_y = false);
-    create_entity_action_button(.PIPE, x + 170);
+    create_entity_action_button(.WATER_PIPE, x + 170);
 }
 
 draw_collection_entity_entry :: (entity: *Entity, identifier: int, loc := #caller_location) #expand {

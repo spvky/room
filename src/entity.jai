@@ -63,8 +63,7 @@ Entity :: struct {
     text_message: Display_Message;
     room_pickup_hash: u32;
     room_hash: u32;
-    stored_water: float;
-    recieved_water: float;
+    current_water: float;
     handle: Entity_Handle;
     parent: Entity_Handle;
     first_child: Entity_Handle;
@@ -130,9 +129,10 @@ Entity_Tag :: enum u8 {
     TELEPORTER;
     PLAYER_FEET_COLLIDER;
     PLAYER_HEAD_COLLIDER;
-    PIPE;
-    WATER_NODE_VERTICAL;
-    WATER_NODE_HORIZONTAL;
+    WATER_PIPE;
+    WATER_NODE_GROUND;
+    WATER_NODE_FALLING;
+    WATER_VOLUME;
 }
 
 Entity_Properties :: enum_flags u32 {
@@ -161,6 +161,7 @@ Entity_Properties :: enum_flags u32 {
     NO_ROTATE :: 1 << 22;
     COLLIDER :: 1 << 23;
     WATER_COLLISION :: 1 << 24;
+    WATER_NODE :: 1 << 25;
 }
 
 Entity_Flags :: enum_flags u32 {

@@ -80,7 +80,7 @@ gameplay_update :: (delta: float32) {
         sensor_collision();
         body_collision(delta);
         raycast_collision();
-        pipes();
+        handle_water_pipes();
 
         // Dynamics
         apply_gravity(delta);
@@ -95,14 +95,6 @@ gameplay_update :: (delta: float32) {
 
     // Cleanup
     table_reset(context.dynamic_collision_hashes);
-}
-
-pipes :: () {
-    for *context.entities {
-        if it.tag != .PIPE continue;
-        // TODO: moving on to not water for a bit
-        // calculate_water_flow(it);
-    }
 }
 
 advance_animation_timers :: (delta: float32) {

@@ -7,6 +7,38 @@ calculate_water_flow :: (entity: *Entity) {
     }
 }
 
+handle_water_pipes :: () {
+    for *context.entities {
+        if it.tag != .WATER_PIPE continue;
+        // TODO: moving on to not water for a bit
+        // calculate_water_flow(it);
+    }
+}
+
+make_water_node :: (position: Vector2, starting_water: float, is_grounded_node: bool, e := context.entities) {
+    entity: Entity;
+
+    entity.position = position;
+    entity.current_water = starting_water;
+    entity.shape_kind = .CIRCLE;
+    entity.radius = TILE_SIZE / 2;
+    entity.props = .WATER_COLLISION | .WATER_NODE;
+
+    if is_grounded_node {
+        entity.tag = .WATER_NODE_GROUND;
+
+        new_node_handle := entity_add(entity, e = e);
+
+        volume_entity: Entity;
+        volume_entity.tag = .WATER_VOLUME;
+        volume_entity.shape_kind = .RECTANGLE;
+        entity_add_child(new_node_handle, volume_entity, e = e);
+    } else {
+        entity.tag = .WATER_NODE_FALLING;
+        entity_add(entity, e = e);
+    }
+}
+
 horizontal_water_flow :: () {
 }
 
@@ -52,6 +84,28 @@ horizontal_water_flow :: () {
 
 
 maybe use events to handle water transfers, run the flow step, create events of handle + water amount, the only issue is that there are easily cases where this loop becomes hard to solve, if we are trying to resolve immediately -- the answer could be as above to let things take a few frames to equalize, but in that case wiping values to 0 each frame will not make sense, I think it makes more sense to design it in a way were it is not ruined if some flow is missed in a frame, make everything just flow forward and resolve
+
+| _ _ P _ _ _ _ _ _ _ |  In this diagram:
+| _ _ _ _ _ _ _ _ _ _ |		1, 5, and 6 are of the volume type
+| 2 _ 1 _ 3 _ _ _ _ _ |		2,3,4 are of the node type as they don't really store any flow
+| _ w w w _ _ _ _ _ _ |		on their own, but are part of the same circuit
+| 5 _ _ _ 4 _ _ _ _ _ |
+| w w w w _ _ _ _ _ _ |
+| _ _ _ _ _ _ _ _ _ _ |
+| _ _ _ _ _ _ _ _ _ _ |
+| _ _ _ _ _ _ _ _ _ _ |
+| _ _ _ _ 6 _ _ _ _ _ |
+| w w w w w w w w w w |
+
+Might make sense for the Pipe to generate a constant amount of water,
+in which case, should the nodes pass everything along? and in that case maybe volumes drain a percentage every cycle?
+It's okay for the water level to ebb and flow a bit, but It does need to remain reasonably consistent, within less than half of TILE_SIZE
+
+Pipe | Falling_Water_Node | Grounded_Water_Node
+Pipe - Source of water, pushes constant amount
+Grounded_Water_Node - Created when a (Pipe/Falling_Water_Node) collides with the ground, Pushes water in both directions, if it's blocked on both sides begins to expand into a volume
+Falling_Water_Node - Created when water from a  Grounded_Node would fall off of a cliff, Mainly serves so that we don't have to calculate a dropoff every cycle
+
 
 
 */
