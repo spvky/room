@@ -28,6 +28,8 @@ horizontal_water_flow :: () {
 	- 1: if it is a water node, transfer all of my misc value
 	- 2: if not a water node, create water nodes splitting my misc value and heading right and left
 
+	-- Maybe when we collide vertically we just make a single node that casts in both directions, if it's blocked on both sides it becomes a water volume
+
 	For a node:
 	- Flow in your direction
 	- 1: if horizontal and we collide
@@ -41,6 +43,14 @@ horizontal_water_flow :: () {
 
 	for a water volume:
 	adjust extents based on misc value which has been poured in from nodes
+	
+	Is there a way to use entity relationships to refine this?
+
+	the physical approach seems like it might be better but could run in to weird inconsistencies
+
+	one benefit of the physical approach is that it may be easier to equalize water in real time
+
+
 
 
 */

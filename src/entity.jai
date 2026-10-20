@@ -63,7 +63,8 @@ Entity :: struct {
     text_message: Display_Message;
     room_pickup_hash: u32;
     room_hash: u32;
-    misc_float: float;
+    stored_water: float;
+    recieved_water: float;
     handle: Entity_Handle;
     parent: Entity_Handle;
     first_child: Entity_Handle;
