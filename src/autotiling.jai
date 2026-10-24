@@ -12,8 +12,12 @@ Neighboring_Tiles :: enum_flags u8 {
 quad_from_neighbors :: (nt: Neighboring_Tiles) -> UV_Quad #expand {
     atlas := *context.atlas.factory_atlas;
     if nt & .TOP | .LEFT | .RIGHT | .BOT == .TOP | .LEFT | .RIGHT | .BOT return uv_quad_from_atlas(atlas, 4);
+    if nt & .TOP | .LEFT | .RIGHT | .TOP | .LEFT | .RIGHT return uv_quad_from_atlas(atlas, 7);
+    if nt & .LEFT | .RIGHT | .BOT == .LEFT | .RIGHT | .BOT return uv_quad_from_atlas(atlas, 1);
+    if nt & .TOP | .RIGHT | .BOT == .TOP | .RIGHT | .BOT return uv_quad_from_atlas(atlas, 3);
+    if nt & .TOP | .LEFT | .BOT == .TOP | .LEFT | .BOT return uv_quad_from_atlas(atlas, 5);
 }
 
-draw_tile :: () {
+draw_tile :: (x: int, y: int) {
     uvs: UV_Quad;
 }

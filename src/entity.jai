@@ -472,3 +472,60 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity_add(entity);
     }
 }
+
+// Initializes the passed entity pointer to the initial state based on the tag, handling this by pointer is a (hopefully) elegant solution to allow not overwriting specific, often editor defined, fields (like position, rotation, siblings, parent, children) removing the need to replace entities when flags change
+hydrate :: (entity: *Entity) {
+    if entity.tag == {
+    case .CRATE;
+        entity.shape_kind = .RECTANGLE;
+        entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
+        entity.props = .RENDERABLE | .SOLID | .GRAVITY_AFFECTED | .DYNAMIC | .PRESSES_BUTTONS | .UNSTABLE | .NO_ROTATE;
+    case .GROUND_SENSOR;
+        entity.offset = Vector2.{0, -TILE_SIZE / 2};
+        entity.extents = Vector2.{TILE_SIZE * 0.9, TILE_SIZE / 8};
+        entity.shape_kind = .RECTANGLE;
+        entity.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_ROTATE;
+
+    case .RIGHT_SENSOR;
+        entity.offset = Vector2.{TILE_SIZE / 2, 0};
+        entity.extents = Vector2.{TILE_SIZE / 7.5, TILE_SIZE * 0.95};
+        entity.shape_kind = .RECTANGLE;
+        entity.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_ROTATE;
+
+    case .LEFT_SENSOR;
+        entity.offset = Vector2.{-TILE_SIZE / 2, 0};
+        entity.extents = Vector2.{TILE_SIZE / 7.5, TILE_SIZE * 0.95};
+        entity.shape_kind = .RECTANGLE;
+        entity.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_ROTATE;
+    case .GEAR;
+        entity.shape_kind = .CIRCLE;
+        entity.radius = TILE_SIZE / 3;
+        entity.tag = .GEAR;
+        entity.props = .RENDERABLE | .ANIMATED | .SOLID | .STATIC | .DEATH_ZONE | .UNSTABLE;
+    case .ASSEMBLER;
+        entity.shape_kind = .RECTANGLE;
+        entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
+        entity.tag = .ASSEMBLER;
+        entity.text_message = .ASSEMBLER;
+        entity.props = .RENDERABLE | .INTERACTABLE | .TEXT_DISPLAY;
+        entity.flags = .POWERED;
+    case .LEVER;
+        entity.shape_kind = .RECTANGLE;
+        entity.extents = Vector2.{TILE_SIZE * 0.75, TILE_SIZE * 0.75};
+        entity.text_message = .SWITCH;
+        entity.props = .RENDERABLE | .INTERACTABLE | .FOREGROUND | .CONDUIT | .TEXT_DISPLAY;
+    case .BUTTON;
+        entity.shape_kind = .RECTANGLE;
+        entity.extents = Vector2.{TILE_SIZE * 0.75, TILE_SIZE * 0.75};
+        entity.text_message = .SWITCH;
+        entity.props = .RENDERABLE | .CONDUIT | .SENSOR | .FOREGROUND;
+    case .WATER_PIPE;
+        entity.props = .RENDERABLE | .NO_ROTATE;
+    case .SWITCH_BLOCK;
+        entity.props = .RENDERABLE | .DYNAMIC | .SOLID | .KINEMATIC | .UNSTABLE | .PRESSES_BUTTONS;
+    case .ROOM_PICKUP;
+        entity.text_message = .ROOM_PICKUP;
+        entity.props = .RENDERABLE | .PICKUP | .TEXT_DISPLAY | .INTERACTABLE;
+        entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
+    }
+}

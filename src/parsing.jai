@@ -134,6 +134,7 @@ write_room_cards_to_world :: () {
             off_position_entity.tag = .SWITCH_BLOCK_OFF_TARGET;
             entity_add_child(it.handle, off_position_entity);
         }
+        hydrate(it);
     }
     print("Finished Refreshing handles\n");
 }

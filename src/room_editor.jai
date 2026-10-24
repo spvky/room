@@ -205,13 +205,32 @@ render_room_entities :: (r: *Room) {
     atlas := *context.atlas.tile_atlas;
     set_shader_for_images(*atlas.texture);
     for *r.entities {
-        if !entity_has_props(it, .RENDERABLE) continue;
+        renderable_in_editor :: (tag: Entity_Tag) -> bool #expand {
+            if tag == {
+            case .CRATE; #through;
+            case .LEVER; #through;
+            case .BUTTON; #through;
+            case .ASSEMBLER; #through;
+            case .GEAR; #through;
+            case .ROOM_PICKUP; #through;
+            case .PLAYER_SPAWN; #through;
+            case .SWITCH_BLOCK; #through;
+            case .WATER_PIPE;
+                return true;
+            }
+            return false;
+        }
+        should_render := renderable_in_editor(it.tag);
+        if !should_render continue;
+
         selected_entity := it.handle == context.room_editor_state.current_entity_handle;
         coord := it.relative_room_coord;
         left, right, bot, top := render_boundaries_from_cell(coord);
         center := Vector2.{right + left, top + bot} / 2;
         radius := (right - left) / 8;
         uvs: UV_Quad;
+
+        // easy way to update which entities should be rendered in editor
 
         if it.tag == {
         case .CRATE;
@@ -514,84 +533,32 @@ make_entity_in_room_editor :: (entities: *Entity_Manager, c: Coord, tag: Entity_
     // Tag Specific fields
     if tag == {
     case .CRATE;
-        entity.shape_kind = .RECTANGLE;
-        entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
-        entity.props = .RENDERABLE | .SOLID | .GRAVITY_AFFECTED | .DYNAMIC | .PRESSES_BUTTONS | .UNSTABLE | .NO_ROTATE;
-
         crate_handle := entity_add(entity, e = entities);
-
         // Ground Sensor Entity
         gse: Entity;
-        gse.offset = Vector2.{0, -TILE_SIZE / 2};
-        gse.extents = Vector2.{TILE_SIZE * 0.9, TILE_SIZE / 8};
-        gse.shape_kind = .RECTANGLE;
         gse.tag = .GROUND_SENSOR;
-        gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_ROTATE;
         entity_add_child(crate_handle, gse, e = entities);
-
         // Right Sensor
         rse: Entity;
-        rse.offset = Vector2.{TILE_SIZE / 2, 0};
-        rse.extents = Vector2.{TILE_SIZE / 7.5, TILE_SIZE * 0.95};
-        rse.shape_kind = .RECTANGLE;
         rse.tag = .RIGHT_SENSOR;
-        rse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_ROTATE;
         entity_add_child(crate_handle, rse, e = entities);
-
         // Left Sensor
         lse: Entity;
-        lse.offset = Vector2.{-TILE_SIZE / 2, 0};
-        lse.extents = Vector2.{TILE_SIZE / 7.5, TILE_SIZE * 0.95};
-        lse.shape_kind = .RECTANGLE;
         lse.tag = .LEFT_SENSOR;
-        lse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_ROTATE;
         entity_add_child(crate_handle, lse, e = entities);
-    case .GEAR;
-        entity.shape_kind = .CIRCLE;
-        entity.radius = TILE_SIZE / 3;
-        entity.tag = .GEAR;
-        entity.props = .RENDERABLE | .ANIMATED | .SOLID | .STATIC | .DEATH_ZONE | .UNSTABLE;
-        entity_add(entity, e = entities);
-    case .ASSEMBLER;
-        entity.shape_kind = .RECTANGLE;
-        entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
-        entity.tag = .ASSEMBLER;
-        entity.text_message = .ASSEMBLER;
-        entity.props = .RENDERABLE | .INTERACTABLE | .TEXT_DISPLAY;
-        entity.flags = .POWERED;
-        entity_add(entity, e = entities);
-    case .LEVER;
-        entity.shape_kind = .RECTANGLE;
-        entity.extents = Vector2.{TILE_SIZE * 0.75, TILE_SIZE * 0.75};
-        entity.text_message = .SWITCH;
-        entity.props = .RENDERABLE | .INTERACTABLE | .FOREGROUND | .CONDUIT | .TEXT_DISPLAY;
-        entity_add(entity, e = entities);
-    case .BUTTON;
-        entity.shape_kind = .RECTANGLE;
-        entity.extents = Vector2.{TILE_SIZE * 0.75, TILE_SIZE * 0.75};
-        entity.text_message = .SWITCH;
-        entity.props = .RENDERABLE | .CONDUIT | .SENSOR | .FOREGROUND;
-        entity_add(entity, e = entities);
-    case .WATER_PIPE;
-        entity.props = .RENDERABLE | .NO_ROTATE;
-        entity_add(entity, e = entities);
-
     case .SWITCH_BLOCK;
-        entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
-        entity.props = .RENDERABLE | .DYNAMIC | .SOLID | .KINEMATIC | .UNSTABLE | .PRESSES_BUTTONS;
         block_handle := entity_add(entity, e = entities);
         on_position_entity: Entity;
         on_position_entity.position = entity.position;
-        on_position_entity.tag = .SWITCH_BLOCK_ON_TARGET;
         entity_add_child(block_handle, on_position_entity, e = entities);
-    case .ROOM_PICKUP;
-        entity.text_message = .ROOM_PICKUP;
-        entity.props = .RENDERABLE | .PICKUP | .TEXT_DISPLAY | .INTERACTABLE;
-        entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
-        entity_add(entity, e = entities);
+    case .GEAR; #through;
+    case .ASSEMBLER; #through;
+    case .LEVER; #through;
+    case .BUTTON; #through;
+    case .WATER_PIPE; #through;
+    case .ROOM_PICKUP; #through;
     case .PLAYER_SPAWN;
-        entity.props = .RENDERABLE;
         entity_add(entity, e = entities);
     }
 }

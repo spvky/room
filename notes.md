@@ -65,3 +65,10 @@ Player Speed:
         calculate speed to add using ramp proc
         
     }
+10/24/2026 1:55:07 PM
+- Time to get back to work, a couple of things on my mind right now
+1. Water and how it is stored in nodes (need to just implement and start tweaking)
+2. Would still love some better organization, main thing at the moment is that entity and room editor could use some cleanup/a dev friendly text format that persists across breaking entity changes, so that I can design rooms and not worry about having to remake rooms
+3. Better movement, and ways to make that matter whithin room design
+4. Ability to serialize and hold multiple maps (this one is pretty easy)
+
