@@ -72,12 +72,6 @@ Entity :: struct {
     next_sibling: Entity_Handle;
 }
 
-Entity_Render_Kind :: enum u8 {
-    ANIMATION_PLAYER;
-    SPRITE_SHEET;
-    SPRITE;
-}
-
 Entity_Handle :: struct {
     index: u32;
     generation: u32;
@@ -521,6 +515,7 @@ hydrate :: (entity: *Entity) {
         entity.props = .RENDERABLE | .CONDUIT | .SENSOR | .FOREGROUND;
     case .WATER_PIPE;
         entity.props = .RENDERABLE | .NO_ROTATE;
+        entity.current_water = 40;
     case .SWITCH_BLOCK;
         entity.props = .RENDERABLE | .DYNAMIC | .SOLID | .KINEMATIC | .UNSTABLE | .PRESSES_BUTTONS;
     case .ROOM_PICKUP;
