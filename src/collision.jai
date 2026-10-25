@@ -215,7 +215,7 @@ dynamic_vs_dynamic_collision_test :: (a: *Entity, b: *Entity, mode := Collision_
     return collision, true;
 }
 
-circle_cast :: (origin: Vector2, direction: Vector2, radius: float, step_length: float, max_steps: int, properties_mask: Entity_Properties, debug_display := false) -> Shapecast_Hit, bool {
+circle_cast :: (origin: Vector2, direction: Vector2, radius: float, step_length: float, properties_mask: Entity_Properties, max_steps := 100, debug_display := false) -> Shapecast_Hit, bool {
     shapecast: Shapecast_Hit;
     for 0..max_steps {
         distance := (cast(float)it) * step_length;
@@ -242,6 +242,51 @@ circle_cast :: (origin: Vector2, direction: Vector2, radius: float, step_length:
         }
     }
     return shapecast, false;
+}
+
+// Cast-cade, heh heh, currenty assumes the initial direction is horizontal, which is fine for now since water nodes are its only consumer
+cascading_circle_cast :: (origin: Vector2, direction: Vector2, radius: float, step_length: float, properties_mask: Entity_Properties, max_steps := 100, max_falling_steps := 100, debug_display := false) -> Shapecast_Hit, Vector2, bool, bool {
+    shapecast: Shapecast_Hit;
+    fall_position: Vector2;
+    for 0..max_steps {
+        distance := (cast(float)it) * step_length;
+        pos := origin + (distance * direction);
+
+        for *entity: context.entities {
+            if !entity_has_props(entity, properties_mask) continue;
+            collision, did_collide := circle_entity_collision_test(pos, radius, entity);
+            if debug_display {
+                display_position, _ := cam_relative_pos_extents(pos, .{});
+                if did_collide {
+                    immediate_dot(display_position, radius, .{1, 0, 0, 0.3});
+                } else {
+                    immediate_dot(display_position, radius, .{0, 1, 0, 0.3});
+                }
+            }
+            if did_collide {
+                shapecast.hit_entity = entity;
+                shapecast.collision = collision;
+                shapecast.shape_position_at_toi = pos;
+                shapecast.distance_traveled = distance;
+                return shapecast, .{}, true, false;
+            } else {
+                // I think we only need one quick check here for right below the initial shape_cast
+                collision_under_cast: bool;
+                for *vert_entity: context.entities {
+                    if !entity_has_props(vert_entity, properties_mask) continue;
+                    _, vert_did_collide := circle_entity_collision_test(pos - .{0, step_length}, radius, vert_entity);
+                    if vert_did_collide {
+                        collision_under_cast = true;
+                        break;
+                    }
+                }
+                if !collision_under_cast {
+                    return .{}, pos, false, true;
+                }
+            }
+        }
+    }
+    return shapecast, .{}, false, false;
 }
 
 circle_entity_collision_test :: (position: Vector2, radius: float, entity: *Entity) -> Collision, bool {

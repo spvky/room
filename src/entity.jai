@@ -64,6 +64,7 @@ Entity :: struct {
     room_pickup_hash: u32;
     room_hash: u32;
     current_water: float;
+    current_water_last_frame: float;
     handle: Entity_Handle;
     parent: Entity_Handle;
     first_child: Entity_Handle;

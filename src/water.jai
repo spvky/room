@@ -1,5 +1,5 @@
 calculate_water_flow :: (entity: *Entity) {
-    cast_hit, cast_did_hit := circle_cast(entity.position, .{0, -1}, TILE_SIZE / 4, TILE_SIZE / 2, 100, .WATER_COLLISION, true);
+    cast_hit, cast_did_hit := circle_cast(entity.position, .{0, -1}, TILE_SIZE / 4, TILE_SIZE / 2, properties_mask = .WATER_COLLISION, debug_display = true);
     if cast_did_hit {
         hit_water_node := entity_has_props(cast_hit.hit_entity, .WATER_NODE);
         if hit_water_node {
@@ -25,12 +25,17 @@ handle_water_pipes :: () {
 handle_ground_water_nodes :: () {
     for *context.entities {
         if it.tag != .WATER_NODE_GROUND continue;
-        left_cast_hit, left_cast_did_hit := circle_cast(it.position, .{-1, 0}, TILE_SIZE / 4, TILE_SIZE / 2, 100, .WATER_COLLISION, true);
-        if left_cast_did_hit {
+        left_cast_hit, left_falling_pos, left_cast_hit_ent, left_cast_falling := cascading_circle_cast(it.position, .{-1, 0}, TILE_SIZE / 4, TILE_SIZE / 2, properties_mask = .WATER_COLLISION, debug_display = true);
+        if left_cast_hit_ent {
         }
 
-        right_cast_hit, right_cast_did_hit := circle_cast(it.position, .{1, 0}, TILE_SIZE / 4, TILE_SIZE / 2, 100, .WATER_COLLISION, true);
-        if right_cast_did_hit {
+        if left_cast_falling {
+        }
+
+        right_cast_hit, right_falling_pos, right_cast_hit_ent, right_cast_falling := cascading_circle_cast(it.position, .{1, 0}, TILE_SIZE / 4, TILE_SIZE / 2, properties_mask = .WATER_COLLISION, debug_display = true);
+        if right_cast_hit_ent {
+        }
+        if right_cast_falling {
         }
     }
 }
