@@ -227,9 +227,9 @@ circle_cast :: (origin: Vector2, direction: Vector2, radius: float, step_length:
             if debug_display {
                 display_position, _ := cam_relative_pos_extents(pos, .{});
                 if did_collide {
-                    immediate_dot(display_position, radius, .{1, 0, 0, 1});
+                    immediate_dot(display_position, radius, .{1, 0, 0, 0.3});
                 } else {
-                    immediate_dot(display_position, radius, .{0, 1, 0, 1});
+                    immediate_dot(display_position, radius, .{0, 1, 0, 0.3});
                 }
             }
             if did_collide {

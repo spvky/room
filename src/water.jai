@@ -5,6 +5,7 @@ calculate_water_flow :: (entity: *Entity) {
         if hit_water_node {
             // Transfer the water
         } else {
+            print("Making a ground node\n");
             new_node_origin := cast_hit.shape_position_at_toi + (cast_hit.collision.depth * Vector2.{0, 1});
             make_water_node(new_node_origin, true);
         }
@@ -14,27 +15,36 @@ calculate_water_flow :: (entity: *Entity) {
     }
 }
 
+handle_water_pipes :: () {
+    for *context.entities {
+        if it.tag != .WATER_PIPE continue;
+        calculate_water_flow(it);
+    }
+}
+
 handle_ground_water_nodes :: () {
+    for *context.entities {
+        if it.tag != .WATER_NODE_GROUND continue;
+        left_cast_hit, left_cast_did_hit := circle_cast(it.position, .{-1, 0}, TILE_SIZE / 4, TILE_SIZE / 2, 100, .WATER_COLLISION, true);
+        if left_cast_did_hit {
+        }
+
+        right_cast_hit, right_cast_did_hit := circle_cast(it.position, .{1, 0}, TILE_SIZE / 4, TILE_SIZE / 2, 100, .WATER_COLLISION, true);
+        if right_cast_did_hit {
+        }
+    }
 }
 
 handle_air_water_nodes :: () {
 }
 
-handle_water_pipes :: () {
-    for *context.entities {
-        if it.tag != .WATER_PIPE continue;
-        // TODO: moving on to not water for a bit
-        // calculate_water_flow(it);
-    }
-}
-
 make_water_node :: (position: Vector2, is_grounded_node: bool, e := context.entities) {
     entity: Entity;
 
-    entity.position = position;
+    entity.position = position + .{0, TILE_SIZE / 4};
     entity.shape_kind = .CIRCLE;
     entity.radius = TILE_SIZE / 2;
-    entity.props = .WATER_COLLISION | .WATER_NODE;
+    entity.props = .WATER_COLLISION | .WATER_NODE | .RENDERABLE;
 
     if is_grounded_node {
         entity.tag = .WATER_NODE_GROUND;
@@ -49,9 +59,6 @@ make_water_node :: (position: Vector2, is_grounded_node: bool, e := context.enti
         entity.tag = .WATER_NODE_FALLING;
         entity_add(entity, e = e);
     }
-}
-
-horizontal_water_flow :: () {
 }
 
 // Design:
