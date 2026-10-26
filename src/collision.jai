@@ -28,6 +28,20 @@ Shapecast_Hit :: struct {
     distance_traveled: float;
 }
 
+Cascadecast_Hit :: struct {
+    hit_entity: *Entity;
+    falling_position: Vector2;
+    hit_kind: Cascadecast_Hit_Kind;
+}
+
+Cascadecast_Hit_Kind :: enum {
+    HIT_FALLING_WATER;
+    HIT_GROUNDED_WATER;
+    HIT_SOLID;
+    NO_HIT_FALLING;
+    NO_HIT_UH_OH;
+}
+
 overlap :: (a: Interval, b: Interval) -> bool, float32 {
     overlaps := a.min <= b.max && b.min <= a.max;
     if !overlaps {
@@ -215,14 +229,14 @@ dynamic_vs_dynamic_collision_test :: (a: *Entity, b: *Entity, mode := Collision_
     return collision, true;
 }
 
-circle_cast :: (origin: Vector2, direction: Vector2, radius: float, step_length: float, properties_mask: Entity_Properties, max_steps := 100, debug_display := false) -> Shapecast_Hit, bool {
+circle_cast :: (self: *Entity, origin: Vector2, direction: Vector2, radius: float, step_length: float, properties_mask: Entity_Properties, max_steps := 100, debug_display := false) -> Shapecast_Hit, bool {
     shapecast: Shapecast_Hit;
     for 0..max_steps {
         distance := (cast(float)it) * step_length;
         pos := origin + (distance * direction);
 
         for *entity: context.entities {
-            if !entity_has_props(entity, properties_mask) continue;
+            if (!entity_has_props(entity, properties_mask) || entity == self) continue;
             collision, did_collide := circle_entity_collision_test(pos, radius, entity);
             if debug_display {
                 display_position, _ := cam_relative_pos_extents(pos, .{});
@@ -245,15 +259,15 @@ circle_cast :: (origin: Vector2, direction: Vector2, radius: float, step_length:
 }
 
 // Cast-cade, heh heh, currenty assumes the initial direction is horizontal, which is fine for now since water nodes are its only consumer
-cascading_circle_cast :: (origin: Vector2, direction: Vector2, radius: float, step_length: float, properties_mask: Entity_Properties, max_steps := 100, max_falling_steps := 100, debug_display := false) -> Shapecast_Hit, Vector2, bool, bool {
-    shapecast: Shapecast_Hit;
+cascading_circle_cast :: (self: *Entity, origin: Vector2, direction: Vector2, radius: float, step_length: float, properties_mask: Entity_Properties, max_steps := 100, max_falling_steps := 100, debug_display := false) -> Cascadecast_Hit {
+    cascade_hit: Cascadecast_Hit;
     fall_position: Vector2;
     for 0..max_steps {
         distance := (cast(float)it) * step_length;
         pos := origin + (distance * direction);
 
         for *entity: context.entities {
-            if !entity_has_props(entity, properties_mask) continue;
+            if (!entity_has_props(entity, properties_mask) || entity == self) continue;
             collision, did_collide := circle_entity_collision_test(pos, radius, entity);
             if debug_display {
                 display_position, _ := cam_relative_pos_extents(pos, .{});
@@ -264,16 +278,21 @@ cascading_circle_cast :: (origin: Vector2, direction: Vector2, radius: float, st
                 }
             }
             if did_collide {
-                shapecast.hit_entity = entity;
-                shapecast.collision = collision;
-                shapecast.shape_position_at_toi = pos;
-                shapecast.distance_traveled = distance;
-                return shapecast, .{}, true, false;
+                cascade_hit.hit_entity = entity;
+                if entity.tag == {
+                case .WATER_NODE_FALLING;
+                    cascade_hit.hit_kind = .HIT_FALLING_WATER;
+                case .WATER_NODE_GROUND;
+                    cascade_hit.hit_kind = .HIT_GROUNDED_WATER;
+                case;
+                    cascade_hit.hit_kind = .HIT_SOLID;
+                }
+                return cascade_hit;
             } else {
                 // I think we only need one quick check here for right below the initial shape_cast
                 collision_under_cast: bool;
                 for *vert_entity: context.entities {
-                    if !entity_has_props(vert_entity, properties_mask) continue;
+                    if (!entity_has_props(vert_entity, properties_mask) || entity == self) continue;
                     _, vert_did_collide := circle_entity_collision_test(pos - .{0, step_length}, radius, vert_entity);
                     if vert_did_collide {
                         collision_under_cast = true;
@@ -281,12 +300,15 @@ cascading_circle_cast :: (origin: Vector2, direction: Vector2, radius: float, st
                     }
                 }
                 if !collision_under_cast {
-                    return .{}, pos, false, true;
+                    cascade_hit.falling_position = pos;
+                    cascade_hit.hit_kind = .NO_HIT_FALLING;
+                    return cascade_hit;
                 }
             }
         }
     }
-    return shapecast, .{}, false, false;
+    cascade_hit.hit_kind = .NO_HIT_UH_OH;
+    return cascade_hit;
 }
 
 circle_entity_collision_test :: (position: Vector2, radius: float, entity: *Entity) -> Collision, bool {

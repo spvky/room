@@ -291,6 +291,8 @@ render_entities :: () {
             display_position, _ := cam_relative_pos_extents(it.position, .{});
             immediate_dot(display_position, TILE_SIZE / 2, .{0.6, 0.3, 0, 1});
         } else if it.tag == .WATER_NODE_FALLING {
+            display_position, _ := cam_relative_pos_extents(it.position, .{});
+            immediate_dot(display_position, TILE_SIZE / 2, .{0.6, 0.3, 0, 1});
         } else {
             draw_one_tile_entity(it);
         }

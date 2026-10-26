@@ -9,6 +9,7 @@ init_debug_mode :: () {
     if !context.debug_mode {
         context.debug_mode = New(Debug_Mode_State);
         context.debug_mode.dots_to_draw.allocator = temp;
+        array_reserve(*context.debug_mode.dots_to_draw, 4096);
     }
 }
 

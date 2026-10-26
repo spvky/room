@@ -1,51 +1,58 @@
 calculate_water_flow :: (entity: *Entity) {
-    cast_hit, cast_did_hit := circle_cast(entity.position, .{0, -1}, TILE_SIZE / 4, TILE_SIZE / 2, properties_mask = .WATER_COLLISION, debug_display = true);
-    if cast_did_hit {
-        hit_water_node := entity_has_props(cast_hit.hit_entity, .WATER_NODE);
-        if hit_water_node {
-            // Transfer the water
-        } else {
-            print("Making a ground node\n");
-            new_node_origin := cast_hit.shape_position_at_toi + (cast_hit.collision.depth * Vector2.{0, 1});
-            make_water_node(new_node_origin, true);
+    debug_display := false;
+    if entity.tag == {
+    case .WATER_PIPE; #through;
+    case .WATER_NODE_FALLING;
+        cast_hit, cast_did_hit := circle_cast(entity, entity.position, .{0, -1}, TILE_SIZE / 2, TILE_SIZE / 2, properties_mask = .WATER_COLLISION, debug_display = debug_display);
+        if cast_did_hit {
+            hit_water_node := entity_has_props(cast_hit.hit_entity, .WATER_NODE);
+            if hit_water_node {
+                // Transfer the water
+            } else {
+                new_node_origin := cast_hit.shape_position_at_toi + (cast_hit.collision.depth * Vector2.{0, 1});
+                make_water_node(new_node_origin, true);
+            }
         }
-        // horizontal_origin := cast_hit.shape_position_at_toi + (cast_hit.collision.depth * Vector2.{0, 1});
-        // left_cast_hit, left_cast_did_hit := circle_cast(horizontal_origin, .{-1, 0}, TILE_SIZE / 4, TILE_SIZE / 2, 100, .WATER_COLLISION, true);
-        // right_cast_hit, right_cast_did_hit := circle_cast(horizontal_origin, .{1, 0}, TILE_SIZE / 4, TILE_SIZE / 2, 100, .WATER_COLLISION, true);
+    case .WATER_NODE_GROUND;
+        if !entity_has_flags(entity, .LEFT_BLOCKED) {
+            left_cascade_hit := cascading_circle_cast(entity, entity.position, .{-1, 0}, TILE_SIZE / 2, TILE_SIZE / 2, properties_mask = .WATER_COLLISION, debug_display = debug_display);
+            if left_cascade_hit.hit_kind == {
+            case .HIT_FALLING_WATER;
+            case .HIT_GROUNDED_WATER;
+            case .HIT_SOLID;
+                entity.flags |= .LEFT_BLOCKED;
+            case .NO_HIT_FALLING;
+                make_water_node(left_cascade_hit.falling_position, false);
+            case .NO_HIT_UH_OH;
+            }
+        }
+
+        if !entity_has_flags(entity, .RIGHT_BLOCKED) {
+            right_cascade_hit := cascading_circle_cast(entity, entity.position, .{1, 0}, TILE_SIZE / 2, TILE_SIZE / 2, properties_mask = .WATER_COLLISION, debug_display = debug_display);
+            if right_cascade_hit.hit_kind == {
+            case .HIT_FALLING_WATER;
+            case .HIT_GROUNDED_WATER;
+            case .HIT_SOLID;
+                entity.flags |= .RIGHT_BLOCKED;
+            case .NO_HIT_FALLING;
+                make_water_node(right_cascade_hit.falling_position, false);
+            case .NO_HIT_UH_OH;
+            }
+        }
     }
 }
 
-handle_water_pipes :: () {
+handle_water_nodes :: () {
     for *context.entities {
-        if it.tag != .WATER_PIPE continue;
+        if (it.tag != .WATER_PIPE && it.tag != .WATER_NODE_FALLING && it.tag != .WATER_NODE_GROUND) continue;
         calculate_water_flow(it);
     }
-}
-
-handle_ground_water_nodes :: () {
-    for *context.entities {
-        if it.tag != .WATER_NODE_GROUND continue;
-        left_cast_hit, left_falling_pos, left_cast_hit_ent, left_cast_falling := cascading_circle_cast(it.position, .{-1, 0}, TILE_SIZE / 4, TILE_SIZE / 2, properties_mask = .WATER_COLLISION, debug_display = true);
-        if left_cast_hit_ent {
-        }
-
-        if left_cast_falling {
-        }
-
-        right_cast_hit, right_falling_pos, right_cast_hit_ent, right_cast_falling := cascading_circle_cast(it.position, .{1, 0}, TILE_SIZE / 4, TILE_SIZE / 2, properties_mask = .WATER_COLLISION, debug_display = true);
-        if right_cast_hit_ent {
-        }
-        if right_cast_falling {
-        }
-    }
-}
-
-handle_air_water_nodes :: () {
 }
 
 make_water_node :: (position: Vector2, is_grounded_node: bool, e := context.entities) {
     entity: Entity;
 
+    print("Made water node\n");
     entity.position = position + .{0, TILE_SIZE / 4};
     entity.shape_kind = .CIRCLE;
     entity.radius = TILE_SIZE / 2;

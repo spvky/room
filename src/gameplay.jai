@@ -80,7 +80,7 @@ gameplay_update :: (delta: float32) {
         sensor_collision();
         body_collision(delta);
         raycast_collision();
-        handle_water_pipes();
+        benchmark_code("handle water nodes", #code handle_water_nodes());
 
         // Dynamics
         apply_gravity(delta);

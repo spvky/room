@@ -18,7 +18,7 @@ main :: () {
 
         // Clamp Delta to make debugging easier but also alert that our delta is slow
         if delta >= 0.008333 {
-            print("Unusually High Delta: %, clamping to 0.008333 (120 FPS)\n", delta);
+            // print("Unusually High Delta: %, clamping to 0.008333 (120 FPS)\n", delta);
             delta = 0.008333;
         }
         last_time = now;
