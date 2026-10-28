@@ -64,6 +64,7 @@ Dynamic_Collision_Hashes :: Table(u64, void);
 #add_context static_collision_table: *Static_Collision_Table;
 #add_context static_raycast_table: *Static_Raycast_Table;
 #add_context dynamic_collision_hashes: *Dynamic_Collision_Hashes;
+#add_context collision_tree: *Quad_Tree_Node;
 
 entity_edges :: (r: *Entity) -> [4][2]Vector2, bool {
     edges: [4][2]Vector2;
@@ -98,6 +99,10 @@ init_collision_tables :: () {
 
     if !context.dynamic_collision_hashes {
         context.dynamic_collision_hashes = New(Dynamic_Collision_Hashes);
+    }
+
+    if !context.collision_tree {
+        context.collision_tree = New(Quad_Tree_Node);
     }
 }
 

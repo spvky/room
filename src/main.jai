@@ -45,6 +45,9 @@ start_game :: () {
     snap_camera_pos();
     context.game_state = .GAMEPLAY;
     snapshot_entities();
+    make_quad_tree_from_entity_manager(context.collision_tree, .{500, 500}, .{1000, 1000}, 5);
+    stats := quadtree_stats(context.collision_tree);
+    print("%\n", stats);
 }
 
 init :: () {

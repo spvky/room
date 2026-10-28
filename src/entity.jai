@@ -140,7 +140,7 @@ Entity_Properties :: enum_flags u32 {
     RELATIVE_POSITION :: 1 << 6;
     RELATIVE_ROTATION :: 1 << 7;
     SELF_PROPELLED :: 1 << 8;
-    RAY_CASTER :: 1 << 9;
+    PHYSICAL :: 1 << 9;
     ANIMATED :: 1 << 10;
     DEATH_ZONE :: 1 << 11;
     UNSTABLE :: 1 << 12;
@@ -411,7 +411,7 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
-        entity.props = .RENDERABLE | .STATIC | .SOLID | .FOREGROUND | .WATER_COLLISION;
+        entity.props = .RENDERABLE | .STATIC | .SOLID | .FOREGROUND | .WATER_COLLISION | .PHYSICAL;
         entity_add(entity);
     case .TOP_HALF;
         entity: Entity;
@@ -424,7 +424,7 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
-        entity.props = .RENDERABLE | .STATIC | .SOLID | .ONE_WAY | .FOREGROUND | .WATER_COLLISION;
+        entity.props = .RENDERABLE | .STATIC | .SOLID | .ONE_WAY | .FOREGROUND | .WATER_COLLISION | .PHYSICAL;
         entity_add(entity);
     case .BOT_HALF;
         entity: Entity;
@@ -437,7 +437,7 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
-        entity.props = .RENDERABLE | .STATIC | .SOLID | .ONE_WAY | .FOREGROUND | .WATER_COLLISION;
+        entity.props = .RENDERABLE | .STATIC | .SOLID | .ONE_WAY | .FOREGROUND | .WATER_COLLISION | .PHYSICAL;
         entity_add(entity);
     case .LEFT_HALF;
         entity: Entity;
@@ -450,7 +450,7 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
-        entity.props = .RENDERABLE | .STATIC | .SOLID | .FOREGROUND | .WATER_COLLISION;
+        entity.props = .RENDERABLE | .STATIC | .SOLID | .FOREGROUND | .WATER_COLLISION | .PHYSICAL;
         entity_add(entity);
     case .RIGHT_HALF;
         entity: Entity;
@@ -464,7 +464,7 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
-        entity.props = .RENDERABLE | .STATIC | .SOLID | .FOREGROUND | .WATER_COLLISION;
+        entity.props = .RENDERABLE | .STATIC | .SOLID | .FOREGROUND | .WATER_COLLISION | .PHYSICAL;
         entity_add(entity);
     }
 }
@@ -475,29 +475,29 @@ hydrate :: (entity: *Entity) {
     case .CRATE;
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
-        entity.props = .RENDERABLE | .SOLID | .GRAVITY_AFFECTED | .DYNAMIC | .PRESSES_BUTTONS | .UNSTABLE | .NO_ROTATE;
+        entity.props = .RENDERABLE | .SOLID | .GRAVITY_AFFECTED | .DYNAMIC | .PRESSES_BUTTONS | .UNSTABLE | .NO_ROTATE | .PHYSICAL;
     case .GROUND_SENSOR;
         entity.offset = Vector2.{0, -TILE_SIZE / 2};
         entity.extents = Vector2.{TILE_SIZE * 0.9, TILE_SIZE / 8};
         entity.shape_kind = .RECTANGLE;
-        entity.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_ROTATE;
+        entity.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_ROTATE | .PHYSICAL;
 
     case .RIGHT_SENSOR;
         entity.offset = Vector2.{TILE_SIZE / 2, 0};
         entity.extents = Vector2.{TILE_SIZE / 7.5, TILE_SIZE * 0.95};
         entity.shape_kind = .RECTANGLE;
-        entity.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_ROTATE;
+        entity.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_ROTATE | .PHYSICAL;
 
     case .LEFT_SENSOR;
         entity.offset = Vector2.{-TILE_SIZE / 2, 0};
         entity.extents = Vector2.{TILE_SIZE / 7.5, TILE_SIZE * 0.95};
         entity.shape_kind = .RECTANGLE;
-        entity.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_ROTATE;
+        entity.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_ROTATE | .PHYSICAL;
     case .GEAR;
         entity.shape_kind = .CIRCLE;
         entity.radius = TILE_SIZE / 3;
         entity.tag = .GEAR;
-        entity.props = .RENDERABLE | .ANIMATED | .SOLID | .STATIC | .DEATH_ZONE | .UNSTABLE;
+        entity.props = .RENDERABLE | .ANIMATED | .SOLID | .STATIC | .DEATH_ZONE | .UNSTABLE | .PHYSICAL;
     case .ASSEMBLER;
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
@@ -514,7 +514,7 @@ hydrate :: (entity: *Entity) {
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{TILE_SIZE * 0.75, TILE_SIZE * 0.75};
         entity.text_message = .SWITCH;
-        entity.props = .RENDERABLE | .CONDUIT | .SENSOR | .FOREGROUND;
+        entity.props = .RENDERABLE | .CONDUIT | .SENSOR | .FOREGROUND | .PHYSICAL;
     case .WATER_PIPE;
         entity.props = .RENDERABLE | .NO_ROTATE;
         entity.current_water = 40;

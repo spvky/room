@@ -79,7 +79,6 @@ gameplay_update :: (delta: float32) {
         // Collision
         sensor_collision();
         body_collision(delta);
-        raycast_collision();
         handle_water_nodes();
 
         // Dynamics

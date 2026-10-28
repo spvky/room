@@ -320,7 +320,7 @@ make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> E
     fc.shape_kind = .CIRCLE;
     fc.radius = TILE_SIZE / 4;
     fc.tag = .PLAYER_FEET_COLLIDER;
-    fc.props = .DYNAMIC | .RELATIVE_POSITION | .RELATIVE_ROTATION | .PRESSES_BUTTONS | .NO_HANDLE_REFRESH | .COLLIDER;
+    fc.props = .DYNAMIC | .RELATIVE_POSITION | .RELATIVE_ROTATION | .PRESSES_BUTTONS | .NO_HANDLE_REFRESH | .COLLIDER | .PHYSICAL;
     entity_add_child(player_handle, fc, e = e);
 
     // Head Collider
@@ -329,7 +329,7 @@ make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> E
     hc.shape_kind = .CIRCLE;
     hc.radius = TILE_SIZE / 5;
     hc.tag = .PLAYER_FEET_COLLIDER;
-    hc.props = .DYNAMIC | .RELATIVE_POSITION | .RELATIVE_ROTATION | .PRESSES_BUTTONS | .NO_HANDLE_REFRESH | .COLLIDER;
+    hc.props = .DYNAMIC | .RELATIVE_POSITION | .RELATIVE_ROTATION | .PRESSES_BUTTONS | .NO_HANDLE_REFRESH | .COLLIDER | .PHYSICAL;
     entity_add_child(player_handle, hc, e = e);
 
     // Ground Sensor Entity
@@ -338,7 +338,7 @@ make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> E
     gse.extents = Vector2.{TILE_SIZE * 0.4, TILE_SIZE / 8};
     gse.shape_kind = .RECTANGLE;
     gse.tag = .GROUND_SENSOR;
-    gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_HANDLE_REFRESH;
+    gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_HANDLE_REFRESH | .PHYSICAL;
     entity_add_child(player_handle, gse, e = e);
 
     // Left Wall Sensor Entity
@@ -347,7 +347,7 @@ make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> E
     lws.extents = Vector2.{TILE_SIZE / 8, TILE_SIZE * 0.8};
     lws.shape_kind = .RECTANGLE;
     lws.tag = .LEFT_SENSOR;
-    lws.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_HANDLE_REFRESH;
+    lws.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_HANDLE_REFRESH | .PHYSICAL;
     entity_add_child(player_handle, lws, e = e);
 
     // Right Wall Sensor Entity
@@ -356,7 +356,7 @@ make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> E
     rws.extents = Vector2.{TILE_SIZE / 8, TILE_SIZE * 0.8};
     rws.shape_kind = .RECTANGLE;
     rws.tag = .RIGHT_SENSOR;
-    rws.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_HANDLE_REFRESH;
+    rws.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_HANDLE_REFRESH | .PHYSICAL;
     entity_add_child(player_handle, rws, e = e);
     return player_handle;
 }

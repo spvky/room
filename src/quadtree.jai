@@ -41,14 +41,19 @@ aabb_intersects :: (a: Bounding_Box, b: Bounding_Box) -> bool #expand {
 }
 
 // Creates a quad tree and inserts entities from the passed entity manager, if the number of entities is greater than the capacity, does the initial subdivision
-create_quad_tree_from_entity_manager :: (q: *Quad_Tree_Node, center: Vector2, extents: Vector2, capacity: int, entity_manager := context.entities) {
+make_quad_tree_from_entity_manager :: (q: *Quad_Tree_Node, center: Vector2, extents: Vector2, capacity: int, entity_manager := context.entities) {
     q.entities.allocator = temp;
     q.children.allocator = temp;
     q.bounding_box.center = center;
     q.bounding_box.extents = extents;
     q.capacity = capacity;
-    for *entity_manager array_add(*q.entities, it);
-    if q.entities.count > q.capacity then subdivide(q);
+    for *entity_manager {
+        if entity_has_props(it, .PHYSICAL) then array_add(*q.entities, it);
+    }
+    if q.entities.count > q.capacity {
+        print("Subdividing Quad Tree!\n");
+        subdivide(q);
+    }
 }
 
 insert :: (q: *Quad_Tree_Node, e: *Entity) {
@@ -133,18 +138,20 @@ query_quad_tree_node :: (q: *Quad_Tree_Node, range: Bounding_Box, entities: *[..
 quadtree_stats :: (q: *Quad_Tree_Node) -> Quad_Tree_Stats {
     stats: Quad_Tree_Stats;
     entities: [..]*Entity;
-    defer array_free(entities);
     entities.allocator = temp;
+    array_reserve(*entities, 200);
     node_count: int;
     count_quadtree_node(q, *entities, *node_count);
     stats.entities = entities.count;
     stats.nodes = node_count;
+    array_free(entities);
     return stats;
 }
 
 count_quadtree_node :: (q: *Quad_Tree_Node, entities: *[..]*Entity, node_count: *int) {
+    // Pointer to entities won't work here because it will move if it grows
     if q.subdivided {
-        count_quadtree_node(q, entities, node_count);
+        for *q.children count_quadtree_node(it, entities, node_count);
     } else {
         for q.entities array_add_if_unique(entities, it);
         node_count.* += 1;
