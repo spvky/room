@@ -99,6 +99,7 @@ GL :: #import "GL";
 #load "physics.jai";
 #load "sprites.jai";
 #load "dev_util.jai";
+#load "quadtree.jai";
 #load "parsing.jai";
 #load "inspector.jai";
 #load "text.jai";

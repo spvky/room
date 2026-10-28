@@ -292,7 +292,7 @@ cascading_circle_cast :: (self: *Entity, origin: Vector2, direction: Vector2, ra
                 // I think we only need one quick check here for right below the initial shape_cast
                 collision_under_cast: bool;
                 for *vert_entity: context.entities {
-                    if (!entity_has_props(vert_entity, properties_mask) || entity == self) continue;
+                    if (!entity_has_props(vert_entity, properties_mask) || vert_entity == self) continue;
                     _, vert_did_collide := circle_entity_collision_test(pos - .{0, step_length}, radius, vert_entity);
                     if vert_did_collide {
                         collision_under_cast = true;
