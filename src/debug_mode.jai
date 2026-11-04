@@ -53,3 +53,19 @@ draw_dot :: (pos: Vector2, radius: float32, color: Vector4 = .{1, 1, 1, 1}) {
                    .{right, top},
                    color);
 }
+
+draw_line :: (a: Vector2, b: Vector2, color: Vector4 = .{1, 1, 1, 1}, thickness: float = 5) {
+    v := b - a;
+    n := normalize(Vector2.{v.y, -v.x});
+
+    p: [4]Vector2;
+
+    p[0] = a + (n * thickness);
+    p[1] = a - (n * thickness);
+    p[2] = b - (n * thickness);
+    p[3] = b + (n * thickness);
+
+    set_shader_for_color(true);
+
+    immediate_quad(p[0], p[1], p[2], p[3], color);
+}

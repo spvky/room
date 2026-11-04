@@ -41,9 +41,10 @@ aabb_intersects :: (a: Bounding_Box, b: Bounding_Box) -> bool #expand {
 }
 
 // Creates a quad tree and inserts entities from the passed entity manager, if the number of entities is greater than the capacity, does the initial subdivision
-make_quad_tree_from_entity_manager :: (q: *Quad_Tree_Node, center: Vector2, extents: Vector2, capacity: int, entity_manager := context.entities) {
-    q.entities.allocator = temp;
-    q.children.allocator = temp;
+build_collision_tree :: (center: Vector2, extents: Vector2, capacity: int, entity_manager := context.entities, allocator := temp) {
+    if context.collision_tree then free(context.collision_tree);
+    context.collision_tree = New(Quad_Tree_Node);
+    q := context.collision_tree;
     q.bounding_box.center = center;
     q.bounding_box.extents = extents;
     q.capacity = capacity;
@@ -51,7 +52,6 @@ make_quad_tree_from_entity_manager :: (q: *Quad_Tree_Node, center: Vector2, exte
         if entity_has_props(it, .PHYSICAL) then array_add(*q.entities, it);
     }
     if q.entities.count > q.capacity {
-        print("Subdividing Quad Tree!\n");
         subdivide(q);
     }
 }
@@ -155,5 +155,29 @@ count_quadtree_node :: (q: *Quad_Tree_Node, entities: *[..]*Entity, node_count: 
     } else {
         for q.entities array_add_if_unique(entities, it);
         node_count.* += 1;
+    }
+}
+
+draw_quadtree :: (q: *Quad_Tree_Node) {
+    if q {
+        if q.subdivided {
+            for q.children {
+                a := *it;
+                draw_quadtree(*it);
+            }
+        }
+        p: [4]Vector2;
+        using q.bounding_box;
+        pos, _ := cam_relative_pos_extents(center, .{});
+        he := extents / 2;
+        _: Vector2;
+        p[0] = pos + Vector2.{-he.x, he.y};
+        p[1] = pos + Vector2.{-he.x, -he.y};
+        p[2] = pos + Vector2.{he.x, -he.y};
+        p[3] = pos + Vector2.{he.x, he.y};
+        draw_line(p[0], p[1]);
+        draw_line(p[1], p[2]);
+        draw_line(p[2], p[3]);
+        draw_line(p[3], p[0]);
     }
 }
