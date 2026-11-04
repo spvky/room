@@ -54,7 +54,7 @@ draw_dot :: (pos: Vector2, radius: float32, color: Vector4 = .{1, 1, 1, 1}) {
                    color);
 }
 
-draw_line :: (a: Vector2, b: Vector2, color: Vector4 = .{1, 1, 1, 1}, thickness: float = 5) {
+draw_line :: (a: Vector2, b: Vector2, color: Vector4 = .{1, 1, 1, 1}, thickness: float = 1) {
     v := b - a;
     n := normalize(Vector2.{v.y, -v.x});
 

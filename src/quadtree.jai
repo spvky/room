@@ -96,7 +96,7 @@ subdivide :: (q: *Quad_Tree_Node) {
 
         {
             bl := Quad_Tree_Node.{
-                                  bounding_box = Bounding_Box.{center = center + Vector2.{extents.x / 4, extents.y / 4}, extents = extents / 2},
+                                  bounding_box = Bounding_Box.{center = center + Vector2.{-extents.x / 4, -extents.y / 4}, extents = extents / 2},
                                   capacity = q.capacity};
 
             bl.entities.allocator = temp;
@@ -107,7 +107,7 @@ subdivide :: (q: *Quad_Tree_Node) {
 
         {
             br := Quad_Tree_Node.{
-                                  bounding_box = Bounding_Box.{center = center + Vector2.{extents.x / 4, extents.y / 4}, extents = extents / 2},
+                                  bounding_box = Bounding_Box.{center = center + Vector2.{extents.x / 4, -extents.y / 4}, extents = extents / 2},
                                   capacity = q.capacity};
 
             br.entities.allocator = temp;
