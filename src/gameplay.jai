@@ -75,7 +75,7 @@ gameplay_update :: (delta: float32) {
         player_apply_speed(delta);
         moving_block_velocity();
         manage_floating_text(delta);
-        build_collision_tree(.{300, 1000}, .{2000, 2000}, 5);
+        build_collision_tree(.{300, 1000}, .{2000, 2000}, 8);
         // Collision
         sensor_collision();
         body_collision(delta);

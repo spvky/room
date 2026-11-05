@@ -175,9 +175,10 @@ draw_quadtree :: (q: *Quad_Tree_Node) {
         p[1] = pos + Vector2.{-he.x, -he.y};
         p[2] = pos + Vector2.{he.x, -he.y};
         p[3] = pos + Vector2.{he.x, he.y};
-        draw_line(p[0], p[1]);
-        draw_line(p[1], p[2]);
-        draw_line(p[2], p[3]);
-        draw_line(p[3], p[0]);
+        thickness := 0.5;
+        draw_line(p[0], p[1], thickness = thickness);
+        draw_line(p[1], p[2], thickness = thickness);
+        draw_line(p[2], p[3], thickness = thickness);
+        draw_line(p[3], p[0], thickness = thickness);
     }
 }
