@@ -59,12 +59,12 @@ Axis_Interval_Pair :: struct {
 
 Static_Collision_Table :: Table(Entity_Handle, [..]Axis_Interval_Pair, given_hash_function = handle_hash, given_compare_function = handle_compare);
 Static_Raycast_Table :: Table(Entity_Handle, [..][2]Vector2, given_hash_function = handle_hash, given_compare_function = handle_compare);
-Dynamic_Collision_Hashes :: Table(u64, void);
+Collision_Hashes :: Table(u64, void);
 
 #add_context static_collision_table: *Static_Collision_Table;
 #add_context static_raycast_table: *Static_Raycast_Table;
-#add_context dynamic_collision_hashes: *Dynamic_Collision_Hashes;
-#add_context collision_tree: *Quad_Tree_Node;
+#add_context collision_hashes: *Collision_Hashes;
+#add_context collision_tree: *Quad_Tree_Node(Entity);
 
 entity_edges :: (r: *Entity) -> [4][2]Vector2, bool {
     edges: [4][2]Vector2;
@@ -97,12 +97,12 @@ init_collision_tables :: () {
         context.static_raycast_table = New(Static_Raycast_Table);
     }
 
-    if !context.dynamic_collision_hashes {
-        context.dynamic_collision_hashes = New(Dynamic_Collision_Hashes);
+    if !context.collision_hashes {
+        context.collision_hashes = New(Collision_Hashes);
     }
 
     if !context.collision_tree {
-        context.collision_tree = New(Quad_Tree_Node);
+        context.collision_tree = New(Quad_Tree_Node(Entity));
     }
 }
 
@@ -115,12 +115,12 @@ pair_handle_hash :: (a: Entity_Handle, b: Entity_Handle) -> u64 #expand {
     return final_hash;
 }
 
-dynamic_collision_has_been_solved_this_frame :: (a: Entity_Handle, b: Entity_Handle) -> bool {
+collision_has_been_solved_this_frame :: (a: Entity_Handle, b: Entity_Handle) -> bool {
     hash := pair_handle_hash(a, b);
-    if table_contains(context.dynamic_collision_hashes, hash) {
+    if table_contains(context.collision_hashes, hash) {
         return true;
     } else {
-        table_set(context.dynamic_collision_hashes, hash, default_of(void));
+        table_set(context.collision_hashes, hash, default_of(void));
         return false;
     }
 }
@@ -465,4 +465,29 @@ static_rectangle_nearest_point :: (p: Vector2, e: *Entity) -> Vector2 {
     ret.x = clamp(p.x, min_x, max_x);
     ret.y = clamp(p.y, min_y, max_y);
     return ret;
+}
+
+draw_quadtree :: (q: *Quad_Tree_Node(Entity)) {
+    if q {
+        if q.subdivided {
+            for q.children {
+                a := *it;
+                draw_quadtree(*it);
+            }
+        }
+        p: [4]Vector2;
+        using q.bounding_box;
+        pos, _ := cam_relative_pos_extents(center, .{});
+        he := extents / 2;
+        _: Vector2;
+        p[0] = pos + Vector2.{-he.x, he.y};
+        p[1] = pos + Vector2.{-he.x, -he.y};
+        p[2] = pos + Vector2.{he.x, -he.y};
+        p[3] = pos + Vector2.{he.x, he.y};
+        thickness := 0.5;
+        draw_line(p[0], p[1], thickness = thickness);
+        draw_line(p[1], p[2], thickness = thickness);
+        draw_line(p[2], p[3], thickness = thickness);
+        draw_line(p[3], p[0], thickness = thickness);
+    }
 }

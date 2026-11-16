@@ -526,3 +526,16 @@ hydrate :: (entity: *Entity) {
         entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
     }
 }
+
+aabb_from_entity :: (e: *Entity) -> Bounding_Box {
+    bb: Bounding_Box;
+    if e.shape_kind == {
+    case .RECTANGLE;
+        bb.center = e.position;
+        bb.extents = e.extents;
+    case .CIRCLE;
+        bb.center = e.position;
+        bb.extents = Vector2.{e.radius, e.radius};
+    }
+    return bb;
+}

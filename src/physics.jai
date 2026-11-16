@@ -55,6 +55,31 @@ apply_movement_deltas :: () {
     }
 }
 
+process_physical_collisions :: () {
+    physical_query :: (it: *Entity) -> bool {
+        return entity_has_props(it, .PHYSICAL) && !entity_has_props(it, .SENSOR);
+    }
+    queried_entities: [..]*Entity;
+    queried_entities.allocator = temp;
+    array_reserve(*queried_entities, context.collision_tree.capacity * 4);
+    for *context.entities {
+        if !entity_has_props(it, .PHYSICAL) || entity_has_props(it, .SENSOR) continue;
+        bounding_box := aabb_from_entity(it);
+
+        query_quad_tree_into_dynamic_array(context.collision_tree, bounding_box, *queried_entities, physical_query);
+
+        for other: queried_entities {
+            if other == it continue;
+            if collision_has_been_solved_this_frame(it.handle, other.handle) continue;
+            // Add pair to collided_table and process collision
+        }
+        array_reset_keeping_memory(*queried_entities);
+    }
+}
+
+process_sensor_collisions :: () {
+}
+
 body_collision :: (delta: float) {
     player_holding_down := is_action_held(.MOVE_DOWN);
     for *context.entities {
@@ -121,17 +146,17 @@ body_collision :: (delta: float) {
             if !entity_has_props(dynamic_ptr, .SOLID) || !entity_has_props(dynamic_ptr, .DYNAMIC) continue;
             if dynamic_ptr == it || dynamic_ptr.handle == it.parent || it.handle == dynamic_ptr.handle continue;
 
-            if dynamic_collision_has_been_solved_this_frame(it.handle, dynamic_ptr.handle) continue;
+            if collision_has_been_solved_this_frame(it.handle, dynamic_ptr.handle) continue;
 
             dynamic_collision, dynamic_collision_occurred := dynamic_vs_dynamic_collision_test(it, dynamic_ptr);
             if dynamic_collision_occurred {
-                solve_dynamic_collisions(it, dynamic_ptr, dynamic_collision);
+                solve_collision(it, dynamic_ptr, dynamic_collision);
             }
         }
     }
 }
 
-solve_dynamic_collisions :: (a: *Entity, b: *Entity, collision: Collision) #expand {
+solve_collision :: (a: *Entity, b: *Entity, collision: Collision) #expand {
     duo :: (t: Entity_Tag) -> bool #expand {
         return `a.tag == t && `b.tag == t;
     }

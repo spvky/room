@@ -83,8 +83,6 @@ draw_wall :: (entity: *Entity) {
 
 draw_player :: (entity: *Entity) {
     set_shader_for_images(*context.atlas.character_atlas.texture);
-    player_render_extents := Vector2.{TILE_SIZE * 1.5, TILE_SIZE * 2.5};
-    player_offset := Vector2.{0, TILE_SIZE / 1.35};
     uvs := get_current_animation_frame_quad(*context.animations.player, !context.player_data.facing_right);
     pos, extents := cam_relative_pos_extents(entity.position, context.player_data.PLAYER_EXTENTS);
     offset := context.player_data.PLAYER_OFFSET * context.camera.zoom;

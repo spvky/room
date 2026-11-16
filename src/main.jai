@@ -80,6 +80,7 @@ init :: () {
 #import "GetRect";
 #import "File_Utilities";
 #import "Random";
+#import "Trees";
 #import "stb_image_write";
 GL :: #import "GL";
 #load "animations.jai";
@@ -99,7 +100,7 @@ GL :: #import "GL";
 #load "physics.jai";
 #load "sprites.jai";
 #load "dev_util.jai";
-#load "quadtree.jai";
+// #load "quadtree.jai";
 #load "parsing.jai";
 #load "inspector.jai";
 #load "text.jai";

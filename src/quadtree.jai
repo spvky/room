@@ -17,18 +17,6 @@ Quad_Tree_Stats :: struct {
 }
 
 // Ignores rotation
-aabb_from_entity :: (e: *Entity) -> Bounding_Box {
-    bb: Bounding_Box;
-    if e.shape_kind == {
-    case .RECTANGLE;
-        bb.center = e.position;
-        bb.extents = e.extents;
-    case .CIRCLE;
-        bb.center = e.position;
-        bb.extents = Vector2.{e.radius, e.radius};
-    }
-    return bb;
-}
 
 aabb_intersects :: (a: Bounding_Box, b: Bounding_Box) -> bool #expand {
     ha := a.extents / 2;
@@ -118,19 +106,27 @@ subdivide :: (q: *Quad_Tree_Node) {
     }
 }
 
-query_quad_tree :: (q: *Quad_Tree_Node, range: Bounding_Box) -> [..]*Entity {
-    entities: [..]*Entity;
-    entities.allocator = temp;
-    query_quad_tree_node(q, range, *entities);
-    return entities;
+query_tree :: (q: *Quad_Tree_Node, entities: *[..]*Entity, range: Bounding_Box, include: Entity_Properties = 0, exclude: Entity_Properties = 0) {
+    query_quad_tree_node(q, range, entities, include, exclude);
 }
 
-query_quad_tree_node :: (q: *Quad_Tree_Node, range: Bounding_Box, entities: *[..]*Entity) {
+query_quad_tree_node :: (q: *Quad_Tree_Node, range: Bounding_Box, entities: *[..]*Entity, include: Entity_Properties, exclude: Entity_Properties) {
+    should_include := include != 0;
+    should_exclude := exclude != 0;
     if aabb_intersects(q.bounding_box, range) {
         if q.subdivided {
-            for *q.children query_quad_tree_node(it, range, entities);
+            for *q.children query_quad_tree_node(it, range, entities, include, exclude);
         } else {
-            for q.entities array_add(entities, it);
+            for q.entities {
+                should_return: bool = true;
+                if should_include {
+                    should_return = entity_has_props(it, include) && should_return;
+                }
+                if should_exclude {
+                    should_return = !entity_has_props(it, exclude) && should_return;
+                }
+                if should_return then array_add(entities, it);
+            }
         }
     }
 }
