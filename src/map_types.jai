@@ -129,6 +129,7 @@ Collision_Tile :: enum u8 {
 
 World :: struct {
     collision: [WORLD_WIDTH * WORLD_HEIGHT]Collision_Tile;
+    auto_tile_info: [WORLD_WIDTH * WORLD_HEIGHT]Neighboring_Tiles;
     rooms: [MAP_WIDTH * MAP_HEIGHT]Map_Room;
     room_effects: [..]Room_Effect;
 }

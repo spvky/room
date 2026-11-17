@@ -31,6 +31,13 @@ check_world_collision_tile_value :: (c: Coord) -> Collision_Tile {
     return context.world.collision[coord_to_index(c, .WORLD)];
 }
 
+check_world_auto_tile_value :: (c: Coord) -> Neighboring_Tiles {
+    return context.world.auto_tile_info[coord_to_index(c, .WORLD)];
+}
+set_world_autotile_value :: (c: Coord, nt: Neighboring_Tiles) {
+    context.world.auto_tile_info[coord_to_index(c, .WORLD)] = nt;
+}
+
 get_room_from_hash :: (hash: u32) -> *Room {
     return table_find_pointer(context.room_table, hash);
 }

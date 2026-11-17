@@ -312,21 +312,15 @@ exits_match :: (a: Room_Exits, b: Room_Exits, direction: Map_Direction) -> Room_
 }
 
 parse_walls_from_tilemap :: () {
-    // ////////////////////////////////
-    is_valid_wall :: (x: int, y: int) -> bool #expand {
-        coord := Coord.{xx x, xx y};
-        return !`parsed[coord_to_index(coord, .WORLD)] && check_world_collision_tile_value(coord) == .WALL;
-    }
-
     parse_coordinate :: (c: Coord) #expand {
         `parsed[coord_to_index(c, .WORLD)] = true;
     }
-    // ////////////////////////////////
 
     parsed: [WORLD_WIDTH * WORLD_HEIGHT]bool;
     for <y: 0..WORLD_HEIGHT - 1 {
         for x: 0..WORLD_WIDTH - 1 {
             coord := Coord.{xx x, xx y};
+            write_tile_auto_tile_data(coord);
             if !parsed[coord_to_index(coord, .WORLD)] {
                 tile := check_world_collision_tile_value(coord);
                 if tile == {
@@ -410,4 +404,39 @@ parse_walls_from_tilemap :: () {
             }
         }
     }
+}
+
+write_tile_auto_tile_data :: (c: Coord) #expand {
+    nt: Neighboring_Tiles;
+
+    // Top
+    if c.y == WORLD_HEIGHT - 1 {
+        nt |= .TOP;
+    } else {
+        if check_world_collision_tile_value(c + .{0, 1}) == .WALL then nt |= .TOP;
+    }
+    // Right
+    if c.x == WORLD_WIDTH - 1 {
+        nt |= .RIGHT;
+    } else {
+        if check_world_collision_tile_value(c + .{1, 0}) == .WALL then nt |= .RIGHT;
+    }
+    // Bot
+    if c.y == 0 {
+        nt |= .BOT;
+    } else {
+        if check_world_collision_tile_value(c + .{0, -1}) == .WALL then nt |= .BOT;
+    }
+    // Left
+    if c.x == 0 {
+        nt |= .LEFT;
+    } else {
+        if check_world_collision_tile_value(c + .{-1, 0}) == .WALL then nt |= .LEFT;
+    }
+}
+
+#scope_file
+is_valid_wall :: (x: int, y: int) -> bool #expand {
+    coord := Coord.{xx x, xx y};
+    return !`parsed[coord_to_index(coord, .WORLD)] && check_world_collision_tile_value(coord) == .WALL;
 }
