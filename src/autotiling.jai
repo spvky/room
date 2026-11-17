@@ -9,12 +9,17 @@ Neighboring_Tiles :: enum_flags u8 {
     TOP_LEFT :: 1 << 7;
 }
 
-draw_int_grid :: (origin: Vector2) {
+draw_int_grid :: () {
+    set_shader_for_images(*context.atlas.industrial_atlas.texture);
     for <y: 0..WORLD_HEIGHT - 1 {
         for x: 0..WORLD_WIDTH - 1 {
             coord := Coord.{xx x, xx y};
             nt := check_world_auto_tile_value(coord);
-            uv_quad := quad_from_neighbors(nt, *context.atlas.industrial_atlas);
+            if nt == 0 then continue;
+            pos := Vector2.{xx x * TILE_SIZE, xx y * TILE_SIZE} + (Vector2.{TILE_SIZE, TILE_SIZE} / 2);
+            position, extents := cam_relative_pos_extents(pos, .{TILE_SIZE, TILE_SIZE});
+
+            draw_tile(position, extents, nt);
             // pos and extents defined here will allow calling
             // draw_quad(uv_quad) for now
         }
@@ -44,9 +49,9 @@ quad_from_neighbors :: (nt: Neighboring_Tiles, atlas: *Sprite_Atlas) -> UV_Quad 
     if nt & BOT_LEFT_CORNER_MASK == BOT_LEFT_CORNER_MASK return uv_quad_from_atlas(atlas, 32);
 
     // Vertical Bar
-    if nt & VERTICAL_BAR_MASK == VERTICAL_BAR_MASK return uv_quad_from_atlas(atlas, 3);
+    if nt & VERTICAL_BAR_MASK == VERTICAL_BAR_MASK return uv_quad_from_atlas(atlas, 4);
     // Horizontal Bar
-    if nt & HORIZONTAL_BAR_MASK == HORIZONTAL_BAR_MASK return uv_quad_from_atlas(atlas, 4);
+    if nt & HORIZONTAL_BAR_MASK == HORIZONTAL_BAR_MASK return uv_quad_from_atlas(atlas, 3);
 
     // Top Cap
     if nt & TOP_CAP_MASK == TOP_CAP_MASK return uv_quad_from_atlas(atlas, 5);
@@ -58,8 +63,19 @@ quad_from_neighbors :: (nt: Neighboring_Tiles, atlas: *Sprite_Atlas) -> UV_Quad 
     if nt & LEFT_CAP_MASK == LEFT_CAP_MASK return uv_quad_from_atlas(atlas, 21);
 }
 
-draw_tile :: (x: int, y: int, origin: Vector2) #expand {
-    uvs: UV_Quad;
+draw_tile :: (position: Vector2, extents: Vector2, nt: Neighboring_Tiles) #expand {
+    p: [4]Vector2;
+    uvs := quad_from_neighbors(nt, *context.atlas.industrial_atlas);
+    half_tile := extents / 2;
+
+    p[0] = .{-half_tile.x, -half_tile.y} + position;
+    p[1] = .{half_tile.x, -half_tile.y} + position;
+    p[2] = .{half_tile.x, half_tile.y} + position;
+    p[3] = .{-half_tile.x, half_tile.y} + position;
+
+    immediate_quad(p[0], p[1], p[2], p[3],
+                   .{1, 1, 1, 1},
+                   uvs[0], uvs[1], uvs[2], uvs[3]);
 }
 
 #scope_file

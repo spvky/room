@@ -411,7 +411,7 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
-        entity.props = .RENDERABLE | .STATIC | .SOLID | .FOREGROUND | .WATER_COLLISION | .PHYSICAL;
+        entity.props = .STATIC | .SOLID | .FOREGROUND | .WATER_COLLISION | .PHYSICAL;
         entity_add(entity);
     case .TOP_HALF;
         entity: Entity;

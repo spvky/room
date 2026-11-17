@@ -407,31 +407,36 @@ parse_walls_from_tilemap :: () {
 }
 
 write_tile_auto_tile_data :: (c: Coord) #expand {
-    nt: Neighboring_Tiles;
+    collision_tile := check_world_collision_tile_value(c);
+    if collision_tile == .WALL {
+        nt: Neighboring_Tiles;
 
-    // Top
-    if c.y == WORLD_HEIGHT - 1 {
-        nt |= .TOP;
-    } else {
-        if check_world_collision_tile_value(c + .{0, 1}) == .WALL then nt |= .TOP;
-    }
-    // Right
-    if c.x == WORLD_WIDTH - 1 {
-        nt |= .RIGHT;
-    } else {
-        if check_world_collision_tile_value(c + .{1, 0}) == .WALL then nt |= .RIGHT;
-    }
-    // Bot
-    if c.y == 0 {
-        nt |= .BOT;
-    } else {
-        if check_world_collision_tile_value(c + .{0, -1}) == .WALL then nt |= .BOT;
-    }
-    // Left
-    if c.x == 0 {
-        nt |= .LEFT;
-    } else {
-        if check_world_collision_tile_value(c + .{-1, 0}) == .WALL then nt |= .LEFT;
+        // Top
+        if c.y == WORLD_HEIGHT - 1 {
+            nt |= .TOP;
+        } else {
+            if check_world_collision_tile_value(c + .{0, 1}) == .WALL then nt |= .TOP;
+        }
+        // Right
+        if c.x == WORLD_WIDTH - 1 {
+            nt |= .RIGHT;
+        } else {
+            if check_world_collision_tile_value(c + .{1, 0}) == .WALL then nt |= .RIGHT;
+        }
+        // Bot
+        if c.y == 0 {
+            nt |= .BOT;
+        } else {
+            if check_world_collision_tile_value(c + .{0, -1}) == .WALL then nt |= .BOT;
+        }
+        // Left
+        if c.x == 0 {
+            nt |= .LEFT;
+        } else {
+            if check_world_collision_tile_value(c + .{-1, 0}) == .WALL then nt |= .LEFT;
+        }
+
+        set_world_auto_tile_value(c, nt);
     }
 }
 

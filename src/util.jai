@@ -34,7 +34,7 @@ check_world_collision_tile_value :: (c: Coord) -> Collision_Tile {
 check_world_auto_tile_value :: (c: Coord) -> Neighboring_Tiles {
     return context.world.auto_tile_info[coord_to_index(c, .WORLD)];
 }
-set_world_autotile_value :: (c: Coord, nt: Neighboring_Tiles) {
+set_world_auto_tile_value :: (c: Coord, nt: Neighboring_Tiles) {
     context.world.auto_tile_info[coord_to_index(c, .WORLD)] = nt;
 }
 

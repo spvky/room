@@ -250,6 +250,7 @@ render_gameplay_scene :: () {
         clear_render_target(0, 0.4, 0.6, 1);
     }
     render_entities();
+    draw_int_grid();
     draw_immediate_dots();
     draw_quadtree(context.collision_tree);
 
