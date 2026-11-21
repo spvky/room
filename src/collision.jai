@@ -192,6 +192,43 @@ dynamic_vs_static_collision_test :: (d: *Entity, s: *Entity, mode := Collision_M
     return collision, true;
 }
 
+collision_test :: (a: *Entity, b: *Entity) -> Collision, bool #expand {
+    collision: Collision;
+    if a.shape_kind == .CIRCLE && b.shape_kind == .CIRCLE {
+        dist := distance(a.position, b.position);
+        radii := a.radius + b.radius;
+        if dist < radii {
+            normal := normalize(b.position - a.position);
+            depth := radii - dist;
+            return Collision.{normal, depth}, true;
+        } else {
+            return collision, false;
+        }
+    }
+    axes: [..]Vector2;
+    axes.allocator = temp;
+    // TODO: actually calculate axes instead of just testing x/y here
+    array_add(*axes, Vector2.{1, 0});
+    array_add(*axes, Vector2.{0, 1});
+
+    min_depth: float32 = FLOAT32_MAX;
+    for axes {
+        ia := project_entity_along_axis(a, it);
+        ib := project_entity_along_axis(b, it);
+        overlaps, depth := overlap(ia, ib);
+        if overlaps {
+            if depth < min_depth {
+                min_depth = depth;
+                collision.depth = depth;
+                collision.normal = it;
+            }
+        } else {
+            return collision, false;
+        }
+    }
+    return collision, true;
+}
+
 dynamic_vs_dynamic_collision_test :: (a: *Entity, b: *Entity, mode := Collision_Mode.SAT) -> Collision, bool {
     collision: Collision;
     if a.shape_kind == .CIRCLE && b.shape_kind == .CIRCLE {

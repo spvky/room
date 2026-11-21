@@ -107,6 +107,7 @@ reset_player :: () {
     restore_snapshot();
     context.player_data.state = .IDLE;
     context.player_data.prev_state = .IDLE;
+    set_animation(*context.animations.player, *PLAYER_IDLE_ANIMATION);
     print("Resetting Player: %\n", context.player_data.last_stable_ground);
 }
 

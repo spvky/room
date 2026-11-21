@@ -57,7 +57,7 @@ apply_movement_deltas :: () {
 
 process_physical_collisions :: () {
     physical_query :: (it: *Entity) -> bool {
-        return entity_has_props(it, .PHYSICAL) && !entity_has_props(it, .SENSOR);
+        return entity_has_props(it, .PHYSICAL) && !entity_has_props(it, .SENSOR | .STATIC);
     }
     queried_entities: [..]*Entity;
     queried_entities.allocator = temp;
@@ -71,92 +71,23 @@ process_physical_collisions :: () {
         for other: queried_entities {
             if other == it continue;
             if collision_has_been_solved_this_frame(it.handle, other.handle) continue;
-            // Add pair to collided_table and process collision
+            solve_physical_collision(other, it);
         }
         array_reset_keeping_memory(*queried_entities);
     }
 }
 
-process_sensor_collisions :: () {
-}
-
-body_collision :: (delta: float) {
-    player_holding_down := is_action_held(.MOVE_DOWN);
-    for *context.entities {
-        is_player_feet := it.tag == .PLAYER_FEET_COLLIDER;
-        if !(entity_has_props(it, .DYNAMIC)) continue;
-        // Static Collision
-        for static_info, static_handle: context.static_collision_table {
-            if it.tag == .SWITCH_BLOCK continue;
-            static_ptr := entity_get(static_handle);
-            is_oneway := entity_has_props(static_ptr, .ONE_WAY);
-            if is_oneway && it.tag == .PLAYER_HEAD_COLLIDER continue;
-            if is_player_feet && is_oneway {
-                player := entity_get(it.parent);
-                if player {
-                    is_below_wall := it.position.y < static_ptr.position.y;
-                    player_not_falling := player.velocity.y >= 0;
-                    if player_not_falling || player_holding_down || is_below_wall continue;
-                }
-            }
-            static_collision, static_collision_occurred := dynamic_vs_static_collision_test(it, static_ptr);
-            if static_collision_occurred {
-                if (it.tag == .PLAYER_FEET_COLLIDER || it.tag == .PLAYER_FEET_COLLIDER) && entity_has_props(static_ptr, .DEATH_ZONE) {
-                    // TODO: Update
-                    kill_player();
-                    // reset_player();
-                }
-                dir_to_static := normalize(static_ptr.position - it.position);
-                corrected_normal := ifx dot_product(dir_to_static, static_collision.normal) < 0 then static_collision.normal else -static_collision.normal;
-                if entity_has_props(it, .COLLIDER) {
-                    parent := entity_get(it.parent);
-                    if parent {
-                        parent.position += corrected_normal * (static_collision.depth + 0.01);
-                    }
-                } else {
-                    it.position += corrected_normal * (static_collision.depth + 0.01);
-                }
-                x_dot := abs(dot(static_collision.normal, Vector2.{1, 0}));
-                y_dot := abs(dot(static_collision.normal, Vector2.{0, 1}));
-                if x_dot > 0.1 {
-                    if it.tag == .PLAYER_FEET_COLLIDER {
-                        set_player_timer_value(.SPRINT, 0);
-                        pdata_set_temp_flags(.PUSHING);
-                        player := player_get();
-                        if player {
-                            player.velocity.x = 0;
-                        }
-                    }
-                    it.velocity.x = 0;
-                }
-                if y_dot > 0.1 {
-                    if it.tag == .PLAYER_FEET_COLLIDER || it.tag == .PLAYER_HEAD_COLLIDER {
-                        player := player_get();
-                        if player {
-                            player.velocity.y = 0;
-                        }
-                    }
-                    it.velocity.y = 0;
-                }
-            }
-        }
-
-        // Dynamic Collision
-        for *dynamic_ptr: context.entities {
-            if !entity_has_props(dynamic_ptr, .SOLID) || !entity_has_props(dynamic_ptr, .DYNAMIC) continue;
-            if dynamic_ptr == it || dynamic_ptr.handle == it.parent || it.handle == dynamic_ptr.handle continue;
-
-            if collision_has_been_solved_this_frame(it.handle, dynamic_ptr.handle) continue;
-
-            dynamic_collision, dynamic_collision_occurred := dynamic_vs_dynamic_collision_test(it, dynamic_ptr);
-            if dynamic_collision_occurred {
-                solve_collision(it, dynamic_ptr, dynamic_collision);
-            }
-        }
+solve_physical_collision :: (a: *Entity, b: *Entity) {
+    sort :: (tag1: Entity_Tag, tag2: Entity_Tag) -> *Entity, *Entity #expand {
+        entity1 := ifx `a.tag == tag1 then `a else `b;
+        entity2 := ifx `a.tag == tag2 then `a else `b;
+        return entity1, entity2;
     }
-}
-
-solve_collision :: (a: *Entity, b: *Entity, collision: Collision) #expand {
+    get_first_matching :: (tag: Entity_Tag) -> *Entity, *Entity #expand {
+        entity1 := ifx `a.tag == tag then `a else `b;
+        entity2 := ifx `b.tag == tag then `b else `a;
+        return entity1, entity2;
+    }
     duo :: (t: Entity_Tag) -> bool #expand {
         return `a.tag == t && `b.tag == t;
     }
@@ -164,87 +95,133 @@ solve_collision :: (a: *Entity, b: *Entity, collision: Collision) #expand {
         return (`a.tag == t1 && `b.tag == t2) || (`a.tag == t2 && `b.tag == t1);
     }
 
-    x_dot := abs(dot(collision.normal, Vector2.{1, 0}));
-    y_dot := abs(dot(collision.normal, Vector2.{0, 1}));
+    collision, did_collide := collision_test(a, b);
+    if did_collide {
+        x_dot := abs(dot(collision.normal, Vector2.{1, 0}));
+        y_dot := abs(dot(collision.normal, Vector2.{0, 1}));
 
-    if pairing(.PLAYER_FEET_COLLIDER, .CRATE) {
-        player_feet, crate := entity_sort(.PLAYER_FEET_COLLIDER, .CRATE);
-        player := entity_get(player_feet.parent);
-        if player {
-            push_type: Push_Type;
-            if x_dot > 0.1 {
-                set_player_timer_value(.SPRINT, 0);
-                push_type = player_crate_pushing(player, crate);
+        if pairing(.CRATE, .GEAR) {
+            gear, crate := sort(.GEAR, .CRATE);
+            entity_kinematic_push(crate, gear, collision);
+        }
+
+        if pairing(.PLAYER_HEAD_COLLIDER, .GEAR) {
+            kill_player();
+        }
+
+        if pairing(.PLAYER_FEET_COLLIDER, .GEAR) {
+            kill_player();
+        }
+
+        if pairing(.CRATE, .WALL) {
+            wall, crate := sort(.WALL, .CRATE);
+            entity_kinematic_push(crate, wall, collision);
+        }
+
+        if pairing(.PLAYER_HEAD_COLLIDER, .WALL) {
+            player_head, wall := sort(.PLAYER_HEAD_COLLIDER, .WALL);
+            is_oneway := entity_has_props(wall, .ONE_WAY);
+            if !is_oneway {
+                if x_dot > 0 then set_player_timer_value(.SPRINT, 0);
+                player := entity_get(player_head.parent);
+                if player {
+                    entity_kinematic_push(player, wall, collision);
+                }
             }
-            if y_dot > 0.1 {
-                player.velocity.y = 0;
-                crate.velocity.y = 0;
+        }
+
+        if pairing(.PLAYER_FEET_COLLIDER, .WALL) {
+            player_feet, wall := sort(.PLAYER_FEET_COLLIDER, .WALL);
+            is_oneway := entity_has_props(wall, .ONE_WAY);
+            player_holding_down := is_action_held(.MOVE_DOWN);
+            is_below_wall := player_feet.position.y < wall.position.y;
+            player := entity_get(player_feet.parent);
+            if player {
+                player_not_falling := player.velocity.y >= 0;
+                should_ignore := is_oneway && (player_not_falling || player_holding_down || is_below_wall);
+                if !should_ignore {
+                    if x_dot > 0 then set_player_timer_value(.SPRINT, 0);
+                    entity_kinematic_push(player, wall, collision);
+                }
             }
-            if push_type == {
-            case .DYN_DYN;
+        }
+
+        if pairing(.PLAYER_FEET_COLLIDER, .CRATE) {
+            player_feet, crate := sort(.PLAYER_FEET_COLLIDER, .CRATE);
+            player := entity_get(player_feet.parent);
+            if player {
+                push_type: Push_Type;
+                if x_dot > 0.1 {
+                    set_player_timer_value(.SPRINT, 0);
+                    push_type = player_crate_pushing(player, crate);
+                }
+                if y_dot > 0.1 {
+                    player.velocity.y = 0;
+                    crate.velocity.y = 0;
+                }
+                if push_type == {
+                case .DYN_DYN;
+                    entity_equal_push(player, crate, collision);
+                case .DYN_KINEMATIC;
+                    entity_kinematic_push(player, crate, collision);
+                }
+            }
+        }
+
+        if pairing(.PLAYER_HEAD_COLLIDER, .CRATE) {
+            player_head, crate := sort(.PLAYER_HEAD_COLLIDER, .CRATE);
+            player := entity_get(player_head.parent);
+            if player {
+                push_type: Push_Type;
+                if x_dot > 0.1 {
+                    set_player_timer_value(.SPRINT, 0);
+                }
+                if y_dot > 0.1 {
+                    player.velocity.y = 0;
+                    crate.velocity.y = 0;
+                }
                 entity_equal_push(player, crate, collision);
-            case .DYN_KINEMATIC;
-                entity_kinematic_push(player, crate, collision);
             }
         }
-    }
 
-    if pairing(.PLAYER_HEAD_COLLIDER, .CRATE) {
-        player_head, crate := entity_sort(.PLAYER_HEAD_COLLIDER, .CRATE);
-        player := entity_get(player_head.parent);
-        if player {
-            push_type: Push_Type;
+        if pairing(.PLAYER_HEAD_COLLIDER, .SWITCH_BLOCK) {
+            if x_dot > 0 then set_player_timer_value(.SPRINT, 0);
+            player_head, switch_block := sort(.PLAYER_HEAD_COLLIDER, .SWITCH_BLOCK);
+            player := entity_get(player_head.parent);
+            if player {
+                entity_kinematic_push(player, switch_block, collision);
+            }
+        }
+
+        if pairing(.PLAYER_FEET_COLLIDER, .SWITCH_BLOCK) {
+            if x_dot > 0 then set_player_timer_value(.SPRINT, 0);
+            player_feet, switch_block := sort(.PLAYER_FEET_COLLIDER, .SWITCH_BLOCK);
+            player := entity_get(player_feet.parent);
+            if player {
+                entity_kinematic_push(player, switch_block, collision);
+            }
+        }
+
+        if duo(.CRATE) {
             if x_dot > 0.1 {
-                set_player_timer_value(.SPRINT, 0);
+                a.velocity.x = 0;
+                b.velocity.x = 0;
             }
             if y_dot > 0.1 {
-                player.velocity.y = 0;
-                crate.velocity.y = 0;
+                a.velocity.y = 0;
+                b.velocity.y = 0;
             }
-            entity_equal_push(player, crate, collision);
+            entity_equal_push(a, b, collision);
         }
-    }
 
-    if pairing(.PLAYER_FEET_COLLIDER, .SWITCH_BLOCK) {
-        if x_dot > 0 then set_player_timer_value(.SPRINT, 0);
-        player_feet, switch_block := entity_sort(.PLAYER_FEET_COLLIDER, .SWITCH_BLOCK);
-        player := entity_get(player_feet.parent);
-        if player {
-            entity_kinematic_push(player, switch_block, collision);
+        if pairing(.CRATE, .SWITCH_BLOCK) {
+            crate, switch_block := sort(.CRATE, .SWITCH_BLOCK);
+            entity_kinematic_push(crate, switch_block, collision);
         }
-    }
-
-    if pairing(.PLAYER_HEAD_COLLIDER, .SWITCH_BLOCK) {
-        if x_dot > 0 then set_player_timer_value(.SPRINT, 0);
-        player_head, switch_block := entity_sort(.PLAYER_HEAD_COLLIDER, .SWITCH_BLOCK);
-        player := entity_get(player_head.parent);
-        if player {
-            entity_kinematic_push(player, switch_block, collision);
-        }
-    }
-
-    if duo(.CRATE) {
-        if x_dot > 0.1 {
-            a.velocity.x = 0;
-            b.velocity.x = 0;
-        }
-        if y_dot > 0.1 {
-            a.velocity.y = 0;
-            b.velocity.y = 0;
-        }
-        entity_equal_push(a, b, collision);
-    }
-
-    if pairing(.CRATE, .SWITCH_BLOCK) {
-        crate, switch_block := entity_sort(.CRATE, .SWITCH_BLOCK);
-        entity_kinematic_push(crate, switch_block, collision);
     }
 }
 
-entity_sort :: (tag1: Entity_Tag, tag2: Entity_Tag) -> *Entity, *Entity #expand {
-    entity1 := ifx `a.tag == tag1 then `a else `b;
-    entity2 := ifx `a.tag == tag2 then `a else `b;
-    return entity1, entity2;
+process_sensor_collisions :: () {
 }
 
 entity_equal_push :: (a: *Entity, b: *Entity, collision: Collision) #expand {
