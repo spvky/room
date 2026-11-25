@@ -423,7 +423,7 @@ map_screen_update :: () {
 
 render_map_screen_controls :: () {
     screen_x := 15;
-    screen_y := (cast(int)WINDOW_HEIGHT) - 50;
+    screen_y := (cast(int)get_screen_line(.TOP, .PHYSICAL)) - 50;
     draw_text(context.atlas.font, screen_x, screen_y, "WASD - MOVE");
     screen_y -= 100;
     if context.map_screen_state.cursor_state == {
@@ -443,7 +443,7 @@ render_map_screen_controls :: () {
 }
 
 render_map_placement_ui :: () {
-    x: float32 = RIGHT_CHANNEL_MID_PCT * xx WINDOW_WIDTH;
+    x: float32 = RIGHT_CHANNEL_MID_PCT * xx context.render_settings.physical.width;
     y: float32 = 950;
     element: int;
     size := Vector2.{300, 300};

@@ -39,6 +39,6 @@ init_textures :: () {
     ok = texture_load_from_memory(*atlas.moving_block_texture, cast([]u8)moving_block_bytes);
     if !ok print("Failed to load moving block texture from memory!\n");
     atlas.player_sprite = make_sprite(*atlas.collision_circle);
-    pixel_height := WINDOW_HEIGHT / 24;
+    pixel_height := context.render_settings.physical.height / 24;
     atlas.font = get_font_at_size("assets", "OpenSans-BoldItalic.ttf", pixel_height);
 }

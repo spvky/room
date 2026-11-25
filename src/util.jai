@@ -44,33 +44,41 @@ get_room_from_hash :: (hash: u32) -> *Room {
 
 mouse_pointer_to_gameplay_pos :: () -> Vector2, bool {
     raw_x, raw_y, ok := get_mouse_pointer_position();
-    raw_y = WINDOW_HEIGHT - raw_y;
+    window_width := context.render_settings.physical.width;
+    window_height := context.render_settings.physical.height;
+    display_width := context.render_settings.gameplay.width;
+    display_height := context.render_settings.gameplay.height;
+    raw_y = window_height - raw_y;
 
-    if raw_x < 0 || raw_y < 0 || raw_x > WINDOW_WIDTH || raw_y > WINDOW_HEIGHT {
+    if raw_x < 0 || raw_y < 0 || raw_x > window_width || raw_y > window_height {
         return Vector2.{}, false;
     }
 
-    screen_scaled_x := (cast(float32)raw_x) / WINDOW_WIDTH;
-    screen_scaled_y := (cast(float32)raw_y) / WINDOW_HEIGHT;
+    screen_scaled_x := (cast(float32)raw_x) / window_width;
+    screen_scaled_y := (cast(float32)raw_y) / window_height;
 
-    true_x := screen_scaled_x * cast(float32)DISPLAY_WIDTH;
-    true_y := screen_scaled_y * cast(float32)DISPLAY_HEIGHT;
+    true_x := screen_scaled_x * cast(float32)display_width;
+    true_y := screen_scaled_y * cast(float32)display_height;
 
-    display_offset := Vector2.{(cast(float32)DISPLAY_WIDTH) / 2, (cast(float32)DISPLAY_HEIGHT) / 2};
+    display_offset := Vector2.{(cast(float32)display_width) / 2, (cast(float32)display_height) / 2};
 
     return context.camera.position + Vector2.{true_x, true_y} - display_offset, ok;
 }
 
 gameplay_pos_to_screen_position :: (v: Vector2) -> int, int, bool {
-    display_offset := Vector2.{(cast(float32)DISPLAY_WIDTH) / 2, (cast(float32)DISPLAY_HEIGHT) / 2};
+    window_width := context.render_settings.physical.width;
+    window_height := context.render_settings.physical.height;
+    display_width := context.render_settings.gameplay.width;
+    display_height := context.render_settings.gameplay.height;
+    display_offset := Vector2.{(cast(float32)display_width) / 2, (cast(float32)display_height) / 2};
     adjusted_pos := v - context.camera.position + display_offset;
-    display_scaled_x := adjusted_pos.x / (cast(float32)DISPLAY_WIDTH);
-    display_scaled_y := adjusted_pos.y / (cast(float32)DISPLAY_HEIGHT);
+    display_scaled_x := adjusted_pos.x / (cast(float32)display_width);
+    display_scaled_y := adjusted_pos.y / (cast(float32)display_height);
 
     if display_scaled_x < 0 || display_scaled_x > 1 || display_scaled_y < 0 || display_scaled_y > 1 return 0, 0, false;
 
-    screen_float_x := display_scaled_x * WINDOW_WIDTH;
-    screen_float_y := display_scaled_y * WINDOW_HEIGHT;
+    screen_float_x := display_scaled_x * window_width;
+    screen_float_y := display_scaled_y * window_height;
 
     return cast(s64)screen_float_x, cast(s64)screen_float_y, true;
 }

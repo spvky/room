@@ -1,16 +1,9 @@
-window: Window_Type;
-should_close: bool;
-WINDOW_WIDTH := 1920;
-WINDOW_HEIGHT := 1080;
 last_time: float64;
 
 main :: () {
-    window = create_window(WINDOW_WIDTH, WINDOW_HEIGHT, "Room");
-    set_render_target(window);
     init();
-
     start_game();
-    while !should_close {
+    while !context.render_settings.should_close {
         update_window_events();
         now := seconds_since_init();
         raw_delta: float64 = now - last_time;
@@ -48,9 +41,9 @@ start_game :: () {
 }
 
 init :: () {
+    init_render_settings();
     init_camera();
     init_player();
-    init_rendering();
     init_events();
     init_textures();
     init_animations();
