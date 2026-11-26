@@ -5,6 +5,7 @@ main :: () {
     start_game();
     while !context.render_settings.should_close {
         update_window_events();
+        recalc_display_values();
         now := seconds_since_init();
         raw_delta: float64 = now - last_time;
         delta := cast(float32)raw_delta;

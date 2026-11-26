@@ -103,8 +103,8 @@ debug_inspector_ui :: () {
     }
 
     current_time := to_float64_seconds(current_time_monotonic());
-    w, h := get_render_dimensions(window);
-    ui_per_frame_update(window, w, h, current_time);
+    w, h := get_render_dimensions(context.render_settings.window);
+    ui_per_frame_update(context.render_settings.window, w, h, current_time);
 
     if context.inspector_state.inspector_window.open {
         add_subwindow(*context.inspector_state.inspector_window, *context.room_editor_state.theme.subwindow_theme);

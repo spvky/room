@@ -72,9 +72,9 @@ init_room_editor :: () {
 
         ui_init();
         proc := default_theme_procs[0];
-        context.room_editor_state.theme = proc();
-        set_default_theme(context.room_editor_state.theme);
-        context.room_editor_state.theme.label_theme.alignment = .Left;
+        res.theme = proc();
+        set_default_theme(res.theme);
+        res.theme.label_theme.alignment = .Left;
 
         context.room_editor_state = res;
     }
