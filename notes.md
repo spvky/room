@@ -72,3 +72,12 @@ Player Speed:
 3. Better movement, and ways to make that matter whithin room design
 4. Ability to serialize and hold multiple maps (this one is pretty easy)
 
+
+11/25/2026 11:05:18 PM
+La-Mulana style backside rooms, and a starting area modeled after la-mulanas starting area
+backside rooms are a different color
+rooms with a BG door allow transitioning between the back and frontside, could introduce them mid game similar to la mulana
+
+Should you have to take rooms with you physically? or should they all be uploaded to the system and accessible from any terminal?
+
+to simplify, always put backside doors in the center of the room
