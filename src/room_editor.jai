@@ -19,33 +19,11 @@ Room_Editor_State :: struct {
     mouse_captured: bool;
     kb_captured: bool;
 
-    core_window: Subwindow_Info = .{
-                                    rect = #run get_rect(5, cast(float32)WINDOW_HEIGHT - 750, 350, 740),
-                                    draw = draw_core_room_window,
-                                    open = true,
-                                    title_text = "Room"};
-    entity_window: Subwindow_Info = .{
-                                      rect = #run get_rect(cast(float)WINDOW_WIDTH - 355, cast(float32)WINDOW_HEIGHT - 750, 350, 740),
-                                      draw = draw_entity_window,
-                                      open = true,
-                                      title_text = "Entity"};
-
-    actions_window: Subwindow_Info = .{
-                                       rect = #run get_rect(5, 20, 350, 300),
-                                       draw = draw_actions_window,
-                                       open = true,
-                                       title_text = "Actions"};
-
-    collection_window: Subwindow_Info = .{
-                                          rect = #run get_rect(cast(float)WINDOW_WIDTH - 355, 20, 350, 300),
-                                          draw = draw_collection_window,
-                                          title_text = "Collection"};
-
-    load_window: Subwindow_Info = .{
-                                    rect = #run get_rect((cast(float32)WINDOW_WIDTH / 2) - 400, cast(float32)WINDOW_HEIGHT - 800, 800, 600),
-                                    open = false,
-                                    draw = draw_load_window,
-                                    title_text = "Load"};
+    core_window: Subwindow_Info;
+    entity_window: Subwindow_Info;
+    actions_window: Subwindow_Info;
+    collection_window: Subwindow_Info;
+    load_window: Subwindow_Info;
 }
 
 Room_Editor_Click_Mode :: enum u8 {
@@ -63,14 +41,42 @@ Room_Editor_Click_Mode :: enum u8 {
 
 init_room_editor :: () {
     if !context.room_editor_state {
-        context.room_editor_state = New(Room_Editor_State);
-        context.room_editor_state.current_room = New(Room);
+        res := New(Room_Editor_State);
+        res.current_room = New(Room);
+
+        res.core_window = .{
+                            rect = get_rect(5, get_screen_line(1, .Y, .PHYSICAL) - 750, 350, 740),
+                            draw = draw_core_room_window,
+                            open = true,
+                            title_text = "Room"};
+
+        res.entity_window = .{
+                              rect = get_rect(get_screen_line(1, .X, .PHYSICAL) - 355, get_screen_line(1, .Y, .PHYSICAL) - 750, 350, 740),
+                              draw = draw_entity_window,
+                              open = true,
+                              title_text = "Entity"};
+        res.actions_window = .{
+                               rect = get_rect(5, 20, 350, 300),
+                               draw = draw_actions_window,
+                               open = true,
+                               title_text = "Actions"};
+        res.collection_window = .{
+                                  rect = get_rect(get_screen_line(1, .X, .PHYSICAL) - 355, 20, 350, 300),
+                                  draw = draw_collection_window,
+                                  title_text = "Collection"};
+        res.load_window = .{
+                            rect = get_rect(get_screen_line(0.5, .X, .PHYSICAL) - 400, get_screen_line(1, .Y, .PHYSICAL) - 800, 800, 600),
+                            open = false,
+                            draw = draw_load_window,
+                            title_text = "Load"};
 
         ui_init();
         proc := default_theme_procs[0];
-        context.room_editor_state.theme = proc();
-        set_default_theme(context.room_editor_state.theme);
-        context.room_editor_state.theme.label_theme.alignment = .Left;
+        res.theme = proc();
+        set_default_theme(res.theme);
+        res.theme.label_theme.alignment = .Left;
+
+        context.room_editor_state = res;
     }
 }
 
@@ -113,7 +119,7 @@ render_wall_volume_fill :: () {
 
 render_mode_text :: () {
     screen_x := 360;
-    screen_y := (cast(int)WINDOW_HEIGHT) - 50;
+    screen_y := (cast(int)context.render_settings.physical.height) - 50;
     mode_string := tprint("%", context.room_editor_state.editor_click_mode);
     draw_text(context.atlas.font, screen_x, screen_y, mode_string);
     if context.room_editor_state.editor_click_mode == .MAKE_WALL || context.room_editor_state.editor_click_mode == .MAKE_WALL_VOLUME {
@@ -330,8 +336,8 @@ render_room_editor_ui :: () {
     editor_state := context.room_editor_state;
 
     current_time := to_float64_seconds(current_time_monotonic());
-    w, h := get_render_dimensions(window);
-    editor_state.mouse_captured, editor_state.kb_captured = ui_per_frame_update(window, w, h, current_time);
+    w, h := get_render_dimensions(context.render_settings.window);
+    editor_state.mouse_captured, editor_state.kb_captured = ui_per_frame_update(context.render_settings.window, w, h, current_time);
 
     add_subwindow(*editor_state.core_window, *editor_state.theme.subwindow_theme);
     add_subwindow(*editor_state.entity_window, *editor_state.theme.subwindow_theme);
@@ -838,7 +844,7 @@ get_mouse_editor_cell :: () -> Coord, bool {
     tile_height, grid_height, left_boundary, right_boundary, bot_boundary, top_boundary := get_tile_ui_data(height);
     mouse_x, mouse_y, ok := get_mouse_pointer_position();
 
-    mouse_y = WINDOW_HEIGHT - mouse_y; // Flip mouse y to match grid row ordering
+    mouse_y = context.render_settings.physical.height - mouse_y; // Flip mouse y to match grid row ordering
     in_bounds: bool;
 
     mouse_x = (mouse_x - xx left_boundary - xx tile_height) / xx tile_height;
@@ -1049,7 +1055,7 @@ map_position_display :: (left: float32, right: float32, top: float32, bot: float
             immediate_quad(min, Vector2.{max.x, min.y}, max, Vector2.{min.x, max.y}, color);
 
             raw_x, raw_y, ok := get_mouse_pointer_position();
-            raw_y = WINDOW_HEIGHT - raw_y;
+            raw_y = context.render_settings.physical.height - raw_y;
 
             if ok {
                 mouse_x := cast(float32)raw_x;

@@ -6,7 +6,7 @@ MAP_WIDTH :: 10;
 MAP_HEIGHT :: 10;
 WORLD_WIDTH :: #run ROOM_WIDTH * MAP_WIDTH + (MAP_WIDTH + COLUMN_WIDTH);
 WORLD_HEIGHT :: #run ROOM_HEIGHT * MAP_HEIGHT + (MAP_HEIGHT + COLUMN_WIDTH);
-TILE_SIZE: float: 32;
+TILE_SIZE: float: 18;
 
 Coord :: struct {
     x: s16;
@@ -129,6 +129,7 @@ Collision_Tile :: enum u8 {
 
 World :: struct {
     collision: [WORLD_WIDTH * WORLD_HEIGHT]Collision_Tile;
+    auto_tile_info: [WORLD_WIDTH * WORLD_HEIGHT]Neighboring_Tiles;
     rooms: [MAP_WIDTH * MAP_HEIGHT]Map_Room;
     room_effects: [..]Room_Effect;
 }

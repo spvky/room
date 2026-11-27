@@ -19,7 +19,10 @@ init_camera :: () {
 
 camera_smoothing :: (delta: float32) {
     if distance(context.camera.target_position, context.camera.position) > 1 {
-        context.camera.position = lerp(context.camera.position, context.camera.target_position, delta * context.camera.smoothing);
+        position := lerp(context.camera.position, context.camera.target_position, delta * context.camera.smoothing);
+        // raw_position.x = floor(raw_position.x);
+        // raw_position.y = floor(raw_position.y);
+        context.camera.position = position;
     }
 }
 

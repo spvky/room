@@ -1,24 +1,18 @@
-window: Window_Type;
-should_close: bool;
-WINDOW_WIDTH := 1920;
-WINDOW_HEIGHT := 1080;
 last_time: float64;
 
 main :: () {
-    window = create_window(WINDOW_WIDTH, WINDOW_HEIGHT, "Room");
-    set_render_target(window);
     init();
-
     start_game();
-    while !should_close {
+    while !context.render_settings.should_close {
         update_window_events();
+        recalc_display_values();
         now := seconds_since_init();
         raw_delta: float64 = now - last_time;
         delta := cast(float32)raw_delta;
 
         // Clamp Delta to make debugging easier but also alert that our delta is slow
         if delta >= 0.008333 {
-            // print("Unusually High Delta: %, clamping to 0.008333 (120 FPS)\n", delta);
+            print("Unusually High Delta: %, clamping to 0.008333 (120 FPS)\n", delta);
             delta = 0.008333;
         }
         last_time = now;
@@ -48,9 +42,9 @@ start_game :: () {
 }
 
 init :: () {
+    init_render_settings();
     init_camera();
     init_player();
-    init_rendering();
     init_events();
     init_textures();
     init_animations();
@@ -80,6 +74,7 @@ init :: () {
 #import "GetRect";
 #import "File_Utilities";
 #import "Random";
+#import "Trees";
 #import "stb_image_write";
 GL :: #import "GL";
 #load "animations.jai";
@@ -99,7 +94,7 @@ GL :: #import "GL";
 #load "physics.jai";
 #load "sprites.jai";
 #load "dev_util.jai";
-#load "quadtree.jai";
+// #load "quadtree.jai";
 #load "parsing.jai";
 #load "inspector.jai";
 #load "text.jai";

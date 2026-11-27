@@ -1,22 +1,26 @@
 Inspector_State :: struct {
     current_handle: Entity_Handle;
-    inspector_window: Subwindow_Info = .{
-                                         rect = #run get_rect(cast(float32)WINDOW_WIDTH - 405, cast(float32)WINDOW_HEIGHT - 880, 400, 870),
-                                         draw = draw_inspector_window,
-                                         open = false,
-                                         title_text = "Inspector"};
-    player_data_window: Subwindow_Info = .{
-                                           rect = #run get_rect(5, cast(float32)WINDOW_HEIGHT - 260, 250, 250),
-                                           draw = draw_player_data_window,
-                                           open = false,
-                                           title_text = "Player"};
+    inspector_window: Subwindow_Info;
+    player_data_window: Subwindow_Info;
 }
 
 #add_context inspector_state: *Inspector_State;
 
 init_inspector :: () {
     if !context.inspector_state {
-        context.inspector_state = New(Inspector_State);
+        state := New(Inspector_State);
+        state.inspector_window = .{
+                                   rect = get_rect(get_screen_line(1, .X, .PHYSICAL) - 405, get_screen_line(1, .Y, .PHYSICAL) - 880, 400, 870),
+                                   draw = draw_inspector_window,
+                                   open = false,
+                                   title_text = "Inspector"};
+        state.player_data_window = .{
+                                     rect = get_rect(5, get_screen_line(1, .Y, .PHYSICAL) - 260, 250, 250),
+                                     draw = draw_player_data_window,
+                                     open = false,
+                                     title_text = "Player"};
+
+        context.inspector_state = state;
     }
 }
 
@@ -99,8 +103,8 @@ debug_inspector_ui :: () {
     }
 
     current_time := to_float64_seconds(current_time_monotonic());
-    w, h := get_render_dimensions(window);
-    ui_per_frame_update(window, w, h, current_time);
+    w, h := get_render_dimensions(context.render_settings.window);
+    ui_per_frame_update(context.render_settings.window, w, h, current_time);
 
     if context.inspector_state.inspector_window.open {
         add_subwindow(*context.inspector_state.inspector_window, *context.room_editor_state.theme.subwindow_theme);

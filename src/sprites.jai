@@ -8,7 +8,7 @@ BUTTON_OFF_SPRITE: Sprite;
 Sprite_UVs :: [4]Vector2;
 
 draw_one_tile_entity :: (entity: *Entity) {
-    atlas := *context.atlas.tile_atlas;
+    atlas := *context.atlas.industrial_atlas;
     pos, extents := cam_relative_pos_extents(entity.position, .{TILE_SIZE, TILE_SIZE});
     color := Vector4.{1, 1, 1, 1};
     uvs: UV_Quad;
@@ -17,38 +17,30 @@ draw_one_tile_entity :: (entity: *Entity) {
 
     if entity.tag == {
     case .CRATE;
-        uvs = uv_quad_from_atlas(atlas, 0);
+        uvs = uv_quad_from_atlas(atlas, 8);
     case .LEVER;
         if entity_has_flags(entity, .POWERED) {
-            uvs = uv_quad_from_atlas(atlas, 8);
+            uvs = uv_quad_from_atlas(atlas, 7);
         } else {
-            uvs = uv_quad_from_atlas(atlas, 9);
+            uvs = uv_quad_from_atlas(atlas, 6);
         }
     case .BUTTON;
         if entity_has_flags(entity, .POWERED) {
-            uvs = uv_quad_from_atlas(atlas, 12);
+            uvs = uv_quad_from_atlas(atlas, 23);
         } else {
-            uvs = uv_quad_from_atlas(atlas, 13);
+            uvs = uv_quad_from_atlas(atlas, 22);
         }
     case .ASSEMBLER;
-        if entity_has_flags(entity, .POWERED) {
-            uvs = uv_quad_from_atlas(atlas, 10);
-        } else {
-            uvs = uv_quad_from_atlas(atlas, 11);
-        }
+        uvs = uv_quad_from_atlas(atlas, 24);
     case .WATER_PIPE;
-        if entity_has_flags(entity, .POWERED) {
-            uvs = uv_quad_from_atlas(atlas, 15);
-        } else {
-            uvs = uv_quad_from_atlas(atlas, 14);
-        }
+        uvs = uv_quad_from_atlas(atlas, 40);
     case .GEAR;
         uvs = get_current_animation_frame_quad(*context.animations.gears);
     case .ROOM_PICKUP;
         room_ptr := table_find_pointer(context.room_table, entity.room_pickup_hash);
         if room_ptr {
             pos.y += 4 + context.camera.zoom * 4.0 * cast(float32)sin(last_time * 4);
-            uvs = uv_quad_from_atlas(atlas, 19);
+            uvs = uv_quad_from_atlas(atlas, 25);
             has_been_picked_up := room_ptr.flags & .PICKED_UP == .PICKED_UP;
             if has_been_picked_up {
                 color = .{1, 1, 1, 0.2};
@@ -83,8 +75,6 @@ draw_wall :: (entity: *Entity) {
 
 draw_player :: (entity: *Entity) {
     set_shader_for_images(*context.atlas.character_atlas.texture);
-    player_render_extents := Vector2.{TILE_SIZE * 1.5, TILE_SIZE * 2.5};
-    player_offset := Vector2.{0, TILE_SIZE / 1.35};
     uvs := get_current_animation_frame_quad(*context.animations.player, !context.player_data.facing_right);
     pos, extents := cam_relative_pos_extents(entity.position, context.player_data.PLAYER_EXTENTS);
     offset := context.player_data.PLAYER_OFFSET * context.camera.zoom;

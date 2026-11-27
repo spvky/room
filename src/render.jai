@@ -1,19 +1,81 @@
 DISPLAY_WIDTH :: #run cast(s32)(TILE_SIZE * 40); // 320;
 DISPLAY_HEIGHT :: #run cast(s32)((cast(float32)TILE_SIZE * 22.5)); // 180;
 
-#add_context gameplay_texture: *Texture;
+Render_Settings :: struct {
+    gameplay_texture: Texture;
+    physical: Display_Info;
+    digital: Display_Info;
+    gameplay: Display_Info;
+    window: Window_Type;
+    should_close: bool;
+}
 
-init_rendering :: () {
-    if !context.gameplay_texture {
-        context.gameplay_texture = New(Texture);
-        context.gameplay_texture.* = texture_create_render_target(DISPLAY_WIDTH, DISPLAY_WIDTH, xx 4, .No_Skip_Mipmaps);
+Display_Info :: struct {
+    width: s32;
+    height: s32;
+    clear_color: Vector4;
+}
+
+Screen_Axis :: enum {
+    X;
+    Y;
+}
+
+Screen_Kind :: enum {
+    PHYSICAL;
+    GAMEPLAY;
+    DIGITAL;
+}
+
+get_screen_line :: (percentage: float, axis: Screen_Axis, kind: Screen_Kind) -> float {
+    margin: float;
+    rs := context.render_settings;
+    if kind == {
+    case .PHYSICAL;
+        if axis == {
+        case .X;
+            margin = percentage * (cast(float)rs.physical.width);
+        case .Y;
+            margin = percentage * (cast(float)rs.physical.height);
+        }
+    case .DIGITAL;
+        if axis == {
+        case .X;
+            margin = percentage * (cast(float)rs.digital.width);
+        case .Y;
+            margin = percentage * (cast(float)rs.digital.height);
+        }
+    case .GAMEPLAY;
+        if axis == {
+        case .X;
+            margin = percentage * (cast(float)rs.gameplay.width);
+        case .Y;
+            margin = percentage * (cast(float)rs.gameplay.height);
+        }
+    }
+    return margin;
+}
+
+#add_context render_settings: *Render_Settings;
+
+init_render_settings :: () {
+    if !context.render_settings {
+        rs := New(Render_Settings);
+        rs.physical = Display_Info.{1920, 1080, .{0, 0, 0, 1}};
+        rs.digital = Display_Info.{1920, 1080, .{0, 0, 0, 1}};
+        rs.gameplay = Display_Info.{cast(s32)(TILE_SIZE * 40), cast(s32)((cast(float32)TILE_SIZE * 22.5)), .{0.2, 0.1, 0.5, 1}};
+
+        rs.window = create_window(rs.physical.width, rs.physical.height, "Room");
+        set_render_target(rs.window);
+        rs.gameplay_texture = texture_create_render_target(rs.gameplay.width, rs.gameplay.height, xx 4, .No_Skip_Mipmaps);
+        context.render_settings = rs;
     }
 }
 
 get_tile_ui_data :: (height: int) -> float32, float32, float32, float32, float32, float32 {
-    tile_height: float32 = (cast(float32)(WINDOW_HEIGHT - 50) / cast(float32)height);
+    tile_height: float32 = (cast(float32)(context.render_settings.physical.height - 50) / cast(float32)height);
     grid_height: float32 = tile_height * cast(float32)height;
-    left_boundary: float32 = (cast(float32)WINDOW_WIDTH - grid_height) / 2;
+    left_boundary: float32 = (cast(float32)context.render_settings.physical.width - grid_height) / 2;
     right_boundary: float32 = left_boundary + grid_height;
     bot_boundary: float32 = 25.0;
     top_boundary: float32 = bot_boundary + grid_height;
@@ -22,7 +84,9 @@ get_tile_ui_data :: (height: int) -> float32, float32, float32, float32, float32
 }
 
 render :: () {
-    clear_render_target(0.2, 0.1, 0.5, 1);
+    // using context.render_settings.physical.clear_color;
+    clear_color := ifx context.game_state == .GAMEPLAY then context.render_settings.physical.clear_color else context.render_settings.gameplay.clear_color;
+    clear_render_target(clear_color);
     if context.game_state == {
     case .MAP_PLACEMENT;
         render_map_placement_scene();
@@ -32,7 +96,7 @@ render :: () {
         render_room_editor_scene();
     }
 
-    swap_buffers(window);
+    swap_buffers(context.render_settings.window);
 }
 
 render_grid :: () {
@@ -238,9 +302,24 @@ render_room_and_frame :: (room: *Room, position: Vector2, size: Vector2) {
     render_rune(room.rune, rune_pos, size * 0.25, .{1, 1, 1, 1});
 }
 
-// #GAMEPLAY_RENDERING
+recalc_display_values :: () {
+    for get_window_resizes() {
+        update_window(it.window);
+        rs := context.render_settings;
+        rs.physical.width = it.width;
+        rs.physical.height = it.height;
+        rs.digital.height = it.height;
+        rs.digital.width = cast(s32)((cast(float)rs.digital.height) * (16.0 / 9.0));
+
+        if rs.digital.width > rs.physical.width {
+            rs.digital.width = it.width;
+            rs.digital.height = cast(s32)((cast(float)rs.digital.width) * (9.0 / 16.0));
+        }
+    }
+}
+
 render_gameplay_scene :: () {
-    set_render_target(context.gameplay_texture);
+    set_render_target(*context.render_settings.gameplay_texture);
     // Set the GL_Nearest flag to remove antialiasing
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
@@ -250,19 +329,34 @@ render_gameplay_scene :: () {
         clear_render_target(0, 0.4, 0.6, 1);
     }
     render_entities();
+    draw_int_grid();
     draw_immediate_dots();
     draw_quadtree(context.collision_tree);
 
     if context.debug_mode.on {
         debug_render_colliders();
     }
-    set_render_target(window);
-    set_shader_for_images(context.gameplay_texture);
+    set_render_target(context.render_settings.window);
+    set_shader_for_images(*context.render_settings.gameplay_texture);
+
+    rs := context.render_settings;
+
+    center_x := (cast(float)rs.physical.width / 2.0);
+    half_x := (cast(float)rs.digital.width / 2.0);
+    left := center_x - half_x;
+    right := center_x + half_x;
+
+    center_y := (cast(float)rs.physical.height / 2.0);
+    half_y := (cast(float)rs.digital.height / 2.0);
+    top := center_y - half_y;
+    bot := center_y + half_y;
+
     sv: [4]Vector2;
-    sv[0] = .{0, 0};
-    sv[1] = .{xx WINDOW_WIDTH, 0};
-    sv[2] = .{xx WINDOW_WIDTH, xx WINDOW_WIDTH};
-    sv[3] = .{0, xx WINDOW_WIDTH};
+    sv[0] = .{left, top};
+    sv[1] = .{right, top};
+    sv[2] = .{right, bot};
+    sv[3] = .{left, bot};
+
     if context.screen_effects.current_effects & .SHAKE == .SHAKE {
         shake := context.screen_effects.shake_magnitude / 2;
 

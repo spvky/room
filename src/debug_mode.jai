@@ -9,7 +9,6 @@ init_debug_mode :: () {
     if !context.debug_mode {
         context.debug_mode = New(Debug_Mode_State);
         context.debug_mode.dots_to_draw.allocator = temp;
-        array_reserve(*context.debug_mode.dots_to_draw, 4096);
     }
 }
 
@@ -21,6 +20,10 @@ Dot :: struct {
 
 immediate_dot :: (pos: Vector2, radius: float32, color: Vector4 = .{1, 1, 1, 1}) {
     array_add(*context.debug_mode.dots_to_draw, Dot.{pos, radius, color});
+}
+
+debug_mode_upkeep :: () {
+    // array_reserve(*context.debug_mode.dots_to_draw, 4096);
 }
 
 draw_immediate_dots :: () {

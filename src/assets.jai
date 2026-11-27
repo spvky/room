@@ -3,6 +3,7 @@ Asset_Atlas :: struct {
     tile_atlas: Sprite_Atlas;
     character_atlas: Sprite_Atlas;
     factory_atlas: Sprite_Atlas;
+    industrial_atlas: Sprite_Atlas;
     room_frame_texture: Texture;
     collision_circle: Texture;
     moving_block_texture: Texture;
@@ -27,6 +28,7 @@ init_textures :: () {
     atlas.tile_atlas = load_sprite_atlas_from_file("tiles_32.png", 16, 16);
     atlas.factory_atlas = load_sprite_atlas_from_file("factory.png", 3, 3);
     atlas.character_atlas = load_sprite_atlas_from_file("main_character.png", 16, 9);
+    atlas.industrial_atlas = load_sprite_atlas_from_file("tilemaps/industrial.png", 7, 16);
 
     ok := texture_load_from_memory(*atlas.room_frame_texture, cast([]u8)frame_bytes);
     if !ok print("Failed to load room frame texture from memory!\n");
@@ -37,6 +39,6 @@ init_textures :: () {
     ok = texture_load_from_memory(*atlas.moving_block_texture, cast([]u8)moving_block_bytes);
     if !ok print("Failed to load moving block texture from memory!\n");
     atlas.player_sprite = make_sprite(*atlas.collision_circle);
-    pixel_height := WINDOW_HEIGHT / 24;
+    pixel_height := context.render_settings.physical.height / 24;
     atlas.font = get_font_at_size("assets", "OpenSans-BoldItalic.ttf", pixel_height);
 }

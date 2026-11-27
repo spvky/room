@@ -85,7 +85,7 @@ process_input :: (delta: float32) {
     // Debug escape, this will eventually not do that
     for event: events_this_frame {
         if event.key_code == .ESCAPE && event.key_pressed {
-            should_close = true;
+            context.render_settings.should_close = true;
             break;
         }
     }

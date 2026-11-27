@@ -75,11 +75,18 @@ gameplay_update :: (delta: float32) {
         player_apply_speed(delta);
         moving_block_velocity();
         manage_floating_text(delta);
-        build_collision_tree(.{300, 1000}, .{2000, 2000}, 8);
+        // build_collision_tree(.{300, 1000}, .{2000, 2000}, 8);
+        physical_entities: [..]*Entity;
+        physical_entities.allocator = temp;
+        for *context.entities {
+            if entity_has_props(it, .PHYSICAL) then array_add(*physical_entities, it);
+        }
+        context.collision_tree = build_quad_tree(.{300, 1000}, .{2000, 2000}, 8, physical_entities, aabb_from_entity,, temp);
         // Collision
         sensor_collision();
-        body_collision(delta);
-        handle_water_nodes();
+        // body_collision(delta);
+        process_physical_collisions();
+        // handle_water_nodes();
 
         // Dynamics
         apply_gravity(delta);
@@ -93,7 +100,7 @@ gameplay_update :: (delta: float32) {
     inspector_entity_picking();
 
     // Cleanup
-    table_reset(context.dynamic_collision_hashes);
+    table_reset_keeping_memory(context.collision_hashes);
 }
 
 advance_animation_timers :: (delta: float32) {

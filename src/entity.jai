@@ -411,7 +411,7 @@ make_wall :: (left: int, right: int, top: int, bot: int, kind: Collision_Tile) {
         entity.shape_kind = .RECTANGLE;
         entity.extents = Vector2.{f_right - f_left, f_top - f_bot};
         entity.tag = .WALL;
-        entity.props = .RENDERABLE | .STATIC | .SOLID | .FOREGROUND | .WATER_COLLISION | .PHYSICAL;
+        entity.props = .STATIC | .SOLID | .FOREGROUND | .WATER_COLLISION | .PHYSICAL;
         entity_add(entity);
     case .TOP_HALF;
         entity: Entity;
@@ -525,4 +525,17 @@ hydrate :: (entity: *Entity) {
         entity.props = .RENDERABLE | .PICKUP | .TEXT_DISPLAY | .INTERACTABLE;
         entity.extents = Vector2.{TILE_SIZE, TILE_SIZE};
     }
+}
+
+aabb_from_entity :: (e: *Entity) -> Bounding_Box {
+    bb: Bounding_Box;
+    if e.shape_kind == {
+    case .RECTANGLE;
+        bb.center = e.position;
+        bb.extents = e.extents;
+    case .CIRCLE;
+        bb.center = e.position;
+        bb.extents = Vector2.{e.radius, e.radius};
+    }
+    return bb;
 }

@@ -59,12 +59,12 @@ Axis_Interval_Pair :: struct {
 
 Static_Collision_Table :: Table(Entity_Handle, [..]Axis_Interval_Pair, given_hash_function = handle_hash, given_compare_function = handle_compare);
 Static_Raycast_Table :: Table(Entity_Handle, [..][2]Vector2, given_hash_function = handle_hash, given_compare_function = handle_compare);
-Dynamic_Collision_Hashes :: Table(u64, void);
+Collision_Hashes :: Table(u64, void);
 
 #add_context static_collision_table: *Static_Collision_Table;
 #add_context static_raycast_table: *Static_Raycast_Table;
-#add_context dynamic_collision_hashes: *Dynamic_Collision_Hashes;
-#add_context collision_tree: *Quad_Tree_Node;
+#add_context collision_hashes: *Collision_Hashes;
+#add_context collision_tree: *Quad_Tree_Node(Entity);
 
 entity_edges :: (r: *Entity) -> [4][2]Vector2, bool {
     edges: [4][2]Vector2;
@@ -97,12 +97,12 @@ init_collision_tables :: () {
         context.static_raycast_table = New(Static_Raycast_Table);
     }
 
-    if !context.dynamic_collision_hashes {
-        context.dynamic_collision_hashes = New(Dynamic_Collision_Hashes);
+    if !context.collision_hashes {
+        context.collision_hashes = New(Collision_Hashes);
     }
 
     if !context.collision_tree {
-        context.collision_tree = New(Quad_Tree_Node);
+        context.collision_tree = New(Quad_Tree_Node(Entity));
     }
 }
 
@@ -115,12 +115,12 @@ pair_handle_hash :: (a: Entity_Handle, b: Entity_Handle) -> u64 #expand {
     return final_hash;
 }
 
-dynamic_collision_has_been_solved_this_frame :: (a: Entity_Handle, b: Entity_Handle) -> bool {
+collision_has_been_solved_this_frame :: (a: Entity_Handle, b: Entity_Handle) -> bool {
     hash := pair_handle_hash(a, b);
-    if table_contains(context.dynamic_collision_hashes, hash) {
+    if table_contains(context.collision_hashes, hash) {
         return true;
     } else {
-        table_set(context.dynamic_collision_hashes, hash, default_of(void));
+        table_set(context.collision_hashes, hash, default_of(void));
         return false;
     }
 }
@@ -192,6 +192,43 @@ dynamic_vs_static_collision_test :: (d: *Entity, s: *Entity, mode := Collision_M
     return collision, true;
 }
 
+collision_test :: (a: *Entity, b: *Entity) -> Collision, bool #expand {
+    collision: Collision;
+    if a.shape_kind == .CIRCLE && b.shape_kind == .CIRCLE {
+        dist := distance(a.position, b.position);
+        radii := a.radius + b.radius;
+        if dist < radii {
+            normal := normalize(b.position - a.position);
+            depth := radii - dist;
+            return Collision.{normal, depth}, true;
+        } else {
+            return collision, false;
+        }
+    }
+    axes: [..]Vector2;
+    axes.allocator = temp;
+    // TODO: actually calculate axes instead of just testing x/y here
+    array_add(*axes, Vector2.{1, 0});
+    array_add(*axes, Vector2.{0, 1});
+
+    min_depth: float32 = FLOAT32_MAX;
+    for axes {
+        ia := project_entity_along_axis(a, it);
+        ib := project_entity_along_axis(b, it);
+        overlaps, depth := overlap(ia, ib);
+        if overlaps {
+            if depth < min_depth {
+                min_depth = depth;
+                collision.depth = depth;
+                collision.normal = it;
+            }
+        } else {
+            return collision, false;
+        }
+    }
+    return collision, true;
+}
+
 dynamic_vs_dynamic_collision_test :: (a: *Entity, b: *Entity, mode := Collision_Mode.SAT) -> Collision, bool {
     collision: Collision;
     if a.shape_kind == .CIRCLE && b.shape_kind == .CIRCLE {
@@ -234,14 +271,22 @@ dynamic_vs_dynamic_collision_test :: (a: *Entity, b: *Entity, mode := Collision_
     return collision, true;
 }
 
-circle_cast :: (self: *Entity, origin: Vector2, direction: Vector2, radius: float, step_length: float, properties_mask: Entity_Properties, max_steps := 100, debug_display := false) -> Shapecast_Hit, bool {
+circle_cast :: (self: *Entity, origin: Vector2, direction: Vector2, radius: float, step_length: float, query_proc: (*Entity) -> bool, max_steps := 100, debug_display := false) -> Shapecast_Hit, bool {
     shapecast: Shapecast_Hit;
+
+    queried_entities: [..]*Entity;
+    queried_entities.allocator = temp;
+    array_reserve(*queried_entities, context.collision_tree.capacity * 4);
+
     for 0..max_steps {
         distance := (cast(float)it) * step_length;
         pos := origin + (distance * direction);
 
-        for *entity: context.entities {
-            if (!entity_has_props(entity, properties_mask) || entity == self) continue;
+        range := bounding_box_from_circle(pos, radius);
+        query_quad_tree_into_dynamic_array(context.collision_tree, range, *queried_entities, query_proc);
+
+        for entity: queried_entities {
+            if entity == self continue;
             collision, did_collide := circle_entity_collision_test(pos, radius, entity);
             if debug_display {
                 display_position, _ := cam_relative_pos_extents(pos, .{});
@@ -259,20 +304,33 @@ circle_cast :: (self: *Entity, origin: Vector2, direction: Vector2, radius: floa
                 return shapecast, true;
             }
         }
+        array_reset_keeping_memory(*queried_entities);
     }
     return shapecast, false;
 }
 
 // Cast-cade, heh heh, currenty assumes the initial direction is horizontal, which is fine for now since water nodes are its only consumer
-cascading_circle_cast :: (self: *Entity, origin: Vector2, direction: Vector2, radius: float, step_length: float, properties_mask: Entity_Properties, max_steps := 100, max_falling_steps := 100, debug_display := false) -> Cascadecast_Hit {
+cascading_circle_cast :: (self: *Entity, origin: Vector2, direction: Vector2, radius: float, step_length: float, query_proc: (*Entity) -> bool, max_steps := 100, max_falling_steps := 100, debug_display := false) -> Cascadecast_Hit {
     cascade_hit: Cascadecast_Hit;
+
+    queried_entities: [..]*Entity;
+    queried_entities.allocator = temp;
+    array_reserve(*queried_entities, context.collision_tree.capacity * 4);
+
+    vertical_entities: [..]*Entity;
+    vertical_entities.allocator = temp;
+    array_reserve(*vertical_entities, context.collision_tree.capacity * 4);
+
     fall_position: Vector2;
     for 0..max_steps {
         distance := (cast(float)it) * step_length;
         pos := origin + (distance * direction);
 
-        for *entity: context.entities {
-            if (!entity_has_props(entity, properties_mask) || entity == self) continue;
+        range := bounding_box_from_circle(pos, radius);
+        query_quad_tree_into_dynamic_array(context.collision_tree, range, *queried_entities, query_proc);
+
+        for entity: queried_entities {
+            if entity == self continue;
             collision, did_collide := circle_entity_collision_test(pos, radius, entity);
             if debug_display {
                 display_position, _ := cam_relative_pos_extents(pos, .{});
@@ -296,14 +354,18 @@ cascading_circle_cast :: (self: *Entity, origin: Vector2, direction: Vector2, ra
             } else {
                 // I think we only need one quick check here for right below the initial shape_cast
                 collision_under_cast: bool;
-                for *vert_entity: context.entities {
-                    if (!entity_has_props(vert_entity, properties_mask) || vert_entity == self) continue;
+
+                query_quad_tree_into_dynamic_array(context.collision_tree, range, *vertical_entities, query_proc);
+
+                for vert_entity: context.entities {
+                    if vert_entity == self continue;
                     _, vert_did_collide := circle_entity_collision_test(pos - .{0, step_length}, radius, vert_entity);
                     if vert_did_collide {
                         collision_under_cast = true;
                         break;
                     }
                 }
+                array_reset_keeping_memory(*vertical_entities);
                 if !collision_under_cast {
                     cascade_hit.falling_position = pos;
                     cascade_hit.hit_kind = .NO_HIT_FALLING;
@@ -311,6 +373,7 @@ cascading_circle_cast :: (self: *Entity, origin: Vector2, direction: Vector2, ra
                 }
             }
         }
+        array_reset_keeping_memory(*queried_entities);
     }
     cascade_hit.hit_kind = .NO_HIT_UH_OH;
     return cascade_hit;
@@ -465,4 +528,29 @@ static_rectangle_nearest_point :: (p: Vector2, e: *Entity) -> Vector2 {
     ret.x = clamp(p.x, min_x, max_x);
     ret.y = clamp(p.y, min_y, max_y);
     return ret;
+}
+
+draw_quadtree :: (q: *Quad_Tree_Node(Entity)) {
+    if q {
+        if q.subdivided {
+            for q.children {
+                a := *it;
+                draw_quadtree(*it);
+            }
+        }
+        p: [4]Vector2;
+        using q.bounding_box;
+        pos, real_extents := cam_relative_pos_extents(center, extents);
+        he := real_extents / 2;
+        _: Vector2;
+        p[0] = pos + Vector2.{-he.x, he.y};
+        p[1] = pos + Vector2.{-he.x, -he.y};
+        p[2] = pos + Vector2.{he.x, -he.y};
+        p[3] = pos + Vector2.{he.x, he.y};
+        thickness := 0.5;
+        draw_line(p[0], p[1], thickness = thickness);
+        draw_line(p[1], p[2], thickness = thickness);
+        draw_line(p[2], p[3], thickness = thickness);
+        draw_line(p[3], p[0], thickness = thickness);
+    }
 }

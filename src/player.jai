@@ -20,8 +20,8 @@ Player_Data :: struct {
     player_flags: Player_Temp_Flags;
     facing_right: bool = true;
 
-    PLAYER_OFFSET :: Vector2.{0, TILE_SIZE / 1.35};
-    PLAYER_EXTENTS :: Vector2.{TILE_SIZE * 1.5, TILE_SIZE * 2.5};
+    PLAYER_OFFSET :: Vector2.{0, 25};
+    PLAYER_EXTENTS :: Vector2.{48, 80};
 }
 
 pdata_has_temp_flags :: (f: Player_Temp_Flags) -> bool #expand {
@@ -107,6 +107,7 @@ reset_player :: () {
     restore_snapshot();
     context.player_data.state = .IDLE;
     context.player_data.prev_state = .IDLE;
+    set_animation(*context.animations.player, *PLAYER_IDLE_ANIMATION);
     print("Resetting Player: %\n", context.player_data.last_stable_ground);
 }
 
@@ -313,29 +314,33 @@ make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> E
     entity.movement_delta.x = 0;
 
     player_handle := entity_add(entity, e = e);
+    add_player_default_children(player_handle, e = e);
+    return player_handle;
+}
 
+add_player_default_children :: (player_handle: Entity_Handle, e := context.entities) {
     // Feet Collider
     fc: Entity;
-    fc.offset = Vector2.{0, -TILE_SIZE / 4};
+    fc.offset = Vector2.{0, -6};
     fc.shape_kind = .CIRCLE;
-    fc.radius = TILE_SIZE / 4;
+    fc.radius = 8;
     fc.tag = .PLAYER_FEET_COLLIDER;
     fc.props = .DYNAMIC | .RELATIVE_POSITION | .RELATIVE_ROTATION | .PRESSES_BUTTONS | .NO_HANDLE_REFRESH | .COLLIDER | .PHYSICAL;
     entity_add_child(player_handle, fc, e = e);
 
     // Head Collider
     hc: Entity;
-    hc.offset = Vector2.{0, TILE_SIZE / 5};
+    hc.offset = Vector2.{0, 8};
     hc.shape_kind = .CIRCLE;
-    hc.radius = TILE_SIZE / 5;
+    hc.radius = 6;
     hc.tag = .PLAYER_FEET_COLLIDER;
     hc.props = .DYNAMIC | .RELATIVE_POSITION | .RELATIVE_ROTATION | .PRESSES_BUTTONS | .NO_HANDLE_REFRESH | .COLLIDER | .PHYSICAL;
     entity_add_child(player_handle, hc, e = e);
 
     // Ground Sensor Entity
     gse: Entity;
-    gse.offset = Vector2.{0, -TILE_SIZE / 2};
-    gse.extents = Vector2.{TILE_SIZE * 0.4, TILE_SIZE / 8};
+    gse.offset = Vector2.{0, -15};
+    gse.extents = Vector2.{10, 2};
     gse.shape_kind = .RECTANGLE;
     gse.tag = .GROUND_SENSOR;
     gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_HANDLE_REFRESH | .PHYSICAL;
@@ -343,8 +348,8 @@ make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> E
 
     // Left Wall Sensor Entity
     lws: Entity;
-    lws.offset = Vector2.{-TILE_SIZE / 4, 0};
-    lws.extents = Vector2.{TILE_SIZE / 8, TILE_SIZE * 0.8};
+    lws.offset = Vector2.{-8, 0};
+    lws.extents = Vector2.{2, 18};
     lws.shape_kind = .RECTANGLE;
     lws.tag = .LEFT_SENSOR;
     lws.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_HANDLE_REFRESH | .PHYSICAL;
@@ -352,13 +357,12 @@ make_player :: (position: Vector2, map_coord: Coord, e := context.entities) -> E
 
     // Right Wall Sensor Entity
     rws: Entity;
-    rws.offset = Vector2.{TILE_SIZE / 4, 0};
-    rws.extents = Vector2.{TILE_SIZE / 8, TILE_SIZE * 0.8};
+    rws.offset = Vector2.{8, 0};
+    rws.extents = Vector2.{2, 18};
     rws.shape_kind = .RECTANGLE;
     rws.tag = .RIGHT_SENSOR;
     rws.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION | .NO_HANDLE_REFRESH | .PHYSICAL;
     entity_add_child(player_handle, rws, e = e);
-    return player_handle;
 }
 
 store_player :: () {
@@ -373,13 +377,5 @@ store_player :: () {
 restore_player :: () {
     assert(context.player_data.has_stored_player, "Tried to restore an unstored player!\n");
     context.player_handle.* = entity_add(context.player_data.stored_player);
-
-    // Ground Sensor Entity
-    gse: Entity;
-    gse.offset = Vector2.{0, -TILE_SIZE / 2};
-    gse.extents = Vector2.{TILE_SIZE * 0.8, TILE_SIZE / 8};
-    gse.shape_kind = .RECTANGLE;
-    gse.tag = .GROUND_SENSOR;
-    gse.props = .SENSOR | .RELATIVE_POSITION | .RELATIVE_ROTATION;
-    entity_add_child(context.player_handle.*, gse);
+    add_player_default_children(context.player_handle.*);
 }
