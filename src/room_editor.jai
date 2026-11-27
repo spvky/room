@@ -45,13 +45,13 @@ init_room_editor :: () {
         res.current_room = New(Room);
 
         res.core_window = .{
-                            rect = get_rect(5, get_screen_line(.TOP, .PHYSICAL) - 750, 350, 740),
+                            rect = get_rect(5, get_screen_line(1, .Y, .PHYSICAL) - 750, 350, 740),
                             draw = draw_core_room_window,
                             open = true,
                             title_text = "Room"};
 
         res.entity_window = .{
-                              rect = get_rect(get_screen_line(.RIGHT, .PHYSICAL) - 355, get_screen_line(.TOP, .PHYSICAL) - 750, 350, 740),
+                              rect = get_rect(get_screen_line(1, .X, .PHYSICAL) - 355, get_screen_line(1, .Y, .PHYSICAL) - 750, 350, 740),
                               draw = draw_entity_window,
                               open = true,
                               title_text = "Entity"};
@@ -61,11 +61,11 @@ init_room_editor :: () {
                                open = true,
                                title_text = "Actions"};
         res.collection_window = .{
-                                  rect = get_rect(get_screen_line(.RIGHT, .PHYSICAL) - 355, 20, 350, 300),
+                                  rect = get_rect(get_screen_line(1, .X, .PHYSICAL) - 355, 20, 350, 300),
                                   draw = draw_collection_window,
                                   title_text = "Collection"};
         res.load_window = .{
-                            rect = get_rect(get_screen_line(.CENTER_X, .PHYSICAL) - 400, get_screen_line(.TOP, .PHYSICAL) - 800, 800, 600),
+                            rect = get_rect(get_screen_line(0.5, .X, .PHYSICAL) - 400, get_screen_line(1, .Y, .PHYSICAL) - 800, 800, 600),
                             open = false,
                             draw = draw_load_window,
                             title_text = "Load"};

@@ -16,13 +16,9 @@ Display_Info :: struct {
     clear_color: Vector4;
 }
 
-Screen_Line :: enum {
-    TOP;
-    BOT;
-    LEFT;
-    RIGHT;
-    CENTER_X;
-    CENTER_Y;
+Screen_Axis :: enum {
+    X;
+    Y;
 }
 
 Screen_Kind :: enum {
@@ -31,48 +27,30 @@ Screen_Kind :: enum {
     DIGITAL;
 }
 
-get_screen_line :: (line: Screen_Line, kind: Screen_Kind) -> float {
+get_screen_line :: (percentage: float, axis: Screen_Axis, kind: Screen_Kind) -> float {
     margin: float;
     rs := context.render_settings;
     if kind == {
     case .PHYSICAL;
-        if line == {
-        case .TOP;
-            margin = cast(float)rs.physical.height;
-        case .BOT;
-            margin = 0;
-        case .LEFT;
-            margin = 0;
-        case .RIGHT;
-            margin = cast(float)rs.physical.width;
-        case .CENTER_X;
-            margin = (cast(float)rs.physical.width) / 2;
-        case .CENTER_Y;
-            margin = (cast(float)rs.physical.height) / 2;
+        if axis == {
+        case .X;
+            margin = percentage * (cast(float)rs.physical.width);
+        case .Y;
+            margin = percentage * (cast(float)rs.physical.height);
         }
     case .DIGITAL;
-        if line == {
-        case .TOP;
-            margin = cast(float)rs.physical.height;
-        case .BOT;
-            margin = 0;
-        case .LEFT;
-            margin = 0;
-        case .RIGHT;
-            margin = cast(float)rs.physical.width;
-        case .CENTER_X;
-            margin = (cast(float)rs.physical.width) / 2;
-        case .CENTER_Y;
-            margin = (cast(float)rs.physical.height) / 2;
+        if axis == {
+        case .X;
+            margin = percentage * (cast(float)rs.digital.width);
+        case .Y;
+            margin = percentage * (cast(float)rs.digital.height);
         }
     case .GAMEPLAY;
-        if line == {
-        case .TOP;
-        case .BOT;
-        case .LEFT;
-        case .RIGHT;
-        case .CENTER_X;
-        case .CENTER_Y;
+        if axis == {
+        case .X;
+            margin = percentage * (cast(float)rs.gameplay.width);
+        case .Y;
+            margin = percentage * (cast(float)rs.gameplay.height);
         }
     }
     return margin;

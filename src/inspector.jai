@@ -10,12 +10,12 @@ init_inspector :: () {
     if !context.inspector_state {
         state := New(Inspector_State);
         state.inspector_window = .{
-                                   rect = get_rect(get_screen_line(.RIGHT, .PHYSICAL) - 405, get_screen_line(.TOP, .PHYSICAL) - 880, 400, 870),
+                                   rect = get_rect(get_screen_line(1, .X, .PHYSICAL) - 405, get_screen_line(1, .Y, .PHYSICAL) - 880, 400, 870),
                                    draw = draw_inspector_window,
                                    open = false,
                                    title_text = "Inspector"};
         state.player_data_window = .{
-                                     rect = get_rect(5, get_screen_line(.TOP, .PHYSICAL) - 260, 250, 250),
+                                     rect = get_rect(5, get_screen_line(1, .Y, .PHYSICAL) - 260, 250, 250),
                                      draw = draw_player_data_window,
                                      open = false,
                                      title_text = "Player"};

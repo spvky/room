@@ -423,7 +423,7 @@ map_screen_update :: () {
 
 render_map_screen_controls :: () {
     screen_x := 15;
-    screen_y := (cast(int)get_screen_line(.TOP, .PHYSICAL)) - 50;
+    screen_y := (cast(int)get_screen_line(1, .Y, .PHYSICAL)) - 50;
     draw_text(context.atlas.font, screen_x, screen_y, "WASD - MOVE");
     screen_y -= 100;
     if context.map_screen_state.cursor_state == {
