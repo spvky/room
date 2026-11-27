@@ -2,7 +2,7 @@ calculate_water_flow :: (entity: *Entity) {
     water_query :: (it: *Entity) -> bool {
         return entity_has_props(it, .WATER_COLLISION) && !entity_has_props(it, .SENSOR);
     }
-    debug_display := true;
+    debug_display := entity.tag == .WATER_NODE_GROUND;
     if entity.tag == {
     case .WATER_PIPE; #through;
     case .WATER_NODE_FALLING;
@@ -17,39 +17,40 @@ calculate_water_flow :: (entity: *Entity) {
             }
         }
     case .WATER_NODE_GROUND;
-        if !entity_has_flags(entity, .LEFT_BLOCKED) {
-            left_cascade_hit := cascading_circle_cast(entity, entity.position, .{-1, 0}, TILE_SIZE, TILE_SIZE / 4, query_proc = water_query, debug_display = debug_display);
-            print("Left Hit: %\n", left_cascade_hit.hit_kind);
-            if left_cascade_hit.hit_kind == {
-            case .HIT_FALLING_WATER;
-            case .HIT_GROUNDED_WATER;
-            case .HIT_SOLID;
-                entity.flags |= .LEFT_BLOCKED;
-            case .NO_HIT_FALLING;
-                make_water_node(left_cascade_hit.falling_position, false);
-            case .NO_HIT_UH_OH;
-            }
+        // if !entity_has_flags(entity, .LEFT_BLOCKED) {
+        left_cascade_hit := cascading_circle_cast(entity, entity.position, .{-1, 0}, TILE_SIZE / 2, TILE_SIZE, query_proc = water_query, debug_display = debug_display);
+        print("Left Hit: %\n", left_cascade_hit.hit_kind);
+        if left_cascade_hit.hit_kind == {
+        case .HIT_FALLING_WATER;
+        case .HIT_GROUNDED_WATER;
+        case .HIT_SOLID;
+            entity.flags |= .LEFT_BLOCKED;
+        case .NO_HIT_FALLING;
+            make_water_node(left_cascade_hit.falling_position, false);
+        case .NO_HIT_UH_OH;
         }
+        // }
 
-        if !entity_has_flags(entity, .RIGHT_BLOCKED) {
-            right_cascade_hit := cascading_circle_cast(entity, entity.position, .{1, 0}, TILE_SIZE, TILE_SIZE / 4, query_proc = water_query, debug_display = debug_display);
-            print("Right Hit: %\n", right_cascade_hit.hit_kind);
-            if right_cascade_hit.hit_kind == {
-            case .HIT_FALLING_WATER;
-            case .HIT_GROUNDED_WATER;
-            case .HIT_SOLID;
-                entity.flags |= .RIGHT_BLOCKED;
-            case .NO_HIT_FALLING;
-                make_water_node(right_cascade_hit.falling_position, false);
-            case .NO_HIT_UH_OH;
-            }
+        // if !entity_has_flags(entity, .RIGHT_BLOCKED) {
+        right_cascade_hit := cascading_circle_cast(entity, entity.position, .{1, 0}, TILE_SIZE / 2, TILE_SIZE, query_proc = water_query, debug_display = debug_display);
+        print("Right Hit: %\n", right_cascade_hit.hit_kind);
+        if right_cascade_hit.hit_kind == {
+        case .HIT_FALLING_WATER;
+        case .HIT_GROUNDED_WATER;
+        case .HIT_SOLID;
+            entity.flags |= .RIGHT_BLOCKED;
+        case .NO_HIT_FALLING;
+            make_water_node(right_cascade_hit.falling_position, false);
+        case .NO_HIT_UH_OH;
         }
+        // }
     }
 }
 
 handle_water_nodes :: () {
     for *context.entities {
         if (it.tag != .WATER_PIPE && it.tag != .WATER_NODE_FALLING && it.tag != .WATER_NODE_GROUND) continue;
+        print("Processing %\n", it.tag);
         calculate_water_flow(it);
     }
 }
@@ -57,12 +58,11 @@ handle_water_nodes :: () {
 make_water_node :: (position: Vector2, is_grounded_node: bool, e := context.entities) {
     entity: Entity;
 
-    print("Made water node\n");
     entity.position = position;
     if is_grounded_node then entity.position += .{0, TILE_SIZE / 4};
     entity.shape_kind = .CIRCLE;
     entity.radius = TILE_SIZE / 2;
-    entity.props = .WATER_COLLISION | .WATER_NODE | .RENDERABLE;
+    entity.props = .WATER_COLLISION | .WATER_NODE | .RENDERABLE | .PHYSICAL;
 
     if is_grounded_node {
         entity.tag = .WATER_NODE_GROUND;

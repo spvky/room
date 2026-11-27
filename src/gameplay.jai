@@ -84,9 +84,8 @@ gameplay_update :: (delta: float32) {
         context.collision_tree = build_quad_tree(.{300, 1000}, .{2000, 2000}, 8, physical_entities, aabb_from_entity,, temp);
         // Collision
         sensor_collision();
-        // body_collision(delta);
         process_physical_collisions();
-        // handle_water_nodes();
+        handle_water_nodes();
 
         // Dynamics
         apply_gravity(delta);
