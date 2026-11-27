@@ -514,8 +514,8 @@ draw_quadtree :: (q: *Quad_Tree_Node(Entity)) {
         }
         p: [4]Vector2;
         using q.bounding_box;
-        pos, _ := cam_relative_pos_extents(center, .{});
-        he := extents / 2;
+        pos, real_extents := cam_relative_pos_extents(center, extents);
+        he := real_extents / 2;
         _: Vector2;
         p[0] = pos + Vector2.{-he.x, he.y};
         p[1] = pos + Vector2.{-he.x, -he.y};

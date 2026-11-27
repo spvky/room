@@ -8,7 +8,7 @@ BUTTON_OFF_SPRITE: Sprite;
 Sprite_UVs :: [4]Vector2;
 
 draw_one_tile_entity :: (entity: *Entity) {
-    atlas := *context.atlas.tile_atlas;
+    atlas := *context.atlas.industrial_atlas;
     pos, extents := cam_relative_pos_extents(entity.position, .{TILE_SIZE, TILE_SIZE});
     color := Vector4.{1, 1, 1, 1};
     uvs: UV_Quad;
@@ -17,7 +17,7 @@ draw_one_tile_entity :: (entity: *Entity) {
 
     if entity.tag == {
     case .CRATE;
-        uvs = uv_quad_from_atlas(atlas, 0);
+        uvs = uv_quad_from_atlas(atlas, 8);
     case .LEVER;
         if entity_has_flags(entity, .POWERED) {
             uvs = uv_quad_from_atlas(atlas, 8);

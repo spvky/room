@@ -83,8 +83,8 @@ get_tile_ui_data :: (height: int) -> float32, float32, float32, float32, float32
 }
 
 render :: () {
-    using context.render_settings.physical.clear_color;
-    clear_render_target(x, y, z, w);
+    // using context.render_settings.physical.clear_color;
+    clear_render_target(context.render_settings.physical.clear_color);
     if context.game_state == {
     case .MAP_PLACEMENT;
         render_map_placement_scene();
