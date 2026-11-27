@@ -20,9 +20,9 @@ draw_one_tile_entity :: (entity: *Entity) {
         uvs = uv_quad_from_atlas(atlas, 8);
     case .LEVER;
         if entity_has_flags(entity, .POWERED) {
-            uvs = uv_quad_from_atlas(atlas, 8);
+            uvs = uv_quad_from_atlas(atlas, 7);
         } else {
-            uvs = uv_quad_from_atlas(atlas, 9);
+            uvs = uv_quad_from_atlas(atlas, 6);
         }
     case .BUTTON;
         if entity_has_flags(entity, .POWERED) {

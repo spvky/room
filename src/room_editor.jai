@@ -61,7 +61,7 @@ init_room_editor :: () {
                                open = true,
                                title_text = "Actions"};
         res.collection_window = .{
-                                  rect = get_rect(get_screen_line(.RIGHT, .PHYSICAL), 20, 350, 300),
+                                  rect = get_rect(get_screen_line(.RIGHT, .PHYSICAL) - 355, 20, 350, 300),
                                   draw = draw_collection_window,
                                   title_text = "Collection"};
         res.load_window = .{

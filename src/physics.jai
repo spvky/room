@@ -134,7 +134,7 @@ solve_physical_collision :: (a: *Entity, b: *Entity) {
             player_feet, wall := sort(.PLAYER_FEET_COLLIDER, .WALL);
             is_oneway := entity_has_props(wall, .ONE_WAY);
             player_holding_down := is_action_held(.MOVE_DOWN);
-            is_below_wall := player_feet.position.y < wall.position.y;
+            is_below_wall := player_feet.position.y < (wall.position.y + (wall.extents.y / 2));
             player := entity_get(player_feet.parent);
             if player {
                 player_not_falling := player.velocity.y >= 0;

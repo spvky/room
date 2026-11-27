@@ -28,19 +28,42 @@ Screen_Line :: enum {
 Screen_Kind :: enum {
     PHYSICAL;
     GAMEPLAY;
+    DIGITAL;
 }
 
 get_screen_line :: (line: Screen_Line, kind: Screen_Kind) -> float {
     margin: float;
+    rs := context.render_settings;
     if kind == {
     case .PHYSICAL;
         if line == {
         case .TOP;
+            margin = cast(float)rs.physical.height;
         case .BOT;
+            margin = 0;
         case .LEFT;
+            margin = 0;
         case .RIGHT;
+            margin = cast(float)rs.physical.width;
         case .CENTER_X;
+            margin = (cast(float)rs.physical.width) / 2;
         case .CENTER_Y;
+            margin = (cast(float)rs.physical.height) / 2;
+        }
+    case .DIGITAL;
+        if line == {
+        case .TOP;
+            margin = cast(float)rs.physical.height;
+        case .BOT;
+            margin = 0;
+        case .LEFT;
+            margin = 0;
+        case .RIGHT;
+            margin = cast(float)rs.physical.width;
+        case .CENTER_X;
+            margin = (cast(float)rs.physical.width) / 2;
+        case .CENTER_Y;
+            margin = (cast(float)rs.physical.height) / 2;
         }
     case .GAMEPLAY;
         if line == {
@@ -84,7 +107,8 @@ get_tile_ui_data :: (height: int) -> float32, float32, float32, float32, float32
 
 render :: () {
     // using context.render_settings.physical.clear_color;
-    clear_render_target(context.render_settings.physical.clear_color);
+    clear_color := ifx context.game_state == .GAMEPLAY then context.render_settings.physical.clear_color else context.render_settings.gameplay.clear_color;
+    clear_render_target(clear_color);
     if context.game_state == {
     case .MAP_PLACEMENT;
         render_map_placement_scene();
