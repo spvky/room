@@ -26,29 +26,21 @@ draw_one_tile_entity :: (entity: *Entity) {
         }
     case .BUTTON;
         if entity_has_flags(entity, .POWERED) {
-            uvs = uv_quad_from_atlas(atlas, 12);
+            uvs = uv_quad_from_atlas(atlas, 23);
         } else {
-            uvs = uv_quad_from_atlas(atlas, 13);
+            uvs = uv_quad_from_atlas(atlas, 22);
         }
     case .ASSEMBLER;
-        if entity_has_flags(entity, .POWERED) {
-            uvs = uv_quad_from_atlas(atlas, 10);
-        } else {
-            uvs = uv_quad_from_atlas(atlas, 11);
-        }
+        uvs = uv_quad_from_atlas(atlas, 24);
     case .WATER_PIPE;
-        if entity_has_flags(entity, .POWERED) {
-            uvs = uv_quad_from_atlas(atlas, 15);
-        } else {
-            uvs = uv_quad_from_atlas(atlas, 14);
-        }
+        uvs = uv_quad_from_atlas(atlas, 40);
     case .GEAR;
         uvs = get_current_animation_frame_quad(*context.animations.gears);
     case .ROOM_PICKUP;
         room_ptr := table_find_pointer(context.room_table, entity.room_pickup_hash);
         if room_ptr {
             pos.y += 4 + context.camera.zoom * 4.0 * cast(float32)sin(last_time * 4);
-            uvs = uv_quad_from_atlas(atlas, 19);
+            uvs = uv_quad_from_atlas(atlas, 25);
             has_been_picked_up := room_ptr.flags & .PICKED_UP == .PICKED_UP;
             if has_been_picked_up {
                 color = .{1, 1, 1, 0.2};

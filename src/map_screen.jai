@@ -1,3 +1,4 @@
+// TODO: Refactor this based on render settings update after water physics
 LEFT_BOUND_PCT: float32: 0.30;
 RIGHT_BOUND_PCT: float32: 0.78125;
 LEFT_CHANNEL_MID_PCT: float32: #run LEFT_BOUND_PCT / 2;
