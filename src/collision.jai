@@ -359,7 +359,16 @@ cascading_circle_cast :: (self: *Entity, origin: Vector2, direction: Vector2, ra
 
                 for vert_entity: context.entities {
                     if vert_entity == self continue;
-                    _, vert_did_collide := circle_entity_collision_test(pos - .{0, step_length}, radius, vert_entity);
+                    _, vert_did_collide := circle_entity_collision_test(pos - .{0, step_length / 2}, radius, vert_entity);
+
+                    if debug_display {
+                        display_position, _ := cam_relative_pos_extents(pos - .{0, step_length / 2}, .{});
+                        if vert_did_collide {
+                            immediate_dot(display_position, radius, .{0, 0, 1, 0.3});
+                        } else {
+                            immediate_dot(display_position, radius, .{1, 1, 1, 0.3});
+                        }
+                    }
                     if vert_did_collide {
                         collision_under_cast = true;
                         break;
@@ -367,6 +376,7 @@ cascading_circle_cast :: (self: *Entity, origin: Vector2, direction: Vector2, ra
                 }
                 array_reset_keeping_memory(*vertical_entities);
                 if !collision_under_cast {
+                    print("No Collision under cast!\n");
                     cascade_hit.falling_position = pos;
                     cascade_hit.hit_kind = .NO_HIT_FALLING;
                     return cascade_hit;

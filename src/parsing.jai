@@ -17,6 +17,7 @@ reset_world_tilemap :: () {
         for y: 0..WORLD_HEIGHT - 1 {
             idx := coord_to_index(.{xx x, xx y}, .WORLD);
             world.collision[idx] = .BLANK;
+            world.auto_tile_info[idx] = 0;
         }
     }
 }

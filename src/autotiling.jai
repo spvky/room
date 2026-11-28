@@ -18,10 +18,7 @@ draw_int_grid :: () {
             if nt == 0 then continue;
             pos := Vector2.{xx x * TILE_SIZE, xx y * TILE_SIZE} + (Vector2.{TILE_SIZE, TILE_SIZE} / 2);
             position, extents := cam_relative_pos_extents(pos, .{TILE_SIZE, TILE_SIZE});
-
             draw_tile(position, extents, nt);
-            // pos and extents defined here will allow calling
-            // draw_quad(uv_quad) for now
         }
     }
 }
